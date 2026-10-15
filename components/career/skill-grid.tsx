@@ -1,7 +1,7 @@
 "use client";
 
 import { BASE_PATH } from "@/lib/base-path";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
 import { Check } from "lucide-react";
 import type { Skill } from "@/lib/analysis-types";
@@ -10,10 +10,10 @@ import { TIERS, TIER_LABEL, groupByTier, stateOf, type Tier } from "@/lib/radar-
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
 import { RadarLegend, SkillRadar } from "@/components/career/skill-radar";
 import { Term } from "@/components/career/term";
-import { BestArt, GapArt, Gauge, MatchArt } from "@/components/career/stat-tile-art";
+import { BestArt, GapArt, MatchArt } from "@/components/career/stat-tile-art";
 import type { TermId } from "@/lib/glossary";
 import { radarFacts } from "@/lib/radar-facts";
-import { wantDots, wantOf } from "@/lib/skill-levels";
+import { SOME_FROM, STRONG_FROM, proofOf, wantDots, wantOf, type Want } from "@/lib/skill-levels";
 import { PROOF_STEP_TOTAL } from "@/lib/proof-steps";
 import { Popup } from "@/components/popup";
 
@@ -71,11 +71,12 @@ export function MatchesBody({ skills }: { skills: Skill[] }) {
   </>;
 }
 
-const pct = (n: number) => Math.max(0, Math.min(100, n)) + "%";
 const upper = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
-/** A tile is a vertical card: label, big figure, a plain line, three rows and a closing line. All three tiles use this one frame, so they line up. */
-function Tile({ kind, icon, term, art, head, list, foot }: { kind: "best" | "gap" | "match"; icon: PixelIconName; term: TermId; art: ReactNode; head: ReactNode; list?: ReactNode; foot: string }) {
+const WANT_WORDS = { High: "asks for it a lot", Medium: "asks for it", Low: "mentions it lightly" } as const;
+
+/** A tile is a vertical card: label, a big figure with a plain line, then its picture. All three tiles use this one frame, so they line up. */
+function Tile({ kind, icon, term, art, head, list }: { kind: "best" | "gap" | "match"; icon: PixelIconName; term: TermId; art: ReactNode; head: ReactNode; list?: ReactNode }) {
   return <li className={"so-tile " + kind}>
     {art}
     <div className="so-tile-body">
@@ -84,77 +85,102 @@ function Tile({ kind, icon, term, art, head, list, foot }: { kind: "best" | "gap
         {head}
       </div>
       {list}
-      <p className="so-tile-foot">{foot}</p>
     </div>
   </li>;
 }
 
-/** Five notches, one per proof step. Filled notches are steps the résumé passes. The notches are decoration, the row's figure is the text. */
-function Notches({ done, total = PROOF_STEP_TOTAL }: { done: number; total?: number }) {
-  return <span className="so-steps" aria-hidden="true">{Array.from({ length: total }, (_, i) => <i key={i} className={i < done ? "on" : ""} />)}</span>;
+const MEDAL = ["1st", "2nd", "3rd"] as const;
+
+/** Best proof as a podium: block height is the proof steps passed (0 to 5), the winner in the middle. The list under it is in rank order too, so it reads the same without the picture. */
+function Podium({ rows }: { rows: ReturnType<typeof radarFacts>["best"] }) {
+  return <div className="pd">
+    <ol className="pd-stand" aria-label="Top proven skills, best first">
+      {rows.map((row, index) => <li key={row.name} className={"pd-step r" + (index + 1)} style={{ "--s": row.steps } as CSSProperties}>
+        <b className="pd-fig">{row.steps}<small>/{PROOF_STEP_TOTAL}</small></b>
+        <span className="pd-block" aria-hidden="true">{index + 1}</span>
+        <span className="sr-only">{MEDAL[index]}: {row.name}, {row.steps} of {PROOF_STEP_TOTAL} steps{row.hasQuote ? ", quote found" : ", no quote"}</span>
+      </li>)}
+    </ol>
+    <ul className="pd-names" aria-hidden="true">
+      {rows.map((row, index) => <li key={row.name}><i className={"pd-chip r" + (index + 1)}>{index + 1}</i><span><b>{row.name}</b>{row.hasQuote && <span className="so-tick"> ✓</span>}<small>{upper(row.have)}.</small></span></li>)}
+    </ul>
+  </div>;
 }
 
-/** One list row: a marker, the name, a figure, a bar and a short note, so every tile reads the same way. */
-function Row({ mark, name, fig, meter, note, kind }: { mark: ReactNode; name: ReactNode; fig: ReactNode; meter: ReactNode; note: ReactNode; kind?: string }) {
-  return <li className={"so-row" + (kind ? " " + kind : "")}>
-    <span className="so-mark" aria-hidden="true">{mark}</span>
-    <span className="so-row-name">{name}</span>
-    <span className="so-row-fig">{fig}</span>
-    {meter}
-    <span className="so-row-note">{note}</span>
-  </li>;
+/** How much proof each ask needs, the same rule as the verdict (High needs Strong, Medium needs Some, Low needs Weak). */
+const ASK: Record<Want, { at: number; word: string }> = { High: { at: STRONG_FROM, word: "strong" }, Medium: { at: SOME_FROM, word: "some" }, Low: { at: 1, word: "weak" } };
+const GX = (value: number) => 8 + (Math.max(0, Math.min(100, value)) / 100) * 184;
+
+/** Biggest gap as a dumbbell: a filled dot where your proof sits, a ring where the role wants it, and the line between them is the gap. The shaded zones are Weak, Some and Strong proof. */
+function Dumbbell({ evidence, want }: { evidence: number; want: Want }) {
+  const ask = ASK[want];
+  return <svg className="gp-svg" viewBox="0 0 200 26" role="img" aria-label={`You show ${proofOf(evidence).toLowerCase()} proof. The role asks for ${ask.word}.`} focusable="false">
+    <rect className="gp-zone weak" x={GX(1)} y="3" width={GX(SOME_FROM) - GX(1)} height="20" />
+    <rect className="gp-zone some" x={GX(SOME_FROM)} y="3" width={GX(STRONG_FROM) - GX(SOME_FROM)} height="20" />
+    <rect className="gp-zone strong" x={GX(STRONG_FROM)} y="3" width={GX(100) - GX(STRONG_FROM)} height="20" />
+    <line className="gp-line" x1={GX(evidence)} x2={GX(ask.at)} y1="13" y2="13" />
+    <circle className="gp-ask" cx={GX(ask.at)} cy="13" r="6" />
+    <circle className="gp-you" cx={GX(evidence)} cy="13" r="6" />
+  </svg>;
 }
 
-const WANT_WORDS = { High: "asks for it a lot", Medium: "asks for it", Low: "mentions it lightly" } as const;
-const VERDICT_ROWS = [
-  ["covered", "Covered", "Your proof meets what the role asks."],
-  ["add", "Add proof", "You show it, but the role asks for more."],
-  ["missing", "Missing", "The role asks and nothing shows it yet."],
-] as const;
+const VERDICT_SWATCH = { covered: "Covered", add: "Add proof", missing: "Missing" } as const;
 
-/** Three quick facts next to the radar. Each shows three skills (or the three verdicts) in the same frame, all from the numbers the analysis already holds. Match shows only when the analysis carries one. */
+/** Match as a ring split by verdict: Covered, Add proof and Missing in that order, with the match percent in the middle. */
+function Donut({ pct, verdicts, total }: { pct: number; verdicts: Record<"covered" | "add" | "missing", number>; total: number }) {
+  let start = 0;
+  return <svg className="mt-ring" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+    <circle className="mt-track" cx="60" cy="60" r="44" pathLength={100} />
+    {total > 0 && (["covered", "add", "missing"] as const).map((key) => {
+      const share = (verdicts[key] / total) * 100;
+      const drawn = Math.max(0, share - 1.2);
+      const arc = share > 0 ? <circle key={key} className={"mt-seg " + key} cx="60" cy="60" r="44" pathLength={100} strokeDasharray={`${drawn} ${100 - drawn}`} strokeDashoffset={-start} /> : null;
+      start += share;
+      return arc;
+    })}
+    <text className="mt-pct" x="60" y="62" textAnchor="middle">{pct}%</text>
+    <text className="mt-sub" x="60" y="82" textAnchor="middle">match</text>
+  </svg>;
+}
+
+/** Three quick facts next to the radar, each drawn a different way: a podium, a dumbbell chart and a ring. All from the numbers the analysis already holds. Match shows only when the analysis carries one. */
 function StatTiles({ skills, matchPercent }: { skills: Skill[]; matchPercent?: number }) {
   if (!skills.length) return null;
   const facts = radarFacts(skills);
   const match = matchPercent === undefined ? 0 : Math.round(matchPercent);
   return <ul className="so-tiles" aria-label="Quick facts">
-    <Tile kind="best" icon="report" term="best-proof" art={<BestArt />} foot="Put these near the top of your résumé."
+    <Tile kind="best" icon="report" term="best-proof" art={<BestArt />}
       head={<>
         {facts.best.length > 0 && <span className="so-tile-row"><b className="so-tile-num">{facts.quotes}<small>/{facts.total}</small></b><span className="so-tile-unit">skills have a quote</span></span>}
         <span className="so-tile-cap">{facts.best.length ? "Your strongest skills. A tick means a quote backs it up." : "Nothing in your résumé matched a skill yet."}</span>
       </>}
-      list={facts.best.length > 0 && <ol className="so-list" aria-label="Top proven skills, best first">
-        {facts.best.map((row, index) => <Row key={row.name} mark={index + 1}
-          name={<>{row.name}{row.hasQuote && <span className="so-tick" aria-hidden="true"> ✓</span>}<span className="sr-only">{row.hasQuote ? ", quote found" : ", no quote"}</span></>}
-          fig={<><b>{row.steps}</b> of {PROOF_STEP_TOTAL} steps</>} meter={<Notches done={row.steps} />}
-          note={row.steps >= PROOF_STEP_TOTAL ? "All five proof steps are done." : upper(row.have) + "."} />)}
-      </ol>} />
-    <Tile kind="gap" icon="search" term="biggest-gap" art={<GapArt />} foot="The tips in stage 2 close these, one small project each."
+      list={facts.best.length > 0 && <Podium rows={facts.best} />} />
+    <Tile kind="gap" icon="search" term="biggest-gap" art={<GapArt />}
       head={<>
         {facts.gapCount > 0 && <span className="so-tile-row"><b className="so-tile-num">{facts.gapCount}<small>/{facts.total}</small></b><span className="so-tile-unit">skills fall short</span></span>}
-        <span className="so-tile-cap">{facts.gapCount ? "The role asks for these more than your résumé proves. The dots show how much it asks." : "Your proof meets what the role asks."}</span>
+        <span className="so-tile-cap">{facts.gapCount ? <span className="gp-key" aria-hidden="true"><span><i className="you" />You show</span><span><i className="ask" />Role asks</span></span> : "Your proof meets what the role asks."}</span>
       </>}
-      list={facts.gaps.length > 0 && <ol className="so-list" aria-label="Biggest gaps, largest first">
-        {facts.gaps.map((row, index) => {
-          const want = wantOf(row.demand);
-          return <Row key={row.name} mark={index + 1}
-            name={<>{row.name}<span className="so-dots sk-dots" role="img" aria-label={`The role ${WANT_WORDS[want]}`}>{[1, 2, 3].map((n) => <i key={n} className={n <= wantDots(want) ? "on" : ""} />)}</span></>}
-            fig={<><b>{row.steps}</b> of {PROOF_STEP_TOTAL} steps</>} meter={<Notches done={row.steps} />}
-            note={row.fix ? <><b>Next:</b> {row.fix}.</> : "All five proof steps are done."} />;
-        })}
-      </ol>} />
-    {matchPercent !== undefined && <Tile kind="match" icon="compass" term="match" art={<MatchArt />} foot="Match counts proof only. It is not a hiring chance."
-      head={<>
-        <span className="so-tile-row">
-          <b className="so-tile-num">{match}<small>%</small></b>
-          <Gauge pct={match} />
-        </span>
-        <span className="so-tile-cap">How much of what the role asks your résumé proves, skill by skill.</span>
-      </>}
-      list={<ul className="so-list" aria-label="Skills by verdict">
-        {VERDICT_ROWS.map(([key, word, note]) => <Row key={key} kind={"lv " + key} mark="" name={word} fig={<><b>{facts.verdicts[key]}</b> of {facts.total}</>}
-          meter={<span className="so-meter" aria-hidden="true"><i className="have" style={{ width: pct((facts.verdicts[key] / facts.total) * 100) }} /></span>} note={note} />)}
-      </ul>} />}
+      list={facts.gaps.length > 0 && <div className="gp">
+        <ol className="gp-list" aria-label="Biggest gaps, largest first">
+          {facts.gaps.map((row) => {
+            const want = wantOf(row.demand);
+            return <li key={row.name} className="gp-row">
+              <span className="gp-name">{row.name}<span className="so-dots sk-dots" role="img" aria-label={`The role ${WANT_WORDS[want]}`}>{[1, 2, 3].map((n) => <i key={n} className={n <= wantDots(want) ? "on" : ""} />)}</span></span>
+              <Dumbbell evidence={row.evidence} want={want} />
+              <span className="gp-note">{row.fix ? <><b>Next:</b> {row.fix}.</> : "All five proof steps are done."}</span>
+            </li>;
+          })}
+        </ol>
+        <p className="gp-axis" aria-hidden="true"><span /><span>Weak</span><span>Some</span><span>Strong</span></p>
+      </div>} />
+    {matchPercent !== undefined && <Tile kind="match" icon="compass" term="match" art={<MatchArt />}
+      head={<span className="so-tile-cap">How much of what the role asks your résumé proves, skill by skill.</span>}
+      list={<div className="mt">
+        <Donut pct={match} verdicts={facts.verdicts} total={facts.total} />
+        <ul className="mt-list" aria-label="Skills by verdict">
+          {(Object.keys(VERDICT_SWATCH) as (keyof typeof VERDICT_SWATCH)[]).map((key) => <li key={key} className={key}><i className={"mt-swatch " + key} aria-hidden="true" /><span>{VERDICT_SWATCH[key]}</span><b>{facts.verdicts[key]}<small> of {facts.total}</small></b></li>)}
+        </ul>
+      </div>} />}
   </ul>;
 }
 

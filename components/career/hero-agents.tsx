@@ -16,7 +16,11 @@ export function HeroAgents() {
     if (!el || typeof IntersectionObserver === "undefined") return;
     const watcher = new IntersectionObserver(([entry]) => el.classList.toggle("is-off", !entry.isIntersecting));
     watcher.observe(el);
-    return () => watcher.disconnect();
+    // The drifting clouds behind the hero pause too while the hero is off screen.
+    const hero = el.closest(".hero");
+    const heroWatcher = hero ? new IntersectionObserver(([entry]) => hero.classList.toggle("is-off", !entry.isIntersecting)) : null;
+    if (hero) heroWatcher?.observe(hero);
+    return () => { watcher.disconnect(); heroWatcher?.disconnect(); };
   }, []);
 
   return <div className="ha" ref={ref} aria-hidden="true">

@@ -57,12 +57,12 @@ function Chart({ skills, spec, variant, summary }: { skills: Plotted[]; spec: Ra
   </svg>;
 }
 
-/** The key under the radar: small pills, each a real sentence with a matching glyph (the glyphs are decoration). Terms carry the score explanations. */
+/** The key under the radar: one quiet line of three small keys. The glyphs are decoration, and each word's tooltip holds the longer explanation. */
 export function RadarLegend() {
   return <ul className="rd-legend" aria-label="How to read the radar">
-    <li className="rd-key have"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="proof">Have</Term></b><small>Your résumé shows it, with 2 or more proof steps.</small></span></li>
-    <li className="rd-key gap"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="gap">Gap</Term></b><small>Fewer than 2 proof steps, so a recruiter has little to check.</small></span></li>
-    <li className="rd-key wide"><i className="rd-glyph num" aria-hidden="true">3/5</i><span><b>Number</b><small>How many of the 5 <Term id="proof-score">proof steps</Term> your résumé passes for that skill: named, used in work, has a number, shows a result, shown twice. It is not a hiring chance.</small></span></li>
+    <li className="rd-key have"><i className="rd-glyph dot" aria-hidden="true" /><b><Term id="proof">Have</Term></b></li>
+    <li className="rd-key gap"><i className="rd-glyph dot" aria-hidden="true" /><b><Term id="gap">Gap</Term></b></li>
+    <li className="rd-key"><i className="rd-glyph num" aria-hidden="true">3/5</i><b><Term id="proof-score">Proof steps</Term></b></li>
   </ul>;
 }
 

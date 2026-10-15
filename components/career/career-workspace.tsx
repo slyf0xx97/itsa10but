@@ -1,6 +1,6 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { FileText, LoaderCircle, Play, RotateCcw, Upload, X } from "lucide-react";
 import type { AgentNote, Analysis, Resume } from "@/lib/analysis-types";
 import { sampleAnalysis, sampleJob } from "@/lib/analysis-types";
@@ -53,6 +53,15 @@ const heroPoints = [
   { icon: "abilities/verify-quotes.svg", lead: "Multi-agent checker to analyse and improve your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps.</> },
   { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>A <b>skills radar</b>, a breakdown of each skill and a short roadmap.</> },
 ];
+
+// Typing in the role box, or each step of a sample run, re-renders this whole component. These big panels only need to redraw when their own props change, so they are memoised.
+const HowItWorksPanel = memo(HowItWorks);
+const LevelUpPanel = memo(LevelUpChecklist);
+const SourcesPanel = memo(SourcesCard);
+const ReaderCardsPanel = memo(ReaderCards);
+const SynthesisPanel = memo(SynthesisDashboard);
+const RadarPanelMemo = memo(RadarPanel);
+const JourneyBarMemo = memo(JourneyBar);
 
 /** Header text for stage `index`, taken from lib/journey.ts so the journey bar and the stage headers always agree. */
 const header = (index: number) => ({ n: STAGES[index].number, title: STAGES[index].title, line: STAGES[index].line, scene: STAGES[index].scene });
@@ -130,6 +139,8 @@ export default function Home() {
   const shownMode: RunMode = sample ? "rules" : ranMode;
   const visibleAgents = busy ? stageAgents : analysis.agents;
   const visibleStep = busy ? processStep : 4;
+  const flow = useMemo(() => ({ active: busy ? activeAgent : -1, completed: visibleStep }), [busy, activeAgent, visibleStep]);
+  const madeUp = resumes[0]?.id.startsWith("example-");
   const [dropMsg, setDropMsg] = useState("");
   const dz = useDropZone(dropResume, stage === "idle");
 
@@ -403,7 +414,7 @@ export default function Home() {
                   {resumes.length > 0 && stage !== "reading" && <div className="fade-in"><SafetyPanel report={safetyReport} /></div>}
                 </section>
                 <aside className="check-guide" aria-label="Reader's guide">
-                  <SourcesCard firecrawlKey={keys.firecrawl} />
+                  <SourcesPanel firecrawlKey={keys.firecrawl} />
                 </aside>
               </div>
               <div className="actions">
@@ -424,8 +435,8 @@ export default function Home() {
               <p className="progress rs-progress" role="status" aria-live="polite">{busy ? handoff : ""}</p>
               {notice && <p className="notice mode-notice" role="status">{notice}</p>}
               {shownMode === "live" && <p className="mode-note">{liveRunNote(hasResult ? analysis.run : undefined)}</p>}
-              <ReaderCards agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} model={chosenModel(keys)} />
-              <SynthesisDashboard analysis={analysis} hasResult={hasResult} busy={busy} madeUp={resumes[0]?.id.startsWith("example-")} flow={{ active: busy ? activeAgent : -1, completed: visibleStep }} />
+              <ReaderCardsPanel agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} model={chosenModel(keys)} />
+              <SynthesisPanel analysis={analysis} hasResult={hasResult} busy={busy} madeUp={madeUp} flow={flow} />
             </div>
           </section>
         </div>
@@ -436,7 +447,7 @@ export default function Home() {
             <div className="stage-body">
               {busy
                 ? <div className="cl-item"><span className="cl-icon" aria-hidden="true">⏳</span><p className="cl-text"><strong className="cl-lead">The radar draws when the readers finish</strong></p></div>
-                : <div className={"radar-section" + (hasResult ? " reveal" : "")}><RadarTitle /><RadarPanel skills={analysis.skills} matchPercent={analysis.matchPercent} /></div>}
+                : <div className={"radar-section" + (hasResult ? " reveal" : "")}><RadarTitle /><RadarPanelMemo skills={analysis.skills} matchPercent={analysis.matchPercent} /></div>}
             </div>
           </section>
         </div>
@@ -444,19 +455,19 @@ export default function Home() {
         <div className="stage-row is-single">
           {/* No stage banner: the Level up panel carries its own h2 with the full title. */}
           <section className="stage" id="level-up" aria-labelledby="level-up-title">
-            <div className="stage-body"><LevelUpChecklist /></div>
+            <div className="stage-body"><LevelUpPanel /></div>
           </section>
         </div>
 
         <div className="stage-row is-single">
           <section className="stage" id="how-it-works" aria-labelledby="how-it-works-title">
-            <div className="stage-body"><HowItWorks /></div>
+            <div className="stage-body"><HowItWorksPanel /></div>
           </section>
         </div>
       </div>
     </main>
 
-    <JourneyBar busy={busy} hasResult={hasResult} hasInput={Boolean(job.trim() && resumes.length)} />
+    <JourneyBarMemo busy={busy} hasResult={hasResult} hasInput={Boolean(job.trim() && resumes.length)} />
 
     <footer className="site-footer"><div className="wrap ft-grid">
       <div className="ft-text">

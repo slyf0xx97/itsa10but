@@ -37,20 +37,14 @@ function Ring({ value }: { value: number }) {
 }
 
 /**
- * The verified figures popup: a photo banner, the latest news with Refresh, the skill bars (2019 base plus the gain in green), the dated figures with their publisher logos. The latest news and its Refresh button come first.
+ * The verified figures popup: the latest news with Refresh, the skill bars (2019 base plus the gain in green), the dated figures with their publisher logos. The latest news and its Refresh button come first.
  * Every number comes from lib/sg-snapshot.ts and names its source. Photos are Unsplash (credited at the bottom), stored in public/assets/photos and never hotlinked.
  */
 export function SgFigures({ firecrawlKey = "" }: { firecrawlKey?: string }) {
   const workers = signals.find((signal) => signal.figure === "222,200");
   const others = signals.filter((signal) => signal !== workers);
   return <div className="sgf">
-    <figure className="sgf-banner">
-      <Image src={BASE_PATH + "/assets/photos/marina-bay.jpg"} width={1000} height={563} alt="Marina Bay in Singapore at sunset, with the city skyline across the water" unoptimized priority />
-      <figcaption>
-        <b>Singapore tech hiring</b>
-        <span>Every figure is dated and links to its source. Checked {SNAPSHOT_CHECKED}.</span>
-      </figcaption>
-    </figure>
+    <p className="sgf-lead">Every figure is dated and links to its source. Checked {SNAPSHOT_CHECKED}.</p>
 
     <section className="sgf-sec" aria-label="Latest news">
       <SgNews firecrawlKey={firecrawlKey} />
@@ -113,6 +107,6 @@ export function SgFigures({ firecrawlKey = "" }: { firecrawlKey?: string }) {
       </ul>
     </section>
 
-    <p className="sgf-credit">Photos from Unsplash: <a href="https://unsplash.com/photos/CQhgno3yhv8" target="_blank" rel="noopener noreferrer">Marina Bay by Peter Nguyen</a> and <a href="https://unsplash.com/photos/CPs2X8JYmS8" target="_blank" rel="noopener noreferrer">developers by Tim van der Kuip</a>. They show places and people in general, not the companies behind the figures.</p>
+    <p className="sgf-credit">Photo from Unsplash: <a href="https://unsplash.com/photos/CPs2X8JYmS8" target="_blank" rel="noopener noreferrer">developers by Tim van der Kuip</a>. It shows people in general, not the companies behind the figures.</p>
   </div>;
 }

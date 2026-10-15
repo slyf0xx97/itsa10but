@@ -31,7 +31,7 @@
 .sgs-group a, .sgs-group .sgs-logo { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: #fff; transition: transform .12s, background-color .12s; }
 .sgs-group .sgs-logo { box-sizing: border-box; cursor: pointer; font: inherit; }
 .sgs-group a:hover, .sgs-group .sgs-logo:hover { transform: translateY(-2px); }
-.sgs-group a.sgs-more { display: inline-flex; place-items: initial; width: auto; height: auto; padding: 0 .8rem; border-radius: 999px; border-style: dashed; text-decoration: none; }
+.sgs-group a.sgs-more { display: inline-flex; align-items: center; justify-content: center; place-items: initial; width: auto; height: auto; min-height: 2.5rem; padding: .35rem 1.1rem; box-sizing: border-box; border-radius: 999px; border-style: dashed; text-decoration: none; }
 .rt-sites .sgs-jump { margin-top: .6rem; text-decoration: none; }
 .sgs-more { display: inline-flex; align-items: center; min-height: 2.5rem; padding: 0 .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .98rem; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; }
 .sgs-group img { display: block; width: 1.9rem; height: 1.9rem; border-radius: 50%; object-fit: contain; background: #fff; }
@@ -41,7 +41,6 @@
 
 /* The peek panels (hover or focus on a button): a photo and three figures, or the five groups with their logos. */
 .sgk { display: grid; gap: .6rem; }
-.sgk-photo { display: block; width: 100%; height: auto; aspect-ratio: 16 / 5; object-fit: cover; border: 1.5px solid var(--ink); border-radius: 10px; }
 .sgk-figs, .sgk-groups { display: grid; gap: .5rem; }
 .sgk-fig { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); align-items: baseline; gap: .5rem; font-size: 1rem; line-height: 1.35; }
 .sgk-fig b { font-size: 1.3rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; line-height: 1.1; }
@@ -113,9 +112,9 @@
 .role-input .role-field { display: flex; flex: 1 1 auto; flex-direction: column; }
 .role-input .role-field .ta-wrap { display: flex; flex: 1 1 auto; min-height: 8.5rem; }
 .role-input .role-field .ta-wrap textarea { flex: 1 1 auto; min-height: 8.5rem; resize: vertical; }
-.role-input textarea { min-height: 8.5rem; font-size: 1rem; line-height: 1.5; }
+.role-input textarea { min-height: 8.5rem; padding-bottom: 3rem; font-size: 1rem; line-height: 1.5; }
 .role-input .btn { font-size: 1.05rem; }
-.role-input textarea { background-color: rgb(255 255 255 / 80%); color: var(--ink); border: 1.5px solid var(--water-deep); border-radius: 12px; }
+.role-input textarea { background-color: rgb(255 255 255 / 80%); color: var(--ink); border: 1.5px dashed var(--water-deep); border-radius: 12px; }
 /* "How to add a role": a pill button that opens a wide panel over the page, so the section never grows. Three how-tos sit side by side in the panel. */
 .role-input .role-how { display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 2.75rem; margin: 0; padding: .4rem .9rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); color: var(--ink); font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; text-align: left; cursor: pointer; }
 .role-input .role-how:hover { background: var(--sky-soft); }
@@ -156,11 +155,6 @@
 /* Verified figures and news popup (components/sg-figures.tsx): a photo banner, skill bars, figure cards with the publisher's logo, then the latest news.
    Numbers use the reading font because the pixel font made the digits hard to tell apart. Photos are local files in public/assets/photos. */
 .sgf { display: grid; gap: 1.4rem; min-width: 0; }
-.sgf-banner { position: relative; margin: 0; overflow: hidden; aspect-ratio: 16 / 5; border: 2px solid var(--ink); border-radius: 16px; background: var(--water-deep); }
-.sgf-banner img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
-.sgf-banner figcaption { position: absolute; inset: auto 0 0 0; display: grid; gap: .1rem; padding: 2rem 1.1rem .8rem; background: linear-gradient(transparent, rgb(10 25 40 / 80%)); color: #fff; }
-.sgf-banner figcaption b { font-size: 1.5rem; font-weight: 800; line-height: 1.15; }
-.sgf-banner figcaption span { font-size: 1rem; line-height: 1.35; }
 .sgf-sec { display: grid; gap: .75rem; min-width: 0; }
 .sgf-sec > h3 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; line-height: 1.2; }
 .sgf-lead, .sgf-src-line { margin: 0; color: var(--ink); font-size: 1.02rem; line-height: 1.45; }
@@ -199,7 +193,6 @@
 .sgf-ai .sgs-ai-src img { border-radius: 4px; }
 .sgf-credit { margin: 0; color: var(--text-soft); font-size: .92rem; line-height: 1.4; }
 @media (max-width: 640px) {
-  .sgf-banner { aspect-ratio: 16 / 8; }
   .sgf-bars li { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .6rem; }
   .sgf-track { grid-column: 1 / -1; grid-row: 2; }
   .sgf-feature { grid-template-columns: minmax(0, 1fr); }
@@ -208,3 +201,8 @@
   .sgf-feature-body { padding: 0 1rem .95rem; }
   .sgf-feature > img { min-height: 0; aspect-ratio: 16 / 8; }
 }
+/* "Drop or choose a file" chip inside the role box, bottom right. It sits over the textarea's bottom padding, so the box keeps its height. */
+.role-input .rl-file { position: absolute; right: .55rem; bottom: .55rem; display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .15rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; line-height: 1.2; cursor: pointer; }
+.role-input .rl-file:hover:not(:disabled) { background: var(--lime); }
+.role-input .rl-file:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.role-input .rl-file:disabled { opacity: .55; cursor: not-allowed; }

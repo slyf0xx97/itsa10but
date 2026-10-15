@@ -1,7 +1,7 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
-import { useId, useRef, useState, type ClipboardEvent, type ReactNode } from "react";
-import { HelpCircle } from "lucide-react";
+import { useId, useMemo, useRef, useState, type ClipboardEvent, type ReactNode } from "react";
+import { HelpCircle, Paperclip } from "lucide-react";
 import { WordTip } from "@/components/career/word-tip";
 import { readResumeFile } from "@/lib/read-resume";
 import { runSafetyCheck } from "@/lib/safety";
@@ -73,7 +73,8 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
   const requestRef = useRef(0);
-  const flags = value ? runSafetyCheck([], value).injectionFlags : [];
+  const fileRef = useRef<HTMLInputElement>(null);
+  const flags = useMemo(() => (value ? runSafetyCheck([], value).injectionFlags : []), [value]);
 
   // A pasted LinkedIn job link is swapped for the public posting text when LinkedIn shares it.
   async function change(text: string) {
@@ -124,6 +125,14 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
     const replace = !value.trim() || (payload.kind === "link" && extractLinkedinJobId(added) !== null);
     void change(replace ? added : value.trimEnd() + "\n\n" + added.trim());
   }
+  // The "Choose a file" chip takes the same files as a drop, through the same picker and reader.
+  function choose(files: FileList | null) {
+    const picked = files ? pickJobFile(Array.from(files)) : null;
+    if (fileRef.current) fileRef.current.value = "";
+    if (!picked) return;
+    setError(""); setNote("");
+    if (picked.file) void load(picked.file, picked.message); else setError(picked.message);
+  }
   const zone = useDropZone(drop, !typing);
 
   return <div className="stack role-input">
@@ -133,8 +142,10 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
         <span className="rl-li"><LinkedInMark size={22} /><span>LinkedIn links work</span></span>
       </div>
       <div className={"ta-wrap" + (typing ? " typing" : "")}>
-        <textarea id="job-description" value={value} readOnly={typing} onChange={(event) => void change(event.target.value)} onPaste={paste} placeholder="Paste or drop a LinkedIn job link, the posting text, or a PDF, TXT or MD file…" />
+        <textarea id="job-description" value={value} readOnly={typing} onChange={(event) => void change(event.target.value)} onPaste={paste} placeholder="Paste a LinkedIn job link or the posting text…" />
         {typing && <span className="typing-caret" aria-hidden="true">▌</span>}
+        <input id="job-file" ref={fileRef} type="file" accept=".txt,.md,.pdf" className="sr-only" tabIndex={-1} onChange={(event) => choose(event.target.files)} />
+        <button type="button" className="rl-file" disabled={typing} onClick={() => fileRef.current?.click()}><Paperclip size={16} aria-hidden="true" /><span>Drop or choose a file</span></button>
         {zone.over && <span className="drop-hint" aria-hidden="true">Drop a link, text or file here</span>}
       </div>
       <p role="status" aria-live="polite" className="hint">{status || (zone.over ? "Drop it to add it to the role box." : "")}</p>

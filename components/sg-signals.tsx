@@ -48,7 +48,6 @@ export function SourcesCard({ firecrawlKey = "" }: { firecrawlKey?: string }) {
               label="Figures and news. Hover for a peek, press to open."
               word={<><Newspaper size={20} aria-hidden="true" /><span className="sgs-open-text">Figures and news</span></>}>
               <span className="sgk">
-                <Image className="sgk-photo" src={BASE_PATH + "/assets/photos/marina-bay.jpg"} width={400} height={225} alt="" unoptimized />
                 <span className="sgk-figs">{signals.slice(0, 3).map((signal) => <span key={signal.figure} className="sgk-fig"><b>{signal.figure}</b><span>{firstSentence(signal.text)}</span></span>)}</span>
                 <span className="sgk-more" aria-hidden="true">+{signals.length - 2} more figures, skill bars and news <ArrowRight size={16} focusable="false" /></span>
               </span>
