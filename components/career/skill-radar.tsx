@@ -1,6 +1,7 @@
 import { BASE_PATH } from "@/lib/base-path";
 import type { Skill } from "@/lib/analysis-types";
 import { skillArt } from "@/lib/skill-art";
+import { rankSkills } from "@/lib/dashboard-data";
 import { COMPACT, DOT, LINE, WIDE, layoutRadar, radarPoint, type RadarSpec } from "@/lib/radar-layout";
 import { PixelIcon } from "@/components/career/pixel-icons";
 import { Term } from "@/components/career/term";
@@ -33,7 +34,7 @@ function Chart({ skills, spec, variant, summary }: { skills: Skill[]; spec: Rada
     {skills.map((_, index) => { const [x, y] = radarPoint(spec, index, n, 100); return <line key={index} className="spoke" x1={cx} y1={cy} x2={x} y2={y} />; })}
     <polygon className="shape" points={items.map((item) => item.dot.join(",")).join(" ")} />
     {items.map((item) => <circle key={item.name} className={"dot" + (item.low ? " low" : "")} cx={item.dot[0]} cy={item.dot[1]} r={DOT} />)}
-    {items.map((item) => <text key={item.name} className="rd-score" x={item.score.x + item.score.w / 2} y={item.score.y + item.score.h / 2} fontSize={spec.scoreFont} textAnchor="middle" dominantBaseline="central">{item.value}</text>)}
+    {items.map((item) => <text key={item.name} className="rd-score" x={item.score.x + item.score.w / 2} y={item.score.y + item.score.h / 2} fontSize={spec.scoreFont} textAnchor="middle" dominantBaseline="central">{item.value}%</text>)}
     {items.map((item) => {
       const art = skillArt(item.name);
       const { chip } = item;
@@ -56,22 +57,22 @@ export function RadarLegend() {
   return <ul className="rd-legend" aria-label="How to read the radar">
     <li className="rd-key have"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="proof">Have</Term></b> your résumé shows it</span></li>
     <li className="rd-key gap"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="gap">Gap</Term></b> no proof yet</span></li>
-    <li className="rd-key"><i className="rd-glyph num" aria-hidden="true">70</i><span><b>Number</b> = <Term id="proof-score">proof score</Term> out of 100</span></li>
-    <li className="rd-key"><i className="rd-glyph num ask" aria-hidden="true">60</i><span><b><Term id="demand-score" /></b>: how much the role asks</span></li>
+    <li className="rd-key"><i className="rd-glyph num" aria-hidden="true">70%</i><span><b>Number</b> = your <Term id="proof-score">proof</Term>, in %. Not a hiring chance</span></li>
   </ul>;
 }
 
 /**
- * Radar of the reader's own proof per skill (0 to 100). Two drawings of the same data: the wide one for a roomy column, the
+ * Radar of the reader's own proof per skill (0% to 100%), the skills the role asks for most first. Two drawings of the same data: the wide one for a roomy column, the
  * compact one with larger units for phone widths (CSS shows one, by the figure's own width). Rows below carry the same data as text.
  */
 export function SkillRadar({ skills }: { skills: Skill[] }) {
   if (skills.length < 3) return null;
-  const summary = skills.map((skill) => `${skill.name} ${skill.evidence} out of 100`).join(", ");
+  const ranked = rankSkills(skills);
+  const summary = ranked.map((skill) => `${skill.name} ${skill.evidence} percent`).join(", ");
   return <figure className="radar">
     <div className="radar-box">
-      <Chart skills={skills} spec={WIDE_TIGHT} variant="wide" summary={summary} />
-      <Chart skills={skills} spec={COMPACT_TIGHT} variant="compact" summary={summary} />
+      <Chart skills={ranked} spec={WIDE_TIGHT} variant="wide" summary={summary} />
+      <Chart skills={ranked} spec={COMPACT_TIGHT} variant="compact" summary={summary} />
     </div>
   </figure>;
 }

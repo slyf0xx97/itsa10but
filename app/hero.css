@@ -3,7 +3,7 @@
    Loaded after ui.css, so these rules replace its .hero rules. Glass tokens come from theme.css. The hero has no background of its own:
    the fixed mountain scene (body::before in theme.css) shows through it. */
 .hero { display: block; position: relative; z-index: 2; overflow: visible; overflow-x: clip; isolation: isolate; padding: 1.5rem 0 1.5rem; background: none; color: var(--text); --ink-soft: var(--text-soft); }
-.hero-grid { position: relative; z-index: 5; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1.75rem; align-items: stretch; }
+.hero-grid { position: relative; z-index: 5; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.75rem; align-items: stretch; }
 .hero-text, .hero-card { min-width: 0; color: var(--ink); background: rgb(255 255 255 / 80%); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); border: 1.5px solid var(--glass-line); border-radius: 18px; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); }
 .hero-text { position: relative; z-index: 3; container: hero-plate / inline-size; display: flex; flex-direction: column; padding: 1.4rem 1.4rem 1.4rem; }
 .hero-card { display: grid; align-content: stretch; padding: .6rem 1.5rem; }
@@ -57,14 +57,14 @@
 }
 
 /* The four readers in the plate's empty space at the right. The column is absolutely positioned, so it never adds height: the plate is as tall as its text
-   and buttons (or the points card beside it). It only shows when the plate is wide enough to have spare room next to the 36rem lede (container query).
+   and buttons (or the points card beside it). It shows from 38rem of plate: the headline and the lede keep clear of the column (container query).
    Motion is transform and opacity only, split over four layers so none fight:
    slot = swapping places in pairs (up and down), .agent = slow vertical slide, .ha-hop = the occasional wave and the hover hop, .pixel-sprite = the bob (ui.css).
    Sizes live in custom properties so the swap distance (--ha-step) always equals one slot plus one gap. */
 .ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; right: 1.2rem; bottom: 1rem; width: var(--ha-size); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
-@container hero-plate (min-width: 45rem) {
+@container hero-plate (min-width: 38rem) {
   .ha { display: flex; }
-  .hero h1 { max-width: calc(100% - 6.5rem); }
+  .hero h1, .hero .hero-lede { max-width: min(36rem, calc(100% - 6.5rem)); }
 }
 .ha-slot { position: relative; flex: none; width: var(--ha-size); height: var(--ha-size); pointer-events: auto; }
 .ha-slot:hover { z-index: 2; }

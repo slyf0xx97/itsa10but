@@ -36,7 +36,7 @@ export function SkillBrowser({ skills, kind, children }: { skills: Skill[]; kind
   return <>
     <section className="dp-sec" aria-labelledby={listId}>
       <h5 className="dp-h" id={listId}>{scout ? "Skills the role asks for" : "Proof for each skill"}</h5>
-      <p className="dp-desc">{scout ? <>Biggest ask first. <Term id="proof">Have</Term> means your résumé shows it. Pick a skill to read its quote.</> : <><Term id="proof">Proof</Term> from your résumé. Bar: what you show. Black line: what the role asks. ✓ quote found, ✗ none.</>}</p>
+      <p className="dp-desc">{scout ? <>Biggest ask first. <Term id="proof">Have</Term> means your résumé shows it. Pick a skill to read its quote.</> : <><Term id="proof">Proof</Term> from your résumé, in %. ✓ quote found, ✗ none.</>}</p>
       <ul className="sb-list">
         {ranked.map((skill) => {
           const on = skill.name === current.name;
@@ -47,12 +47,11 @@ export function SkillBrowser({ skills, kind, children }: { skills: Skill[]; kind
               <span className="sb-name">{skill.name}</span>
               <span className="sb-val">
                 {scout
-                  ? <>Asks {pct(skill.demand)}/100</>
-                  : <><span className={"dash-q " + (skill.resumeQuote ? "yes" : "no")} role="img" aria-label={skill.resumeQuote ? "Quote found." : "No matching quote."}>{skill.resumeQuote ? "✓" : "✗"}</span> Proof {pct(skill.evidence)}/100</>}
+                  ? <>{wantOf(skill.demand)} priority</>
+                  : <><span className={"dash-q " + (skill.resumeQuote ? "yes" : "no")} role="img" aria-label={skill.resumeQuote ? "Quote found." : "No matching quote."}>{skill.resumeQuote ? "✓" : "✗"}</span> Proof {pct(skill.evidence)}%</>}
               </span>
               <span className="dash-track" aria-hidden="true">
                 <i className="dash-fill" style={{ width: pct(scout ? skill.demand : skill.evidence) + "%" }} />
-                {!scout && <b className="dash-mark" style={{ left: pct(skill.demand) + "%" }} />}
               </span>
               {scout
                 ? <span className={"sb-chip " + (have ? "have" : "gap")}><span aria-hidden="true">{have ? "✓" : "!"}</span> {have ? "Have" : "Gap"}</span>
@@ -68,17 +67,17 @@ export function SkillBrowser({ skills, kind, children }: { skills: Skill[]; kind
       <h5 className="dp-h">{current.name}</h5>
       <p className="sb-sum">
         <span className={"sk-verdict " + verdict}>{VERDICT_LABEL[verdict]}</span>
-        <span>{scout ? <>The role asks for it at <b>{wantOf(current.demand).toLowerCase()}</b> priority ({pct(current.demand)}/100).</> : whyLine(current.demand, current.evidence)}</span>
+        <span>{scout ? <>The role asks for it at <b>{wantOf(current.demand).toLowerCase()}</b> priority.</> : whyLine(current.demand, current.evidence)}</span>
       </p>
       {!scout && <Quote tag="Résumé quote" hit={current.resumeQuote} />}
       <Quote tag="Role quote" hit={current.roleQuote} />
       {!scout && <details className="sk-how sb-how">
         <summary>How we scored it</summary>
-        <p>Neither number predicts whether you&apos;ll be hired. Each point below has a passage behind it.</p>
+        <p>Neither the proof nor the priority predicts whether you&apos;ll be hired. Each point below has a passage behind it.</p>
         {breakdown
           ? <div className="sk-parts">
-              <Parts title="Proof score, from your résumé" parts={breakdown.parts} none="No résumé passage matches, so no points are added." />
-              <Parts title="Role score, from the posting" parts={breakdown.demandParts} none="No passage in the role text matches, so no points are added." />
+              <Parts title="Proof, from your résumé" parts={breakdown.parts} none="No résumé passage matches, so no points are added." />
+              <Parts title="Why the role asks for it" parts={breakdown.demandParts} points={false} none="No passage in the role text matches." />
             </div>
           : current.scoreReason && <p>{current.scoreReason}</p>}
       </details>}

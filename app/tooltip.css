@@ -43,7 +43,7 @@
 .word-tip-bubble[data-side="above"] .word-tip-arrow { top: auto; bottom: -9px; border: 2px solid var(--ink); border-left: 0; border-top: 0; background: #fff; }
 
 /* The panel variant (privacy and safety): wider, non-modal, scrolls as a whole, has its own Close button. */
-.word-tip-bubble.is-panel { left: 50%; translate: -50% 0; width: min(28rem, calc(100vw - 2rem)); max-height: min(26rem, 70vh); overflow-y: auto; overscroll-behavior: contain; }
+.word-tip-bubble.is-panel { width: min(28rem, calc(100vw - 2rem)); max-height: min(26rem, 70vh, var(--panel-max, 100vh)); overflow-y: auto; overscroll-behavior: contain; }
 .word-tip-bubble.is-panel .word-tip-body { max-height: none; overflow: visible; }
 .word-tip-bubble.is-panel .word-tip-head { position: sticky; top: 0; z-index: 1; }
 

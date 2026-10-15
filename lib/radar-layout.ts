@@ -45,7 +45,8 @@ export function layoutRadar(skills: { name: string; evidence: number }[], spec: 
     const value = Math.max(skill.evidence, 4);
     const angle = (-90 + (index * 360) / n) * Math.PI / 180, ux = Math.cos(angle), uy = Math.sin(angle);
     const [dx, dy] = radarPoint(spec, index, n, value);
-    const sw = String(skill.evidence).length * spec.scoreFont * CHAR, sh = spec.scoreFont * 1.15;
+    const sw = (String(skill.evidence).length + 1) * spec.scoreFont * CHAR, // the digits and the % sign
+       sh = spec.scoreFont * 1.15;
     const sx = dx + ux * (DOT + 3 + sw / 2), sy = dy + uy * (DOT + 3 + sh / 2);
     const lines = wrapName(skill.name, spec.wrapAt);
     const w = CHIP_PAD * 2 + spec.mark + 5 + Math.max(...lines.map((line) => line.length)) * spec.font * CHAR;

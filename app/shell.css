@@ -27,9 +27,11 @@ main { position: relative; }
 .how-link:hover { background: var(--sky-soft); color: var(--ink); }
 .how-link[aria-current="location"], .how-link[aria-current="location"]:hover { background: var(--orange); }
 .how-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-/* The two tabs always sit on a row of their own under the logo and Agent power (the full second name is about 600px wide, so it cannot share a row at 1280px). */
-.site-nav { order: 2; flex: 1 1 100%; display: flex; flex-wrap: nowrap; justify-content: center; gap: 8px; }
-.site-nav a { position: relative; display: inline-flex; align-items: center; gap: 10px; min-width: 44px; min-height: 48px; padding: 0 16px 0 12px; border: 2px solid var(--ink); border-radius: 8px; background: rgb(255 255 255 / 88%); box-shadow: 0 2px 0 rgb(31 36 48 / 25%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 16px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
+/* The two tabs are small. Under 1280px they sit on a row of their own under the logo and Agent power. From 1280px they share the logo's row, which keeps the header one bar tall; there the second name drops its last part ("with Free / Open-Source Websites & Tools") until 1720px, where it fits. */
+.site-nav { order: 2; flex: 1 1 100%; display: flex; flex-wrap: nowrap; justify-content: center; gap: 6px; }
+.site-nav a { position: relative; display: inline-flex; align-items: center; gap: 7px; min-width: 44px; min-height: 36px; padding: 0 12px 0 9px; border: 2px solid var(--ink); border-radius: 8px; background: rgb(255 255 255 / 88%); box-shadow: 0 2px 0 rgb(31 36 48 / 25%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
+.site-nav svg { width: 22px; height: 22px; }
+.site-nav a::after { content: ""; position: absolute; inset: -4px -2px; } /* keeps the touch target at 44px */
 .site-nav a:hover { background: var(--sky-soft); color: var(--ink); }
 .site-nav a:active { transform: translateY(1px); box-shadow: 0 1px 0 rgb(31 36 48 / 25%); }
 .site-nav a[aria-current="location"], .site-nav a[aria-current="location"]:hover { background: var(--orange); box-shadow: 0 0 0 rgb(185 101 26 / 70%); transform: translateY(2px); } /* pressed in, so the state is not colour alone */
@@ -38,6 +40,8 @@ main { position: relative; }
    The link's aria-label is always the full name. */
 .tab-label { white-space: nowrap; }
 @media (max-width: 900px) { .tab-long { display: none; } }
+@media (min-width: 1280px) { .site-nav { order: 0; flex: 0 1 auto; align-self: center; } .tab-long { display: none; } }
+@media (min-width: 1720px) { .tab-long { display: inline; } }
 @media (prefers-reduced-motion: no-preference) { .site-nav a, .how-link { transition: background-color .15s ease, transform .1s ease; } }
 @media (max-width: 1199px) { .site-header { position: relative; } /* relative, not static, so z-index 20 still lifts the Agent power panel above the stages */ .brand span { font-size: 1.15rem; } }
 
@@ -55,11 +59,11 @@ main { position: relative; }
   .brand-row { flex: 1 1 100%; justify-content: space-between; }
   .brand { min-height: 2.5rem; }
   .site-nav { gap: 4px; }
-  .site-nav a { flex: 1 1 0; justify-content: center; gap: 8px; min-width: 0; padding: 0 8px; }
+  .site-nav a { flex: 1 1 0; justify-content: center; gap: 6px; min-width: 0; padding: 0 8px; }
   .tab-mid { display: none; } /* "Analyse Résumé" reads "Analyse", "Level Up Your Résumé" reads "Level Up" */
   .site-header .wrap { gap: .25rem .75rem; padding: .25rem .5rem; }
 }
-@media (max-width: 360px) { .site-nav { gap: 2px; } .site-nav a { gap: 5px; padding: 0 6px; font-size: 15px; } .site-nav svg { width: 24px; height: 24px; } .brand span { font-size: 1.05rem; } .brand { gap: .4rem; } .how-link { padding: 0 8px; font-size: 13px; gap: 4px; } }
+@media (max-width: 360px) { .site-nav { gap: 2px; } .site-nav a { gap: 5px; padding: 0 6px; font-size: 14px; } .site-nav svg { width: 20px; height: 20px; } .brand span { font-size: 1.05rem; } .brand { gap: .4rem; } .how-link { padding: 0 8px; font-size: 13px; gap: 4px; } }
 
 /* Footer author link: the LinkedIn "in" mark (decorative) beside the name. */
 .site-footer .ft-author { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; font-weight: 700; }

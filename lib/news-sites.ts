@@ -44,6 +44,12 @@ export const newsSiteGroups: NewsSiteGroup[] = [
     { name: "Hugging Face Blog", what: "Posts on open models and machine learning", href: "https://huggingface.co/blog", logo: "hugging-face" },
     { name: "The Verge AI", what: "AI news and reviews from The Verge", href: "https://www.theverge.com/ai-artificial-intelligence", logo: "the-verge" },
     { name: "MIT Technology Review AI", what: "AI coverage from MIT Technology Review", href: "https://www.technologyreview.com/topic/artificial-intelligence/", logo: "mit-technology-review" },
+    { name: "Anthropic News", what: "Announcements and research from Anthropic", href: "https://www.anthropic.com/news", logo: "anthropic-news" },
+    { name: "Google Research Blog", what: "Research posts from Google Research", href: "https://research.google/blog/", logo: "google-research" },
+    { name: "arXiv cs.AI", what: "New AI research papers, posted before peer review", href: "https://arxiv.org/list/cs.AI/recent", logo: "arxiv" },
+    { name: "TechCrunch AI", what: "AI and machine learning news from TechCrunch", href: "https://techcrunch.com/category/artificial-intelligence/", logo: "techcrunch" },
+    { name: "Last Week in AI", what: "A newsletter that sums up the week in AI", href: "https://lastweekin.ai/", logo: "last-week-in-ai" },
+    { name: "Interconnects AI", what: "Nathan Lambert's newsletter on AI", href: "https://www.interconnects.ai/", logo: "interconnects" },
   ] },
   { id: "learn", title: "Learning", icon: "book", sites: [
     { name: "SkillsFuture Credit courses", what: "The MySkillsFuture course directory", href: "https://www.myskillsfuture.gov.sg/", logo: "myskillsfuture" },

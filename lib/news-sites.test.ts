@@ -16,13 +16,13 @@ test("every site has an https link, a short line, a saved local logo and a uniqu
   }
 });
 
-test("no site repeats a name, a host or a logo, and the tech feeds fill two even rows", () => {
+test("no site repeats a name, a host or a logo, and the tech feeds fill three even rows", () => {
   for (const key of ["name", "host", "logo"] as const) {
     const values = sites.map((site) => key === "host" ? new URL(site.href).hostname : site[key]);
     assert.equal(new Set(values).size, values.length, key);
   }
   const tech = newsSiteGroups.find((group) => group.id === "tech")?.sites ?? [];
-  assert.ok(tech.length >= 10 && tech.length % 2 === 0, "tech feed count");
+  assert.ok(tech.length >= 12 && tech.length % 3 === 0, "tech feed count");
 });
 
 test("the In Refresh tag matches the hosts the feed reader reads", () => {

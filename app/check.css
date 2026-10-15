@@ -42,7 +42,6 @@
 
 /* Privacy popover beside "Choose a file": a lock button that opens a wide, scrollable, non-modal dialog (WordTip, panel variant). */
 .dz-actions { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem; }
-.dz-actions .word-tip.is-panel { position: static; }
 .tip-icon-btn { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font-size: 1.25rem; line-height: 1; cursor: help; }
 .tip-icon-btn:hover { background: var(--sky-soft); }
 .tip-icon-btn:focus-visible, .tip-close:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }

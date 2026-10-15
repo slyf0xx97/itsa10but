@@ -71,3 +71,16 @@ Added for the footer link to the author's LinkedIn profile (2026-10-15):
 | File | Mark | Origin |
 | --- | --- | --- |
 | `linkedin-in.svg` | LinkedIn "in" mark, brand blue `#0a66c2` | The Simple Icons LinkedIn path, copied from https://cdn.jsdelivr.net/npm/simple-icons@13.0.0/icons/linkedin.svg (https://simpleicons.org/?q=linkedin, CC0), saved locally so the page makes no third-party image request. It is the standard "in" logo, shown beside the author's name only as a link to a profile, as LinkedIn's brand guidelines allow. The mark belongs to LinkedIn Corporation. |
+
+Added to the tech and AI news feeds so the three rows on the Singapore hiring signals card are the same length (fetched 2026-10-15). Each file is the origin below, resized to fit 128 px (96 px for Google Research) and saved as PNG:
+
+| File | Site | Origin URL |
+| --- | --- | --- |
+| `anthropic-news.png` | Anthropic News | the apple-touch-icon in the page head at https://www.anthropic.com/ (256 px) |
+| `google-research.png` | Google Research Blog | the icon in the page head at https://research.google/blog/ (the 2x file, 40 px, so it looks soft) |
+| `arxiv.png` | arXiv cs.AI | the 180 px apple-touch-icon in the page head at https://arxiv.org/ |
+| `techcrunch.png` | TechCrunch AI | the 180 px apple-touch-icon in the page head at https://techcrunch.com/ |
+| `last-week-in-ai.png` | Last Week in AI | the 180 px apple-touch-icon in the Substack page head at https://lastweekin.ai/ |
+| `interconnects.png` | Interconnects AI | the 180 px apple-touch-icon in the Substack page head at https://www.interconnects.ai/ |
+
+OpenAI News and Google DeepMind were left out because their sites blocked an automated icon fetch.

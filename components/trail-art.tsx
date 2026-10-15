@@ -92,6 +92,14 @@ const FAR: Peak[] = [[60, 250, 90], [170, 222, 100], [290, 238, 90], [410, 192, 
 const NEAR: Peak[] = [[110, 300, 80], [360, 280, 90], [600, 262, 80], [830, 222, 100]];
 const SUMMIT: Peak[] = [[1165, 22, 170]];
 
+/** Sun rays: thin pale wedges fanned all the way round the sun, fading out with distance. The group turns slowly (arch.css, only when motion is allowed) and sits still otherwise. */
+function Rays({ x, y, n, len, gradient }: { x: number; y: number; n: number; len: number; gradient: string }) {
+  const half = Math.PI / n / 1.9;
+  const at = (angle: number) => `${f(Math.cos(angle) * len)} ${f(Math.sin(angle) * len)}`;
+  const d = Array.from({ length: n }, (_, i) => { const a = (i / n) * Math.PI * 2; return `M0 0 L${at(a - half)} L${at(a + half)} Z`; }).join(" ");
+  return <g transform={`translate(${x} ${y})`}><path className="qm-a qm-a-rays" d={d} fill={`url(#${gradient})`} /></g>;
+}
+
 const cloud = (x: number, y: number, s: number, dur: number, delay: number) => <g key={x} transform={`translate(${x} ${y}) scale(${s})`}>
   <g className="qm-a qm-a-cloud" style={{ animationDuration: `${dur}s`, animationDelay: `${delay}s` }}>
     <ellipse cx="0" cy="0" rx="34" ry="10" fill="#fff" opacity="0.85" /><ellipse cx="-14" cy="-7" rx="16" ry="10" fill="#fff" opacity="0.85" /><ellipse cx="10" cy="-10" rx="18" ry="11" fill="#fff" opacity="0.85" />
@@ -112,15 +120,18 @@ function WideScenery() {
     <defs>
       <linearGradient id="w-bg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8fd0ee" /><stop offset="0.55" stopColor="#d4eef2" /><stop offset="1" stopColor="#e9f6dc" /></linearGradient>
       <linearGradient id="w-bg-grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#9bd96e" /><stop offset="1" stopColor="#6dbb4c" /></linearGradient>
-      <linearGradient id="w-bg-grass2" x1="430" y1="0" x2="772" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#c4ee98" stopOpacity="0" /><stop offset="0.12" stopColor="#c4ee98" /><stop offset="0.88" stopColor="#c4ee98" /><stop offset="1" stopColor="#c4ee98" stopOpacity="0" /></linearGradient>
+      <radialGradient id="w-bg-rays"><stop offset="0" stopColor="#fff6a0" stopOpacity="0.8" /><stop offset="0.55" stopColor="#fff6a0" stopOpacity="0.4" /><stop offset="1" stopColor="#fff6a0" stopOpacity="0" /></radialGradient>
       <linearGradient id="w-bg-rock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#bdb09c" /><stop offset="1" stopColor="#9a8c78" /></linearGradient>
     </defs>
     <rect width="1200" height="536" fill="url(#w-bg-sky)" />
-    <circle cx="330" cy="40" r="15" fill="#ffe27a" opacity="0.95" />
-    {cloud(250, 34, 1, 46, -10)}{cloud(640, 30, 0.9, 58, -30)}{cloud(800, 70, 1, 52, -22)}
+    {cloud(250, 34, 1, 46, -10)}{cloud(800, 70, 1, 52, -22)}
     <Mountains peaks={FAR} base={330} fill="#b4cde0" shade="#6f93ad" />
     <Mountains peaks={NEAR} base={345} fill="#93b7bd" shade="#4f7a80" />
     <Mountains peaks={SUMMIT} base={330} fill="#a7bfd2" shade="#5f819b" />
+    {/* the sun over the API boost road: its rays fan out over the pass and the boost card */}
+    <Rays x={520} y={40} n={16} len={230} gradient="w-bg-rays" />
+    <circle cx="520" cy="40" r="26" fill="#fff6a0" opacity="0.45" /><circle cx="520" cy="40" r="17" fill="#ffe27a" stroke="#f2b84b" strokeWidth="2" />
+    {cloud(640, 30, 0.9, 58, -30)}
     <path d="M0 345 C100 300 200 330 330 312 S560 262 700 250 S900 205 1000 192 S1150 165 1200 165 V536 H0 Z" fill="#a9de80" />
     {pine(430, 300, 0.4)}{pine(452, 296, 0.34)}{pine(880, 222, 0.4)}{pine(905, 226, 0.34)}
     <path d={`${g1} V536 H0 Z`} fill="url(#w-bg-grass)" />
@@ -132,14 +143,13 @@ function WideScenery() {
       <ellipse className="qm-a qm-a-fog" cx="340" cy="466" rx="70" ry="12" opacity="0.5" style={{ animationDuration: "11s", animationDelay: "-4s" }} />
       <ellipse className="qm-a qm-a-fog" cx="290" cy="482" rx="40" ry="9" opacity="0.45" style={{ animationDuration: "8s", animationDelay: "-2s" }} />
     </g>
-    {/* the rocky pass under Native scan */}
+    {/* the rocky pass under the API boost road */}
     <g transform="translate(-24 -22)">
       <polygon points="498,332 520,300 600,296 740,298 752,330 740,352 700,356 660,346 600,352 540,344 508,350" fill="url(#w-bg-rock)" stroke="#7d705e" strokeWidth="1.6" strokeLinejoin="round" />
       <path d="M520 318 H640 M534 334 H600 M668 316 H738" stroke="#7d705e" strokeWidth="1.6" opacity="0.7" fill="none" />
       <path d="M560 298 L574 324 M610 298 L598 326" stroke="#e8dcc8" strokeWidth="2" opacity="0.6" fill="none" />
     </g>
-    {/* the river valley under API boost */}
-    <path d="M432 392 C470 374 500 354 540 352 S700 354 735 348 S758 292 770 264 V536 H432 Z" fill="url(#w-bg-grass2)" />
+    {/* the river valley under the Native scan road */}
     <rect x="680" y="278" width="20" height="76" fill="#bfe9f5" opacity="0.8" />
     <g stroke="#fff" strokeWidth="2.2" strokeLinecap="round" opacity="0.6">
       <line className="qm-a qm-a-fall" x1="685" y1="282" x2="685" y2="338" /><line className="qm-a qm-a-fall" x1="690" y1="282" x2="690" y2="338" style={{ animationDelay: "-0.5s" }} /><line className="qm-a qm-a-fall" x1="695" y1="282" x2="695" y2="338" style={{ animationDelay: "-1s" }} />
@@ -163,10 +173,10 @@ function WideScenery() {
 
 /** Things that stand on the road, drawn over it: a post under the fork sign, the bridge over the river, boulders on the pass and the rope bridge. */
 function WideProps() {
-  const [bx, by] = [690, WIDE.pts.boost[1]];
+  const [bx, by] = [690, WIDE.pts.native[1]];
   return <g>
     <rect x={WIDE.pts.fork[0] - 3} y={WIDE.pts.fork[1] + 52} width="6" height="22" fill="#8a5a33" stroke={INK} strokeWidth="1.4" />
-    {/* wooden bridge over the river on the API boost road */}
+    {/* wooden bridge over the river on the Native scan road */}
     <g>
       <rect x={bx - 27} y={by - 9} width="54" height="18" rx="2" fill="#c98b4b" stroke={INK} strokeWidth="1.8" />
       <path d={Array.from({ length: 7 }, (_, i) => `M${bx - 21 + i * 7} ${by - 9} v18`).join(" ")} stroke="#8a5a33" strokeWidth="1.4" />
@@ -206,9 +216,10 @@ function RailScenery({ layout }: { layout: Layout }) {
 /** A strip of mountains, a sun and a cloud along the top of the rail map (the wide map paints its own sky). */
 export function Skyline() {
   return <svg className="qm-skyline" viewBox="0 0 600 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-    <defs><linearGradient id="sk-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8fd0ee" /><stop offset="1" stopColor="#d9f0e6" /></linearGradient></defs>
+    <defs><linearGradient id="sk-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8fd0ee" /><stop offset="1" stopColor="#d9f0e6" /></linearGradient><radialGradient id="sk-rays"><stop offset="0" stopColor="#fff6a0" stopOpacity="0.8" /><stop offset="1" stopColor="#fff6a0" stopOpacity="0" /></radialGradient></defs>
     <rect width="600" height="120" fill="url(#sk-sky)" />
-    <circle cx="520" cy="26" r="13" fill="#ffe27a" />
+    <Rays x={520} y={26} n={14} len={95} gradient="sk-rays" />
+    <circle cx="520" cy="26" r="13" fill="#ffe27a" stroke="#f2b84b" strokeWidth="1.5" />
     <g className="qm-a qm-a-cloud" style={{ animationDuration: "50s" }}><ellipse cx="90" cy="30" rx="30" ry="8" fill="#fff" opacity="0.85" /><ellipse cx="104" cy="23" rx="16" ry="9" fill="#fff" opacity="0.85" /></g>
     <Mountains peaks={[[40, 54, 80], [170, 36, 90], [300, 58, 78], [430, 30, 100], [560, 52, 80]]} base={120} fill="#b4cde0" shade="#6f93ad" />
     <path d="M0 112 C100 92 200 108 300 98 S500 92 600 106 V120 H0 Z" fill="#a9de80" />

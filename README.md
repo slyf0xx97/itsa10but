@@ -148,7 +148,7 @@ Working rules for the project are in [`AGENTS.md`](AGENTS.md). Notes on each eng
 
 ### Testing
 
-`npm test` runs 337 dependency-free tests with Node's built-in runner. They cover PII masking and injection flags, quote verification and grounded scoring, the simulated engine's event order and labelling, job feed filtering, the skill-news request check, term filter and cache, LinkedIn paste parsing, the MCP request handler and the agents' tool grants.
+`npm test` runs 338 dependency-free tests with Node's built-in runner. They cover PII masking and injection flags, quote verification and grounded scoring, the simulated engine's event order and labelling, job feed filtering, the skill-news request check, term filter and cache, LinkedIn paste parsing, the MCP request handler and the agents' tool grants.
 
 ### Limitations
 

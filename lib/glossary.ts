@@ -1,10 +1,10 @@
 import type { TipTone } from "../components/career/word-tip.tsx";
 import type { PixelIconName } from "../components/career/pixel-icons.tsx";
-import { EXPECTED_FROM, GOOD_FROM, HAVE_FROM } from "./radar-tiers.ts";
+import { HAVE_FROM } from "./radar-tiers.ts";
 
 /** Plain-word explanations for the jargon on the page. Shown by <Term> as a tooltip. */
 export type TermId = "ats" | "proof" | "gap" | "match" | "weak-proof" | "quest" | "native-scan" | "api-boost" | "expected" | "good" | "extra" | "keyword"
-  | "itsa10but" | "how-it-helps" | "rank" | "role-wants" | "you-show" | "covered" | "add-proof" | "missing" | "demand-score" | "proof-score" | "best-proof" | "biggest-gap" | "radar";
+  | "itsa10but" | "how-it-helps" | "rank" | "role-wants" | "you-show" | "covered" | "add-proof" | "missing" | "proof-score" | "best-proof" | "biggest-gap" | "radar";
 
 /** An optional labelled block under the lines: a small icon, a label and a few short points. */
 export type TermSection = { label: string; icon?: PixelIconName; items: string[] };
@@ -92,19 +92,19 @@ export const GLOSSARY: Record<TermId, TermEntry> = {
     word: "Expected",
     title: "Expected",
     icon: "signals", tone: "coral",
-    lines: [`The role asks for it strongly: ${EXPECTED_FROM} or more out of 100.`, "Show these first."],
+    lines: ["The role asks for it strongly. The posting says it is required or repeats it.", "Show these first."],
   },
   good: {
     word: "Good to have",
     title: "Good to have",
     icon: "signals", tone: "orange",
-    lines: [`The role asks for it moderately: ${GOOD_FROM} to ${EXPECTED_FROM - 1} out of 100.`, "Add these if you have room."],
+    lines: ["The role asks for it moderately. The posting names it, without stressing it.", "Add these if you have room."],
   },
   extra: {
     word: "Extra",
     title: "Extra",
     icon: "signals", tone: "water",
-    lines: [`The posting mentions it lightly: under ${GOOD_FROM} out of 100.`, "List it only if it's true."],
+    lines: ["The posting mentions it lightly.", "List it only if it's true."],
   },
   rank: {
     word: "Ranked",
@@ -116,7 +116,7 @@ export const GLOSSARY: Record<TermId, TermEntry> = {
     word: "Role wants",
     title: "Role wants",
     icon: "binoculars", tone: "water",
-    lines: [`How strongly the posting asks for the skill. High is ${EXPECTED_FROM} or more out of 100, Medium is ${GOOD_FROM} to ${EXPECTED_FROM - 1}, Low is under ${GOOD_FROM}.`, "The native scan adds points when a skill is named, stated as a requirement or repeated."],
+    lines: ["How strongly the posting asks for the skill: High, Medium or Low.", "The native scan reads a skill as High when it is named and stated as a requirement or repeated, and Medium when it is named once. API boost judges from the posting."],
   },
   "you-show": {
     word: "You show",
@@ -142,35 +142,29 @@ export const GLOSSARY: Record<TermId, TermEntry> = {
     icon: "incident", tone: "coral",
     lines: ["The role asks for it and nothing in your résumé matches. It scores 0 until you add a line that shows it."],
   },
-  "demand-score": {
-    word: "Role score",
-    title: "Role score, 0 to 100",
-    icon: "binoculars", tone: "water",
-    lines: ["How much the posting asks for a skill. The native scan gives 60 for naming it, 20 more for a stated requirement and 20 more for repeating it in another passage.", "With API boost, an agent sets the number and gives the line it relied on."],
-  },
   "proof-score": {
-    word: "Proof score",
-    title: "Proof score, 0 to 100",
+    word: "Proof",
+    title: "Proof, in %",
     icon: "docsearch", tone: "leaf",
-    lines: ["How much your résumé proves a skill. The native scan gives 20 for naming it, 25 for using it in a project or action, 14 for a number, 16 for an outcome and 25 for a second line.", "A skill with no quote from your résumé scores 0. The score measures proof in your text and doesn't predict hiring."],
+    lines: ["How much your résumé proves a skill, from 0% to 100%. The native scan adds points for naming it, using it in a project or action, a number, an outcome and a second supporting line.", "A skill with no quote from your résumé scores 0%. It measures proof in your text and doesn't predict hiring."],
   },
   "best-proof": {
     word: "Best proof",
     title: "Best proof",
     icon: "clipboard", tone: "leaf",
-    lines: ["The skill your résumé backs up best, with its proof score out of 100. Zero means nothing in your text matched."],
+    lines: ["The skill your résumé backs up best, with its proof in %. Zero means nothing in your text matched."],
   },
   "biggest-gap": {
     word: "Biggest gap",
     title: "Biggest gap",
     icon: "incident", tone: "coral",
-    lines: ["The skill where the role score is furthest above your proof score. The gap is role score minus proof score, in points."],
+    lines: ["The skill where your proof falls furthest short of what the role asks for."],
   },
   radar: {
     word: "Skills radar",
     title: "How to read the radar",
     icon: "compass", tone: "teal",
-    lines: ["Each corner is one skill the role asks for. The further the shaded shape reaches toward a corner, the more proof your résumé gives for it, from 0 in the middle to 100 at the edge.", `Green dots have proof (${HAVE_FROM} or more out of 100). Coral dots are gaps.`],
+    lines: ["Each corner is one skill the role asks for. The further the shaded shape reaches toward a corner, the more proof your résumé gives for it, from 0% in the middle to 100% at the edge.", `Green dots have proof (${HAVE_FROM}% or more). Coral dots are gaps.`],
   },
   keyword: {
     word: "Keywords",

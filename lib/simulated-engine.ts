@@ -4,6 +4,7 @@ import { runSafetyCheck, type PiiFinding, type InjectionMatch } from "./safety.t
 import { chunkResume, buildRetrievalSteps, verifyQuote, type Chunk, type RetrievalStep } from "./rag.ts";
 import { catalog, hasTerm } from "./preview-analysis.ts";
 import { laneLabel } from "./agent-abilities.ts";
+import { wantOf } from "./skill-levels.ts";
 
 export const READER_NAMES = ["Role Scout", "Experience Finder", "Recruiter", "Action Planner"] as const;
 export type ReaderName = (typeof READER_NAMES)[number];
@@ -65,7 +66,7 @@ function lanesScripts(reader: ReaderName, c: LaneInput): Script[] {
       return [
         { id: "role-read", steps: ["Opening the role text", `${plural(words, "word")} to read`, `${plural(splitIntoPieces(c.job).length, "sentence")} scanned`], end: `Read ${plural(words, "word")}` },
         { id: "role-terms", steps: orElse(found.slice(0, 4).map((seed) => `Found ${seed.name} terms`), "No known skill terms found"), end: `${found.length} of ${catalog.length} known skills found` },
-        { id: "role-rank", steps: orElse(ranked.slice(0, 3).map((skill) => `${skill.name}: demand ${skill.demand}`), "Nothing to rank"), end: ranked[0] ? `Top demand: ${ranked[0].name}` : "Nothing to rank" },
+        { id: "role-rank", steps: orElse(ranked.slice(0, 3).map((skill) => `${skill.name}: ${wantOf(skill.demand)} priority`), "Nothing to rank"), end: ranked[0] ? `Top ask: ${ranked[0].name}` : "Nothing to rank" },
         // Matched against a short checked list in lib/company-culture.ts: no web, no model.
         { id: "company-detect", steps: company ? [`Found ${company.name} in the posting`, `${plural(company.values.length, "published value")} on its own page`] : ["Checking the posting against a short list of employers"], end: company ? `${company.name}: ${plural(company.values.length, "value")} listed` : "No known employer found" },
       ];
@@ -77,8 +78,8 @@ function lanesScripts(reader: ReaderName, c: LaneInput): Script[] {
       return [
         { id: "resume-search", steps: orElse(skills.slice(0, 4).map((skill) => `Searching for ${skill.name}`), "No skills to search for"), end: `${plural(skills.length, "skill")} searched in ${plural(c.chunks.length, "snippet")}` },
         { id: "quote-verify", steps: orElse(checked.slice(0, 4).map((item) => (item.ok ? `${item.name}: quote found word for word` : `${item.name}: quote not found, scores 0`)), "No quotes to check"), end: `${plural(checked.filter((item) => item.ok).length, "quote")} verified` },
-        { id: "evidence-score", steps: orElse(skills.slice(0, 4).map((skill) => `${skill.name}: proof ${skill.evidence}`), "Nothing to score"), end: `${plural(skills.length, "skill")} scored` },
-        { id: "doubt-flag", steps: orElse(thin.slice(0, 3).map((skill) => `${skill.name}: proof ${skill.evidence} against demand ${skill.demand}`), "No weak proof flagged"), end: `${plural(thin.length, "weak proof", "weak proofs")} flagged` },
+        { id: "evidence-score", steps: orElse(skills.slice(0, 4).map((skill) => `${skill.name}: proof ${skill.evidence}%`), "Nothing to score"), end: `${plural(skills.length, "skill")} scored` },
+        { id: "doubt-flag", steps: orElse(thin.slice(0, 3).map((skill) => `${skill.name}: proof ${skill.evidence}%, ${wantOf(skill.demand)} priority`), "No weak proof flagged"), end: `${plural(thin.length, "weak proof", "weak proofs")} flagged` },
       ];
     }
     case "Recruiter": {

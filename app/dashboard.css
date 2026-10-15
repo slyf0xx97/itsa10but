@@ -1,73 +1,121 @@
-/* Synthesis dashboard: one glass panel with a compact head (match ring, title) and four cards of the same height, one per reader.
-   Each card is a summary with a few visuals and one button at the bottom that opens the full findings in a wide popup (.dp).
-   Charts are plain CSS and inline SVG. Fills are custom properties on .dash so the card, panel and item backgrounds can be tuned in one place. */
+/* Synthesis dashboard: one glass panel with a headline and four cards, one per reader. Each card is a summary only: the avatar with one big figure, exactly three rows,
+   a one-line takeaway and a full-width button that opens the full findings in a wide popup (.dp). From 700px of panel the four cards share their rows (a CSS subgrid),
+   so the figures, the rows, the takeaways and the buttons line up across all four. Charts are plain CSS. Fills are custom properties on .dash so the card, panel and
+   item backgrounds can be tuned in one place. Hover and focus lift a card and wake its avatar, bars and button; all of it is transform and opacity, and only when motion is welcome. */
 .dash { --dash-line: rgb(18 52 63 / 55%); --dash-card-bg: var(--glass-card); --dash-panel-bg: rgb(255 255 255 / 55%); --dash-item-bg: rgb(255 255 255 / 80%); --dash-card-line: rgb(18 52 63 / 22%); --dash-h: 0px; container: dash / inline-size; position: relative; display: grid; gap: .5rem; min-width: 0; padding: .5rem .8rem .8rem; border: 1.5px solid var(--glass-edge); border-radius: 18px; background: var(--glass-panel); backdrop-filter: var(--glass-blur-panel); -webkit-backdrop-filter: var(--glass-blur-panel); color: var(--ink); text-shadow: none; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); }
 .dash p, .dash ul { margin: 0; }
 .dash ul { padding: 0; list-style: none; }
 
-/* Head: one row, ring on the left, title on the right, both centred. */
-.dash-head { display: flex; align-items: center; gap: .85rem; min-width: 0; padding: .25rem .5rem; }
+/* Head: the headline (and the Sample tag while the page shows the made-up candidate). Four across, it sits on a plate and the four pipes run behind it (.dash-link, flow.css). */
+.dash-link { position: relative; }
+.dash-head { position: relative; z-index: 1; display: flex; align-items: center; gap: .85rem; min-width: 0; padding: .25rem .5rem; }
 .dash-lead { display: grid; gap: .15rem; min-width: 0; }
 .dash-title { font-family: var(--font-display); font-size: clamp(1.45rem, 3.4cqi, 2.1rem); font-weight: 600; line-height: 1.1; color: var(--ink); }
 .dash-title em { color: var(--coral); font-style: normal; }
 .dash-sample { justify-self: start; margin: 0; border-radius: 14px; text-transform: none; letter-spacing: 0; font-size: .9rem; line-height: 1.3; }
 
-/* Match ring: one track, one fill, the number in the middle. */
-.dash-gauge { position: relative; flex: none; width: 4rem; height: 4rem; }
-.dash-gauge svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.dash-gauge circle { fill: none; stroke-width: 11px; }
-.dash-gauge-track { stroke: rgb(18 52 63 / 14%); }
-.dash-gauge-fill { stroke: var(--leaf-deep); stroke-linecap: round; }
-.dash-gauge-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: .05em; font-family: var(--font-display); font-size: 1.2rem; line-height: 1; color: var(--ink); }
-.dash-gauge-num span { margin-top: .2em; font-size: .6em; }
-.dash-gauge.mini { width: 4.5rem; height: 4.5rem; }
-.dash-gauge.mini .dash-gauge-num { font-size: 1.15rem; }
+/* The headline ends with the overall figure out of 10. */
+.dash-ten { display: inline-block; padding: 0 .2em; border-radius: .2em; background: var(--lime); color: var(--ink); font-weight: 600; }
 
-/* Four cards of the same height (--dash-h is a minimum, so a long line grows every card rather than clipping). One column on a phone, two from 640px of the dashboard, four from 1200px. */
+/* The cards: one column on a phone, then four rows that the cards share (see the breakpoints below). */
 .dash-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: stretch; }
-.dash-card { --bar: var(--leaf-deep); --hue: var(--teal-soft); container: dcard / inline-size; display: flex; flex-direction: column; gap: .9rem; min-width: 0; min-height: var(--dash-h); padding: 1rem; border: 1.5px solid var(--dash-card-line); border-radius: 16px; background: var(--dash-card-bg); box-shadow: 0 4px 14px rgb(18 52 63 / 10%), inset 0 1px 0 rgb(255 255 255 / 90%); }
+.dash-card { --bar: var(--leaf-deep); --hue: var(--teal-soft); position: relative; display: flex; flex-direction: column; gap: .8rem; min-width: 0; padding: 1.1rem 1rem 1rem; border: 1.5px solid var(--dash-card-line); border-radius: 16px; background: var(--dash-card-bg); box-shadow: 0 4px 14px rgb(18 52 63 / 10%), inset 0 1px 0 rgb(255 255 255 / 90%); }
+/* A colour strip along the top edge ties each card to its reader (the same colours as the reader cards and their pipes). */
+.dash-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 6px; border-radius: 16px 16px 0 0; background: var(--bar); }
 .dash-card.scout { --hue: var(--teal-soft); --bar: var(--water-deep); }
 .dash-card.finder { --hue: var(--mint-soft); --bar: var(--leaf-deep); }
 .dash-card.recruiter { --hue: var(--coral-soft); --bar: var(--coral); }
 .dash-card.coach { --hue: var(--yellow-soft); --bar: var(--orange); }
-/* Head: avatar and names on the left, the "See full findings" button at the top right spanning two rows, and the line about what it opens beside it. A narrow card moves that line under the names. */
-.dash-card-head { flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "ava who act" "help help act"; align-items: start; gap: .5rem .55rem; min-height: 2.75rem; }
-.dash-ava { grid-area: ava; }
-.dash-who { grid-area: who; }
-.dash-adds { grid-area: help; }
-.dash-open { grid-area: act; }
-@container dcard (max-width: 17.5rem) {
-  .dash-card-head { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "ava act" "who who" "help help"; }
-  .dash-open { justify-self: end; }
-}
-.dash-ava { flex: none; display: block; width: 2.75rem; height: 2.75rem; border-radius: 12px; background: var(--hue); overflow: hidden; }
+
+/* Row 1, the figure: the avatar on a colour tile, the big number, one line under it. */
+.dash-stat { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "ava big" "ava lab"; align-items: center; column-gap: .8rem; min-width: 0; }
+.dash-ava { grid-area: ava; display: block; width: 3.5rem; height: 3.5rem; border: 2px solid var(--ink); border-radius: 14px; background: var(--hue); overflow: hidden; box-shadow: 0 2px 0 rgb(31 36 48 / 35%); }
 .dash-ava .agent { width: 100%; height: 100%; }
 .dash-ava .pixel-sprite { animation: none; transform-origin: 50% 92%; }
-.dash-who { min-width: 0; }
-.dash-agent { font-size: 1rem; font-weight: 700; line-height: 1.2; color: var(--text-soft); }
-.dash-card h4 { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; line-height: 1.15; color: var(--ink); }
-.dash-nb { white-space: nowrap; }
+.dash-big { grid-area: big; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 .35rem; min-width: 0; line-height: 1; }
+.dash-big b { font-family: var(--font-display); font-size: 2.5rem; font-weight: 600; line-height: 1; color: var(--ink); font-variant-numeric: lining-nums; }
+.dash-big i { font-style: normal; font-size: 1.1rem; font-weight: 700; color: var(--ink-soft); }
+.dash-of { font-size: 1.5rem; color: var(--ink-soft); }
+.dash-lab { grid-area: lab; font-size: 1rem; font-weight: 700; line-height: 1.25; color: var(--ink); }
+
+/* Row 2, exactly three rows. They stretch to the height of the tallest set in the row of cards, so every card reads as three even slots. */
+.dash-body { display: grid; min-width: 0; }
+.dash-body > ul, .dash-body > ol { display: grid; grid-template-rows: repeat(3, minmax(3.3rem, 1fr)); gap: .5rem; min-width: 0; margin: 0; padding: 0; list-style: none; }
 .dash-sub { font-size: 1rem; font-weight: 600; line-height: 1.35; }
 .dash-sub b { font-size: 1.1rem; font-weight: 800; }
 .dash-empty { font-size: 1rem; color: var(--text-soft); }
+.dash-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; align-items: baseline; gap: .25rem .5rem; min-width: 0; padding: .35rem .7rem; border: 1.5px solid rgb(18 52 63 / 16%); border-radius: 12px; background: var(--dash-item-bg); }
 
-/* The summary fills the card. */
-.dash-sum { flex: 1 1 auto; display: flex; flex-direction: column; gap: .9rem; min-width: 0; }
-.dash-sum > * { min-width: 0; }
+/* Row 3, the takeaway: a small label and the one thing it names, two lines at most. */
+.dash-footbox { display: flex; align-items: stretch; min-width: 0; }
+.dash-foot { display: flex; align-items: baseline; flex-wrap: wrap; gap: .1rem .55rem; width: 100%; min-width: 0; margin: 0; padding: .5rem .75rem; border: 1.5px dashed rgb(18 52 63 / 32%); border-radius: 12px; background: rgb(255 255 255 / 45%); font-size: 1rem; line-height: 1.3; }
+.dash-foot span { flex: none; font-weight: 700; color: var(--text-soft); }
+.dash-foot b { flex: 1 1 8rem; min-width: 0; font-weight: 800; color: var(--ink); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 
-/* "See full findings": a pixel-game button in the agent's colour. A plate with the pixel icon of the agent's job (binoculars, magnifier over a document,
-   clipboard with a tick, checklist) over the label. Ink border, hard shadow, 44px or more tall. Ink on the soft colour is 12:1 or better. */
-.dash-open { --btn-fg: #fff; display: grid; justify-items: center; align-content: center; gap: .3rem; box-sizing: border-box; width: 6.75rem; min-height: 44px; margin: 0; padding: .4rem .3rem .45rem; border: 2.5px solid var(--ink); border-radius: 8px; background: var(--hue); color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; line-height: 1.1; text-align: center; box-shadow: 0 4px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); cursor: pointer; }
+/* Row 4, "See full findings": a pixel-game button the width of the card, in the reader's colour. The line about what it opens sits inside it, so the card needs no caption of its own.
+   Ink border, hard shadow, 44px or more tall. Ink on the soft colour is 12:1 or better. */
+.dash-open { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "icon title arrow" "text text text"; align-items: center; gap: .35rem .7rem; box-sizing: border-box; width: 100%; margin: 0; padding: .6rem .75rem .7rem; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 12px; background: var(--hue); color: var(--ink); font: inherit; text-align: left; box-shadow: 0 4px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); cursor: pointer; }
 .dash-card.coach .dash-open { --btn-fg: var(--ink); }
-.dash-open-icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 2px solid var(--ink); border-radius: 6px; background: var(--bar); color: var(--btn-fg); }
+.dash-open { --btn-fg: #fff; }
+.dash-open-icon { grid-area: icon; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 2px solid var(--ink); border-radius: 8px; background: var(--bar); color: var(--btn-fg); }
+.dash-open-text { display: contents; }
+.dash-open-text b { grid-area: title; font-size: 1.15rem; font-weight: 800; line-height: 1.15; }
+.dash-open-text small { grid-area: text; padding-top: .35rem; border-top: 1.5px dashed rgb(31 36 48 / 35%); font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.dash-open-arrow { grid-area: arrow; flex: none; color: var(--ink); }
 .dash-open:hover { background: #fff; }
 .dash-open:active { transform: translateY(3px); box-shadow: 0 1px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); }
 .dash-open:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* Bars and segments. */
+.dash-name { font-size: 1rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+.dash-val { font-size: 1rem; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.dash-track { position: relative; grid-column: 1 / -1; display: block; height: .55rem; border: 1.5px solid var(--dash-line); border-radius: 999px; background: rgb(255 255 255 / 70%); }
+.dash-fill { display: block; height: 100%; max-width: 100%; border-radius: 999px; background: var(--bar); box-shadow: inset 0 0 0 1px rgb(18 52 63 / 25%); transform-origin: left center; }
+.dash-row[data-tone="pass"] .dash-fill { background: var(--leaf-deep); }
+.dash-row[data-tone="warn"] .dash-fill { background: #f2b84b; }
+.dash-row[data-tone="fail"] .dash-fill { background: var(--coral); }
+.dash-segs3 { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.dash-segs3 i { display: block; height: .55rem; border: 1.5px solid var(--dash-line); border-radius: 999px; background: rgb(255 255 255 / 70%); transform-origin: left center; }
+.dash-segs3 i.on { background: var(--bar); border-color: rgb(18 52 63 / 45%); }
+.dash-mark { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); }
+.dash-key { font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
+.dash-q { font-weight: 800; }
+.dash-q.yes, .dash-q.pass { color: var(--leaf-deep); }
+.dash-q.no, .dash-q.fail { color: #8f2515; }
+.dash-q.warn { color: #8a5a00; }
+.dash-val .dash-q { margin-right: .3rem; }
+
+/* Four rows shared across the cards: from 700px of panel. The card becomes a subgrid of four rows, so all four cards line up row by row (two by two, then four across). */
+@container stage (min-width: 700px) {
+  .dash-grid { row-gap: 1rem; }
+  .dash-card { display: grid; grid-template-rows: subgrid; grid-row: span 4; row-gap: .8rem; }
+}
+
+/* Hover and focus: the card lifts, its avatar wakes up and bobs, the figure pops, the bars grow in again one after the other and the button's arrow slides while a light sweeps over it. */
 @media (prefers-reduced-motion: no-preference) {
+  .dash-card { transition: transform .2s ease-out, box-shadow .2s ease-out; }
+  .dash-card:hover, .dash-card:focus-within { transform: translateY(-5px); box-shadow: 0 16px 30px rgb(18 52 63 / 24%), 0 0 0 2.5px var(--bar), inset 0 1px 0 rgb(255 255 255 / 90%); }
+  .dash-card:hover .dash-ava .pixel-sprite, .dash-card:focus-within .dash-ava .pixel-sprite { animation: bob 1.1s ease-in-out infinite; }
+  .dash-card:hover .dash-big b, .dash-card:focus-within .dash-big b { animation: dash-pop .45s ease-out; }
+  .dash-card:hover .dash-fill, .dash-card:focus-within .dash-fill { animation: dash-regrow .7s ease-out both; }
+  .dash-card:hover .dash-row:nth-child(2) .dash-fill, .dash-card:focus-within .dash-row:nth-child(2) .dash-fill { animation-delay: .08s; }
+  .dash-card:hover .dash-row:nth-child(3) .dash-fill, .dash-card:focus-within .dash-row:nth-child(3) .dash-fill { animation-delay: .16s; }
+  .dash-card:hover .dash-segs3 i.on, .dash-card:focus-within .dash-segs3 i.on { animation: dash-regrow .5s ease-out both; }
+  .dash-card:hover .dash-row:nth-child(2) .dash-segs3 i.on, .dash-card:focus-within .dash-row:nth-child(2) .dash-segs3 i.on { animation-delay: .08s; }
+  .dash-card:hover .dash-row:nth-child(3) .dash-segs3 i.on, .dash-card:focus-within .dash-row:nth-child(3) .dash-segs3 i.on { animation-delay: .16s; }
   .dash-open { transition: transform .12s ease-out, box-shadow .12s ease-out, background-color .12s; }
+  .dash-open::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 75%) 50%, transparent 65%); transform: translateX(-120%); pointer-events: none; }
+  .dash-open:hover::after, .dash-card:hover .dash-open::after { transform: translateX(120%); transition: transform .7s ease-out; }
+  .dash-open-arrow, .dash-open-icon { transition: transform .18s ease-out; }
+  .dash-open:hover .dash-open-arrow, .dash-card:hover .dash-open-arrow { transform: translateX(6px); }
+  .dash-open:hover .dash-open-icon { transform: rotate(-8deg) scale(1.1); }
   .dash-open:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); }
   .dash-open:active { transform: translateY(3px); }
+  .dash-row { transition: transform .15s ease-out, background-color .15s; }
+  .dash-row:hover { transform: translateX(3px); background: #fff; }
 }
+@keyframes dash-pop { 40% { transform: scale(1.14); } }
+@keyframes dash-regrow { from { transform: scaleX(0); } }
 
 /* The findings popup: sections stacked with clear space between them. Its own container, so the row and check layouts follow the popup width. */
 
@@ -87,25 +135,6 @@
 .dash-q.no { color: #8f2515; }
 .dash-val .dash-q { margin-right: .3rem; }
 
-/* Role Scout summary: a segmented Have / Gap strip with a count, and the company. */
-.dash-strip { display: grid; gap: .45rem; }
-.dash-segs { display: flex; gap: 3px; }
-.dash-segs i { flex: 1 1 0; min-width: 0; height: .8rem; border: 1.5px solid var(--dash-line); border-radius: 3px; }
-.dash-segs i.have { background: var(--leaf); border-color: var(--leaf-deep); }
-.dash-segs i.gap { background: var(--coral-soft); border: 1.5px dashed #8f2515; }
-.dash-legend { display: flex; flex-wrap: wrap; gap: .2rem 1rem; font-size: 1rem; font-weight: 700; line-height: 1.3; }
-.dash-legend span { display: inline-flex; align-items: center; gap: .4rem; }
-.dash-legend .sw { display: block; width: .8rem; height: .8rem; border-radius: 3px; }
-.dash-legend .sw.have { background: var(--leaf); border: 1.5px solid var(--leaf-deep); }
-.dash-legend .sw.gap { background: var(--coral-soft); border: 1.5px dashed #8f2515; }
-.dash-company { justify-self: start; display: inline-flex; align-items: center; gap: .45rem; max-width: 100%; padding: .3rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); font-size: 1rem; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
-.dash-company.none { border-style: dashed; border-color: rgb(18 52 63 / 40%); background: none; font-weight: 600; color: var(--text-soft); }
-
-/* Experience Finder summary: a small ring with the count, three proof bars, one line on weak proofs. */
-.dash-ringrow { display: flex; align-items: center; gap: .9rem; }
-.dash-ringrow .dash-sub { min-width: 0; }
-.dash-sum .dash-rows + .dash-key { margin-top: -.45rem; }
-
 /* Experience Finder: weak proofs, weakest first. A name, then the reason in words, under a heading with its own icon, so colour is never the only cue. */
 .dash-weak { display: grid; grid-template-columns: minmax(0, 1fr); gap: .25rem; }
 .dash-weak li { font-size: 1rem; line-height: 1.25; padding-left: .5rem; border-left: 3px solid var(--coral); overflow-wrap: anywhere; }
@@ -119,39 +148,8 @@
 .dash .sg-group h5 { margin: 0 0 .5rem; font-size: 1.1rem; }
 .dash .sg-group ul { gap: .6rem .5rem; }
 
-/* Recruiter card: score, three counts and a one-line key at the foot. Its popup: the fixes to do first, every check, keywords, note.
-   Body text is 1rem or more, headings 1.05rem or more, no pixel font on sentences (only the numerals and card title use the display font). */
+/* Recruiter popup: the fixes to do first, every check, keywords, note. Body text is 1rem or more, headings 1.05rem or more, no pixel font on sentences (only the numerals and the card figures use the display font). */
 .ats-h { display: flex; align-items: center; gap: .4rem; margin: 0 0 .5rem; font-family: inherit; font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: var(--ink); }
-.ats-band { display: grid; gap: .55rem; }
-.ats-score { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .7rem; }
-.ats-num { display: flex; align-items: baseline; gap: .3rem; line-height: 1; }
-.ats-num b { font-family: var(--font-body); font-size: 2.4rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: lining-nums; color: var(--ink); }
-.ats-num span { font-size: 1.1rem; font-weight: 700; color: var(--ink-soft); }
-.ats-verdict { display: inline-flex; align-items: center; gap: .35rem; padding: .05rem .65rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); font-size: 1rem; font-weight: 800; line-height: 1.3; color: var(--ink); }
-.ats-verdict.ready { background: var(--mint-soft); border-color: var(--leaf-deep); }
-.ats-verdict.almost { background: var(--yellow-soft); border-color: var(--orange-dark); }
-.ats-verdict.work { background: var(--coral-soft); border-color: var(--coral); }
-.ats-seg { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; }
-.ats-seg i { display: block; height: .7rem; border: 1.5px solid var(--dash-line); border-radius: 3px; background: var(--dash-item-bg); }
-.ats-seg.ready i.on { background: var(--leaf); border-color: var(--leaf-deep); }
-.ats-seg.almost i.on { background: #f2b84b; border-color: var(--orange-dark); }
-.ats-seg.work i.on { background: var(--coral); border-color: #8f2515; }
-
-/* Passed / To check / To fix: a big symbol, a big count and the words, so colour is never the only cue. Body font, 1.1rem or larger, ink on a pastel with a coloured edge. */
-.ats-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
-.ats-tiles li { display: grid; justify-items: center; align-content: start; gap: .25rem; padding: .55rem .25rem .6rem; border: 2.5px solid var(--tile-edge); border-radius: 12px; background: var(--tile-bg); text-align: center; }
-.ats-tiles .pass { --tile-bg: var(--mint-soft); --tile-edge: var(--leaf-deep); --tile-mark: var(--leaf-deep); --tile-mark-fg: #fff; }
-.ats-tiles .warn { --tile-bg: var(--yellow-soft); --tile-edge: var(--orange-dark); --tile-mark: #f2b84b; --tile-mark-fg: var(--ink); }
-.ats-tiles .fail { --tile-bg: var(--coral-soft); --tile-edge: #8f2515; --tile-mark: #8f2515; --tile-mark-fg: #fff; }
-.ats-tile-top { display: inline-flex; align-items: center; gap: .4rem; }
-.ats-tile-top b { font-family: var(--font-body); font-size: 1.9rem; font-weight: 800; font-variant-numeric: lining-nums; line-height: 1; color: var(--ink); }
-.ats-mark { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border: 2px solid var(--ink); border-radius: 50%; background: var(--tile-mark); color: var(--tile-mark-fg); font-family: var(--font-body); font-size: 1.25rem; font-weight: 800; line-height: 1; }
-.ats-tile-label { font-size: 1.1rem; font-weight: 800; line-height: 1.15; color: var(--ink); }
-@container dcard (max-width: 13rem) { /* a 320px phone: three tiles no longer fit across, so each becomes a row */
-  .ats-tiles { grid-template-columns: minmax(0, 1fr); }
-  .ats-tiles li { grid-auto-flow: column; justify-content: start; align-items: center; gap: .6rem; padding: .35rem .6rem; text-align: left; }
-}
-
 
 .dash-fixes { gap: .4rem; }
 .dash-fixes .cl-item { grid-template-columns: 1.9rem minmax(0, 1fr); gap: .5rem; align-items: center; padding: .35rem .5rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--dash-item-bg); }
@@ -210,40 +208,37 @@
 /* Waiting state: the same frame, dashed and empty. No figures. */
 .dash-pending { border-style: dashed; border-color: rgb(18 52 63 / 45%); }
 .dash-wait { font-size: 1.1rem; font-weight: 800; }
-.dash-ring-ghost { flex: none; display: block; width: 4.5rem; height: 4.5rem; border: 9px dashed rgb(18 52 63 / 30%); border-radius: 50%; }
 .dash-ghosts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .dash-ghosts i { display: block; height: 5.5rem; border: 1.5px dashed rgb(18 52 63 / 35%); border-radius: 16px; background: rgb(255 255 255 / 35%); }
 
-/* The dashboard is its own container ("dash"): four across from 1200px (the bigger type needs the room), two across from 640px, one under that.
-   Under 1200px the cards are as tall as their content. */
-@container dash (max-width: 639px) {
+/* The cards follow the stage panel, the same breakpoints as the reader cards above them: four across from 1100px (each pipe then runs from a reader to its own result),
+   two across from 700px, one under that. Under 1100px the cards are as tall as their content. */
+@container stage (max-width: 699px) {
   .dash-ghosts { grid-template-columns: minmax(0, 1fr); }
   .dash-ghosts i { height: 3.5rem; }
 }
-@container dash (min-width: 640px) {
-  .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+@container stage (min-width: 700px) {
+  .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@container dash (min-width: 1200px) {
-  .dash-ghosts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .dash-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .dash-card { --dash-h: 27rem; }
+@container stage (min-width: 1100px) {
+  .dash-ghosts, .dash-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* The link reaches up over the dashboard's own border and padding to meet the pipes under the reader cards, and down over the row gap to the cards. */
+  .dash-link { margin: calc(-.5rem - 1.5px) 0 -.5rem; padding: calc(.5rem + 1.5px) 0 1.25rem; }
+  .dash-head { justify-content: center; width: fit-content; max-width: 100%; margin-inline: auto; padding: .45rem 1.4rem; border: 1.5px solid var(--glass-edge); border-radius: 16px; background: rgb(255 255 255 / 90%); text-align: center; }
+  .dash-lead { justify-items: center; }
+  .dash-sample { justify-self: center; }
 }
 /* The popup (and the card) is its own container ("dcard"): check groups sit two across once it is wide. */
 @container stage (max-width: 520px) {
   .dash { padding: .5rem .6rem .75rem; }
   .dash-head { gap: .65rem; padding: .35rem; }
-  .dash-gauge, .dash-ring-ghost { width: 4rem; height: 4rem; }
-  .dash-gauge.mini { width: 4.5rem; height: 4.5rem; }
-  .dash-gauge-num { font-size: 1.25rem; }
 }
 
 /* Charts grow in only when motion is welcome. */
 @media (prefers-reduced-motion: no-preference) {
   .dash-fill { animation: dash-grow .8s ease-out both; }
-  .dash-gauge-fill { animation: dash-ring 1s ease-out both; }
 }
 @keyframes dash-grow { from { transform: scaleX(0); } }
-@keyframes dash-ring { from { stroke-dashoffset: var(--len); } }
 
 /* Action Planner: a short ordered list. Each row is two buttons side by side, the tick box on the left (marks it done) and the row (opens the full quest). */
 .pl-start { padding: .4rem .7rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--dash-item-bg); font-size: 1rem; line-height: 1.3; overflow-wrap: anywhere; }
@@ -251,9 +246,10 @@
 .pl-item { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); min-width: 0; border: 2px solid var(--ink); border-radius: 12px; background: var(--dash-item-bg); box-shadow: 0 2px 0 rgb(31 36 48 / 30%); }
 .pl-item[data-done="true"] { background: var(--mint-soft); }
 .pl-open, .pl-tick { margin: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
-.pl-open { display: grid; gap: .1rem; align-content: start; min-width: 0; min-height: 44px; padding: .4rem .6rem .45rem; border-radius: 10px; text-align: left; }
+.pl-open { display: grid; gap: .1rem; align-content: center; min-width: 0; min-height: 44px; padding: .4rem .6rem .45rem; border-radius: 10px; text-align: left; }
 .pl-open:hover, .pl-tick:hover { background: rgb(219 232 106 / 35%); }
 .pl-title { display: flex; align-items: center; gap: .45rem; font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.dash-card .pl-title > span:last-child { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .pl-num { flex: none; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border: 2px solid var(--ink); border-radius: 7px; background: var(--lime); font-family: var(--font-display); font-size: 1rem; font-weight: 700; line-height: 1; }
 .pl-item[data-done="true"] .pl-num { background: var(--meadow); }
 .pl-chips { font-size: 1rem; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }

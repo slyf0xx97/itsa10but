@@ -34,7 +34,7 @@
 .sgs-tiles { display: grid; flex: 1 1 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: .4rem; margin: 0; padding: 0; list-style: none; }
 .sgs-tiles li { display: grid; align-content: center; gap: .1rem; min-width: 0; padding: .3rem .35rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 10px; background: rgb(255 255 255 / 80%); }
 .sgs-tiles li:last-child:nth-child(odd) { grid-column: 1 / -1; }
-@container (min-width: 44rem) { .sgs-tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); } .sgs-tiles li:last-child:nth-child(odd) { grid-column: auto; } }
+@container (min-width: 44rem) { .sgs-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } .sgs-tiles li:last-child:nth-child(odd) { grid-column: auto; } }
 .sgs-row { display: flex; align-items: center; gap: .35rem; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
 .sgs-mark { display: inline-grid; flex: 0 0 auto; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 8px; background: rgb(255 255 255 / 85%); color: var(--water-deep); }
 .sgs-mark img { display: block; width: 1.2rem; height: 1.2rem; object-fit: contain; }
@@ -54,6 +54,25 @@
   .sgs-tiles li > .sgs-src { flex: 1 1 100%; }
 }
 
+/* Latest in AI: four recent developments, one compact row each: a kind tag and the headline, then the source with its date. The one plain line about each item is its hover text and its spoken label. */
+.sgs-ai { display: grid; gap: .45rem; margin-top: .65rem; }
+.sgs-ai-h { display: flex; align-items: center; gap: .4rem; margin: 0; color: var(--ink); font-size: 1.1rem; font-weight: 800; line-height: 1.2; }
+.sgs-ai-h svg { flex: none; color: #b9651a; fill: #ffd84d; }
+.sgs-ai-h small { margin-left: auto; color: var(--text-soft); font-size: .9rem; font-weight: 600; }
+.sgs-ai-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.sgs-ai-list li { min-width: 0; }
+.sgs-ai-list a { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .1rem .55rem; box-sizing: border-box; height: 100%; padding: .4rem .65rem .45rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 10px; background: rgb(255 255 255 / 80%); color: var(--ink); text-decoration: none; }
+.sgs-ai-list a:hover { border-color: var(--ink); background: #fff; box-shadow: 0 4px 0 rgb(31 36 48 / 25%); }
+.sgs-ai-list a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sgs-ai-kind { grid-row: 1 / span 2; align-self: start; box-sizing: border-box; width: 5.4rem; padding: 0 .4rem; text-align: center; border: 1.5px solid var(--ink); border-radius: 999px; background: #d8f0fb; font-size: .85rem; font-weight: 800; line-height: 1.4; }
+.sgs-ai-kind[data-kind="Research"] { background: #e5f3e9; }
+.sgs-ai-kind[data-kind="Finding"] { background: #fdecc8; }
+.sgs-ai-list b { font-size: 1.02rem; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+.sgs-ai-src { grid-column: 2; display: inline-flex; align-items: center; gap: .3rem; color: var(--text-soft); font-size: .9rem; font-weight: 600; line-height: 1.3; }
+@media (prefers-reduced-motion: no-preference) {
+  .sgs-ai-list a { transition: transform .14s ease-out, box-shadow .14s ease-out, background-color .14s; }
+  .sgs-ai-list a:hover { transform: translateY(-2px); }
+}
 .sgs-src { color: var(--text-soft); font-size: .92rem; font-weight: 500; line-height: 1.3; }
 .sgs-tiles .sgs-src a { white-space: nowrap; }
 .sgs-src a, .sgs-headlines a, .sgs-facts a { color: var(--water-deep); font-weight: 700; overflow-wrap: anywhere; }

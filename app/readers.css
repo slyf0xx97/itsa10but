@@ -3,7 +3,7 @@
    Strengths, limits and tools sit behind a "Strengths, limits & tools" button that opens the shared popup (lib/agent-facts.ts). There is no Done badge: waiting is a dim card with a
    sleeping sprite, working is a "Working..." ribbon, a glowing edge and moves that light in turn, done is a green edge and one foil sweep. Screen readers
    get the status as hidden text in the name.
-   Four across from 1100px of panel, two by two from 700px, one column under that (the river in flow.css switches drawings at the same widths).
+   Four across from 1100px of panel, two by two from 700px, one column under that (the pipes in flow.css show only from 1100px).
    The art, name and what-it-does line are the button that opens the detail panel; the moves and the details button are siblings, so no control sits inside another.
    All movement is gated by no-preference at the bottom of this file; without it every card is a still card. */
 

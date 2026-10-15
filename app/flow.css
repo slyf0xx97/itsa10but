@@ -1,12 +1,16 @@
-/* The connector under the four reader cards (ReaderCards > ResultFlow): XP flowing from each reader into the result, like a game HUD pipeline, with elbow routing.
-   Each card gets a socket on its bottom edge. A pipe drops from the socket, bends (true radius) and runs along a bus to a junction node; one pipe drops from there into an arrow
-   port on the top edge of the result card. A pipe is a white halo (so it reads on any background), a pale track, a lighter inner shade and a thin bright core. XP orbs are a dotted
-   overlay on the same path (round dashes with zero length are dots): a done reader streams them, a working one sends a slow single orb along a dimmer pipe, a waiting one is a
-   dashed empty pipe with a hollow socket. The stem is denser the more readers are done (.rf[data-lit]). The SVG is drawn in real pixels by FlowSvg, so nothing is stretched.
-   Motion is stroke-dashoffset only and only when allowed; with reduced motion the orbs sit still along the pipe. Decorative (aria-hidden). */
-.rf { --rf-h: 76px; position: relative; z-index: 1; height: var(--rf-h); margin-top: -.5rem; line-height: 0; }
-/* Half a card gap wider on each side, so the quarter centres line up with the card centres. */
-.rf-svg { display: none; width: calc(100% + .8rem); height: var(--rf-h); margin-inline: -.4rem; overflow: visible; }
+/* The pipes between the four reader cards and the four result cards (ReaderCards > ResultFlow and SynthesisDashboard): XP flowing from each reader into its own result, like a game HUD pipeline.
+   They are drawn only where the readers sit four across, so every pipe is a straight line from a reader to the result card of the same reader. Under 1100px of panel the cards
+   wrap, a pipe would point at the wrong card, and colour and avatar pair each reader with its result instead.
+   "top": a socket on the bottom edge of each reader card and a short drop. "bottom": the rest of the pipe, behind the results headline, ending in an arrow port on the result card.
+   A pipe is a white halo (so it reads on any background), a pale track, a lighter inner shade and a thin bright core. XP orbs are a dotted overlay on the same path (round dashes
+   with zero length are dots): a done reader streams them, a working one sends a slow single orb along a dimmer pipe, a waiting one is a dashed empty pipe with a hollow socket.
+   The SVG is drawn in real pixels by FlowSvg, so nothing is stretched. Motion is stroke-dashoffset only and only when allowed; with reduced motion the orbs sit still along the pipe.
+   Decorative (aria-hidden). */
+.rf { display: none; position: relative; z-index: 1; line-height: 0; }
+.rf-top { height: 30px; margin-top: -.5rem; }
+.rf-bottom { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+/* Half a card gap wider on each side, so the eighths line up with the card centres (the gap is 1rem in both rows). */
+.rf-svg { display: block; width: calc(100% + 1rem); height: 100%; margin-inline: -.5rem; overflow: visible; }
 
 .rf-pipe path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .rf-halo { stroke: rgb(255 255 255 / 85%); stroke-width: 12px; }
@@ -23,25 +27,20 @@
 /* XP orbs: a teal rim, a lime body and a white core, three dotted overlays with the same spacing (--p, in px) and the same offset. */
 .rf-pipe { --p: 120; --sp: 40; }
 .rf-pipe.done { --p: 28; --sp: 60; }
-.rf-stem.done { --p: 36; }
-.rf[data-lit="2"] .rf-stem.done { --p: 28; }
-.rf[data-lit="3"] .rf-stem.done { --p: 22; }
-.rf[data-lit="4"] .rf-stem.done { --p: 18; }
 .rf-orb-rim, .rf-orb, .rf-orb-core { stroke-dasharray: .01px calc(var(--p) * 1px - .01px); }
 .rf-orb-rim { stroke: rgb(22 122 102 / 55%); stroke-width: 10px; }
 .rf-orb { stroke: var(--lime); stroke-width: 7px; }
 .rf-orb-core { stroke: #fff; stroke-width: 3px; }
 .rf-pipe.working .rf-orb-rim, .rf-pipe.working .rf-orb, .rf-pipe.working .rf-orb-core { opacity: .8; }
-.rf-pipe.waiting .rf-orb-rim, .rf-pipe.waiting .rf-orb, .rf-pipe.waiting .rf-orb-core, .rf-pulse { display: none; }
+.rf-pipe.waiting .rf-orb-rim, .rf-pipe.waiting .rf-orb, .rf-pipe.waiting .rf-orb-core { display: none; }
 
-/* Sockets on the cards, the junction and the arrow port. A waiting socket is hollow. */
+/* Sockets on the reader cards and the arrow ports on the result cards. A waiting socket is hollow. */
 .rf-ring { fill: #fff; stroke: var(--teal-dark); stroke-width: 2.4px; }
 .rf-dot { fill: var(--teal-dark); }
 .rf-node.working .rf-ring { stroke: #55baa6; }
 .rf-node.working .rf-dot { fill: #8bd5c6; }
 .rf-node.waiting .rf-ring { stroke: #98afba; stroke-width: 2px; }
 .rf-node.waiting .rf-dot { display: none; }
-.rf-node:not(.rf-socket).done .rf-dot { fill: var(--lime); stroke: var(--teal-dark); stroke-width: 1.2px; }
 .rf-tri { fill: var(--teal-dark); stroke: #fff; stroke-width: 2.5px; stroke-linejoin: round; }
 .rf-chev { fill: none; stroke: #fff; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
 .rf-port.working .rf-tri { fill: #55baa6; }
@@ -49,21 +48,14 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .rf-pipe:not(.waiting) .rf-orb-rim, .rf-pipe:not(.waiting) .rf-orb, .rf-pipe:not(.waiting) .rf-orb-core { animation: rf-flow calc(var(--p) / var(--sp) * 1s) linear infinite; animation-delay: var(--d, 0s); }
-  .rf-stem.done .rf-pulse { display: block; stroke: #f0fffb; stroke-width: 2.2px; stroke-dasharray: 14px 150px; animation: rf-pulse 2.2s linear infinite; }
   .rf-node.working .rf-dot { animation: rf-blink 1.2s ease-in-out infinite; }
 }
 @keyframes rf-flow { to { stroke-dashoffset: calc(var(--p) * -1px); } }
-@keyframes rf-pulse { to { stroke-dashoffset: -164px; } }
 @keyframes rf-blink { 50% { opacity: .35; } }
 
-/* The cards above (readers.css) are four across from 1100px of panel, two by two from 700px and one column under that. The connector swaps drawings
-   to match: four legs, two under the bottom row, or one under the last card. Same stage breakpoints as the card grid. */
-.rf-col { display: block; }
-@container stage (min-width: 700px) {
-  .rf-col { display: none; }
-  .rf-grid { display: block; }
-}
+/* Four across from 1100px of panel (same breakpoint as the card grids in readers.css and dashboard.css). The reader row is inset by the dashboard's own side padding,
+   so the reader cards and the result cards have the same width and their centres line up. */
 @container stage (min-width: 1100px) {
-  .rf-grid { display: none; }
-  .rf-row { display: block; }
+  .rd { padding-inline: calc(.8rem + 1.5px); }
+  .rf { display: block; }
 }

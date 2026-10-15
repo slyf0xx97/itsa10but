@@ -1,6 +1,7 @@
 import type { Analysis, LiveRunInfo, Skill } from "./analysis-types.ts";
 import { atsCounts, atsGroups, weakProofs } from "./dashboard-data.ts";
 import { MODE_NOTE, SWITCH_LABEL, liveRunNote } from "./mode-copy.ts";
+import { wantOf } from "./skill-levels.ts";
 
 /** Words for the "See full findings" popups: the mode that ran, and the steps each reader took. Every number comes from the analysis. */
 
@@ -47,7 +48,7 @@ export function readerSteps(reader: ReaderKey, analysis: Analysis): string[] {
       return [
         total ? `Read the role text and picked out ${count(total, "skill")}.` : "Read the role text and found no skills to pick out.",
         total ? `Found a role line that names ${withLine} of ${total}.${withLine < total ? ` The other ${total - withLine} ${total - withLine === 1 ? "has" : "have"} no quote.` : ""}` : "Nothing to look up.",
-        top ? `Ranked them by how much the role asks. Top ask: ${top.name} (${Math.round(num(top.demand))}).` : "Nothing to rank.",
+        top ? `Ranked them by how much the role asks. Top ask: ${top.name}, ${wantOf(top.demand).toLowerCase()} priority.` : "Nothing to rank.",
         analysis.company ? `Checked the posting for an employer. Found ${analysis.company.name}.` : "Checked the posting for an employer. Found none.",
       ];
     }
@@ -78,7 +79,7 @@ export function readerSteps(reader: ReaderKey, analysis: Analysis): string[] {
       const gap = skills.map((skill) => ({ name: skill.name, demand: Math.round(num(skill.demand)), evidence: Math.round(num(skill.evidence)) })).filter((item) => item.demand > item.evidence).sort((a, b) => (b.demand - b.evidence) - (a.demand - a.evidence))[0];
       return [
         total ? `Put what the role asks next to what your résumé shows, for ${count(total, "skill")}.` : "Found no skills to compare.",
-        gap ? `Found the biggest gap: ${gap.name}. The role asks ${gap.demand} and your résumé shows ${gap.evidence}.` : "Found no gap between the ask and the proof.",
+        gap ? `Found the biggest gap: ${gap.name}. The role asks for it at ${wantOf(gap.demand).toLowerCase()} priority and your résumé shows ${gap.evidence}%.` : "Found no gap between the ask and the proof.",
         `Picked ${count(analysis.quests.length, "tip")} to close the gaps, in the order to do them.`,
         `Worked out a match of ${Math.round(num(analysis.matchPercent))}%. It compares your proof with what the role asks.`,
       ];

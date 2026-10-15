@@ -56,14 +56,14 @@ for (const [name, layout] of [["wide", WIDE], ["rail", RAIL], ["rail, other row 
 }
 
 test("the stations are the four steps on the page: upload and mask, a fork that holds two cards, the four résumé agents in one card and the action plan", () => {
-  assert.deepEqual(STOP_ORDER, ["camp", "native", "boost", "readers", "result"]);
-  assert.deepEqual(NODE_ORDER, ["camp", "native", "boost", ...READER_IDS, "result"]);
+  assert.deepEqual(STOP_ORDER, ["camp", "boost", "native", "readers", "result"]);
+  assert.deepEqual(NODE_ORDER, ["camp", "boost", "native", ...READER_IDS, "result"]);
   assert.ok(!("mask" in CARD) && !("s1" in SEG_ENDS), "Mask and search is part of the first station now");
 });
 
 test("the two roads of the fork are the main event: their cards are wider than the others and the roads sit well apart", () => {
   assert.ok(CARD.native.w > CARD.camp.w && CARD.boost.w > CARD.camp.w && CARD.native.w >= 240 && CARD.boost.w >= 240);
-  assert.ok(WIDE.pts.boost[1] - WIDE.pts.native[1] >= 110, "the roads keep at least 110 units apart");
+  assert.ok(WIDE.pts.native[1] - WIDE.pts.boost[1] >= 110, "the roads keep at least 110 units apart");
 });
 
 test("the timeline is ordered and fits one cycle", () => {
@@ -91,8 +91,8 @@ test("the road only climbs: no stretch of road ever drops, and the camp is the l
   assert.equal(Math.max(...ys), WIDE.pts.camp[1]);
   assert.equal(Math.min(...ys), WIDE.pts.result[1]);
   // every station is higher than the one before it, except the two roads of the fork, which both climb from the fork
-  assert.ok(WIDE.pts.fork[1] < WIDE.pts.camp[1] && WIDE.pts.native[1] < WIDE.pts.boost[1] && WIDE.pts.boost[1] <= WIDE.pts.fork[1]);
-  assert.ok(WIDE.pts.scout[1] < WIDE.pts.native[1] && WIDE.pts.result[1] < WIDE.pts.planner[1]);
+  assert.ok(WIDE.pts.fork[1] < WIDE.pts.camp[1] && WIDE.pts.boost[1] < WIDE.pts.native[1] && WIDE.pts.native[1] <= WIDE.pts.fork[1]);
+  assert.ok(WIDE.pts.scout[1] < WIDE.pts.boost[1] && WIDE.pts.result[1] < WIDE.pts.planner[1]);
   // and it runs from the bottom left to the top right
   assert.ok(WIDE.pts.camp[0] < 150 && WIDE.pts.result[0] > 1100);
 });

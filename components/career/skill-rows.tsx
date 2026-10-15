@@ -63,7 +63,7 @@ function Row({ skill, rank, onOpen }: { skill: Skill; rank: number; onOpen: (nam
         </span>
         <span className="rk-fact">
           <span className={"sk-steps " + proof.toLowerCase()} aria-hidden="true">{[1, 2, 3, 4].map((n) => <i key={n} className={n <= proofSteps(skill.evidence) ? "on" : ""} />)}</span>
-          <span><span className="sr-only">You show </span><span aria-hidden="true">{PROOF_ICON[proof]}</span> {proof}<span className="sr-only">, {skill.evidence} out of 100</span></span>
+          <span><span className="sr-only">You show </span><span aria-hidden="true">{PROOF_ICON[proof]}</span> {proof}<span className="sr-only">, {skill.evidence} percent</span></span>
         </span>
       </span>
     </div>
@@ -84,11 +84,11 @@ function Detail({ skill }: { skill: Skill }) {
     <p className="sk-why"><strong>Why this score</strong> {whyLine(skill.demand, skill.evidence)}</p>
     <details className="sk-how" open>
       <summary>How we score</summary>
-      <p>Your <Term id="proof-score">proof score</Term> is <b>{skill.evidence}</b> out of 100. The <Term id="demand-score">role score</Term> is <b>{skill.demand}</b> out of 100. Both score the proof in your text. Neither predicts whether you&apos;ll be hired.</p>
+      <p>Your <Term id="proof-score">proof</Term> is <b>{skill.evidence}%</b>. The role asks for the skill at <b>{wantOf(skill.demand).toLowerCase()}</b> priority. Both come from the text. Neither predicts whether you&apos;ll be hired.</p>
       {breakdown
         ? <div className="sk-parts">
-            <Parts title="Proof score, from your résumé" parts={breakdown.parts} none="No résumé passage matches, so no points are added." />
-            <Parts title="Role score, from the posting" parts={breakdown.demandParts} none="No passage in the role text matches, so no points are added." />
+            <Parts title="Proof, from your résumé" parts={breakdown.parts} none="No résumé passage matches, so no points are added." />
+            <Parts title="Why the role asks for it" parts={breakdown.demandParts} points={false} none="No passage in the role text matches." />
           </div>
         : skill.resumeQuote && skill.scoreReason && <p>{skill.scoreReason}</p>}
     </details>
@@ -97,11 +97,11 @@ function Detail({ skill }: { skill: Skill }) {
 }
 
 /** The rule points that added up to a score, one per line. Each point has a passage behind it. */
-export function Parts({ title, parts, none }: { title: string; parts: { label: string; points: number }[]; none: string }) {
+export function Parts({ title, parts, none, points = true }: { title: string; parts: { label: string; points: number }[]; none: string; points?: boolean }) {
   return <section aria-label={title}>
     <h6>{title}</h6>
     {parts.length
-      ? <ul>{parts.map((part) => <li key={part.label}><b>+{part.points}</b> {part.label}</li>)}</ul>
+      ? <ul>{parts.map((part) => <li key={part.label}>{points && <b>+{part.points} </b>}{part.label}</li>)}</ul>
       : <p>{none}</p>}
   </section>;
 }

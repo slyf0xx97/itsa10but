@@ -425,7 +425,7 @@ export default function Home() {
               {notice && <p className="notice mode-notice" role="status">{notice}</p>}
               {shownMode === "live" && <p className="mode-note">{liveRunNote(hasResult ? analysis.run : undefined)}</p>}
               <ReaderCards agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} />
-              <SynthesisDashboard analysis={analysis} hasResult={hasResult} busy={busy} madeUp={resumes[0]?.id.startsWith("example-")} />
+              <SynthesisDashboard analysis={analysis} hasResult={hasResult} busy={busy} madeUp={resumes[0]?.id.startsWith("example-")} flow={{ active: busy ? activeAgent : -1, completed: visibleStep }} />
             </div>
           </section>
         </div>

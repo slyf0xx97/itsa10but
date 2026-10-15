@@ -1,7 +1,7 @@
 // Geometry and timing for the "How it works" adventure map (components/trail-art.tsx draws it, components/how-it-works.tsx wraps it).
 // Two layouts share one set of stops: a wide map (percent-positioned, scales with the board) and a narrow rail (fixed rem sizes, one stop per row).
 
-/** A station is one card on the map. Upload and mask is the first. The fork holds two (Native scan and API boost), and the four résumé agents share one. */
+/** A station is one card on the map. Upload and mask is the first. The fork holds two (API boost on the high road, Native scan below it), and the four résumé agents share one. */
 export type StopId = "camp" | "native" | "boost" | "readers" | "result";
 export type ReaderId = "scout" | "finder" | "recruiter" | "planner";
 /** A place on the road with a round marker. The agents stand one after another on a stretch of the road. */
@@ -12,9 +12,9 @@ export type End = NodeId | "fork" | "join";
 
 export const READER_IDS: ReaderId[] = ["scout", "finder", "recruiter", "planner"];
 /** Cards in run order, which is also the keyboard order. */
-export const STOP_ORDER: StopId[] = ["camp", "native", "boost", "readers", "result"];
+export const STOP_ORDER: StopId[] = ["camp", "boost", "native", "readers", "result"];
 /** Markers on the road, in run order. */
-export const NODE_ORDER: NodeId[] = ["camp", "native", "boost", "scout", "finder", "recruiter", "planner", "result"];
+export const NODE_ORDER: NodeId[] = ["camp", "boost", "native", "scout", "finder", "recruiter", "planner", "result"];
 
 /** Which two points each segment of the road joins. */
 export const SEG_ENDS: Record<SegId, [End, End]> = {
@@ -48,13 +48,13 @@ export function elbow(points: Pt[], r = CORNER): string {
  *  The two roads of the fork are the main event, so their cards are the widest on the map and their type is a step larger (arch.css).
  *  `at` pins a card to a fixed top left corner instead (the Results card hangs in the sky beside the summit). */
 export const CARD: Record<StopId, { w: number; h: number; reach: number; at?: Pt }> = {
-  camp: { w: 216, h: 140, reach: 38 },
+  camp: { w: 216, h: 170, reach: 38 },
   native: { w: 252, h: 124, reach: 38 },
   boost: { w: 252, h: 124, reach: 38 },
   readers: { w: 226, h: 252, reach: 44 },
   result: { w: 170, h: 108, reach: 38, at: [880, 16] },
 };
-export const SIDE: Record<StopId, "above" | "below"> = { camp: "above", native: "above", boost: "below", readers: "below", result: "below" };
+export const SIDE: Record<StopId, "above" | "below"> = { camp: "above", native: "below", boost: "above", readers: "below", result: "below" };
 export const ROAD_R = 13;
 /** Smallest gap the map keeps between a card and anything else (another card, a road, a sign), in units. */
 export const GAP = 12;
@@ -67,11 +67,11 @@ export const FORK_SIGN = { w: 74, h: 26, dy: 28 };
 export const TITLE_SIGN = { x: 12, y: 12, w: 178, h: 46 };
 export const POWER_LABEL = { w: 196, h: 22, dy: -67 };
 
-/** Wide board, 1200 by 536 units. The road only climbs: from the camp at the bottom left it steps up to the fork, then Native scan takes the high pass
- *  while API boost goes along the river valley and climbs to meet it (116 units apart, so the two roads read as two choices), the agents walk the next ledge,
- *  the road crosses the rope bridge and ends on the summit at the top right. */
+/** Wide board, 1200 by 536 units. The road only climbs: from the camp at the bottom left it steps up to the fork, then API boost climbs to the high pass
+ *  while Native scan goes along the river valley and climbs to meet it (116 units apart, so the two roads read as two choices), the agents walk the next ledge,
+ *  the road crosses the rope bridge and ends on the summit at the top right. The fork sits close to the camp and the two cards close to the fork, so little bare road is left. */
 const WIDE_PTS: Record<End, Pt> = {
-  camp: [116, 454], fork: [380, 366], native: [598, 250], boost: [598, 366], join: [750, 250],
+  camp: [116, 454], fork: [330, 366], boost: [520, 250], native: [520, 366], join: [750, 250],
   scout: [812, 224], finder: [864, 224], recruiter: [916, 224], planner: [968, 224], result: [1165, 70],
 };
 
@@ -80,10 +80,10 @@ export const WIDE: Layout = {
   pts: WIDE_PTS,
   segs: ((p) => ({
     s0: elbow([p.camp, [252, p.camp[1]], [252, p.fork[1]], p.fork]),
-    nA: elbow([p.fork, [440, p.fork[1]], [440, p.native[1]], p.native]),
-    bA: elbow([p.fork, p.boost]),
-    nB: elbow([p.native, p.join]),
-    bB: elbow([p.boost, [p.join[0], p.boost[1]], p.join]),
+    nA: elbow([p.fork, p.native]),
+    bA: elbow([p.fork, [350, p.fork[1]], [350, p.boost[1]], p.boost]),
+    nB: elbow([p.native, [p.join[0], p.native[1]], p.join]),
+    bB: elbow([p.boost, p.join]),
     s2: elbow([p.join, [p.join[0], p.scout[1]], p.scout]),
     r1: elbow([p.scout, p.finder]),
     r2: elbow([p.finder, p.recruiter]),
@@ -126,8 +126,8 @@ export function bolt(a: Pt, b: Pt, amp: number, n = 8): string {
 export function powerLine(layout: Layout, wide: boolean) {
   const [bx, by] = layout.pts.boost;
   const [sx, sy] = layout.pts.scout;
-  const from: Pt = wide ? [bx + 22, by - 12] : [bx + 14, by + 16];
-  const to: Pt = wide ? [sx - 28, sy + 12] : [sx + 16, sy - 16];
+  const from: Pt = wide ? [bx + 22, by - 22] : [bx + 14, by + 16];
+  const to: Pt = wide ? [sx - 28, sy + 6] : [sx + 16, sy - 16];
   return { from, to, d: bolt(from, to, wide ? 7 : 4) };
 }
 
@@ -138,7 +138,7 @@ const RAIL_X: Record<End, number> = {
   scout: 40, finder: 40, recruiter: 40, planner: 40, result: 58,
 };
 export const RAIL_ROWS: { id: End; px: number }[] = [
-  { id: "camp", px: 150 }, { id: "fork", px: 44 }, { id: "native", px: 124 }, { id: "boost", px: 140 }, { id: "join", px: 20 },
+  { id: "camp", px: 150 }, { id: "fork", px: 44 }, { id: "boost", px: 140 }, { id: "native", px: 124 }, { id: "join", px: 20 },
   { id: "scout", px: 44 }, { id: "finder", px: 44 }, { id: "recruiter", px: 44 }, { id: "planner", px: 64 }, { id: "result", px: 112 },
 ];
 

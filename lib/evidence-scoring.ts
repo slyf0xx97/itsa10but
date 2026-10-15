@@ -1,5 +1,6 @@
 import type { EvidenceQuote, Resume } from "./analysis-types.ts";
 import { sumParts, type ScorePart, type SkillBreakdown } from "./scoring.ts";
+import { wantOf } from "./skill-levels.ts";
 
 const action = /\b(built|created|developed|deployed|analysed|analyzed|implemented|configured|investigated|automated|documented|led|delivered)\b/i;
 const metric = /\b\d+(?:\.\d+)?\s*(?:%|users?|hours?|minutes?|seconds?|requests?|records?|tests?|incidents?)\b|\b\d+(?:\.\d+)?%/i;
@@ -36,5 +37,5 @@ export function scoreEvidence(name: string, terms: string[], resumes: Resume[], 
   const breakdown: SkillBreakdown = { parts, demandParts, jobLine: roleLines[0] ?? null, resumeLines, missing };
   const evidence = sumParts(parts), demand = sumParts(demandParts);
   return { demand, evidence, resumeQuote: resumeLines[0], roleQuote: roleLines[0], breakdown,
-    scoreReason: `${name}: résumé rules total ${evidence}/100; job requirement rules total ${demand}/100. Missing passages score 0. Text evidence, not hiring odds.` };
+    scoreReason: `${name}: résumé rules total ${evidence}%; the posting asks for it at ${wantOf(demand).toLowerCase()} priority. Missing passages score 0. Text evidence, not hiring odds.` };
 }

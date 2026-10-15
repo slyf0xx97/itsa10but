@@ -3,7 +3,7 @@
 import { BASE_PATH } from "@/lib/base-path";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
-import { Zap } from "lucide-react";
+import { ShieldCheck, Zap } from "lucide-react";
 import { WordTip } from "@/components/career/word-tip";
 import { Skyline, TrailArt, TrailLive, type Which } from "@/components/trail-art";
 import { AGENT_FACTS, hasWeb } from "@/lib/agent-facts";
@@ -60,21 +60,21 @@ const stations: Station[] = [
     ],
   },
   {
-    id: "native", n: "2a", title: "Native scan",
+    id: "native", n: "2b", title: "Native scan",
     line: "Free. Simple rules run in your browser.",
-    chips: [{ t: "Built-in rules" }],
+    chips: [],
     tipTitle: "Native scan (lib/simulated-engine.ts)",
     tip: [
       { t: "runSimulatedEngine runs the 4 agents in order, in your browser" },
       { t: "No model call" },
       { t: "Evidence points: 20 named, 25 used in a project, 14 number, 16 outcome, 25 second passage. 100 at most" },
-      { t: "Role demand points: 60, 20, 20" },
+      { t: "Role priority: High when the posting says required or repeats a skill, Medium when it names it once" },
       { t: "No supporting passage earns 0" },
       { t: "The Recruiter runs 11 ATS-style checks (lib/ats-check.ts)" },
     ],
   },
   {
-    id: "boost", n: "2b", title: "API boost",
+    id: "boost", n: "2a", title: "API boost",
     line: "Your key powers the agents. Web search is optional.",
     chips: [
       { t: "API key", logo: "openrouter", tip: { title: "Your API key", lines: [
@@ -102,7 +102,7 @@ const stations: Station[] = [
     chips: [],
     tipTitle: "Action plan",
     tip: [
-      { t: "A skills map: each skill with a demand score and an evidence score, and the line from your résumé behind it" },
+      { t: "A skills map: each skill with how much the role needs it and your proof in %, and the line from your résumé behind it" },
       { t: "An ATS-style check of your wording and format, with tips on what to fix first" },
       { t: "A verdict and up to 3 tips and tricks, plus links to free and open-source tools" },
       { t: "Scores show proof in your text. They don't predict hiring" },
@@ -131,7 +131,7 @@ function agentTip(i: number): Point[] {
     { t: `Tools in API boost: ${fact.tools.length ? fact.tools.map((tool) => lower(tool.label)).join(", ") : "none. It works from the text it's given"}` },
     ...(hasWeb(fact) ? [{ t: "Web search needs your Firecrawl key", logo: ["firecrawl" as const] }] : []),
     { t: `Limits in API boost: ${fact.toolCalls ? `up to ${fact.toolCalls} tool calls, ` : ""}${fact.seconds} seconds` },
-    { t: "Native scan runs this agent as built-in rules, with no model call" },
+    { t: "Native scan runs this agent in your browser, with no model call" },
   ];
 }
 
@@ -170,6 +170,7 @@ function StopBox({ s, as: Tag = "li" }: { s: Station; as?: "li" | "div" }) {
   return <Tag className="qm-stop" data-stop={s.id} data-side={SIDE[s.id]} style={POS(s.id)}>
     <Card n={s.n} title={s.title} line={s.line} tip={{ title: s.tipTitle, points: s.tip }}>
       {s.chips.length > 0 && <ul className="qm-chips" aria-label="Tools used">{s.chips.map((chip) => <ChipItem key={chip.t} chip={chip} />)}</ul>}
+      {s.id === "camp" && <p className="qm-safe"><ShieldCheck aria-hidden="true" focusable="false" /> Personal details masked</p>}
     </Card>
   </Tag>;
 }
@@ -201,10 +202,10 @@ function measureRail(list: HTMLElement): Layout | null {
   for (const el of list.querySelectorAll<HTMLElement>("[data-stop]")) if (el.dataset.stop !== "readers") ys[el.dataset.stop as End] = at(el, 22 * k);
   for (const el of list.querySelectorAll<HTMLElement>("[data-reader]")) ys[el.dataset.reader as End] = at(el, el.offsetHeight / 2);
   const sign = list.querySelector<HTMLElement>(".qm-forksign");
-  const boost = list.querySelector<HTMLElement>('[data-stop="boost"]');
-  if (!sign || !boost || Object.keys(ys).length < 8) return null;
+  const lowRoad = list.querySelector<HTMLElement>('[data-stop="native"]'); // the last card of the fork
+  if (!sign || !lowRoad || Object.keys(ys).length < 8) return null;
   ys.fork = at(sign, sign.offsetHeight / 2);
-  ys.join = at(boost, boost.offsetHeight + 10 * k);
+  ys.join = at(lowRoad, lowRoad.offsetHeight + 10 * k);
   return railFrom(ys, list.parentElement!.getBoundingClientRect().height);
 }
 
@@ -269,12 +270,12 @@ export function HowItWorks() {
         <TrailArt which="rail" layout={rail} still={motion !== true} />
         {motion === true && <TrailLive key={which} which={which} layout={which === "wide" ? WIDE : rail} svgRef={live} />}
         <h2 id="how-it-works-title" className="qm-sign">How it works</h2>
-        <ol className="qm-stops" ref={stopList} aria-label="From your role and résumé to your action plan, in four steps: upload and mask, the two ways to run (Native scan or API boost), your four résumé agents, action plan">
+        <ol className="qm-stops" ref={stopList} aria-label="From your role and résumé to your action plan, in four steps: upload and mask, the two ways to run (API boost or Native scan), your four résumé agents, action plan">
           <StopBox s={station("camp")} />
           <li className="qm-group">
             <p className="qm-forksign" style={signStyle}><span className="sr-only">Pick one road: </span><span aria-hidden="true">Pick one</span></p>
-            <StopBox s={station("native")} as="div" />
             <StopBox s={station("boost")} as="div" />
+            <StopBox s={station("native")} as="div" />
           </li>
           <li className="qm-stop" data-stop="readers" data-side={SIDE.readers} style={POS("readers")}>
             <p className="qm-power"><Zap aria-hidden="true" focusable="false" /> API boost powers your agents</p>

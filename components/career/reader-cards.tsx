@@ -93,7 +93,7 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
             <span className="rd-ava"><PixelAgent kind={item.kind} /></span>
             <span className="rd-id">
               <span className="rd-name">{item.name}<span className="sr-only"> ({stateWord[itemState]})</span></span>
-              <span className="rd-status" aria-hidden="true"><i className="rd-dot" />{stateWord[itemState]}{itemState === "active" && <span className="rd-dots"><i>.</i><i>.</i><i>.</i></span>}</span>
+              {itemState !== "done" && <span className="rd-status" aria-hidden="true"><i className="rd-dot" />{stateWord[itemState]}{itemState === "active" && <span className="rd-dots"><i>.</i><i>.</i><i>.</i></span>}</span>}
             </span>
           </span>
           <span className="rd-tag">{fact.tagline.join("")}</span>
@@ -203,18 +203,15 @@ function AgentDetails({ name, fact, mode }: { name: ReaderName; fact: AgentFact;
 }
 
 const flowState: Record<State, string> = { waiting: "waiting", active: "working", done: "done" };
-const RANK: Record<State, number> = { waiting: 0, active: 1, done: 2 };
 
-// Drawn in real pixels: FlowSvg measures its own width, so the elbows keep a true radius at any card width. Each leg starts at the centre of a card column (a fraction of the SVG width,
-// since the SVG is half a card gap wider than the cards on each side). Socket on the card edge, leg down to the bus, bus to the junction at the middle, stem down to the arrow port.
-const FLOW_H = 76, SOCKET_Y = 2, BUS = 28, BEND = 12, STEM_END = FLOW_H - 15;
-// Four cards in a row: a leg under each. Cards in a 2x2 grid: only the bottom row (readers 3 and 4) sits above the connector. One column: only the last card (reader 4).
-const ROW = { cls: "rf-row", from: 0, frac: [1 / 8, 3 / 8, 5 / 8, 7 / 8] };
-const GRID = { cls: "rf-grid", from: 2, frac: [1 / 4, 3 / 4] };
-const COL = { cls: "rf-col", from: 3, frac: [1 / 2] };
+// Drawn in real pixels: FlowSvg measures its own size, so the arrows keep their shape at any width. Each reader gets its own straight pipe. The svg is half a card gap wider than the
+// card row on each side, so a card's centre sits at an odd eighth of the svg width. The pipe runs in two pieces: "top" (a socket on each reader card and a short drop, drawn here) and
+// "bottom" (the rest, behind the results headline, ending in an arrow on that reader's own result card, drawn by SynthesisDashboard).
+const SOCKET_Y = 2, TOP_H = 30, ARROW_H = 15;
+const FRACS = [1 / 8, 3 / 8, 5 / 8, 7 / 8];
 
 /** One pipe: a white halo, the pale track, an inner shade, the core line, then the XP orbs (a dotted overlay that CSS slides along it). */
-const Pipe = ({ d, state, className, delay }: { d: string; state: State; className?: string; delay?: number }) => <g className={"rf-pipe " + flowState[state] + (className ? " " + className : "")} style={delay ? { "--d": delay + "s" } as CSSProperties : undefined}>
+const Pipe = ({ d, state, delay }: { d: string; state: State; delay?: number }) => <g className={"rf-pipe " + flowState[state]} style={delay ? { "--d": delay + "s" } as CSSProperties : undefined}>
   <path className="rf-halo" d={d} />
   <path className="rf-edge" d={d} />
   <path className="rf-inner" d={d} />
@@ -222,46 +219,45 @@ const Pipe = ({ d, state, className, delay }: { d: string; state: State; classNa
   <path className="rf-orb-rim" d={d} />
   <path className="rf-orb" d={d} />
   <path className="rf-orb-core" d={d} />
-  {className === "rf-stem" && <path className="rf-pulse" d={d} />}
 </g>;
 
-function FlowSvg({ cls, from, frac, states, stem }: { cls: string; from: number; frac: number[]; states: State[]; stem: State }) {
+function FlowSvg({ states, kind }: { states: State[]; kind: "top" | "bottom" }) {
   const ref = useRef<SVGSVGElement>(null);
-  const [width, setWidth] = useState(1200);
+  const [size, setSize] = useState({ w: 1200, h: kind === "top" ? TOP_H : 96 });
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) => { const next = Math.round(entry.contentRect.width * 10) / 10; if (next > 0) setWidth(next); });
+    const observer = new ResizeObserver(([entry]) => {
+      const w = Math.round(entry.contentRect.width * 10) / 10, h = Math.round(entry.contentRect.height);
+      if (w > 0 && h > 0) setSize((now) => now.w === w && now.h === h ? now : { w, h });
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-  const mid = width / 2, single = frac.length === 1;
-  const legs = frac.map((f, i) => ({ x: f * width, state: states[from + i], i })).sort((a, b) => RANK[a.state] - RANK[b.state]); // done legs paint last, on top of the shared bus
-  const stemTop = single ? SOCKET_Y : BUS;
-  const arrow = "M" + (mid - 12) + " " + (STEM_END - 3) + "H" + (mid + 12) + "L" + mid + " " + (FLOW_H - 1) + "Z";
-  return <svg ref={ref} className={"rf-svg " + cls} viewBox={"0 0 " + width + " " + FLOW_H} focusable="false">
-    {!single && legs.map(({ x, state, i }) => {
-      const dir = x < mid ? 1 : -1;
-      return <Pipe key={x} state={state} delay={-i * 0.37} d={"M" + x + " " + SOCKET_Y + "V" + (BUS - BEND) + "Q" + x + " " + BUS + " " + (x + dir * BEND) + " " + BUS + "H" + mid} />;
+  const { w, h } = size;
+  const start = kind === "top" ? SOCKET_Y : 0, stop = kind === "bottom" ? h - ARROW_H : h;
+  return <svg ref={ref} className={"rf-svg rf-" + kind} viewBox={"0 0 " + w + " " + h} focusable="false">
+    {states.map((state, i) => {
+      const x = FRACS[i] * w;
+      return <g key={i}>
+        <Pipe state={state} delay={-i * 0.37} d={"M" + x + " " + start + "V" + stop} />
+        {kind === "top"
+          ? <g className={"rf-node rf-socket " + flowState[state]}><circle className="rf-ring" cx={x} cy={SOCKET_Y} r={7.5} /><circle className="rf-dot" cx={x} cy={SOCKET_Y} r={3} /></g>
+          : <g className={"rf-port " + flowState[state]}>
+            <path className="rf-tri" d={"M" + (x - 12) + " " + (stop - 3) + "H" + (x + 12) + "L" + x + " " + (h - 1) + "Z"} />
+            <path className="rf-chev" d={"M" + (x - 4.5) + " " + (stop + 1) + "L" + x + " " + (stop + 5.5) + "L" + (x + 4.5) + " " + (stop + 1)} />
+          </g>}
+      </g>;
     })}
-    <Pipe state={stem} className="rf-stem" d={"M" + mid + " " + stemTop + "V" + STEM_END} />
-    {!single && <g className={"rf-node " + flowState[stem]}><circle className="rf-ring" cx={mid} cy={BUS} r={9} /><circle className="rf-dot" cx={mid} cy={BUS} r={4} /></g>}
-    {frac.map((f, i) => <g key={f} className={"rf-node rf-socket " + flowState[states[from + i]]}><circle className="rf-ring" cx={f * width} cy={SOCKET_Y} r={7.5} /><circle className="rf-dot" cx={f * width} cy={SOCKET_Y} r={3} /></g>)}
-    <g className={"rf-port " + flowState[stem]}>
-      <path className="rf-tri" d={arrow} />
-      <path className="rf-chev" d={"M" + (mid - 4.5) + " " + (STEM_END + 1) + "L" + mid + " " + (STEM_END + 5.5) + "L" + (mid + 4.5) + " " + (STEM_END + 1)} />
-    </g>
   </svg>;
 }
 
 /**
- * Decorative "XP flowing" connector under the four cards: a socket on each card, a pipe down and across to a junction, one pipe down into an arrow port on the result card.
- * Each pipe is a pale track with a bright core. A done reader streams lime XP orbs, a working one sends a slow single orb along a dimmer pipe, a waiting one is a dashed empty pipe
- * and a hollow socket. The shared stem gets denser as more readers finish (data-lit). Motion is CSS only and off under reduced motion, where the orbs sit still. aria-hidden.
+ * Decorative "XP flowing" pipes, one per reader, drawn only where the four reader cards sit above the four result cards (four across). Each pipe is a pale track with a bright core.
+ * A done reader streams lime XP orbs, a working one sends a slow single orb along a dimmer pipe, a waiting one is a dashed empty pipe with a hollow socket or arrow.
+ * Motion is CSS only and off under reduced motion, where the orbs sit still. aria-hidden. "top" sits under the reader cards; SynthesisDashboard draws "bottom".
  */
-export function ResultFlow({ active, completed }: { active: number; completed: number }) {
+export function ResultFlow({ active, completed, kind = "top" }: { active: number; completed: number; kind?: "top" | "bottom" }) {
   const states = readers.map((_, index) => stateOf(index, active, completed));
-  const lit = states.filter((state) => state === "done").length;
-  const stem: State = lit > 0 ? "done" : states.includes("active") ? "active" : "waiting";
-  return <div className={"rf " + flowState[stem]} data-lit={lit} aria-hidden="true">{[ROW, GRID, COL].map((layout) => <FlowSvg key={layout.cls} {...layout} states={states} stem={stem} />)}</div>;
+  return <div className={"rf rf-" + kind} aria-hidden="true"><FlowSvg states={states} kind={kind} /></div>;
 }

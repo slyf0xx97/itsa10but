@@ -13,6 +13,7 @@ import { Term } from "@/components/career/term";
 import { BestArt, GapArt, Gauge, MatchArt } from "@/components/career/stat-tile-art";
 import type { TermId } from "@/lib/glossary";
 import { radarFacts } from "@/lib/radar-facts";
+import { wantOf } from "@/lib/skill-levels";
 import { Popup } from "@/components/popup";
 
 /** Chips shown per tier before the rest go behind a "+n more" popup. */
@@ -110,17 +111,17 @@ function StatTiles({ skills, matchPercent }: { skills: Skill[]; matchPercent?: n
       </>}
       list={facts.best.length > 0 && <ol className="so-list" aria-label="Top proven skills, best first">
         {facts.best.map((row, index) => <Row key={row.name} mark={index + 1} name={<>{row.name}{row.hasQuote && <span className="so-tick" aria-hidden="true"> ✓</span>}<span className="sr-only">{row.hasQuote ? ", quote found" : ", no quote"}</span></>}
-          fig={<><b>{row.evidence}</b>/100</>} meter={<i className="have" style={{ width: pct(row.evidence) }} />} />)}
+          fig={<b>{row.evidence}%</b>} meter={<i className="have" style={{ width: pct(row.evidence) }} />} />)}
       </ol>} />
     <Tile kind="gap" icon="search" term="biggest-gap" art={<GapArt />}
       head={<>
         {facts.gapCount > 0 && <span className="so-tile-row"><b className="so-tile-num">{facts.gapCount}<small>/{facts.total}</small></b><span className="so-tile-unit">skills fall short</span></span>}
-        <span className="so-tile-cap">{facts.gapCount ? "The role asks for more than you show. The hatched part is the gap." : "Your proof meets what the role asks."}</span>
+        <span className="so-tile-cap">{facts.gapCount ? "The role asks for these and your proof falls short of it." : "Your proof meets what the role asks."}</span>
       </>}
       list={facts.gaps.length > 0 && <ol className="so-list" aria-label="Biggest gaps, largest first">
         {facts.gaps.map((row, index) => <Row key={row.name} mark={index + 1} name={row.name}
-          fig={<>asks <b>{row.demand}</b>, shows <b>{row.evidence}</b></>}
-          meter={<><i className="have" style={{ width: pct(row.evidence) }} /><i className="miss" style={{ left: pct(row.evidence), width: pct(row.short) }} /></>} />)}
+          fig={<><b>{wantOf(row.demand)}</b> priority, <b>{row.evidence}%</b></>}
+          meter={<i className="have" style={{ width: pct(row.evidence) }} />} />)}
       </ol>} />
     {matchPercent !== undefined && <Tile kind="match" icon="compass" term="match" art={<MatchArt />}
       head={<>

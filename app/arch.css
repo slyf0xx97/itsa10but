@@ -57,10 +57,22 @@
 
 /* The two roads are the main event: wider cards, a step larger type, and a coloured top edge and number badge that match their road markers (orange for Native scan, blue for API boost). */
 .qm-stop[data-stop="native"] .qm-box, .qm-stop[data-stop="boost"] .qm-box { padding: .5em .8em .65em; border-top-width: 6px; font-size: 1.0625rem; }
-.qm-stop[data-stop="native"] .qm-box { border-top-color: #e8912d; margin-bottom: .9rem; }
-.qm-stop[data-stop="boost"] .qm-box { border-top-color: #3bb4d6; }
+.qm-stop[data-stop="native"] .qm-box { border-top-color: #e8912d; }
+.qm-stop[data-stop="boost"] .qm-box { border-top-color: #3bb4d6; margin-bottom: .9rem; }
 .qm-stop[data-stop="native"] .qm-num { background: #e8912d; color: var(--ink); }
 .qm-stop[data-stop="boost"] .qm-num { background: #3bb4d6; color: var(--ink); }
+
+/* API boost sits under the sun: its card is lit from above. A warm gold edge and halo, a pale wash of light that fans down from the top edge, and a slow pulse of the halo.
+   The text keeps ink on a near-white card, so contrast stays far above AA. The pulse only runs when motion is welcome. */
+.qm-stop[data-stop="boost"] .qm-box { position: relative; border-color: #c98a12; border-top-color: #3bb4d6; background: radial-gradient(ellipse 90% 70% at 50% -12%, rgb(255 244 150 / 85%), rgb(255 252 240 / 0%) 70%), rgb(255 252 240 / 88%); box-shadow: 0 0 0 3px rgb(255 226 122 / 95%), 0 0 30px 8px rgb(255 212 80 / 80%), 0 0 70px 16px rgb(255 200 70 / 40%); }
+.qm-stop[data-stop="boost"] .qm-box::before { content: ""; position: absolute; inset: -34px; z-index: -1; border-radius: 44px; background: radial-gradient(closest-side, rgb(255 232 130 / 85%), rgb(255 226 122 / 0%)); pointer-events: none; }
+.qm-stop[data-stop="boost"] .qm-box::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-conic-gradient(from 195deg at 50% -35%, rgb(255 244 160 / 38%) 0 7deg, transparent 7deg 16deg); -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); mask-image: linear-gradient(180deg, #000, transparent 85%); pointer-events: none; }
+.qm-stop[data-stop="boost"] .qm-box > * { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .qm-stop[data-stop="boost"] .qm-box::before { animation: hx-sun 4.5s ease-in-out infinite alternate; }
+  .qm-map[data-run="off"] .qm-stop[data-stop="boost"] .qm-box::before { animation-play-state: paused; }
+}
+@keyframes hx-sun { from { opacity: .6; transform: scale(.97); } to { opacity: 1; transform: scale(1.03); } }
 .qm-stop[data-stop="native"] .qm-head .word-tip-btn, .qm-stop[data-stop="boost"] .qm-head .word-tip-btn { font-size: 1.2em; }
 .qm-stop[data-stop="native"] .qm-chip, .qm-stop[data-stop="boost"] .qm-chip { font-size: .9em; }
 
@@ -108,6 +120,9 @@
 /* The label over the agents: API boost is what lights them up (see the electric line in trail-art.tsx). */
 .qm-power { display: flex; align-items: center; gap: .3em; width: fit-content; margin: 0 0 .4rem; padding: .12em .65em .12em .5em; border: 1.5px solid rgb(31 36 48 / 70%); border-radius: 999px; background: #fff3a8; color: var(--ink); font-family: var(--font-body); font-size: .86rem; font-weight: 700; line-height: 1.25; box-shadow: 0 2px 6px rgb(31 36 48 / 16%); }
 .qm-power svg { flex: none; width: 1.05em; height: 1.05em; color: #b9651a; fill: #ffd84d; }
+/* Under the masking chips: a shield and a short line, so the privacy step reads at a glance. */
+.qm-safe { display: flex; align-items: center; gap: .35em; width: fit-content; margin: .45em 0 0; padding: .1em .6em .1em .4em; border: 1.5px solid var(--leaf-deep); border-radius: 999px; background: #e5f3e9; color: var(--ink); font-size: .9em; font-weight: 700; line-height: 1.25; }
+.qm-safe svg { flex: none; width: 1.15em; height: 1.15em; color: var(--leaf-deep); }
 .qm-sprite { flex: none; width: 1.7em; height: 1.7em; margin: -.2em 0 -.2em -.2em; background: url("/projects/itsa10but/assets/agents/pixel-team-v2.png") no-repeat; background-size: 200% 200%; background-position: calc(var(--sx) * 100%) calc(var(--sy) * 100%); image-rendering: pixelated; }
 
 /* The "Built with" cave: a rock face with a dark opening and a torch, outside the road. On the wide map it sits at the bottom right (CAVE in lib/trail-geometry.ts);
@@ -165,11 +180,13 @@
   .qm-a-fall { animation-name: hx-fall; animation-duration: 1.5s; }
   .qm-a-glint { animation-name: hx-glint; animation-duration: 3s; }
   .qm-a-fire { animation-name: hx-flicker; animation-duration: .7s; animation-direction: alternate; transform-origin: 50% 100%; }
+  .qm-a-rays { animation-name: hx-spin; animation-duration: 140s; transform-origin: 50% 50%; }
   .qm-a-flag { animation-name: hx-wave; animation-duration: 1.6s; animation-direction: alternate; animation-timing-function: ease-in-out; transform-origin: 0 50%; }
   .qm-flame { animation: hx-flicker .6s ease-in-out infinite alternate; }
   .qm-torch::before { animation: hx-glow 1.8s ease-in-out infinite alternate; }
   .qm-map[data-run="off"] .qm-flame, .qm-map[data-run="off"] .qm-torch::before { animation-play-state: paused; }
 }
+@keyframes hx-spin { to { transform: rotate(360deg); } }
 @keyframes hx-glow { from { opacity: .65; } to { opacity: 1; } }
 @keyframes hx-drift { from { transform: translateX(-30px); } to { transform: translateX(70px); } }
 @keyframes hx-fly { from { transform: translateX(-60px); } to { transform: translateX(1280px); } }

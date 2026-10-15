@@ -32,7 +32,7 @@ export const mcpToolCatalog: McpToolDescriptor[] = [
   {
     name: "get_itsa10but_sg_signals",
     title: "Singapore hiring signals",
-    description: "Read the dated, sourced snapshot of Singapore tech hiring signals (IMDA, MOM, Indeed, PwC), with IMDA's definition of AI skills. With refresh set to true it also returns the latest headlines from a fixed list of Singapore news and labour sites, read from their published feeds by our own reader with no key. A Firecrawl key in the x-firecrawl-key header adds search results. No model runs and no figure is estimated.",
+    description: "Read the dated, sourced snapshot of Singapore tech hiring signals (IMDA, MOM, Indeed, PwC), with IMDA's definition of AI skills and a short list of the latest AI models, research and findings. With refresh set to true it also returns the latest headlines from a fixed list of Singapore news and labour sites, read from their published feeds by our own reader with no key. A Firecrawl key in the x-firecrawl-key header adds search results. No model runs and no figure is estimated.",
     inputSchema: { type: "object", properties: { refresh: { type: "boolean" } }, additionalProperties: false },
     readOnlyHint: true,
   },

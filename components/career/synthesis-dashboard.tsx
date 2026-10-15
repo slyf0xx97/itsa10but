@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useId, useState, type CSSProperties, type ReactNode } from "react";
-import type { Analysis, Quest } from "@/lib/analysis-types";
-import { dashboardData, fixParts, type PlannerRow } from "@/lib/dashboard-data";
-import { PixelAgent, type SpriteKind } from "@/components/career/reader-cards";
+import type { Analysis, Quest, Skill } from "@/lib/analysis-types";
+import { dashboardData, fixParts, rankSkills, type PlannerRow } from "@/lib/dashboard-data";
+import { wantOf, type Want } from "@/lib/skill-levels";
+import { PixelAgent, ResultFlow, type SpriteKind } from "@/components/career/reader-cards";
 import { SkillBrowser } from "@/components/career/skill-browser";
 import { Marked, useQuestTicks } from "@/components/career/trials";
 import { SkillRefs } from "@/components/career/skill-refs";
@@ -12,59 +13,58 @@ import { Term } from "@/components/career/term";
 import { Popup } from "@/components/popup";
 import { POPUP_ADDS, companyMissing, modeInfo, quoteRows, readerSteps, type ReaderKey } from "@/lib/findings-info";
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 const pct = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 const fill = (value: number) => ({ width: pct(value) + "%" });
 
-/** One row of a bar chart: name and number on top, the bar underneath. The bar is decoration; the numbers are the text. */
-function BarRow({ name, value, bar, note, extra, flag }: { name: string; value: ReactNode; bar: number; note?: ReactNode; extra?: ReactNode; flag?: ReactNode }) {
-  return <li className="dash-row">
+/** One row of a bar chart: name and number on top, the bar underneath. The bar is decoration; the numbers are the text. `tone` colours the bar (the Recruiter rows). */
+function BarRow({ name, value, bar, tone, flag }: { name: string; value: ReactNode; bar: number; tone?: "pass" | "warn" | "fail"; flag?: ReactNode }) {
+  return <li className="dash-row" data-tone={tone}>
     <span className="dash-name">{name}</span>
     <span className="dash-val">{flag}{value}</span>
-    <span className="dash-track" aria-hidden="true">{extra}<i className="dash-fill" style={fill(bar)} /></span>
-    {note && <span className="dash-note">{note}</span>}
+    <span className="dash-track" aria-hidden="true"><i className="dash-fill" style={fill(bar)} /></span>
   </li>;
 }
 
 const Empty = ({ children }: { children: string }) => <p className="dash-empty">{children}</p>;
 
-/** A ring drawn with one stroke each (pathLength 100, so a value is its own dash length). The text sits in the middle. */
-function Ring({ pct: value, label, small, children }: { pct: number; label: string; small?: boolean; children: ReactNode }) {
-  return <div className={"dash-gauge" + (small ? " mini" : "")} role="img" aria-label={label}>
-    <svg viewBox="0 0 100 100" focusable="false" aria-hidden="true">
-      <circle className="dash-gauge-track" cx="50" cy="50" r="42" pathLength={100} />
-      {value > 0 && <circle className="dash-gauge-fill" cx="50" cy="50" r="42" pathLength={100} strokeDasharray={value + " 100"} transform="rotate(-90 50 50)" style={{ "--len": value } as CSSProperties} />}
-    </svg>
-    <p className="dash-gauge-num" aria-hidden="true">{children}</p>
-  </div>;
-}
-
-/** The pixel icon on each agent's button shows its job: binoculars, magnifier over a document, clipboard with a tick, checklist. */
+/** The pixel icon on the button shows the reader's job: binoculars, magnifier over a document, clipboard with a tick, checklist. */
 const ROLE_ICON: Record<SpriteKind, PixelIconName> = { scout: "binoculars", finder: "docsearch", recruiter: "clipboard", coach: "checklist" };
 
+/** The big figure at the top of every card, the same shape on all four: the number (with a unit), and one line under it. */
+function Stat({ value, unit, label }: { value: ReactNode; unit?: string; label: string }) {
+  return <>
+    <span className="dash-big"><b>{value}</b>{unit && <i>{unit}</i>}</span>
+    <span className="dash-lab">{label}</span>
+  </>;
+}
+
+/** The one-line takeaway at the foot of every card: a small label and the thing it names. */
+const Foot = ({ kicker, children }: { kicker: string; children: ReactNode }) => <p className="dash-foot"><span>{kicker}</span><b>{children}</b></p>;
+
 /**
- * One reader's card: avatar, name and short title, a summary with visuals. The "See full findings" button sits at the top right with
- * the line that says what it opens beside it, so the two read as one unit. The button opens the full findings in a wide popup.
+ * One reader's card, summary only: the reader's avatar with one big figure, exactly three rows, one takeaway line and a full-width button. The reader cards above
+ * already say who each reader is and what it does, so the card repeats neither. The button names the reader for screen readers and carries the line about
+ * what it opens; it opens the full findings in a wide popup. Every figure comes from the analysis.
  */
-function SumCard({ kind, agent, title, id, button, popTitle, summary, reader, analysis, hasResult, children }: { kind: SpriteKind; agent: string; title: ReactNode; id?: string; button: string; popTitle: string; summary: ReactNode; reader: ReaderKey; analysis: Analysis; hasResult: boolean; children: ReactNode }) {
+function SumCard({ kind, agent, id, popTitle, stat, rows, foot, reader, analysis, hasResult, sample, children }: { kind: SpriteKind; agent: string; id?: string; popTitle: string; stat: ReactNode; rows: ReactNode; foot: ReactNode; reader: ReaderKey; analysis: Analysis; hasResult: boolean; sample: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
-  const titleId = useId();
-  const helpId = useId();
-  return <section className={"dash-card " + kind} id={id} aria-labelledby={titleId}>
-    <header className="dash-card-head">
+  return <section className={"dash-card " + kind} id={id} aria-label={agent + ", summary"}>
+    <div className="dash-stat">
       <span className="dash-ava"><PixelAgent kind={kind} small /></span>
-      <div className="dash-who"><p className="dash-agent">{agent}</p><h4 id={titleId}>{title}</h4></div>
-      <p className="dash-adds" id={helpId}>{POPUP_ADDS[reader]}</p>
-      <button type="button" className="dash-open" aria-haspopup="dialog" aria-describedby={helpId} onClick={() => setOpen(true)}>
-        <span className="dash-open-icon"><PixelIcon name={ROLE_ICON[kind]} size={32} /></span>
-        <span>{button}<span className="sr-only"> from {agent}</span></span>
-      </button>
-    </header>
-    <div className="dash-sum">{summary}</div>
+      {stat}
+    </div>
+    <div className="dash-body">{rows}</div>
+    <div className="dash-footbox">{foot}</div>
+    <button type="button" className="dash-open" aria-haspopup="dialog" onClick={() => setOpen(true)}>
+      <span className="dash-open-icon"><PixelIcon name={ROLE_ICON[kind]} size={32} /></span>
+      <span className="dash-open-text"><b>See full findings<span className="sr-only"> from {agent}</span></b><small>{POPUP_ADDS[reader]}</small></span>
+      <ArrowRight className="dash-open-arrow" size={22} strokeWidth={3} aria-hidden="true" focusable="false" />
+    </button>
     <Popup open={open} onClose={close} title={popTitle} wide>
-      {open && <div className="dp"><FindingsIntro reader={reader} analysis={analysis} hasResult={hasResult} /><div className="dp-main" data-reader={reader}>{children}</div></div>}
+      {open && <div className="dp"><FindingsIntro reader={reader} analysis={analysis} hasResult={hasResult && !sample} /><div className="dp-main" data-reader={reader}>{children}</div></div>}
     </Popup>
   </section>;
 }
@@ -132,33 +132,18 @@ function Lead({ text }: { text: string }) {
     : <><span className="hl">{key}</span>{rest}</>}</p>;
 }
 
-const TONE_MARK = { ready: "✓", almost: "!", work: "✗" } as const;
-
-/** Recruiter summary: score band and the three counts. The fixes live in the popup so every card stays one height. */
-function AtsBlock({ ats }: { ats: Ats }) {
-  const { counts, verdict } = ats;
-  const tiles = [
-    { cls: "pass", mark: "✓", count: counts.pass, label: "Passed" },
-    { cls: "warn", mark: "!", count: counts.warn, label: "To check" },
-    { cls: "fail", mark: "✗", count: counts.fail, label: "To fix" },
-  ];
-  return <>
-    <div className="ats-band">
-      <div className="ats-score">
-        <p className="ats-num"><b>{ats.score}</b><span>/ 100</span></p>
-        <p className={"ats-verdict " + verdict.tone}><span aria-hidden="true">{TONE_MARK[verdict.tone]}</span> {verdict.word}</p>
-      </div>
-      <div className={"ats-seg " + verdict.tone} aria-hidden="true">
-        {Array.from({ length: 10 }, (_, index) => <i key={index} className={index < ats.segments ? "on" : ""} />)}
-      </div>
-    </div>
-    <ul className="ats-tiles" aria-label="Résumé check results">
-      {tiles.map((tile) => <li key={tile.cls} className={tile.cls}>
-        <span className="ats-tile-top"><span className="ats-mark" aria-hidden="true">{tile.mark}</span><b>{tile.count}</b></span>
-        <span className="ats-tile-label">{tile.label}</span>
-      </li>)}
-    </ul>
-  </>;
+/** Recruiter summary: the three result counts as bars out of all checks. The fixes live in the popup. */
+function AtsRows({ ats }: { ats: Ats }) {
+  const { counts } = ats;
+  const rows = [
+    { tone: "pass", mark: "✓", count: counts.pass, label: "Passed" },
+    { tone: "warn", mark: "!", count: counts.warn, label: "To check" },
+    { tone: "fail", mark: "✗", count: counts.fail, label: "To fix" },
+  ] as const;
+  return <ul className="dash-rows" aria-label="Résumé check results">
+    {rows.map((row) => <BarRow key={row.tone} name={row.label} value={<>{row.count}<span className="sr-only"> of {counts.total} checks</span></>} bar={counts.total ? (row.count / counts.total) * 100 : 0} tone={row.tone}
+      flag={<span className={"dash-q " + row.tone}><span aria-hidden="true">{row.mark}</span></span>} />)}
+  </ul>;
 }
 
 /** Recruiter popup: every check in three columns by result (To fix, To check, Passed). Each check carries its group (Parse, Keywords, Wording, Format) as a small tag. Items are grid cells of the popup. */
@@ -198,12 +183,26 @@ function AtsKeywords({ ats }: { ats: Ats }) {
 
 type Data = ReturnType<typeof dashboardData>;
 
-/** Experience Finder rows: the mark on each bar is what the role asks for; the flag says whether a quote was found. */
+/** Experience Finder rows: the bar is the proof in your résumé, in %. The flag says whether a quote was found. */
 function EvidenceRows({ rows, label }: { rows: Data["evidence"]; label: string }) {
   return <ul className="dash-rows" aria-label={label}>
-    {rows.map((row) => <BarRow key={row.name} name={row.name} value={row.evidence} bar={row.evidence}
-      extra={<b className="dash-mark" style={{ left: pct(row.demand) + "%" }} />}
-      flag={<span className={"dash-q " + (row.hasQuote ? "yes" : "no")}><span aria-hidden="true">{row.hasQuote ? "✓" : "✗"}</span><span className="sr-only">{row.hasQuote ? "Quote found in your résumé. Score " : "No matching quote. Score "}</span></span>} />)}
+    {rows.map((row) => <BarRow key={row.name} name={row.name} value={<>{pct(row.evidence)}%</>} bar={row.evidence}
+      flag={<span className={"dash-q " + (row.hasQuote ? "yes" : "no")}><span aria-hidden="true">{row.hasQuote ? "✓" : "✗"}</span><span className="sr-only">{row.hasQuote ? "Quote found in your résumé. Proof " : "No matching quote. Proof "}</span></span>} />)}
+  </ul>;
+}
+
+/** Role Scout rows: the skills the role asks for most, each with how much it wants it (High, Medium or Low) as one to three segments. */
+const SEGMENTS: Record<Want, number> = { High: 3, Medium: 2, Low: 1 };
+function PriorityRows({ skills }: { skills: Skill[] }) {
+  return <ul className="dash-rows" aria-label="The skills the role asks for most, highest first">
+    {rankSkills(skills).slice(0, ROWS).map((skill) => {
+      const want = wantOf(skill.demand);
+      return <li className="dash-row" key={skill.name}>
+        <span className="dash-name">{skill.name}</span>
+        <span className="dash-val">{want}<span className="sr-only"> priority</span></span>
+        <span className="dash-segs3" aria-hidden="true">{[0, 1, 2].map((index) => <i key={index} className={index < SEGMENTS[want] ? "on" : ""} />)}</span>
+      </li>;
+    })}
   </ul>;
 }
 
@@ -285,36 +284,33 @@ function LevelUpLink() {
 }
 
 /** Action Planner: the first tips in order. A row opens the full tip; the tick box beside it marks it done without opening anything. The card button opens every tip in full. */
-function PlannerCard({ quests, rows, verdict, skillNames, analysis, hasResult }: { quests: Quest[]; rows: PlannerRow[]; verdict: string; skillNames: string[]; analysis: Analysis; hasResult: boolean }) {
+function PlannerCard({ quests, rows, verdict, skillNames, analysis, hasResult, sample }: { quests: Quest[]; rows: PlannerRow[]; verdict: string; skillNames: string[]; analysis: Analysis; hasResult: boolean; sample: boolean }) {
   const ticks = useQuestTicks(quests);
   const [openAt, setOpenAt] = useState<number | null>(null);
   const close = useCallback(() => setOpenAt(null), []);
   const quest = openAt === null ? undefined : quests[openAt];
   const names = [...skillNames, ...quests.flatMap((item) => [item.skill, item.title])];
-  const summary = <>
-    {verdict && <p className="pl-start"><Marked text={verdict} terms={names} /></p>}
-    {rows.length ? <>
-      <ol className="pl-list" aria-label="Tips and tricks, in order">
-        {rows.map((row) => {
-          const done = ticks.isDone(row.index);
-          return <li className="pl-item" key={row.index} data-done={done}>
-            <button type="button" className="pl-tick" aria-pressed={done} aria-label={`Mark ${row.title} as done`} onClick={() => ticks.toggle(row.index)}>
-              <span className="pl-box" aria-hidden="true">{done && <Check size={16} strokeWidth={4} />}</span>
-            </button>
-            <button type="button" className="pl-open" aria-haspopup="dialog" onClick={() => setOpenAt(row.index)}>
-              <span className="pl-title"><span className="pl-num" aria-hidden="true">{row.index + 1}</span><span>{row.title}{done && <span className="sr-only">, done</span>}</span></span>
-              <span className="pl-chips">{row.skill}</span>
-            </button>
-          </li>;
-        })}
-      </ol>
-    </> :<Empty>No tips yet.</Empty>}
-    <Popup open={!!quest} onClose={close} title={quest?.title ?? "Tip"}>
+  const done = rows.filter((row) => ticks.isDone(row.index)).length;
+  const list = rows.length ? <ol className="pl-list" aria-label="Tips and tricks, in order">
+    {rows.map((row) => {
+      const ticked = ticks.isDone(row.index);
+      return <li className="pl-item" key={row.index} data-done={ticked}>
+        <button type="button" className="pl-tick" aria-pressed={ticked} aria-label={`Mark ${row.title} as done`} onClick={() => ticks.toggle(row.index)}>
+          <span className="pl-box" aria-hidden="true">{ticked && <Check size={16} strokeWidth={4} />}</span>
+        </button>
+        <button type="button" className="pl-open" aria-haspopup="dialog" onClick={() => setOpenAt(row.index)}>
+          <span className="pl-title"><span className="pl-num" aria-hidden="true">{row.index + 1}</span><span>{row.title}{ticked && <span className="sr-only">, done</span>}</span></span>
+        </button>
+      </li>;
+    })}
+  </ol> : <Empty>No tips yet.</Empty>;
+  return <SumCard kind="coach" id="quests" agent="Action Planner" popTitle="Your tips and tricks" reader="planner" analysis={analysis} hasResult={hasResult} sample={sample}
+    stat={<Stat value={rows.length} unit={rows.length === 1 ? "tip" : "tips"} label={done ? `${done} of ${rows.length} done` : "to close your gaps"} />}
+    rows={<>{list}<Popup open={!!quest} onClose={close} title={quest?.title ?? "Tip"}>
       {quest && openAt !== null && <><QuestBody quest={quest} index={openAt} ticks={ticks} /><LevelUpLink /></>}
-    </Popup>
-  </>;
-  return <SumCard kind="coach" id="quests" agent="Action Planner" title={<><Term id="quest">Tips and tricks</Term> to close your gaps</>} button="See all the tips" popTitle="Your tips and tricks" summary={summary} reader="planner" analysis={analysis} hasResult={hasResult}>
-    <PopSection title="The tips, in order" desc="Do them top to bottom. Each one ends with something you can show.">
+    </Popup></>}
+    foot={<Foot kicker="Start with">{rows[0]?.title ?? "No tips yet"}</Foot>}>
+    <PopSection title="The tips, in order" desc={verdict ? <Marked text={verdict} terms={names} /> : "Do them top to bottom. Each one ends with something you can show."}>
       {rows.length ? <ol className="pl-full">
         {rows.map((row) => <li key={row.index}>
           <h6 className="pl-full-h"><span className="pl-num" aria-hidden="true">{row.index + 1}</span> {row.title}</h6>
@@ -330,65 +326,54 @@ function PlannerCard({ quests, rows, verdict, skillNames, analysis, hasResult }:
   </SumCard>;
 }
 
-/** How many bars each summary card draws. */
-const SCOUT_BARS = 4;
-const FINDER_BARS = 3;
+/** Every summary card draws exactly this many rows. */
+const ROWS = 3;
 
 /**
- * One glass dashboard that pulls all four readers together: four cards of the same height, one per reader. Each card is a
- * summary with a few visuals and one button that opens the full findings in a popup. Every number comes from the analysis.
- * While the readers are still working it shows an empty frame with no figures.
+ * One glass dashboard that pulls all four readers together: four cards that share their rows (a figure, three rows, a takeaway, a button), one per reader. Each card
+ * is a summary only; the button opens the full findings in a popup. Every number comes from the analysis. While the readers are still working it shows an empty frame
+ * with no figures. The headline ends with the overall figure out of 10, and a made-up candidate is named in the text for screen readers and in every popup.
  */
-export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false }: { analysis: Analysis; hasResult: boolean; busy: boolean; madeUp?: boolean }) {
+export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, flow }: { analysis: Analysis; hasResult: boolean; busy: boolean; madeUp?: boolean; flow: { active: number; completed: number } }) {
+  // The headline sits on a plate that the four pipes run behind, each landing on the result card of its own reader.
+  const link = (head: ReactNode) => <div className="dash-link"><ResultFlow kind="bottom" active={flow.active} completed={flow.completed} />{head}</div>;
   if (busy) {
     return <section className="dash dash-pending" id="the-but" aria-busy="true" aria-label="Summary of all four readers">
-      <div className="dash-head">
-        <i className="dash-ring-ghost" aria-hidden="true" />
+      {link(<div className="dash-head">
         <div className="dash-lead">
           <h3 className="dash-title">Your résumé is a 10! <em>But…</em></h3>
           <p className="dash-wait">The readers are still working.</p>
         </div>
-      </div>
+      </div>)}
       <div className="dash-ghosts" aria-hidden="true"><i /><i /><i /><i /></div>
     </section>;
   }
   const data = dashboardData(analysis);
-  const cover = data.coverage;
   const proofTotal = data.evidence.length;
+  const sample = !hasResult || madeUp;
+  const overall = Math.max(0, Math.min(10, Math.round(data.match / 10)));
+  const topFix = data.ats?.fixes[0];
   return <section className="dash" id="the-but" aria-busy="false" aria-labelledby="dash-title">
-    <div className="dash-head">
-      <Ring pct={data.match} label={"Match " + data.match + " percent. Proof against what the role asks."}>{data.match}<span>%</span></Ring>
+    {link(<div className="dash-head">
       <div className="dash-lead">
-        {hasResult && !madeUp ? <p className="sr-only">Your result, all four readers</p> : <p className="tag sample dash-sample">Sample result for a made-up candidate, not your résumé</p>}
-        <h3 className="dash-title" id="dash-title">Your résumé is a 10! <em>But…</em></h3>
+        <p className="sr-only">{sample ? "Sample result for a made-up candidate. " : "Your result, all four readers. "}The overall figure is {overall} out of 10, from the proof in your text. It is not a hiring chance.</p>
+        <h3 className="dash-title" id="dash-title">Your résumé is a 10! <em>But… it’s a <b className="dash-ten" aria-hidden="true">{overall}</b></em></h3>
       </div>
-    </div>
+    </div>)}
 
     <div className="dash-grid">
-      <SumCard kind="scout" agent="Role Scout" title="Reads the job posting" button="See full findings" popTitle="What the role asks for" reader="scout" analysis={analysis} hasResult={hasResult} summary={<>
-        {data.demand.length ? <ul className="dash-rows" aria-label="The skills the role asks for most, highest first">
-          {data.demand.slice(0, SCOUT_BARS).map((bar) => <BarRow key={bar.name} name={bar.name} value={bar.value} bar={bar.value} />)}
-        </ul> : <Empty>No skills to chart yet.</Empty>}
-        {cover.total > 0 && <div className="dash-strip">
-          <div className="dash-segs" aria-hidden="true">{cover.marks.map((mark, index) => <i key={index} className={mark} />)}</div>
-          <p className="dash-legend"><span><i className="sw have" aria-hidden="true" /> Have {cover.have}</span><span><i className="sw gap" aria-hidden="true" /> Gap {cover.total - cover.have}</span></p>
-        </div>}
-        <p className={"dash-company" + (data.company ? "" : " none")}>{data.company ? data.company.name : companyMissing(analysis.mode).short}</p>
-      </>}>
+      <SumCard kind="scout" agent="Role Scout" popTitle="What the role asks for" reader="scout" analysis={analysis} hasResult={hasResult} sample={sample}
+        stat={<Stat value={data.demand.length} unit={data.demand.length === 1 ? "skill" : "skills"} label="the role asks for" />}
+        rows={data.demand.length ? <PriorityRows skills={analysis.skills} /> : <Empty>No skills to chart yet.</Empty>}
+        foot={<Foot kicker="Employer">{data.company ? data.company.name : "None matched"}</Foot>}>
         <SkillBrowser kind="scout" skills={analysis.skills} />
         <PopSection title="About the company" desc="Values, what it expects and how to show you fit."><CompanyBody company={data.company} mode={analysis.mode} /></PopSection>
       </SumCard>
 
-      <SumCard kind="finder" agent="Experience Finder" title="Reads your résumé" button="See full findings" popTitle="What your résumé proves" reader="finder" analysis={analysis} hasResult={hasResult} summary={<>
-        {proofTotal ? <>
-          <div className="dash-ringrow">
-            <Ring small pct={(data.quotes / proofTotal) * 100} label={`${data.quotes} of ${proofTotal} skills have a matching quote in your résumé.`}>{data.quotes}<span>/{proofTotal}</span></Ring>
-            <p className="dash-sub"><b>{data.quotes} of {proofTotal}</b> skills have a matching quote</p>
-          </div>
-          <EvidenceRows rows={data.evidence.slice(0, FINDER_BARS)} label="Proof in your résumé for the three skills the role asks for most. The mark on each bar is what the role asks for." />
-          <p className="dash-key">Bar: what you show. Mark: what the role asks.</p>
-        </> :<Empty>No skills to chart yet.</Empty>}
-      </>}>
+      <SumCard kind="finder" agent="Experience Finder" popTitle="What your résumé proves" reader="finder" analysis={analysis} hasResult={hasResult} sample={sample}
+        stat={<Stat value={<>{data.quotes}<span className="dash-of">/{proofTotal}</span></>} label="skills have a quote" />}
+        rows={proofTotal ? <EvidenceRows rows={data.evidence.slice(0, ROWS)} label="Proof in your résumé, in percent, for the three skills the role asks for most." /> : <Empty>No skills to chart yet.</Empty>}
+        foot={<Foot kicker="Biggest gap">{data.weakNames[0] ?? "None, every skill has proof"}</Foot>}>
         <SkillBrowser kind="finder" skills={analysis.skills}>
           {data.weak.length > 0 ? <div className="dp-weak">
             <h6 className="ats-h"><span><Term id="weak-proof">Weak proof</Term>, weakest first</span></h6>
@@ -399,15 +384,17 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false }
         </SkillBrowser>
       </SumCard>
 
-      <SumCard kind="recruiter" agent="Recruiter" title={<>Checks it like hiring software <span className="dash-nb">(<Term id="ats">ATS</Term>)</span></>} button="See full findings" popTitle="Fixes and checks from hiring software (ATS)" reader="recruiter" analysis={analysis} hasResult={hasResult}
-        summary={data.ats ? <AtsBlock ats={data.ats} /> : <p className="dash-sub">No résumé check ran for this result.</p>}>
+      <SumCard kind="recruiter" agent="Recruiter" popTitle="Fixes and checks from hiring software (ATS)" reader="recruiter" analysis={analysis} hasResult={hasResult} sample={sample}
+        stat={data.ats ? <Stat value={data.ats.score} unit="/ 100" label={data.ats.verdict.word} /> : <Stat value="–" label="no check ran" />}
+        rows={data.ats ? <AtsRows ats={data.ats} /> : <p className="dash-sub">No résumé check ran for this result.</p>}
+        foot={<Foot kicker="Fix first">{topFix ? topFix.key : data.ats ? "Nothing to fix" : "No check ran"}</Foot>}>
         {data.ats ? <>
           <AtsColumns ats={data.ats} />
           <AtsKeywords ats={data.ats} />
         </> : <p className="dash-sub">No résumé check ran for this result.</p>}
       </SumCard>
 
-      <PlannerCard quests={analysis.quests} rows={data.planner} verdict={analysis.verdict} skillNames={analysis.skills.map((skill) => skill.name)} analysis={analysis} hasResult={hasResult} />
+      <PlannerCard quests={analysis.quests} rows={data.planner} verdict={analysis.verdict} skillNames={analysis.skills.map((skill) => skill.name)} analysis={analysis} hasResult={hasResult} sample={sample} />
     </div>
   </section>;
 }

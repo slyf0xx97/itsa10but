@@ -1,12 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { GLOSSARY, type TermId } from "./glossary.ts";
-import { EXPECTED_FROM, GOOD_FROM } from "./radar-tiers.ts";
 
 const ids = Object.keys(GLOSSARY) as TermId[];
 
 test("every term has a word, a title and 1 to 3 short lines", () => {
-  assert.equal(ids.length, 25);
+  assert.equal(ids.length, 24);
   for (const id of ids) {
     const { word, title, lines } = GLOSSARY[id];
     assert.ok(word.trim() && title.trim(), id);
@@ -35,9 +34,7 @@ test("the name tooltip explains the joke and links its source", () => {
   for (const text of [...lines, GLOSSARY.itsa10but.title]) assert.doesNotMatch(text, /[—–;·]/);
 });
 
-test("tier lines use the thresholds from radar-tiers", () => {
-  assert.ok(GLOSSARY.expected.lines.join(" ").includes(String(EXPECTED_FROM)));
-  assert.ok(GLOSSARY.good.lines.join(" ").includes(String(GOOD_FROM)));
-  assert.ok(GLOSSARY.good.lines.join(" ").includes(String(EXPECTED_FROM - 1)));
-  assert.ok(GLOSSARY.extra.lines.join(" ").includes(String(GOOD_FROM)));
+test("the role's ask is told in words, never as a score out of 100", () => {
+  for (const id of ["expected", "good", "extra", "role-wants", "biggest-gap"] as const) assert.doesNotMatch(GLOSSARY[id].lines.join(" "), /\d/, id);
+  assert.ok(!("demand-score" in GLOSSARY));
 });
