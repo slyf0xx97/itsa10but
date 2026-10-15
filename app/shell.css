@@ -1,0 +1,81 @@
+/* Page shell: the fixed mountain scene behind the whole page (body::before in theme.css), the hero on top, then rows of glass stage panels
+   (stages.css). Text sits on glass in --ink, never straight on the scene. Header and footer line up with the wide content wrap. */
+
+main { position: relative; }
+.card a.btn, .panel a.btn, .tool-card a.btn { color: var(--ink); }
+.card a.btn:hover, .panel a.btn:hover, .tool-card a.btn:hover { color: var(--ink); }
+.card a.btn.primary:active, .panel a.btn.primary:active, .tool-card a.btn.primary:active { color: var(--cream); }
+
+/* Header: a transparent sticky shell holding one floating glass bar. Row one: logo and How it works pill left, Agent power right (mode.css). Row two: the two tabs, centred.
+   The bar lines up with the stage panels below (same 1840px wrap, 1.5rem side margins). */
+.site-footer .wrap { width: min(1840px, calc(100% - 3rem)); }
+.site-header { position: sticky; top: 0; z-index: 20; padding-top: 0; color: var(--ink); pointer-events: none; }
+.site-header .wrap { pointer-events: auto; position: relative; display: flex; align-items: flex-start; flex-wrap: wrap; gap: .25rem 1rem; box-sizing: border-box; width: min(1840px, calc(100% - 3rem)); padding: .25rem .5rem .375rem .75rem;
+  background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--glass-edge); border-top: 0; border-radius: 0 0 18px 18px; box-shadow: var(--glass-shadow), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 90%); }
+@supports not (backdrop-filter: blur(1px)) { .site-header .wrap { background: rgb(255 255 255 / 96%); } }
+
+.brand-row { flex: 1 1 0; display: flex; align-items: center; gap: .5rem .75rem; min-width: 0; }
+.brand { flex: none; display: inline-flex; align-items: center; gap: .6rem; min-height: 2.75rem; color: var(--ink); text-decoration: none; font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; line-height: 1; white-space: nowrap; }
+.brand:hover { color: var(--ink); }
+.brand b { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border: 2px solid var(--ink); border-radius: 8px; background: var(--orange); color: var(--ink); font-size: .95rem; box-shadow: 0 2px 0 rgb(185 101 26 / 70%); }
+.brand em { color: var(--link); font-style: normal; }
+/* "How it works" is a small pill beside the logo, not a tab: same pixel border, smaller, filled orange while its section is in view. Labels use the reading font (Atkinson Hyperlegible), not the pixel one. */
+.how-link { position: relative; display: inline-flex; align-items: center; flex: none; gap: 7px; min-height: 36px; padding: 0 12px 0 9px; border: 2px solid var(--ink); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
+.how-link svg, .site-nav svg { flex: none; }
+.how-link::after { content: ""; position: absolute; inset: -4px -2px; } /* keeps the touch target at 44px */
+.how-link:hover { background: var(--sky-soft); color: var(--ink); }
+.how-link[aria-current="location"], .how-link[aria-current="location"]:hover { background: var(--orange); }
+.how-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+/* The two tabs always sit on a row of their own under the logo and Agent power (the full second name is about 600px wide, so it cannot share a row at 1280px). */
+.site-nav { order: 2; flex: 1 1 100%; display: flex; flex-wrap: nowrap; justify-content: center; gap: 8px; }
+.site-nav a { position: relative; display: inline-flex; align-items: center; gap: 10px; min-width: 44px; min-height: 48px; padding: 0 16px 0 12px; border: 2px solid var(--ink); border-radius: 8px; background: rgb(255 255 255 / 88%); box-shadow: 0 2px 0 rgb(31 36 48 / 25%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 16px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
+.site-nav a:hover { background: var(--sky-soft); color: var(--ink); }
+.site-nav a:active { transform: translateY(1px); box-shadow: 0 1px 0 rgb(31 36 48 / 25%); }
+.site-nav a[aria-current="location"], .site-nav a[aria-current="location"]:hover { background: var(--orange); box-shadow: 0 0 0 rgb(185 101 26 / 70%); transform: translateY(2px); } /* pressed in, so the state is not colour alone */
+.site-nav a:focus-visible, .brand:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+/* The second tab's name is long ("Level Up Your Résumé with Free / Open-Source Websites & Tools"). It is always one line: all of it from 901px, "Level Up Your Résumé" from 641 to 900px, "Level Up" at 640px and below.
+   The link's aria-label is always the full name. */
+.tab-label { white-space: nowrap; }
+@media (max-width: 900px) { .tab-long { display: none; } }
+@media (prefers-reduced-motion: no-preference) { .site-nav a, .how-link { transition: background-color .15s ease, transform .1s ease; } }
+@media (max-width: 1199px) { .site-header { position: relative; } /* relative, not static, so z-index 20 still lifts the Agent power panel above the stages */ .brand span { font-size: 1.15rem; } }
+
+/* The footer is a full-width glass plate, so its text never sits on the mountains. */
+.site-footer { margin-top: 1rem; color: var(--ink); background: rgb(255 255 255 / 74%); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); border-top: 1.5px solid var(--glass-line); box-shadow: 0 -6px 20px rgb(16 70 100 / 12%); }
+@supports not (backdrop-filter: blur(1px)) { .site-footer { background: rgb(255 255 255 / 96%); } }
+.site-footer a { color: var(--link); }
+.site-footer a:hover { color: var(--coral); }
+
+/* Header on phones: the logo with the How it works pill, then the two tabs across a full row (icon plus the first words), then the Agent power pill. The bar scrolls away instead of covering the page. */
+@media (max-width: 640px) {
+  .site-header { position: relative; padding-top: 0; }
+  .site-header .wrap { width: calc(100% - 1.5rem); }
+  .site-footer .wrap { width: calc(100% - 2rem); }
+  .brand-row { flex: 1 1 100%; justify-content: space-between; }
+  .brand { min-height: 2.5rem; }
+  .site-nav { gap: 4px; }
+  .site-nav a { flex: 1 1 0; justify-content: center; gap: 8px; min-width: 0; padding: 0 8px; }
+  .tab-mid { display: none; } /* "Analyse Résumé" reads "Analyse", "Level Up Your Résumé" reads "Level Up" */
+  .site-header .wrap { gap: .25rem .75rem; padding: .25rem .5rem; }
+}
+@media (max-width: 360px) { .site-nav { gap: 2px; } .site-nav a { gap: 5px; padding: 0 6px; font-size: 15px; } .site-nav svg { width: 24px; height: 24px; } .brand span { font-size: 1.05rem; } .brand { gap: .4rem; } .how-link { padding: 0 8px; font-size: 13px; gap: 4px; } }
+
+/* Footer author link: the LinkedIn "in" mark (decorative) beside the name. */
+.site-footer .ft-author { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; font-weight: 700; }
+.site-footer .ft-author img { flex: none; width: 24px; height: 24px; border-radius: 4px; }
+.site-footer .ft-author:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+/* Footer meta row: the copyright with the author link, and the MIT License button. Wraps on narrow screens. */
+.site-footer .ft-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1rem; }
+.site-footer .ft-copy { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .1rem .5rem; min-width: 0; }
+.site-footer .ft-license { min-height: 2.75rem; padding: .25rem 1rem; border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
+.site-footer .ft-license:hover { background: var(--lime); }
+.site-footer .ft-license:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* License popup body (components/license-popup.tsx). */
+.lic { display: grid; gap: .9rem; }
+.lic p { margin: 0; color: var(--ink); line-height: 1.5; }
+.lic-text { max-height: 40vh; margin: 0; padding: .8rem .9rem; overflow: auto; border: 1.5px solid var(--glass-edge); border-radius: 12px; background: var(--sky-soft); color: var(--ink); font: .9rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.lic-text:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.lic-note a { color: var(--water-deep); font-weight: 700; }

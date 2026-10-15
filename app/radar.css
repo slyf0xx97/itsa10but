@@ -1,0 +1,216 @@
+/* Skills: a glass panel with a teal tab holds the radar and the shelves; skill rows are glass cards (look in theme.css). */
+.radar-section { container: radar / inline-size; position: relative; margin-top: 2.4rem; padding: .8rem 1rem .9rem; }
+.radar-section .so-legend, .radar-section .logo-caption { color: var(--ink-soft); }
+.radar-section > .quest-title { position: absolute; bottom: calc(100% - 1.5px); left: 1rem; max-width: calc(100% - 2rem); margin: 0; padding: .3rem 1.1rem .35rem; border: 1.5px solid var(--glass-edge); border-bottom: 0; border-radius: 12px 12px 0 0; background: var(--teal-dark); color: #fff; font-size: 1.15rem; line-height: 1.2; text-shadow: 0 1px 0 rgb(0 0 0 / 25%); }
+.radar-section > .quest-title .word-tip-btn { color: #fff; }
+.radar-section > .quest-title .word-tip-btn:focus-visible { outline-color: #fff; }
+.radar-section a { color: var(--link); }
+.radar-section :focus-visible { outline-color: var(--ink); }
+#radar .stage-body { padding-top: 0; padding-bottom: 1rem; }
+@media (max-width: 640px) {
+  #radar .stage-body { padding-inline: .4rem; }
+  .radar-section { padding-inline: .5rem; }
+}
+#radar .stage-header { padding-block: .8rem .6rem; }
+#radar .stage-plate { max-width: min(46rem, 100%); }
+
+/* Stacked on a narrow block: radar with its key under it, then the quick facts. The radar keeps a sensible size however wide the block is. */
+.so { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; align-items: start; }
+.so > * { min-width: 0; }
+.so-main, .so-side { display: grid; gap: .6rem; }
+.so-main { width: 100%; max-width: 30rem; justify-self: center; }
+/* Quick facts: three glass tiles, each with a faint picture of what it means (Best proof a sunlit peak, Biggest gap a bridge with a plank missing, Match two puzzle halves),
+   a head (label, one plain line, one figure) and a short list with small bars. The pictures are fades behind the text, so the ink stays far above 4.5:1.
+   A tile is its own container: 28rem of tile width or more puts the head left and the list right, less stacks them. */
+.so-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; margin: 0; padding: 0; list-style: none; }
+/* The three cards are always vertical (label, big figure, line, list) and sit in columns: one under 460px of block, two (the last one full width)
+   up to 695px, three from there (each at least 14rem). From 1060px of block the radar sits left and the cards fill the rest in three columns at the
+   radar's height; the key sits right under the radar, inside its column. */
+@container radar (min-width: 460px) {
+  .so-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .so-tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@container radar (min-width: 696px) {
+  .so-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .so-tile:last-child:nth-child(odd) { grid-column: auto; }
+}
+@container radar (min-width: 1060px) {
+  .so { grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: .6rem 2rem; align-items: stretch; }
+  .so-main { max-width: none; justify-self: stretch; align-content: center; }
+  .so-side, .so-tiles { height: 100%; }
+}
+@container radar (min-width: 1140px) {
+  .so { grid-template-columns: minmax(0, 24rem) minmax(0, 1fr); }
+}
+.so-tile { container: tile / inline-size; position: relative; isolation: isolate; overflow: hidden; display: grid; align-content: start; min-width: 0; padding: .7rem .9rem .8rem; }
+.so-tile.best { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--mint-soft) 85%, #fff)); }
+.so-tile.gap { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--coral-soft) 85%, #fff)); }
+.so-tile.match { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--teal-soft) 85%, #fff)); }
+.so-tile-body { display: grid; align-content: start; gap: .6rem; min-width: 0; }
+.so-tile-head { display: grid; align-content: start; gap: .25rem; min-width: 0; }
+.so-art { position: absolute; z-index: -1; right: -.4rem; bottom: -.5rem; width: 7rem; height: auto; opacity: .26; pointer-events: none; }
+.so-tile.match .so-art { opacity: .24; }
+.so-art .a-sun { fill: #f5c84a; }
+.so-art .a-hill { fill: var(--leaf); }
+.so-art .a-snow { fill: #fff; }
+.so-art .a-flag { fill: var(--orange); }
+.so-art .a-badge { fill: var(--leaf-deep); }
+.so-art .a-tick { fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: square; }
+.so-art .a-line { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+.so-art .a-cliff { fill: var(--orange-dark); }
+.so-art .a-plank { fill: none; stroke: var(--orange); stroke-width: 5; }
+.so-art .a-hole { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 4 3; }
+.so-art .a-half.one { fill: var(--water-deep); }
+.so-art .a-half.two { fill: var(--leaf); }
+.so-tile-label { display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .4rem; font-size: 1.2rem; font-weight: 800; line-height: 1.2; color: var(--ink); }
+.so-tile-label svg { flex: none; color: var(--ink); }
+.so-tile-label .word-tip-btn { color: var(--ink); }
+.so-tile-row { display: flex; align-items: flex-end; gap: .5rem; }
+.so-tile-row .so-gauge { margin-left: auto; }
+.so-tile-unit { padding-bottom: .3rem; font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: var(--ink-soft); }
+/* Numerals in the reading font (Atkinson Hyperlegible), bold, tabular and lining, so 1, 7 and 8 stay apart. The pixel font stays for headings only. */
+.so-tile-num { font-family: var(--font-body); font-size: 3rem; font-weight: 700; font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; line-height: 1; color: var(--ink); }
+.so-tile-num small { font-family: var(--font-body); font-size: 1.4rem; font-weight: 700; letter-spacing: 0; color: var(--ink-soft); }
+.so-tile-cap { font-size: 1rem; line-height: 1.35; color: var(--ink-soft); }
+/* Bar from 0 to 100: ink-outlined, proof filled in green, the gap hatched in coral. */
+.so-meter { position: relative; display: block; height: .7rem; border: 2px solid var(--ink); border-radius: 3px; background: #fff; overflow: hidden; }
+.so-meter i { position: absolute; top: 0; bottom: 0; }
+.so-meter .have { left: 0; background: var(--leaf-deep); }
+.so-meter .miss { background: repeating-linear-gradient(135deg, #c93a25 0 3px, #fff 3px 6px); }
+/* The lists: a marker (rank number, or a colour square for the proof levels), the name, a figure, and the bar under them. */
+.so-list { display: grid; gap: .6rem; font-variant-numeric: tabular-nums lining-nums; margin: 0; padding: 0; list-style: none; }
+.so-row { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; align-items: baseline; gap: .15rem .5rem; min-width: 0; }
+.so-mark { display: grid; place-items: center; align-self: center; width: 1.6rem; height: 1.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: #fff; font-family: var(--font-body); font-size: 1rem; font-weight: 700; line-height: 1; color: var(--ink); }
+.so-row-name { min-width: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
+.so-tick { color: var(--leaf-deep); font-weight: 800; }
+.so-row-fig { font-size: 1.05rem; font-weight: 700; line-height: 1.2; color: var(--ink-soft); white-space: nowrap; }
+.so-row-fig b { font-weight: 700; color: var(--ink); }
+.so-row .so-meter { grid-column: 2 / -1; }
+.so-row.lv .so-mark { border-radius: 4px; }
+.so-row.strong .so-mark, .so-row.strong .so-meter .have { background: var(--leaf-deep); }
+.so-row.some .so-mark, .so-row.some .so-meter .have { background: var(--orange-dark); }
+.so-row.weak .so-mark, .so-row.weak .so-meter .have { background: repeating-linear-gradient(135deg, #c93a25 0 3px, #fff 3px 6px); }
+@container tile (max-width: 20rem) { .so-row-fig { white-space: normal; text-align: right; } }
+/* In a narrow card the long "asks 80, shows 20" figure drops under the gap names so they stay on one line. */
+@container tile (max-width: 17rem) { .so-tile.gap .so-row-fig { grid-column: 2 / -1; grid-row: 2; text-align: left; } .so-tile.gap .so-row .so-meter { grid-row: 3; } }
+.so-gauge { flex: none; width: 7rem; height: auto; }
+.so-gauge path { fill: none; stroke-width: 11; }
+.so-gauge .g-track { stroke: rgb(31 36 48 / 16%); }
+.so-gauge .g-fill { stroke: var(--water-deep); }
+.so-legend { display: flex; flex-wrap: wrap; gap: .5rem .75rem; margin: 0; font-size: 1rem; }
+.so-key { display: inline-flex; align-items: center; gap: .45rem; padding: .25rem .8rem .3rem .45rem; border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); line-height: 1.25; }
+.so-key.have { background: var(--mint-soft); }
+.so-key.gap { background: var(--coral-soft); }
+.so-key b { font-size: 1.1rem; font-weight: 800; }
+.so-key .sg-state { width: 1.4rem; height: 1.4rem; font-size: .85rem; }
+
+/* The key sits right under the radar chart, at the chart's width: four small glass chips in two columns (one column when very narrow), 13px type, each with a small glyph that matches what the chart draws. */
+.rd-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .3rem .4rem; margin: 0; padding: 0; list-style: none; }
+.rd-key { display: flex; align-items: center; gap: .35rem; min-width: 0; padding: .2rem .5rem .2rem .35rem; border: 1px solid rgb(31 36 48 / 30%); border-radius: 10px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: .8125rem; line-height: 1.25; }
+.rd-key b { font-weight: 800; }
+.rd-key .word-tip-btn { color: var(--ink); }
+.rd-glyph { flex: none; display: inline-grid; place-items: center; width: 1rem; height: 1rem; font-style: normal; }
+.rd-glyph.dot { width: .75rem; height: .75rem; margin-inline: .125rem; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--meadow, #5bb86b); }
+.rd-key.gap .rd-glyph.dot { background: var(--coral); }
+.rd-glyph.num { width: auto; min-width: 1.45rem; padding: 0 .2rem; border: 1.5px solid var(--ink); border-radius: 5px; background: #fff; font-size: .75rem; font-variant-numeric: tabular-nums lining-nums; font-weight: 800; line-height: 1.3; }
+.rd-glyph.num.ask { background: var(--teal-soft); }
+
+/* Radar: big, ink on glass. Two drawings of the same data; the figure's own width picks one (container query),
+   so labels stay about 15px on a wide column and at least 13px on a phone. Wide drawing from 490px of figure width (labels 14.5px, scores 13px there). */
+.radar-section .radar { margin: 0; text-align: center; }
+.radar-section .radar-box { container-type: inline-size; width: 100%; }
+.radar-section .radar svg { display: block; width: 100%; height: auto; margin-inline: auto; overflow: visible; }
+.radar-section .radar svg.radar-compact { display: none; max-width: 28rem; }
+@container (max-width: 489px) {
+  .radar-section .radar svg.radar-wide { display: none; }
+  .radar-section .radar svg.radar-compact { display: block; }
+}
+.radar-section .radar .ring { fill: none; stroke: #6f8c99; stroke-width: 1.5; }
+.radar-section .radar .ring.outer { stroke: var(--ink); stroke-width: 3; }
+.radar-section .radar .spoke { stroke: #a9c3cd; stroke-width: 1.5; }
+.radar-section .radar .shape { fill: rgb(59 180 214 / 32%); stroke: #136a86; stroke-width: 3; stroke-linejoin: round; }
+.radar-section .radar .dot { fill: var(--meadow, #5bb86b); stroke: var(--ink); stroke-width: 2.5; }
+.radar-section .radar .dot.low { fill: var(--coral); }
+.radar-section .radar .rd-chip { fill: #fff; stroke: var(--ink); stroke-width: 2; }
+.radar-section .radar .rd-label { fill: #1f2430; font-family: var(--font-body); font-weight: 700; }
+.radar-section .radar .rd-label.low { fill: #8f2515; }
+.radar-section .radar .rd-score { fill: #1f2430; font-family: var(--font-body); font-weight: 700; font-variant-numeric: tabular-nums lining-nums; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+.radar-section .radar .mark-svg { color: var(--ink); }
+
+.sg { display: grid; gap: .75rem; }
+.sg .logo-caption { margin: 0; }
+.sg-group { padding: .7rem .8rem .85rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; box-shadow: var(--soft-pop), var(--glass-ring); }
+.sg-group.expected { background: var(--teal-soft); }
+.sg-group.good { background: var(--yellow-soft); }
+.sg-group.extra { background: var(--mint-soft); }
+.sg-group { min-width: 0; }
+.sg-group h5 { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .4rem; margin: 0 0 .6rem; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+.sg-count { padding: 0 .5rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; font-family: var(--font-body); font-size: .95rem; font-weight: 800; line-height: 1.45; }
+.sg-group ul, .sg-pop { display: flex; flex-wrap: wrap; gap: .75rem .65rem; margin: 0; padding: 0; list-style: none; }
+.sg-group li, .sg-pop li { min-width: 0; max-width: 100%; }
+.sg-more { min-height: 44px; padding: .3rem .9rem; border: 2px dashed var(--ink); border-radius: 10px; background: rgb(255 255 255 / 70%); color: var(--ink); font: inherit; font-size: .95rem; font-weight: 800; cursor: pointer; }
+.sg-more:hover { background: var(--lime); }
+.sg-more:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* Chips read like inventory tiles: white face, ink outline, a small shelf shadow. */
+.sg-chip { position: relative; display: flex; align-items: center; gap: .45rem; min-width: 0; max-width: 100%; min-height: 44px; padding: .3rem 1.5rem .3rem .55rem; background: #fff; color: var(--ink); border: 2px solid var(--ink); border-radius: 10px; box-shadow: 0 2px 0 rgb(31 36 48 / 40%); font-size: .95rem; font-weight: 700; line-height: 1.15; text-decoration: none; }
+.sg-chip.gap { border-color: var(--coral); box-shadow: 0 2px 0 rgb(201 58 37 / 45%); }
+.sg-chip.gap .sg-name { color: #8f2515; }
+.sg-mark { display: grid; place-items: center; flex: 0 0 auto; width: 1.55rem; height: 1.55rem; color: var(--ink); }
+.sg-mark img { width: 1.4rem; height: 1.4rem; }
+.sg-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-state { display: inline-grid; place-items: center; flex: 0 0 auto; width: 1.2rem; height: 1.2rem; font-size: .75rem; font-style: normal; font-weight: 800; line-height: 1; border: 2px solid var(--ink); border-radius: 50%; }
+.sg-chip .sg-state { position: absolute; top: -.55rem; right: -.5rem; }
+.sg-state.have { background: var(--meadow); color: var(--ink); }
+.sg-state.gap { background: var(--coral); color: #fff; border-color: var(--ink); }
+a.sg-chip:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sg-chip { transition: transform .12s ease-out, box-shadow .12s ease-out; }
+  a.sg-chip:hover, a.sg-chip:focus-visible { transform: translateY(-3px); box-shadow: 0 5px 0 rgb(31 36 48 / 40%); }
+  a.sg-chip.gap:hover, a.sg-chip.gap:focus-visible { box-shadow: 0 5px 0 rgb(201 58 37 / 45%); }
+}
+
+/* Skill by skill (a tab in the Experience Finder card): one button per skill (summary only), the detail opens in a popup (components/popup.tsx). */
+.skill-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.skill-list > li { display: flex; min-width: 0; }
+
+.skill-row { --edge: var(--leaf-deep); display: grid; align-content: center; gap: .45rem; width: 100%; min-width: 0; padding: .65rem .8rem; border: 1.5px solid var(--glass-edge); border-left: 6px solid var(--edge); border-radius: 14px; background: var(--glass-card); box-shadow: var(--soft-pop), var(--glass-ring); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.skill-row.add { --edge: var(--orange); }
+.skill-row.missing { --edge: var(--coral); }
+.skill-row:hover { background: #fff; }
+.skill-row:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sk-top { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; min-width: 0; }
+.skill-name { display: flex; align-items: center; gap: .55rem; flex: 1 1 8.5rem; min-width: 0; overflow-wrap: anywhere; font-size: 1.15rem; font-weight: 800; line-height: 1.2; }
+.sk-verdict { flex: none; display: inline-flex; align-items: center; gap: .3rem; padding: .1rem .7rem .15rem; border: 2px solid var(--ink); border-radius: 999px; font-size: 1rem; font-weight: 800; line-height: 1.3; white-space: nowrap; }
+.sk-verdict.covered { background: var(--mint-soft); color: var(--ink); }
+.sk-verdict.add { background: #fdd9a0; color: var(--ink); }
+.sk-verdict.missing { background: var(--coral-soft); color: #8f2515; border-color: #8f2515; }
+.sk-go { flex: none; margin-left: auto; color: var(--ink-soft); }
+.sk-facts { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; font-size: 1rem; line-height: 1.3; }
+.sk-fact { display: inline-flex; align-items: center; gap: .4rem; min-width: 0; }
+.sk-label { color: var(--ink-soft); font-weight: 700; }
+.sk-fact b { font-weight: 800; }
+.sk-dots, .sk-steps { display: inline-flex; gap: .2rem; }
+.sk-dots i, .sk-steps i { display: block; border: 1.5px solid var(--ink); background: #fff; }
+.sk-dots i { width: .7rem; height: .7rem; border-radius: 50%; }
+.sk-dots i.on { background: var(--ink); }
+.sk-steps i { width: .9rem; height: .65rem; border-radius: 2px; }
+.sk-steps i.on { background: var(--leaf-deep); }
+.sk-steps.weak i.on { background: var(--orange); }
+
+/* Popup body: the detail line, each quote once in a highlighted block (the quote text itself is untouched), why, the numbers, the learning link. */
+.sk-pop { display: grid; gap: .75rem; overflow-wrap: anywhere; }
+.sk-pop a { color: var(--link); font-weight: 800; }
+.sk-detail { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .5rem; align-items: start; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.35; color: var(--ink); }
+.sk-detail > span:first-child { font-size: 1.35rem; line-height: 1.2; }
+.sk-pop blockquote { margin: 0; padding: .55rem .75rem; border-left: 4px solid var(--ink); border-radius: 0 10px 10px 0; background: color-mix(in srgb, var(--lime) 45%, #fff); font-size: 1.05rem; line-height: 1.45; color: var(--ink); }
+.sk-pop blockquote.none { border-left-color: var(--coral); background: var(--coral-soft); }
+.sk-pop blockquote small { display: block; font-size: .9rem; font-weight: 800; color: var(--ink); }
+.sk-pop blockquote > span:not(.sk-m) { display: block; margin-top: .25rem; font-size: .95rem; font-weight: 700; }
+.sk-pop span.sk-m { display: inline-block; margin: .15rem .3rem 0 0; padding: 0 .5rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; font-size: .9rem; font-weight: 800; }
+.sk-why { margin: 0; font-size: 1.05rem; line-height: 1.4; }
+.sk-how { font-size: .95rem; color: var(--ink-soft); }
+.sk-how summary { cursor: pointer; font-weight: 700; }
+.sk-how summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sk-how p { margin: .35rem 0 0; }
+.sk-link { justify-self: start; }

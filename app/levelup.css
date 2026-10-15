@@ -1,0 +1,75 @@
+/* Level up checklist. One accent (teal, --teal-dark) for the active tab, the progress bar and the focus path; orange only on the Open button; a calm green
+   check for done. Everything else is ink on glass. See docs/design-system.md. */
+.lu { --lu-accent: var(--teal-dark); --lu-done: #2f7d4f; --lu-line: rgb(31 36 48 / 22%); scroll-margin-top: 5rem; min-width: 0; }
+/* Heading row: the teal stage pill and the full title (display font) on the left, the progress on the right. They stack when the panel is narrow. */
+.lu-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.25rem; margin: 0 0 .75rem; }
+.lu-heading { display: flex; flex: 1 1 24rem; flex-wrap: wrap; align-items: center; gap: .3rem .65rem; min-width: 0; }
+.lu-title { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.15; }
+.lu-group { position: relative; }
+
+/* One slim progress bar. */
+.lu-progress { display: flex; flex: 0 1 18rem; align-items: center; gap: .8rem; min-width: 12rem; }
+.lu-bar { flex: 1 1 8rem; min-width: 0; height: .6rem; border-radius: 999px; background: rgb(31 36 48 / 14%); overflow: hidden; }
+.lu-bar span { display: block; height: 100%; border-radius: 999px; background: var(--lu-accent); }
+.lu-count { flex: none; color: var(--ink); font-size: 1rem; font-weight: 700; white-space: nowrap; }
+
+/* Tab row: neutral pills, the active one filled with the accent. The row scrolls sideways on phones; the page does not. */
+.lu-tabs { display: flex; gap: .5rem; margin: 0; padding: .25rem .1rem; overflow-x: auto; overscroll-behavior-x: contain; }
+.lu-tab { flex: none; display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; margin: 0; padding: .4rem 1rem; border: 1.5px solid var(--lu-line); border-radius: 999px; background: var(--glass-card); color: var(--ink); font-family: inherit; font-size: 1rem; font-weight: 700; line-height: 1.15; white-space: nowrap; cursor: pointer; }
+.lu-tab:hover { border-color: var(--lu-accent); }
+.lu-tab[aria-selected="true"] { border-color: var(--lu-accent); background: var(--lu-accent); color: #fff; }
+.lu-tab-icon { display: grid; place-items: center; width: 1rem; height: 1rem; }
+.lu-tab-count { color: var(--text-soft, #2f4a56); font-size: .9rem; font-weight: 600; }
+.lu-tab[aria-selected="true"] .lu-tab-count { color: #fff; }
+
+/* One visible panel under the tabs. */
+.lu-group { margin-top: .6rem; max-height: 30rem; padding: .9rem 1rem 1rem; overflow-y: auto; overscroll-behavior: contain; }
+.lu-group[hidden] { display: none; }
+.lu .lu-group { background: rgb(255 255 255 / 40%); } /* the cards inside are the glass cards; the group only frames them */
+.lu-desc { margin: 0 0 .9rem; }
+.lu-panel-title { margin: 0; color: var(--ink); font-size: 1.3rem; font-weight: 800; line-height: 1.25; }
+.lu-panel-text { margin: .15rem 0 0; color: var(--ink); font-size: 1.05rem; line-height: 1.45; }
+
+/* Under 700px of panel: one column, the panel scrolls inside 30rem. From 700px two columns, from 1000px three, from 1400px four, and the panel shows every card. */
+.lu-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: .7rem; margin: 0; padding: 0; list-style: none; }
+@container stage (min-width: 700px) { .lu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .lu-group { max-height: none; overflow-y: visible; } }
+@container stage (min-width: 1000px) { .lu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@container stage (min-width: 1400px) { .lu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Card: logo tile, tag and name on one row, the detail, then Open and Done. */
+.lu .lu-card { display: flex; flex-direction: column; gap: .5rem; min-width: 0; padding: .8rem .85rem .75rem; background: var(--glass-card); box-shadow: none; border: 1.5px solid var(--lu-line); }
+.lu .lu-card[data-done="true"] { border-color: var(--lu-done); }
+.lu-head { display: flex; align-items: center; gap: .65rem; min-width: 0; }
+.lu-logo { flex: none; display: grid; place-items: center; height: 3rem; min-width: 3rem; max-width: 5.5rem; padding: .25rem; border: 1.5px solid var(--lu-line); border-radius: 10px; background: #fff; line-height: 0; }
+.lu-logo img { display: block; width: auto; height: auto; max-height: 2.2rem; max-width: 4.8rem; object-fit: contain; }
+.lu-logo.is-icon { color: var(--ink); background: rgb(31 36 48 / 5%); }
+.lu-id { display: flex; flex: 1; flex-direction: column; align-items: flex-start; gap: .2rem; min-width: 0; }
+.lu-tag { max-width: 100%; padding: 0 .55rem; border: 1px solid rgb(31 36 48 / 35%); border-radius: 999px; background: transparent; color: var(--text-soft, #2f4a56); font-size: .8rem; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.lu-name { color: var(--ink); font-family: inherit; font-size: 1.05rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.lu-check { position: relative; flex: none; align-self: flex-start; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--lu-done); }
+.lu-check::after { content: ""; position: absolute; left: 50%; top: 46%; width: .4rem; height: .7rem; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: translate(-50%, -50%) rotate(45deg); }
+.lu-body { display: flex; flex: 1; flex-direction: column; gap: .4rem; min-width: 0; }
+.lu-detail { margin: 0; color: var(--ink); font-size: 1rem; line-height: 1.4; }
+.lu-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .3rem .8rem; width: 100%; margin-top: auto; }
+.lu-note { margin: .8rem 0 0; color: var(--text-soft, #2f4a56); font-size: .85rem; line-height: 1.4; }
+
+/* Open is the only orange in the section. Done is a plain checkbox that turns green. */
+.lu a.lu-open { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; padding: .3rem 1rem; border: 1.5px solid var(--ink); border-radius: 10px; background: var(--orange); color: var(--ink); font-size: 1rem; font-weight: 800; text-decoration: none; }
+.lu a.lu-open:hover { background: #ffb257; color: var(--ink); }
+.lu-done { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; }
+.lu-done input { appearance: none; position: relative; flex: none; width: 1.6rem; height: 1.6rem; margin: 0; border: 2px solid var(--ink); border-radius: 6px; background: #fff; cursor: pointer; }
+.lu-done input:checked { border-color: var(--lu-done); background: var(--lu-done); }
+.lu-done input:checked::after { content: ""; position: absolute; left: 50%; top: 46%; width: .4rem; height: .75rem; border: solid #fff; border-width: 0 3px 3px 0; transform: translate(-50%, -50%) rotate(45deg); }
+
+.lu :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.lu .lu-tab[aria-selected="true"]:focus-visible { box-shadow: 0 0 0 2px #fff; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .lu-group:not([hidden]) { animation: lu-fade .25s ease-out; }
+  @keyframes lu-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .lu-bar span { transition: width .3s ease-out; }
+}
+
+/* No stage banner above the panel, so the panel gets the same space on top as on the sides. */
+#level-up > .stage-body { padding-top: 1.25rem; }
+@media (max-width: 640px) { #level-up > .stage-body { padding-top: .6rem; } }

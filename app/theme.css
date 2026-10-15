@@ -1,0 +1,112 @@
+/* The sunny climb: tokens and base surfaces. Loaded last so these override the older :root values. See docs/design-system.md.
+   A fixed mountain scene behind the whole page, frosted-glass panels over it, ink text. */
+:root {
+  /* Sky, water and leaf: the new palette. */
+  --sky: #8fd0f0;
+  --sky-soft: #d9f0fb;
+  --water: #3bb4d6;
+  --water-deep: #1b86a8;
+  --grass: #7cc65a;
+  --leaf: #3f9e57;
+  --leaf-deep: #2d7d46;
+  --link: #0f6a88;
+
+  /* Glass: frosted white over the scenery. */
+  --glass: rgb(255 255 255 / 88%);
+  --glass-strong: rgb(255 255 255 / 94%);
+  --glass-edge: rgb(255 255 255 / 85%);
+  --glass-shadow: 0 10px 30px rgb(16 70 100 / 18%);
+  --glass-fill: linear-gradient(145deg, var(--glass-strong), var(--glass));
+  --glass-inner: rgb(255 255 255 / 78%); /* same as --glass-card */
+  --glass-blur: blur(14px) saturate(1.25);
+  --glass-ring: 0 0 0 1px rgb(31 36 48 / 14%);
+  /* Stage glass, over the full-section scenes (stages.css). Panel = the one or two main overlays per screen (blurred); card = nested in a panel (flat, no blur);
+     line = their border; pop = floating surfaces that sit over text (menus, tooltips). */
+  --glass-panel: rgb(255 255 255 / 66%);
+  --glass-card: rgb(255 255 255 / 78%);
+  --glass-line: rgb(255 255 255 / 70%);
+  --glass-pop: rgb(255 255 255 / 96%);
+  --glass-blur-panel: blur(14px) saturate(1.3);
+  --soft-pop: 0 3px 10px rgb(16 70 100 / 18%);
+  --btn-shadow: 0 3px 0 rgb(16 70 100 / 30%), 0 6px 14px rgb(16 70 100 / 14%);
+
+  /* Text on the bright ground. Muted text there is a little darker than the brief's #3d5560 so it holds 4.5:1 over the mid-gradient. */
+  --text: #12343f;
+  --text-soft: #2f4a56;
+  --ink: #1f2430;
+
+  /* Kept names. --night / --night-2 are no longer a page ground; they only survive as the dark end of art that still names them. */
+  --night: #0e2b24;
+  --night-2: #123a2f;
+  --forest: #1c5a43;
+  --moss: #3f8a5c;
+  --meadow: #8cc06a;
+  --teal: #1fa98a;
+  --teal-dark: #167a66;
+  --parchment: #f6ecd2;
+  --parchment-deep: #ecdcae;
+  --cream: #fbf6e6;
+  --orange: #e8912d;
+  --orange-dark: #b9651a;
+  --lime: #dbe86a;
+
+  /* Older names now point at the bright world. Parchment is for small inset surfaces only. */
+  --paper: #f3fafc;
+  --surface: #ffffff;
+  --line: #c3dbe3;
+  --ink-soft: #3a4955;
+  --panel-shadow: var(--glass-shadow);
+  --stripes: none;
+  --pop: var(--soft-pop);
+  --radius: 18px;
+}
+
+/* The mountain scene is fixed to the viewport behind everything, so it does not move with the page. A pseudo-element, not background-attachment: fixed, which iOS ignores.
+   The colour on html is the scene's sky, so overscroll never flashes white. */
+html { background: #a9d8e8; }
+body { color: var(--text); background: transparent; }
+body::before { content: ""; position: fixed; inset: 0; height: 100lvh; z-index: -1; pointer-events: none; transform: translateZ(0); background: url('/projects/itsa10but/assets/scenes/hero-landscape.svg') center bottom / cover no-repeat, #a9d8e8; }
+a { color: var(--link); }
+a:hover { color: var(--coral); }
+:focus-visible { outline-color: var(--ink); }
+
+/* Glass panels: frosted white, soft white edge, a thin ink-tinted ring so they hold their shape over bright sky. Text inside is ink. */
+.card, .panel, .tool-card, .tip-bubble, .rs-panel, .rs-tooltip,
+.lu-ribbon, .lu-group, .hiw-panel, .radar-section, .qm-card, .skill {
+  color: var(--ink);
+  background: var(--glass-fill);
+  border: 1.5px solid var(--glass-edge);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 90%);
+}
+/* Only surfaces above the scenery blur it (header, footer, .stage, hero, popovers, the journey bar). Cards nested in a stage panel are
+   flat white: a blur per card is the biggest scroll cost, and a second blur over an already frosted panel shows nothing. */
+.tip-bubble, .rs-panel, .rs-tooltip { -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+.card, .panel, .tool-card, .lu-ribbon, .lu-group, .hiw-panel, .radar-section, .qm-card, .skill { background: var(--glass-card); border-color: var(--glass-line); }
+/* The main overlay of each stage: more see-through, and the only blurred surface on screen besides the header. Lives on the stage body's child. */
+.stage-body > :is(.check-card, .radar-section, .lu, .hiw-panel, .dash), .stage .hiw > .hiw-panel { background: var(--glass-panel); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); border: 1.5px solid var(--glass-line); border-radius: var(--radius); box-shadow: var(--glass-shadow), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 80%); }
+/* Pop-overs sit over text, so they get more white. */
+.tip-bubble, .rs-panel, .rs-tooltip { background: var(--glass-pop); }
+
+/* Panels nested in a panel are lighter glass with no second blur. */
+.notice, .lu-card, .hiw-fact, .arch-lane, .hiw-try, details.fold, .upload, .quests li, .elevate-card, .so-tile,
+.tool-card .panel, .hiw .panel, .hiw .panel .panel {
+  color: var(--ink);
+  background: var(--glass-inner);
+  border: 1.5px solid var(--glass-edge);
+  border-radius: 14px;
+  box-shadow: var(--soft-pop), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 80%);
+}
+.card.boss { background: linear-gradient(145deg, var(--glass-strong), rgb(253 228 222 / 90%)); }
+
+.card a, .panel a, .tool-card a { color: var(--link); }
+.card a:hover, .panel a:hover, .tool-card a:hover { color: var(--coral); }
+.card :focus-visible, .panel :focus-visible, .tool-card :focus-visible { outline-color: var(--ink); }
+
+@supports not (backdrop-filter: blur(1px)) {
+  .card, .panel, .tool-card, .tip-bubble, .rs-panel, .rs-tooltip,
+  .lu-ribbon, .lu-group, .hiw-panel, .radar-section, .qm-card, .skill,
+  .stage-body > :is(.check-card, .radar-section, .lu, .hiw-panel, .dash), .stage .hiw > .hiw-panel { background: rgb(255 255 255 / 92%); }
+  .notice, .lu-card, .hiw-fact, .arch-lane, .hiw-try, details.fold, .upload, .quests li, .elevate-card, .so-tile,
+  .tool-card .panel, .hiw .panel, .hiw .panel .panel { background: rgb(255 255 255 / 92%); }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "itsa10but",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": "Ghernie Encinas",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint . --ignore-pattern .next",
+    "test": "node --experimental-strip-types --test \"lib/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "baseline-browser-mapping": "^2.11.28",
+    "lucide-react": "^1.31.0",
+    "next": "16.3.4",
+    "pdfjs-dist": "^6.4.299",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.3.4",
+    "typescript": "5.9.3"
+  },
+  "type": "module"
+}

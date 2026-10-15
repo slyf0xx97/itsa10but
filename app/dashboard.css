@@ -1,0 +1,430 @@
+/* Synthesis dashboard: one glass panel with a compact head (match ring, title) and four cards of the same height, one per reader.
+   Each card is a summary with a few visuals and one button at the bottom that opens the full findings in a wide popup (.dp).
+   Charts are plain CSS and inline SVG. Fills are custom properties on .dash so the card, panel and item backgrounds can be tuned in one place. */
+.dash { --dash-line: rgb(18 52 63 / 55%); --dash-card-bg: var(--glass-card); --dash-panel-bg: rgb(255 255 255 / 55%); --dash-item-bg: rgb(255 255 255 / 80%); --dash-card-line: rgb(18 52 63 / 22%); --dash-h: 0px; container: dash / inline-size; position: relative; display: grid; gap: .5rem; min-width: 0; padding: .5rem .8rem .8rem; border: 1.5px solid var(--glass-edge); border-radius: 18px; background: var(--glass-panel); backdrop-filter: var(--glass-blur-panel); -webkit-backdrop-filter: var(--glass-blur-panel); color: var(--ink); text-shadow: none; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); }
+.dash p, .dash ul { margin: 0; }
+.dash ul { padding: 0; list-style: none; }
+
+/* Head: one row, ring on the left, title on the right, both centred. */
+.dash-head { display: flex; align-items: center; gap: .85rem; min-width: 0; padding: .25rem .5rem; }
+.dash-lead { display: grid; gap: .15rem; min-width: 0; }
+.dash-title { font-family: var(--font-display); font-size: clamp(1.45rem, 3.4cqi, 2.1rem); font-weight: 600; line-height: 1.1; color: var(--ink); }
+.dash-title em { color: var(--coral); font-style: normal; }
+.dash-sample { justify-self: start; margin: 0; border-radius: 14px; text-transform: none; letter-spacing: 0; font-size: .9rem; line-height: 1.3; }
+
+/* Match ring: one track, one fill, the number in the middle. */
+.dash-gauge { position: relative; flex: none; width: 4rem; height: 4rem; }
+.dash-gauge svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.dash-gauge circle { fill: none; stroke-width: 11px; }
+.dash-gauge-track { stroke: rgb(18 52 63 / 14%); }
+.dash-gauge-fill { stroke: var(--leaf-deep); stroke-linecap: round; }
+.dash-gauge-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: .05em; font-family: var(--font-display); font-size: 1.2rem; line-height: 1; color: var(--ink); }
+.dash-gauge-num span { margin-top: .2em; font-size: .6em; }
+.dash-gauge.mini { width: 4.5rem; height: 4.5rem; }
+.dash-gauge.mini .dash-gauge-num { font-size: 1.15rem; }
+
+/* Four cards of the same height (--dash-h is a minimum, so a long line grows every card rather than clipping). One column on a phone, two from 640px of the dashboard, four from 1200px. */
+.dash-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: stretch; }
+.dash-card { --bar: var(--leaf-deep); --hue: var(--teal-soft); container: dcard / inline-size; display: flex; flex-direction: column; gap: .9rem; min-width: 0; min-height: var(--dash-h); padding: 1rem; border: 1.5px solid var(--dash-card-line); border-radius: 16px; background: var(--dash-card-bg); box-shadow: 0 4px 14px rgb(18 52 63 / 10%), inset 0 1px 0 rgb(255 255 255 / 90%); }
+.dash-card.scout { --hue: var(--teal-soft); --bar: var(--water-deep); }
+.dash-card.finder { --hue: var(--mint-soft); --bar: var(--leaf-deep); }
+.dash-card.recruiter { --hue: var(--coral-soft); --bar: var(--coral); }
+.dash-card.coach { --hue: var(--yellow-soft); --bar: var(--orange); }
+/* Head: avatar and names on the left, the "See full findings" button at the top right spanning two rows, and the line about what it opens beside it. A narrow card moves that line under the names. */
+.dash-card-head { flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "ava who act" "help help act"; align-items: start; gap: .5rem .55rem; min-height: 2.75rem; }
+.dash-ava { grid-area: ava; }
+.dash-who { grid-area: who; }
+.dash-adds { grid-area: help; }
+.dash-open { grid-area: act; }
+@container dcard (max-width: 17.5rem) {
+  .dash-card-head { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "ava act" "who who" "help help"; }
+  .dash-open { justify-self: end; }
+}
+.dash-ava { flex: none; display: block; width: 2.75rem; height: 2.75rem; border-radius: 12px; background: var(--hue); overflow: hidden; }
+.dash-ava .agent { width: 100%; height: 100%; }
+.dash-ava .pixel-sprite { animation: none; transform-origin: 50% 92%; }
+.dash-who { min-width: 0; }
+.dash-agent { font-size: 1rem; font-weight: 700; line-height: 1.2; color: var(--text-soft); }
+.dash-card h4 { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; line-height: 1.15; color: var(--ink); }
+.dash-nb { white-space: nowrap; }
+.dash-sub { font-size: 1rem; font-weight: 600; line-height: 1.35; }
+.dash-sub b { font-size: 1.1rem; font-weight: 800; }
+.dash-empty { font-size: 1rem; color: var(--text-soft); }
+
+/* The summary fills the card. */
+.dash-sum { flex: 1 1 auto; display: flex; flex-direction: column; gap: .9rem; min-width: 0; }
+.dash-sum > * { min-width: 0; }
+
+/* "See full findings": a pixel-game button in the agent's colour. A plate with the pixel icon of the agent's job (binoculars, magnifier over a document,
+   clipboard with a tick, checklist) over the label. Ink border, hard shadow, 44px or more tall. Ink on the soft colour is 12:1 or better. */
+.dash-open { --btn-fg: #fff; display: grid; justify-items: center; align-content: center; gap: .3rem; box-sizing: border-box; width: 6.75rem; min-height: 44px; margin: 0; padding: .4rem .3rem .45rem; border: 2.5px solid var(--ink); border-radius: 8px; background: var(--hue); color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; line-height: 1.1; text-align: center; box-shadow: 0 4px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); cursor: pointer; }
+.dash-card.coach .dash-open { --btn-fg: var(--ink); }
+.dash-open-icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 2px solid var(--ink); border-radius: 6px; background: var(--bar); color: var(--btn-fg); }
+.dash-open:hover { background: #fff; }
+.dash-open:active { transform: translateY(3px); box-shadow: 0 1px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); }
+.dash-open:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) {
+  .dash-open { transition: transform .12s ease-out, box-shadow .12s ease-out, background-color .12s; }
+  .dash-open:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); }
+  .dash-open:active { transform: translateY(3px); }
+}
+
+/* The findings popup: sections stacked with clear space between them. Its own container, so the row and check layouts follow the popup width. */
+
+/* Bar rows: name left, number right, a thin bar under them. */
+.dash-rows { display: grid; gap: .7rem; }
+.dash-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .5rem; align-items: baseline; }
+.dash-name { font-size: 1rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+.dash-val { font-size: 1rem; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.dash-track { position: relative; grid-column: 1 / -1; display: block; height: .55rem; border: 1.5px solid var(--dash-line); border-radius: 999px; background: rgb(255 255 255 / 70%); }
+.dash-fill { display: block; height: 100%; max-width: 100%; border-radius: 999px; background: var(--bar); box-shadow: inset 0 0 0 1px rgb(18 52 63 / 25%); transform-origin: left center; }
+.dash-note { grid-column: 1 / -1; font-size: 1rem; font-weight: 600; line-height: 1.3; color: var(--ink); }
+.dash-note b { font-weight: 800; }
+.dash-mark { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); }
+.dash-key { font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
+.dash-q { font-weight: 800; }
+.dash-q.yes { color: var(--leaf-deep); }
+.dash-q.no { color: #8f2515; }
+.dash-val .dash-q { margin-right: .3rem; }
+
+/* Role Scout summary: a segmented Have / Gap strip with a count, and the company. */
+.dash-strip { display: grid; gap: .45rem; }
+.dash-segs { display: flex; gap: 3px; }
+.dash-segs i { flex: 1 1 0; min-width: 0; height: .8rem; border: 1.5px solid var(--dash-line); border-radius: 3px; }
+.dash-segs i.have { background: var(--leaf); border-color: var(--leaf-deep); }
+.dash-segs i.gap { background: var(--coral-soft); border: 1.5px dashed #8f2515; }
+.dash-legend { display: flex; flex-wrap: wrap; gap: .2rem 1rem; font-size: 1rem; font-weight: 700; line-height: 1.3; }
+.dash-legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.dash-legend .sw { display: block; width: .8rem; height: .8rem; border-radius: 3px; }
+.dash-legend .sw.have { background: var(--leaf); border: 1.5px solid var(--leaf-deep); }
+.dash-legend .sw.gap { background: var(--coral-soft); border: 1.5px dashed #8f2515; }
+.dash-company { justify-self: start; display: inline-flex; align-items: center; gap: .45rem; max-width: 100%; padding: .3rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); font-size: 1rem; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+.dash-company.none { border-style: dashed; border-color: rgb(18 52 63 / 40%); background: none; font-weight: 600; color: var(--text-soft); }
+
+/* Experience Finder summary: a small ring with the count, three proof bars, one line on weak proofs. */
+.dash-ringrow { display: flex; align-items: center; gap: .9rem; }
+.dash-ringrow .dash-sub { min-width: 0; }
+.dash-sum .dash-rows + .dash-key { margin-top: -.45rem; }
+
+/* Experience Finder: weak proofs, weakest first. A name, then the reason in words, under a heading with its own icon, so colour is never the only cue. */
+.dash-weak { display: grid; grid-template-columns: minmax(0, 1fr); gap: .25rem; }
+.dash-weak li { font-size: 1rem; line-height: 1.25; padding-left: .5rem; border-left: 3px solid var(--coral); overflow-wrap: anywhere; }
+
+/* Role Scout, "Skills you have vs lack" tab (the body is skill-grid.tsx): tighter key and tier boxes so more fits without scrolling. */
+.dash .so-legend { gap: .25rem .5rem; }
+.dash .so-key { padding: 0 .6rem 0 .35rem; }
+.dash .so-key b { font-size: 1rem; }
+.dash .sg { gap: .4rem; }
+.dash .sg-group { padding: .4rem .5rem .5rem; }
+.dash .sg-group h5 { margin: 0 0 .5rem; font-size: 1.1rem; }
+.dash .sg-group ul { gap: .6rem .5rem; }
+
+/* Recruiter card: score, three counts and a one-line key at the foot. Its popup: the fixes to do first, every check, keywords, note.
+   Body text is 1rem or more, headings 1.05rem or more, no pixel font on sentences (only the numerals and card title use the display font). */
+.ats-h { display: flex; align-items: center; gap: .4rem; margin: 0 0 .5rem; font-family: inherit; font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: var(--ink); }
+.ats-band { display: grid; gap: .55rem; }
+.ats-score { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .7rem; }
+.ats-num { display: flex; align-items: baseline; gap: .3rem; line-height: 1; }
+.ats-num b { font-family: var(--font-body); font-size: 2.4rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: lining-nums; color: var(--ink); }
+.ats-num span { font-size: 1.1rem; font-weight: 700; color: var(--ink-soft); }
+.ats-verdict { display: inline-flex; align-items: center; gap: .35rem; padding: .05rem .65rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); font-size: 1rem; font-weight: 800; line-height: 1.3; color: var(--ink); }
+.ats-verdict.ready { background: var(--mint-soft); border-color: var(--leaf-deep); }
+.ats-verdict.almost { background: var(--yellow-soft); border-color: var(--orange-dark); }
+.ats-verdict.work { background: var(--coral-soft); border-color: var(--coral); }
+.ats-seg { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; }
+.ats-seg i { display: block; height: .7rem; border: 1.5px solid var(--dash-line); border-radius: 3px; background: var(--dash-item-bg); }
+.ats-seg.ready i.on { background: var(--leaf); border-color: var(--leaf-deep); }
+.ats-seg.almost i.on { background: #f2b84b; border-color: var(--orange-dark); }
+.ats-seg.work i.on { background: var(--coral); border-color: #8f2515; }
+
+/* Passed / To check / To fix: a big symbol, a big count and the words, so colour is never the only cue. Body font, 1.1rem or larger, ink on a pastel with a coloured edge. */
+.ats-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.ats-tiles li { display: grid; justify-items: center; align-content: start; gap: .25rem; padding: .55rem .25rem .6rem; border: 2.5px solid var(--tile-edge); border-radius: 12px; background: var(--tile-bg); text-align: center; }
+.ats-tiles .pass { --tile-bg: var(--mint-soft); --tile-edge: var(--leaf-deep); --tile-mark: var(--leaf-deep); --tile-mark-fg: #fff; }
+.ats-tiles .warn { --tile-bg: var(--yellow-soft); --tile-edge: var(--orange-dark); --tile-mark: #f2b84b; --tile-mark-fg: var(--ink); }
+.ats-tiles .fail { --tile-bg: var(--coral-soft); --tile-edge: #8f2515; --tile-mark: #8f2515; --tile-mark-fg: #fff; }
+.ats-tile-top { display: inline-flex; align-items: center; gap: .4rem; }
+.ats-tile-top b { font-family: var(--font-body); font-size: 1.9rem; font-weight: 800; font-variant-numeric: lining-nums; line-height: 1; color: var(--ink); }
+.ats-mark { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border: 2px solid var(--ink); border-radius: 50%; background: var(--tile-mark); color: var(--tile-mark-fg); font-family: var(--font-body); font-size: 1.25rem; font-weight: 800; line-height: 1; }
+.ats-tile-label { font-size: 1.1rem; font-weight: 800; line-height: 1.15; color: var(--ink); }
+@container dcard (max-width: 13rem) { /* a 320px phone: three tiles no longer fit across, so each becomes a row */
+  .ats-tiles { grid-template-columns: minmax(0, 1fr); }
+  .ats-tiles li { grid-auto-flow: column; justify-content: start; align-items: center; gap: .6rem; padding: .35rem .6rem; text-align: left; }
+}
+
+
+.dash-fixes { gap: .4rem; }
+.dash-fixes .cl-item { grid-template-columns: 1.9rem minmax(0, 1fr); gap: .5rem; align-items: center; padding: .35rem .5rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--dash-item-bg); }
+.dash-fixes .cl-icon { width: 1.9rem; height: 1.9rem; border-radius: 10px; font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; }
+.dash-fixes .cl-text { font-size: 1rem; line-height: 1.3; }
+.dash-fixes .cl-lead { margin: 0; font-size: 1rem; }
+
+.dash-checks { display: grid; gap: .45rem; }
+.dash-checks li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: .4rem; align-items: start; font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.dash-checks small { display: block; font-size: 1rem; font-weight: 500; color: var(--text-soft); }
+.dash-check-mark { display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border: 2px solid var(--ink); border-radius: 50%; font-size: .9rem; font-weight: 800; line-height: 1; color: var(--ink); }
+.dash-checks .warn .dash-check-mark { background: #f2b84b; }
+.dash-checks .fail .dash-check-mark { background: var(--coral-soft); border-color: var(--coral); color: #8f2515; }
+
+.dash-kw { display: grid; gap: .8rem; }
+.dash-chip-label { margin-top: .2rem; font-size: 1rem; font-weight: 700; color: var(--text-soft); }
+.dash-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.dash-chips li { padding: 0 .55rem; border: 1.5px solid var(--ink); border-radius: 999px; font-size: 1rem; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.dash-chips.found li { background: var(--mint-soft); border-color: var(--leaf-deep); }
+.dash-chips.missing li { background: var(--coral-soft); border: 1.5px dotted #8f2515; color: #8f2515; }
+.dash-chips li.more { background: transparent; border-color: transparent; color: var(--text-soft); }
+.dash-ats-note { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .4rem; align-items: start; font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
+
+/* Role Scout, "About the company" tab. Values are chips; a click opens every meaning in a popup. */
+.co-head { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .55rem; }
+.co-name { flex: 1 1 6rem; min-width: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.co-origin { padding: 0 .6rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); font-size: 1rem; font-weight: 800; line-height: 1.4; }
+.co-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
+.co-cols > section { min-width: 0; }
+.co-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+.co-chip { max-width: 100%; display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .15rem .7rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); color: var(--ink); font: inherit; font-size: 1rem; font-weight: 700; line-height: 1.3; text-align: left; cursor: pointer; }
+.co-chip:hover { background: var(--lime); }
+.co-chip:focus-visible, .co-see:focus-visible, .co-sources a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.co-chip.more { border-style: dashed; }
+.co-dot { flex: none; width: .6rem; height: .6rem; border-radius: 50%; background: var(--teal-dark); }
+.co-see { margin-top: .5rem; min-height: 2.5rem; padding: .25rem .9rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--orange); color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; cursor: pointer; }
+.co-see:hover { background: var(--lime); }
+.co-rep { margin-top: .5rem; padding: .4rem .6rem; border: 1.5px dashed rgb(18 52 63 / 45%); border-radius: 12px; background: var(--dash-item-bg); }
+.co-rep .dash-chip-label { margin-top: 0; }
+.co-rep ul { display: grid; gap: .2rem; margin-top: .2rem; padding-left: 1.1rem; list-style: disc; font-size: 1rem; line-height: 1.3; }
+.co-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem; padding-top: .5rem; border-top: 1.5px solid rgb(18 52 63 / 15%); }
+.co-sources { display: flex; flex-wrap: wrap; gap: .2rem .9rem; }
+.co-sources a { overflow-wrap: anywhere; color: var(--link); font-size: 1rem; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.co-note { flex: 1 1 12rem; min-width: 0; font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
+.co-none { display: flex; align-items: flex-start; gap: .6rem; padding: .5rem; border: 1.5px dashed rgb(18 52 63 / 40%); border-radius: 12px; }
+.co-none-title { font-size: 1.05rem; font-weight: 800; line-height: 1.25; }
+.co-none p:not(.co-none-title) { margin-top: .15rem; font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
+
+/* Popup: every value with its meaning, two columns of cards. The panel scrolls inside. */
+.co-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+.co-values li { padding: .7rem .85rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 14px; background: var(--sky-soft); }
+.co-values b { font-size: 1.15rem; font-weight: 800; line-height: 1.25; }
+.co-values p { margin-top: .25rem; font-size: 1rem; line-height: 1.45; }
+@media (max-width: 440px) { .co-values { grid-template-columns: minmax(0, 1fr); } }
+
+/* Waiting state: the same frame, dashed and empty. No figures. */
+.dash-pending { border-style: dashed; border-color: rgb(18 52 63 / 45%); }
+.dash-wait { font-size: 1.1rem; font-weight: 800; }
+.dash-ring-ghost { flex: none; display: block; width: 4.5rem; height: 4.5rem; border: 9px dashed rgb(18 52 63 / 30%); border-radius: 50%; }
+.dash-ghosts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.dash-ghosts i { display: block; height: 5.5rem; border: 1.5px dashed rgb(18 52 63 / 35%); border-radius: 16px; background: rgb(255 255 255 / 35%); }
+
+/* The dashboard is its own container ("dash"): four across from 1200px (the bigger type needs the room), two across from 640px, one under that.
+   Under 1200px the cards are as tall as their content. */
+@container dash (max-width: 639px) {
+  .dash-ghosts { grid-template-columns: minmax(0, 1fr); }
+  .dash-ghosts i { height: 3.5rem; }
+}
+@container dash (min-width: 640px) {
+  .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; }
+}
+@container dash (min-width: 1200px) {
+  .dash-ghosts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dash-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dash-card { --dash-h: 27rem; }
+}
+/* The popup (and the card) is its own container ("dcard"): check groups sit two across once it is wide. */
+@container stage (max-width: 520px) {
+  .dash { padding: .5rem .6rem .75rem; }
+  .dash-head { gap: .65rem; padding: .35rem; }
+  .dash-gauge, .dash-ring-ghost { width: 4rem; height: 4rem; }
+  .dash-gauge.mini { width: 4.5rem; height: 4.5rem; }
+  .dash-gauge-num { font-size: 1.25rem; }
+}
+
+/* Charts grow in only when motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+  .dash-fill { animation: dash-grow .8s ease-out both; }
+  .dash-gauge-fill { animation: dash-ring 1s ease-out both; }
+}
+@keyframes dash-grow { from { transform: scaleX(0); } }
+@keyframes dash-ring { from { stroke-dashoffset: var(--len); } }
+
+/* Action Planner: a short ordered list. Each row is two buttons side by side, the tick box on the left (marks it done) and the row (opens the full quest). */
+.pl-start { padding: .4rem .7rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--dash-item-bg); font-size: 1rem; line-height: 1.3; overflow-wrap: anywhere; }
+.pl-list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.pl-item { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); min-width: 0; border: 2px solid var(--ink); border-radius: 12px; background: var(--dash-item-bg); box-shadow: 0 2px 0 rgb(31 36 48 / 30%); }
+.pl-item[data-done="true"] { background: var(--mint-soft); }
+.pl-open, .pl-tick { margin: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+.pl-open { display: grid; gap: .1rem; align-content: start; min-width: 0; min-height: 44px; padding: .4rem .6rem .45rem; border-radius: 10px; text-align: left; }
+.pl-open:hover, .pl-tick:hover { background: rgb(219 232 106 / 35%); }
+.pl-title { display: flex; align-items: center; gap: .45rem; font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.pl-num { flex: none; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border: 2px solid var(--ink); border-radius: 7px; background: var(--lime); font-family: var(--font-display); font-size: 1rem; font-weight: 700; line-height: 1; }
+.pl-item[data-done="true"] .pl-num { background: var(--meadow); }
+.pl-chips { font-size: 1rem; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.pl-full { display: grid; gap: 1.1rem; margin: 0; padding: 0; list-style: none; }
+.pl-full > li { display: grid; gap: .7rem; padding: .9rem 1rem 1rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 14px; background: var(--sky-soft); }
+.pl-full-h { display: flex; align-items: center; gap: .6rem; margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.25; }
+.pl-why { font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
+.pl-tick { display: grid; place-items: center; min-height: 44px; padding: 0; border-right: 1.5px dashed rgb(18 52 63 / 40%); border-radius: 10px 0 0 10px; }
+.pl-box { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 2.5px solid var(--ink); border-radius: 6px; background: var(--dash-item-bg); }
+[aria-pressed="true"] > .pl-box { background: var(--meadow); }
+.pl-open:focus-visible, .pl-tick:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+
+/* The quest popup. */
+.pl-pop { display: grid; gap: .8rem; overflow-wrap: anywhere; }
+.pl-task { font-size: 1.1rem; line-height: 1.5; }
+.pl-show { display: flex; align-items: flex-start; gap: .6rem; padding: .6rem .8rem; border: 2px dashed var(--ink); border-radius: 12px; background: var(--yellow-soft); font-size: 1.05rem; line-height: 1.4; }
+.pl-show > span { min-width: 0; overflow-wrap: anywhere; }
+.pl-show strong { display: block; font-size: 1rem; font-weight: 800; }
+.pl-skill { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; justify-self: start; padding: .3rem .85rem; border: 2px solid var(--ink); border-radius: 16px; background: var(--teal-soft); font-size: 1rem; line-height: 1.3; }
+.pl-skill span:not([aria-hidden]) { color: var(--ink-soft); font-weight: 700; }
+.pl-toggle { display: inline-flex; align-items: center; justify-self: start; gap: .6rem; min-height: 48px; padding: .4rem 1rem; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: inherit; font-size: 1.05rem; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 rgb(31 36 48 / 40%); }
+.pl-toggle[aria-pressed="true"] { background: var(--mint-soft); }
+.pl-toggle:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) {
+  .pl-toggle { transition: transform .12s ease-out, box-shadow .12s ease-out; }
+  .pl-toggle:hover { transform: translateY(-2px); box-shadow: 0 5px 0 rgb(31 36 48 / 40%); }
+}
+
+/* ---- Findings popups (.dp) ----
+   Top: the mode that ran, then "What this reader did, in order" as numbered steps in columns. Below: the findings in columns that sit side by side
+   (.dp-main). On a wide, tall screen the popup body never scrolls: each column scrolls inside itself if it is really long. On a phone the columns stack
+   and the popup body scrolls. Every size is 1rem or more. The popup is a container ("dcard"), so the column counts follow its width. */
+.dash-adds { margin: 0; font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
+.dp { container: dcard / inline-size; display: grid; gap: .5rem; min-width: 0; }
+.fi-top { display: grid; gap: .4rem; min-width: 0; }
+.fi-mode { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; margin: 0; padding: .35rem .7rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--sky-soft); }
+.fi-badge { display: inline-block; padding: .1rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--lime); color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.3; }
+.fi-mode-note { flex: 1 1 16rem; min-width: 0; font-size: 1rem; line-height: 1.35; color: var(--ink); }
+.fi-did { display: grid; grid-template-columns: minmax(0, 1fr); gap: .15rem .9rem; min-width: 0; }
+.fi-did-h { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; line-height: 1.2; color: var(--ink); }
+.fi-did-note { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
+.fi-steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: .3rem 1rem; margin: .25rem 0 0; padding: 0; list-style: none; counter-reset: fi; }
+.fi-steps li { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: .5rem; align-items: start; font-size: 1rem; line-height: 1.3; counter-increment: fi; }
+.fi-steps li::before { content: counter(fi); display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; line-height: 1; }
+
+/* The columns. One column on a phone, two from 34rem of popup, then each reader's own count from 52rem. */
+.dp-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; align-items: stretch; min-width: 0; }
+.dp-sec { display: grid; align-content: start; gap: .4rem; min-width: 0; padding: .6rem .8rem; border: 1.5px solid rgb(18 52 63 / 16%); border-radius: 14px; background: var(--glass-inner); }
+.dp-h { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; line-height: 1.2; color: var(--ink); }
+.dp-desc { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
+.dp-sec .dash-sub, .dp-sec .dash-empty, .dp .dash-chip-label { font-size: 1rem; line-height: 1.3; }
+.dp .dash-chip-label { margin: 0 0 .25rem; }
+@container dcard (min-width: 34rem) {
+  .dp-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fi-did { grid-template-columns: auto minmax(0, 1fr); align-items: baseline; }
+  .fi-steps { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dp-main[data-reader="planner"] > .dp-sec, .dp-main > .ats-note { grid-column: 1 / -1; }
+}
+@container dcard (min-width: 52rem) {
+  .fi-steps { grid-template-columns: repeat(var(--fi-cols, 4), minmax(0, 1fr)); }
+  .dp-main[data-reader="scout"] { grid-template-columns: minmax(0, 1.5fr) minmax(0, .9fr) minmax(0, 1.1fr); }
+  .dp-main[data-reader="finder"] { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+  .dp-main[data-reader="recruiter"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dp-main[data-reader="planner"] { grid-template-columns: minmax(0, 1fr); }
+}
+/* Wide and tall enough: the body does not scroll. The columns share the height left under the steps and each scrolls inside if it must. */
+@media (min-width: 56rem) and (min-height: 32rem) {
+  .pop-body:has(> .dp):not(:has([data-reader="planner"])) { display: flex; flex-direction: column; overflow: hidden; }
+  .pop-body:not(:has([data-reader="planner"])) > .dp { flex: 1 1 auto; min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
+  .dp-main:not([data-reader="planner"]) { grid-template-rows: minmax(0, 1fr); min-height: 0; }
+  .dp-main:not([data-reader="planner"]) > .dp-sec { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+}
+
+/* Skills and quotes (Role Scout, Experience Finder): a list of skills, then the picked skill's quotes. */
+.sb-list { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.sb-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .6rem; align-items: center; width: 100%; min-height: 44px; margin: 0; padding: .3rem .6rem; border: 1.5px solid rgb(18 52 63 / 22%); border-radius: 10px; background: var(--dash-item-bg); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.sb-row:hover { background: rgb(219 232 106 / 30%); }
+.sb-row[aria-pressed="true"] { border: 2.5px solid var(--ink); padding: calc(.3rem - 1px) calc(.6rem - 1px); background: color-mix(in srgb, var(--lime) 45%, #fff); box-shadow: 0 2px 0 rgb(31 36 48 / 35%); }
+.sb-row:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sb-name { grid-area: 1 / 1; font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.sb-val { grid-area: 2 / 2; justify-self: end; font-size: 1rem; font-weight: 700; line-height: 1.2; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sb-row .dash-track { grid-area: 2 / 1; height: .65rem; }
+.sb-chip { grid-area: 1 / 2; justify-self: end; display: inline-flex; align-items: center; gap: .3rem; padding: 0 .55rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); font-size: 1rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+.sb-chip.have, .sb-chip.proof-strong { background: var(--mint-soft); }
+.sb-chip.proof-some { background: var(--yellow-soft); }
+.sb-chip.proof-weak { background: #fdd9a0; }
+.sb-chip.gap, .sb-chip.proof-none { background: var(--coral-soft); border-color: #8f2515; color: #8f2515; }
+.dp-main > .dp-sec { container: dsec / inline-size; }
+@container dsec (min-width: 26rem) {
+  .sb-row { grid-template-columns: minmax(5.5rem, 1.2fr) minmax(3rem, 1fr) 8.4rem 5.4rem; gap: .55rem; }
+  .sb-name { grid-area: 1 / 1; }
+  .sb-row .dash-track { grid-area: 1 / 2; }
+  .sb-val { grid-area: 1 / 3; text-align: right; }
+  .sb-chip { grid-area: 1 / 4; min-width: 5.2rem; justify-content: center; }
+}
+.sb-key { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
+.sb-sum { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin: 0; font-size: 1.0625rem; line-height: 1.35; }
+.sb-sum > span:last-child { flex: 1 1 12rem; min-width: 0; }
+.sb-how { font-size: 1rem; }
+.sb-how summary { min-height: 44px; display: flex; align-items: center; }
+.sb-how .sk-parts { display: grid; gap: .5rem; }
+.sb-how .sk-parts h6 { margin: 0; font-size: 1rem; font-weight: 800; }
+.sb-how .sk-parts ul { display: grid; gap: .15rem; margin: .15rem 0 0; padding-left: 1.1rem; }
+.dp-weak { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; }
+.dp-weak .ats-h { margin: 0; }
+.dp-weak .dash-weak { flex: 1 1 12rem; gap: .25rem; }
+
+/* One quote and where it came from. A missing match says so. */
+.fi-q { display: grid; grid-template-columns: minmax(0, 1fr); gap: .15rem; margin: 0; min-width: 0; padding: .5rem .7rem; border-left: 4px solid var(--ink); border-radius: 0 10px 10px 0; background: color-mix(in srgb, var(--lime) 40%, #fff); font-size: 1.0625rem; line-height: 1.4; }
+.fi-q-tag { font-weight: 800; }
+.fi-q q { quotes: "“" "”"; overflow-wrap: anywhere; }
+.fi-q small { font-size: 1rem; color: var(--text-soft); overflow-wrap: anywhere; }
+.fi-q.none { border-left-color: var(--coral); background: var(--coral-soft); color: #8f2515; }
+.fi-quotes { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.fi-quotes > li { display: grid; gap: .3rem; min-width: 0; align-content: start; }
+.fi-quotes h6 { margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
+@container dcard (min-width: 40rem) { .fi-quotes { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); } }
+
+/* Role Scout, company column: one column of blocks. */
+.dp .co-cols { grid-template-columns: minmax(0, 1fr); gap: .7rem; }
+.dp .co-name, .dp .co-values b { font-size: 1.15rem; }
+.dp .co-origin, .dp .co-chip, .dp .co-see, .dp .co-rep ul, .dp .co-sources a, .dp .co-note, .dp .co-none p:not(.co-none-title), .co-values p { font-size: 1rem; line-height: 1.4; }
+.dp .co-chips { gap: .4rem; }
+.dp .co-chip { min-height: 2.5rem; padding: .15rem .8rem; }
+.dp .co-see { min-height: 2.75rem; }
+.dp .ats-h, .co-none-title { font-size: 1.1rem; }
+.dp .dash-fixes { gap: .35rem; }
+.dp .dash-fixes .cl-item { grid-template-columns: 1.9rem minmax(0, 1fr); gap: .5rem; padding: .4rem .5rem; }
+.dp .dash-fixes .cl-icon { width: 1.9rem; height: 1.9rem; font-size: 1.05rem; }
+.dp .dash-fixes .cl-text, .dp .dash-fixes .cl-lead { font-size: 1rem; line-height: 1.3; }
+.co-values { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.co-values li { padding: .7rem .9rem; border-radius: 14px; }
+@container dcard (min-width: 52rem) { .co-values { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Recruiter: To fix, To check and Passed side by side, keywords as a strip under them. */
+.dp .dp .dp .ats-col .dp-h { display: flex; align-items: center; gap: .4rem; }
+.ats-col-mark { display: grid; place-items: center; flex: none; width: 1.6rem; height: 1.6rem; border: 2px solid var(--ink); border-radius: 50%; font-family: var(--font-body); font-size: 1rem; font-weight: 800; line-height: 1; }
+.ats-col.pass .ats-col-mark { background: var(--leaf-deep); color: #fff; }
+.ats-col.warn .ats-col-mark { background: #f2b84b; color: var(--ink); }
+.ats-col.fail .ats-col-mark { background: #8f2515; color: #fff; }
+.ats-col-n { margin-left: auto; font-family: var(--font-body); font-size: 1.1rem; font-weight: 800; }
+.dp .dash-checks { gap: .5rem; }
+.dp .dash-checks li { grid-template-columns: 1.4rem minmax(0, 1fr); gap: .4rem; font-size: 1rem; line-height: 1.3; }
+.dp .dash-checks li b { font-weight: 800; }
+.dp .dash-checks small { margin-top: .1rem; font-size: 1rem; line-height: 1.3; }
+.dp .dash-check-mark { width: 1.4rem; height: 1.4rem; font-size: .95rem; }
+.ats-col.pass .dash-check-mark { background: var(--mint-soft); border-color: var(--leaf-deep); }
+.ats-tag { font-size: 1rem; font-weight: 600; color: var(--ink-soft); }
+.ats-tag::before { content: "("; }
+.ats-tag::after { content: ")"; }
+.ats-do { display: inline-block; margin-left: .3rem; padding: 0 .5rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--lime); font-size: 1rem; font-weight: 800; line-height: 1.3; }
+.dp .dash-chips { gap: .4rem; }
+.dp .dash-chips li { padding: 0 .65rem; font-size: 1rem; }
+.dp .dash-ats-note { font-size: 1rem; line-height: 1.3; }
+.dp .ats-note { display: block; margin: 0; padding: 0 .2rem; }
+.ats-kw { align-content: start; }
+
+/* Action Planner: the tips side by side, then the quotes behind them. Tip content has its own rules (.pl-*). */
+.pl-full { display: grid; grid-template-columns: minmax(0, 1fr); gap: .7rem; margin: 0; padding: 0; list-style: none; }
+.pl-full > li { display: grid; align-content: start; gap: .5rem; min-width: 0; padding: .7rem .8rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 14px; background: var(--sky-soft); }
+.pl-full-h { display: flex; align-items: center; gap: .5rem; margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.25; }
+.pl-full-h .pl-num { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
+.pl-why { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
+.pl-pop { gap: .6rem; }
+.pl-task, .pl-show, .pl-skill { font-size: 1.0625rem; line-height: 1.4; }
+.pl-show { padding: .5rem .7rem; }
+.pl-skill { padding: .25rem .8rem; }
+.pl-toggle { min-height: 2.75rem; padding: .3rem 1.1rem; font-size: 1.0625rem; }
+@container dcard (min-width: 40rem) { .pl-full { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); } }
+
+@media (max-width: 640px) {
+  .dp { gap: .5rem; }
+  .dp-sec { padding: .6rem .7rem; }
+}

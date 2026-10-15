@@ -1,0 +1,210 @@
+/* Stage 2 reader cards: four character cards in run order. Top to bottom: scene art as the header (agent-*.svg behind a big sprite, the type ribbon and the
+   number over it), the name, one bold "what it does" line with the key phrase highlighted, and three moves (icon tile, bold label, short line).
+   Strengths, limits and tools sit behind a "Strengths, limits & tools" button that opens the shared popup (lib/agent-facts.ts). There is no Done badge: waiting is a dim card with a
+   sleeping sprite, working is a "Working..." ribbon, a glowing edge and moves that light in turn, done is a green edge and one foil sweep. Screen readers
+   get the status as hidden text in the name.
+   Four across from 1100px of panel, two by two from 700px, one column under that (the river in flow.css switches drawings at the same widths).
+   The art, name and what-it-does line are the button that opens the detail panel; the moves and the details button are siblings, so no control sits inside another.
+   All movement is gated by no-preference at the bottom of this file; without it every card is a still card. */
+
+/* Stage 2 reader cards: four plain cards in run order, one neutral treatment for all of them. Each card is a header row (avatar tile in the agent's colour, name and a status chip,
+   dot and word), one line about what the reader does, three moves (icon, label and one line) and a "Strengths, limits & tools" button that opens the
+   shared popup (lib/agent-facts.ts; the popup also holds the one-line detail of each move). Status is the dot, a short word and the avatar's motion: waiting is a
+   dim still avatar, working is an orange dot and a bouncing avatar, done is a green dot. Screen readers get the status as hidden text in the name.
+   Four across from 1100px of panel, two by two from 700px, one column under that (the connector in flow.css switches drawings at the same widths).
+   The header and the line are the button that opens the detail panel; the moves and the details button are siblings, so no control sits inside another.
+   All movement is gated by no-preference at the bottom of this file. */
+
+.rd { display: grid; gap: .6rem; padding-top: .25rem; }
+.rd-steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 0; padding: 0; list-style: none; }
+@container stage (min-width: 700px) {
+  .rd-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container stage (min-width: 1100px) {
+  .rd-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Each card is six rows: the header (row 1), the "what it does" line (2), three moves (3 to 5) and the details button (6). Where subgrid works the four cards share
+   those row lines, so row 1 of every card lines up with row 1 of the others, and so on, and the cards are one height. Without subgrid each card is a plain column. */
+.rd-step { --hue: #8fd6df; position: relative; display: flex; flex-direction: column; gap: 0; min-width: 0; padding: 1.1rem 1.2rem 0; border: 1px solid rgb(18 52 63 / 28%); border-radius: 18px; background: var(--glass-card); color: var(--ink); text-shadow: none; box-shadow: 0 2px 8px rgb(18 52 63 / 10%); }
+.rd-step.finder { --hue: #a8e2bd; }
+.rd-step.recruiter { --hue: #f6b5a6; }
+.rd-step.coach { --hue: #f6d877; }
+.rd-step.shown { border-color: var(--water-deep); box-shadow: 0 2px 8px rgb(18 52 63 / 10%), 0 0 0 3px rgb(27 134 168 / 55%); }
+
+.rd-btn { display: flex; flex-direction: column; gap: 0; width: 100%; min-width: 0; margin: 0; padding: 0; border: 0; border-radius: 12px; background: none; color: inherit; font: inherit; text-align: left; text-shadow: none; }
+button.rd-btn { cursor: pointer; }
+button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.rd-icon { width: 16px; height: 16px; flex: none; image-rendering: pixelated; }
+
+/* Header row: the avatar sits in a tile in the agent's colour; the name and a status chip (dot and word) beside it. */
+.rd-top { display: flex; align-items: stretch; gap: .9rem; min-width: 0; padding-bottom: .85rem; }
+.rd-ava { display: block; flex: none; width: 4.75rem; height: 4.75rem; border-radius: 16px; background: color-mix(in srgb, var(--hue) 50%, #fff); overflow: hidden; }
+.rd-ava .agent { width: 100%; height: 100%; }
+.rd-ava .pixel-sprite { animation: none; transform-origin: 50% 92%; }
+.rd-step.waiting .rd-ava { opacity: .55; filter: grayscale(.5); }
+.rd-id { display: grid; grid-template-rows: minmax(0, 1fr) auto; justify-items: start; gap: .4rem; min-width: 0; }
+.rd-name { align-self: center; }
+.rd-name { display: block; font-family: var(--font-body); font-size: 1.3rem; font-weight: 800; line-height: 1.15; overflow-wrap: anywhere; }
+.rd-status { display: inline-flex; align-items: center; gap: .45rem; padding: .1rem .75rem .1rem .6rem; border: 1.5px solid rgb(18 52 63 / 35%); border-radius: 999px; background: rgb(255 255 255 / 75%); color: var(--ink); font-size: .9375rem; font-weight: 700; line-height: 1.4; }
+.rd-step.active .rd-status { background: var(--yellow-soft); border-color: var(--orange-dark); }
+.rd-step.done .rd-status { background: var(--mint-soft); border-color: var(--leaf-deep); }
+.rd-dot { flex: none; box-sizing: border-box; width: .75rem; height: .75rem; border: 2px solid #5d727b; border-radius: 50%; }
+.rd-step.active .rd-dot { border-color: var(--orange-dark); background: var(--orange); }
+.rd-step.done .rd-dot { border-color: var(--leaf-deep); background: var(--leaf-deep); }
+.rd-dots i { font-style: normal; }
+
+.rd-tag { display: block; padding-bottom: .5rem; color: var(--ink); font-size: 1.0625rem; font-weight: 600; line-height: 1.4; }
+
+/* Moves: three rows of one height in every card. A large icon tile in the agent's colour, a bold label and one line under it. */
+.rd-move-list { display: grid; align-content: start; margin: 0; padding: 0; list-style: none; }
+.rd-move { display: grid; grid-template-columns: 3rem minmax(0, 1fr); align-items: start; gap: .85rem; min-width: 0; padding: .8rem 0; border-top: 1.5px solid rgb(18 52 63 / 14%); }
+.rd-mi { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 12px; background: color-mix(in srgb, var(--hue) 50%, #fff); }
+.rd-mi .rd-icon { width: 1.75rem; height: 1.75rem; }
+.rd-step.waiting .rd-mi { opacity: .7; }
+.rd-mt { display: grid; gap: .2rem; min-width: 0; align-content: center; min-height: 3rem; }
+.rd-ml { font-size: 1.0625rem; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+.rd-md { font-size: 1rem; font-weight: 500; line-height: 1.35; color: var(--ink-soft); overflow-wrap: anywhere; }
+
+/* The details button at the foot of each card (opens the popup, so the card never grows). A text button, 52px tall, full width of the card. */
+.rd-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: calc(100% + 2.4rem); min-height: 3.25rem; margin: auto -1.2rem 0; padding: .3rem 1.2rem; border: 0; border-top: 1.5px solid rgb(18 52 63 / 18%); border-radius: 0 0 17px 17px; background: none; color: var(--ink); cursor: pointer; font-family: var(--font-body); font-size: 1.0625rem; font-weight: 800; line-height: 1.3; text-align: left; }
+.rd-more:hover { background: rgb(18 52 63 / 7%); }
+.rd-more:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+
+@supports (grid-template-rows: subgrid) {
+  .rd-steps { row-gap: 0; margin-bottom: -1rem; }
+  .rd-step { display: grid; grid-row: span 6; grid-template-rows: subgrid; row-gap: 0; margin-bottom: 1rem; }
+  .rd-btn { grid-row: span 2; display: grid; grid-template-rows: subgrid; row-gap: 0; }
+  .rd-move-list { grid-row: span 3; grid-template-rows: subgrid; }
+  .rd-more { align-self: end; }
+}
+
+/* Shared bits used in the popup: the meter, access pips, the API tag and mono names. */
+.rd-meter { position: relative; display: block; min-width: 0; height: 1.1rem; overflow: hidden; border: 1.5px solid rgb(18 52 63 / 65%); border-radius: 6px; background: rgb(255 255 255 / 90%); }
+.rd-meter i { display: block; height: 100%; background: var(--orange); transform: scaleX(var(--v, 1)); transform-origin: 0 50%; }
+.rd-meter::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgb(255 255 255 / 95%) calc(10% - 2px) 10%); pointer-events: none; }
+.rd-pip { padding: .1rem .8rem; border: 1.5px solid rgb(18 52 63 / 55%); border-radius: 999px; font-size: 1rem; font-weight: 800; line-height: 1.4; white-space: nowrap; }
+.rd-pip.yes { background: var(--mint-soft); }
+.rd-pip.yes::before { content: "✓ "; color: var(--ok); }
+.rd-pip.no { background: #e9eef0; }
+.rd-pip.no::before { content: "✕ "; }
+.rd-api { flex: none; padding: 0 .5rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--orange); color: var(--ink); font-family: var(--font-display); font-size: .95rem; font-weight: 600; line-height: 1.4; }
+.rd-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 1rem; font-weight: 700; }
+.rd-cap { color: var(--text-soft); }
+
+/* Popup body (AgentDetails in reader-cards.tsx). One column on a phone; from 1000px of screen the sections sit two across (Moves and Limits, Tools and Native scan).
+   17px text, 1.45rem headings, roomy boxes. The popup scrolls inside itself. */
+.rdp { display: grid; gap: 1.75rem; color: var(--ink); }
+.rdp-sec { display: grid; align-content: start; gap: .8rem; min-width: 0; }
+.rdp-h { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0; font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
+.rdp-use { padding: .05rem .7rem; border-radius: 999px; background: var(--lime); font-size: 1rem; font-weight: 800; line-height: 1.5; }
+.rdp-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+.rdp-box { display: grid; align-content: start; gap: .6rem; min-width: 0; padding: 1.2rem 1.4rem; border: 1.5px solid var(--glass-edge); border-radius: 16px; background: var(--sky-soft); }
+.rdp-box.good { background: var(--mint-soft); }
+.rdp-box.bad { background: var(--coral-soft); }
+.rdp-box .cl-text, .rdp-box .cl-lead { font-size: 1.1875rem; line-height: 1.45; }
+.rdp-plain { margin: 0; font-size: 1.0625rem; line-height: 1.5; overflow-wrap: anywhere; }
+.rdp-box > .rdp-plain { color: var(--ink); }
+.rdp-sec > .rdp-plain { color: var(--text-soft); }
+
+/* Limits: one fixed label column, bars centred in the middle, values right-aligned, every row the same height. */
+.rdp-limits, .rdp-tools, .rdp-steps { display: grid; gap: .8rem; margin: 0; padding: 0; list-style: none; }
+.rdp-limits li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) 6.5rem; align-items: center; gap: .9rem; min-height: 2.75rem; }
+.rdp-limits li:nth-child(2) .rd-meter i { background: var(--water); }
+.rdp-k { font-family: var(--font-display); font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
+.rdp-v { font-size: 1.0625rem; font-weight: 800; line-height: 1.3; text-align: right; white-space: nowrap; }
+.rdp-pips { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: .6rem; }
+
+/* Tools: API tag in a fixed column, mono name on top, plain line under it. */
+.rdp-tools li { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: start; gap: .9rem; padding: .8rem 1rem; border: 1.5px solid rgb(18 52 63 / 25%); border-radius: 14px; background: rgb(255 255 255 / 75%); }
+.rdp-tools .rd-api { justify-self: start; margin-top: .15rem; text-align: center; }
+.rdp-tool { display: grid; gap: .15rem; min-width: 0; font-size: 1.0625rem; line-height: 1.45; overflow-wrap: anywhere; }
+
+/* Native scan: numbered chips. */
+.rdp-steps { display: flex; flex-wrap: wrap; gap: .7rem; counter-reset: rdp; }
+.rdp-steps li { counter-increment: rdp; display: inline-flex; align-items: center; gap: .6rem; padding: .3rem .95rem .3rem .35rem; border: 1.5px solid rgb(18 52 63 / 45%); border-radius: 999px; background: #fff; font-size: 1.0625rem; font-weight: 700; line-height: 1.3; }
+.rdp-steps li::before { content: counter(rdp); display: grid; place-items: center; flex: none; width: 2rem; height: 2rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; }
+
+.rdp-moves { display: grid; gap: .8rem; margin: 0; padding: 0; list-style: none; font-size: 1.0625rem; line-height: 1.45; }
+.rdp-moves li { padding-left: .9rem; border-left: 4px solid var(--hue-line, rgb(18 52 63 / 30%)); }
+
+@media (min-width: 1000px) {
+  .rdp { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; align-items: start; }
+  .rdp > .rdp-two { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .rdp-two { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .rdp-limits li { grid-template-columns: 5.6rem minmax(0, 1fr) 5.4rem; gap: .6rem; }
+}
+
+.rd-panel { position: relative; display: grid; gap: .7rem; min-width: 0; padding: 1rem; border: 1.5px solid var(--glass-edge); border-radius: 18px; background: rgb(255 255 255 / 82%); backdrop-filter: var(--glass-blur-panel); -webkit-backdrop-filter: var(--glass-blur-panel); color: var(--ink); text-shadow: none; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); overflow-wrap: anywhere; }
+.rd-panel a { color: #8f2515; }
+.rd-panel h3 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; line-height: 1.2; color: var(--ink); }
+.rd-job { font-size: .95rem; line-height: 1.45; color: var(--text-soft); }
+
+.rd-chips, .rd-lanes, .rd-log { margin: 0; padding: 0; list-style: none; }
+.rd-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.rd-chip { display: inline-flex; align-items: center; gap: .3rem; padding: .15rem .55rem; border: 1.5px solid rgb(18 52 63 / 45%); border-radius: 8px; background: rgb(255 255 255 / 80%); font-size: .8rem; font-weight: 700; line-height: 1.4; }
+.rd-chip.using { background: var(--yellow-soft); }
+.rd-chip.used::after { content: "✓"; color: var(--ok); }
+.rd-web { width: .5rem; height: .5rem; border-radius: 50%; background: var(--coral); }
+
+.rd-lanes { display: grid; gap: .6rem; }
+.rd-lane { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); align-items: center; gap: .1rem .75rem; }
+.rd-lane-label { font-size: .85rem; font-weight: 700; line-height: 1.3; }
+
+/* Segmented bar: outline, a gap every tenth, fill drawn underneath. Orange while running, leaf green when done. */
+.rd-bar { position: relative; display: block; height: .9rem; overflow: hidden; border: 1.5px solid rgb(18 52 63 / 60%); border-radius: 6px; background: rgb(255 255 255 / 85%); }
+.rd-bar i { display: block; height: 100%; background: var(--orange); }
+.rd-bar::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgb(255 255 255 / 95%) calc(10% - 2px) 10%); pointer-events: none; }
+.rd-lane.done .rd-bar i { background: var(--leaf); }
+.rd-lane.idle .rd-lane-label { font-weight: 400; }
+.rd-lane-detail { grid-column: 2; font-size: .78rem; line-height: 1.3; color: var(--text-soft); }
+
+.rd-log { display: grid; gap: .1rem; padding: .5rem .65rem; border: 1.5px dashed rgb(18 52 63 / 45%); border-radius: 10px; background: rgb(255 255 255 / 65%); font-size: .8rem; line-height: 1.35; }
+.rd-log li::before { content: "› "; }
+.rd-log li:last-child { font-weight: 700; }
+.rd-summary { padding-left: .6rem; border-left: 4px solid var(--leaf); font-size: .88rem; line-height: 1.4; }
+.rd-summary span { font-weight: 700; }
+.rd-finding { padding: .65rem .8rem; border: 1.5px solid rgb(18 52 63 / 35%); border-radius: 10px; background: rgb(255 255 255 / 80%); font-size: 1rem; line-height: 1.5; }
+.rd-panel.scout .rd-finding { background: var(--teal-soft); }
+.rd-panel.finder .rd-finding { background: var(--mint-soft); }
+.rd-panel.recruiter .rd-finding { background: var(--coral-soft); }
+.rd-panel.coach .rd-finding { background: var(--yellow-soft); }
+
+/* In a narrow panel the lane label sits above its bar. */
+@container stage (max-width: 620px) {
+  .rd-lane { grid-template-columns: minmax(0, 1fr); }
+  .rd-lane-detail { grid-column: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Entrance: the row fades up one card after another. */
+  .rd-step { transition: transform .2s ease-out, box-shadow .2s ease-out, border-color .3s ease-out; animation: rd-in .5s ease-out backwards; }
+  .rd-step:nth-child(2) { animation-delay: .08s; }
+  .rd-step:nth-child(3) { animation-delay: .16s; }
+  .rd-step:nth-child(4) { animation-delay: .24s; }
+  .rd-step:has(button.rd-btn:hover) { transform: translateY(-2px); }
+  /* Working: the avatar bounces and the dot pulses; the dots after "Working" step. Done: the avatar settles into a gentle bob. */
+  .rd-step.active .rd-ava .pixel-sprite { animation: rd-work .9s ease-in-out infinite; }
+  .rd-step.active .rd-dot { animation: rd-dot-pulse 1.2s ease-in-out infinite; }
+  .rd-step.done .rd-ava .pixel-sprite { animation: bob 3.6s ease-in-out infinite; }
+  .rd-step.active .rd-dots i { animation: rd-dot 1.2s steps(1) infinite; }
+  .rd-step.active .rd-dots i:nth-child(2) { animation-delay: .2s; }
+  .rd-step.active .rd-dots i:nth-child(3) { animation-delay: .4s; }
+  .rdp .rd-meter i { animation: rd-fill .9s steps(10) both; }
+  .rd-bar i { transition: width .5s steps(8); }
+  .rd-lane.unknown:not(.done) .rd-bar i { animation: rd-sweep 1.4s steps(14) infinite; transition: none; }
+  .rd-log li:last-child { animation: rd-log-in .3s ease-out; }
+  .rd-chip.using { animation: rd-pulse 1s steps(2) infinite; }
+}
+@keyframes rd-in { from { opacity: 0; transform: translateY(12px); } }
+@keyframes rd-work { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
+@keyframes rd-dot-pulse { 50% { opacity: .35; } }
+@keyframes rd-fill { from { transform: scaleX(0); } }
+@keyframes rd-dot { 0%, 100% { opacity: .2; } 33% { opacity: 1; } }
+@keyframes rd-sweep { from { transform: translateX(-100%); } to { transform: translateX(560%); } }
+@keyframes rd-log-in { from { opacity: 0; transform: translateY(4px); } }
+@keyframes rd-pulse { 50% { box-shadow: 0 2px 0 var(--coral); } }

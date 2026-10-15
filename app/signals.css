@@ -1,0 +1,125 @@
+/* Singapore hiring signals card (components/sg-signals.tsx) and its news and sources popup (components/sg-sources.tsx, sg-news.tsx), then the role picker's glass finish. Tokens from theme.css. */
+
+.sgs { container-type: inline-size; color: var(--ink); }
+.sgs-box { display: flex; flex-direction: column; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); box-shadow: 0 1px 4px rgb(18 52 63 / 18%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
+.sgs-bar { display: flex; flex: 1 1 auto; flex-direction: column; gap: .4rem; padding: .6rem .7rem .65rem; }
+.sgs-head { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; }
+.sgs-head img { flex: 0 0 auto; width: 1.75rem; height: 1.75rem; image-rendering: pixelated; }
+.sgs-tab { padding: .15rem .5rem; border: 1.5px solid var(--teal-dark); border-radius: 10px; background: var(--teal-dark); color: #fff; font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; line-height: 1.2; letter-spacing: .02em; }
+.sgs-key { margin: 0; color: var(--text-soft); font-size: .95rem; line-height: 1.35; }
+
+/* Title block: the title with its "Checked" date right under it, then the "See more" button on its own full-width row. */
+.sgs-top { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.sgs-titles { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; min-width: 0; }
+.sgs-checked { margin: 0; padding-left: .15rem; color: var(--ink); font-size: .95rem; font-weight: 700; line-height: 1.2; }
+/* The button: solid orange, 2px ink border, a hard ink shadow, newspaper icon, one line of bold text and a chevron. The shared lift is in buttons.css. */
+.sgs-top .sgs-open { --btn-hover-shadow: 5px 5px 0 var(--ink); --btn-active-shadow: 1px 1px 0 var(--ink); width: 100%; min-height: 2.75rem; padding: .35rem .8rem; border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+.sgs-open-text { flex: 1 1 auto; min-width: 0; text-align: left; }
+.sgs-short { display: none; }
+@container (max-width: 24rem) { .sgs-long { display: none; } .sgs-short { display: inline; } }
+/* Under about 300px there is no room for the icon as well, so it goes and the text may wrap rather than get cut. */
+@container (max-width: 19rem) { .sgs-top .sgs-open { gap: .4rem; padding-inline: .5rem; font-size: .88rem; white-space: normal; } .sgs-top .sgs-open > svg:first-child { display: none; } }
+
+/* The tech and AI news sites sit in three rows of four that scroll sideways together (one scroll box, three lists), with a fade on the right edge. */
+.sgs-sites { display: grid; gap: .3rem; min-width: 0; padding: .1rem 1.75rem .35rem .1rem; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--water-deep) rgb(255 255 255 / 60%); -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 2.25rem), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 2.25rem), transparent); }
+.sgs-sites:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sgs-sites ul { display: flex; gap: .45rem; width: max-content; margin: 0; padding: 0; list-style: none; }
+.sgs-sites li { flex: 0 0 auto; }
+.sgs-sites a { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .15rem .7rem .15rem .3rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; transition: transform .12s, background-color .12s; }
+.sgs-sites a:hover { background: var(--sky-soft); transform: translateY(-2px); }
+.sgs-sites a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sgs-sites img { display: block; width: 1.65rem; height: 1.65rem; border-radius: 50%; object-fit: contain; background: #fff; }
+
+/* Five compact tiles: two across in the narrow column (a lone last tile takes the full row), five across when the card is wide. */
+.sgs-tiles { display: grid; flex: 1 1 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.sgs-tiles li { display: grid; align-content: center; gap: .1rem; min-width: 0; padding: .3rem .35rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 10px; background: rgb(255 255 255 / 80%); }
+.sgs-tiles li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+@container (min-width: 44rem) { .sgs-tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); } .sgs-tiles li:last-child:nth-child(odd) { grid-column: auto; } }
+.sgs-row { display: flex; align-items: center; gap: .35rem; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+.sgs-mark { display: inline-grid; flex: 0 0 auto; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 8px; background: rgb(255 255 255 / 85%); color: var(--water-deep); }
+.sgs-mark img { display: block; width: 1.2rem; height: 1.2rem; object-fit: contain; }
+.sgs-name { min-width: 0; overflow-wrap: anywhere; }
+.sgs-fig { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .25rem; }
+.sgs-fig b { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.sgs-chip { display: inline-flex; align-items: center; gap: .1rem; padding: 0 .3rem 0 .15rem; border: 1.5px solid #2f7d46; border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.25; white-space: nowrap; }
+.sgs-chip.is-plain { padding: 0 .4rem; border-color: var(--water-deep); background: #fff; color: var(--ink); font-weight: 700; }
+/* Very narrow (small phones): one short row per skill. Name, share and change on one line (they wrap if they must), the source under them. */
+@container (max-width: 19rem) {
+  .sgs-head img { display: none; }
+  .sgs-tiles { grid-template-columns: minmax(0, 1fr); gap: .3rem; }
+  .sgs-tiles li { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .5rem; padding: .3rem .5rem; }
+  .sgs-tiles li:last-child:nth-child(odd) { grid-column: auto; }
+  .sgs-row { flex: 1 1 auto; }
+  .sgs-fig { display: contents; }
+  .sgs-tiles li > .sgs-src { flex: 1 1 100%; }
+}
+
+.sgs-src { color: var(--text-soft); font-size: .92rem; font-weight: 500; line-height: 1.3; }
+.sgs-tiles .sgs-src a { white-space: nowrap; }
+.sgs-src a, .sgs-headlines a, .sgs-facts a { color: var(--water-deep); font-weight: 700; overflow-wrap: anywhere; }
+.sgs-src a:hover, .sgs-headlines a:hover, .sgs-facts a:hover { color: var(--coral); }
+.sgs-src a:focus-visible, .sgs-headlines a:focus-visible, .sgs-facts a:focus-visible, .sgs-more summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Popup: Refresh news first, then the site groups (the .rt-sites and .rt-grid cards from check.css), then the extra figures. */
+.sgs-pop { gap: 1rem; }
+.sgs-pop .rt-grid a > svg { flex: none; }
+.sgs-news { display: grid; gap: .5rem; padding: .9rem 1rem 1rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: #fff; }
+.sgs-news-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .75rem; }
+.sgs-news h3 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+.sgs-news h4 { margin: 0; color: var(--ink); font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+.sgs-news .btn { gap: .4rem; }
+.sgs-news .btn[aria-disabled="true"] { opacity: .65; cursor: progress; }
+.sgs-note, .sgs-status { margin: 0; color: var(--text-soft); font-size: 1rem; line-height: 1.45; }
+.sgs-status { min-height: 1.45em; color: var(--ink); font-weight: 600; }
+.sgs-status.is-problem { padding: .4rem .6rem; border: 1.5px solid var(--coral); border-radius: 10px; background: #fbe1db; color: #6e1a0e; }
+.sgs-status:empty { min-height: 0; }
+.sgs-headlines { display: grid; gap: .8rem; margin: .4rem 0; padding: 0; list-style: none; }
+.sgs-headlines li { display: grid; gap: .15rem; min-width: 0; font-size: 1rem; line-height: 1.4; }
+.sgs-headlines li > a { font-size: 1.05rem; }
+.sgs-headlines p { margin: 0; color: var(--text-soft); }
+.sgs-meta { display: flex; flex-wrap: wrap; gap: 0 .9rem; color: var(--text-soft); font-size: 1rem; font-weight: 600; }
+.sgs-tag { justify-self: start; margin-top: .15rem; padding: 0 .45rem; border: 1.5px solid var(--leaf-deep); border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-style: normal; font-weight: 800; line-height: 1.35; }
+.sgs-more { border: 1.5px dashed var(--water-deep); border-radius: 12px; background: rgb(255 255 255 / 55%); }
+.sgs-more summary { padding: .6rem .85rem; color: var(--ink); font-size: 1.05rem; font-weight: 700; cursor: pointer; }
+.sgs-facts { display: grid; gap: .8rem; margin: 0; padding: 0 .85rem .85rem; list-style: none; }
+.sgs-facts li { display: grid; gap: .15rem; min-width: 0; font-size: 1rem; line-height: 1.4; }
+.sgs-facts li > b { color: var(--ink); font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) { .sgs-sites a { transition: none; } .sgs-sites a:hover { transform: none; } }
+
+/* Role picker: glass finish for the pieces that still carried the older parchment look. */
+.role-input .li-head { font-size: 1.2rem; }
+.role-input .li-head strong { font-family: var(--font-display); font-weight: 600; }
+.role-input label.with-tip { color: var(--ink); font-size: 1.1rem; font-weight: 800; }
+.role-input .role-field { display: flex; flex: 1 1 auto; flex-direction: column; }
+.role-input .role-field .ta-wrap { display: flex; flex: 1 1 auto; min-height: 10rem; }
+.role-input .role-field .ta-wrap textarea { flex: 1 1 auto; min-height: 10rem; resize: vertical; }
+.role-input textarea { min-height: 10rem; font-size: 1rem; line-height: 1.5; }
+.role-input .btn { font-size: 1.05rem; }
+.role-input textarea { background-color: rgb(255 255 255 / 80%); color: var(--ink); border: 1.5px solid var(--water-deep); border-radius: 12px; }
+.role-input .role-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .6rem; }
+.role-input .btn.quiet { border: 1.5px dashed var(--water-deep); background: rgb(255 255 255 / 70%); color: var(--ink); }
+.role-input .btn.quiet:hover:not(:disabled) { border-style: solid; background: var(--sky-soft); }
+.role-input .tip-btn { background: var(--orange); color: var(--ink); }
+.role-input .tip-btn:hover { background: var(--ink); color: #fff; }
+.role-input .tip-bubble { background: var(--glass-strong); color: var(--ink); max-width: calc(100vw - 3rem); }
+.role-input details.fold { border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); }
+.role-input details.fold > summary { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--ink); }
+.role-input .guide strong { font-size: 1.05rem; }
+.role-input .guide p, .role-input .fold-body .hint { color: var(--text-soft); font-size: 1rem; }
+.role-input .fold-body h4 { font-size: 1.05rem; }
+.role-input details.fold[open] > summary { border-bottom: 1.5px dashed var(--water-deep); }
+.role-input .guide strong span { background: var(--water-deep); color: #fff; }
+.role-input .art { background: rgb(255 255 255 / 80%); border: 1.5px solid var(--glass-edge); }
+.role-input .notice { border: 1.5px solid var(--water-deep); background: rgb(255 255 255 / 80%); color: var(--ink); }
+.role-input .notice.error { border-color: var(--coral); background: #fbe1db; color: #6e1a0e; }
+.role-input a { color: var(--water-deep); }
+/* The how-to steps stack when their pane is narrow (side by side, a pane is about 20rem wide). */
+@container pane (max-width: 28rem) {
+  .role-input .guide li { grid-template-columns: 1fr; }
+  .role-input .guide .art { grid-row: auto; max-width: 14rem; }
+}
+
+/* Fold tip and step titles: bold key phrase first. */
+.role-input .fold-body .hint.fold-tip { color: var(--ink); font-size: 1.05rem; }
+.role-input .guide strong { font-size: 1.15rem; font-weight: 800; }

@@ -1,0 +1,53 @@
+/* Sample menu: a "Play sample" split button. The list is a popover (absolute, under the buttons or above them when there is no room), so it never changes the page height. */
+/* The root is the anchor and a flex item of the hero's .start-row; sample-picker.tsx sets the popover's left, side and max height. */
+.sm { position: relative; display: flex; min-width: 0; }
+
+/* Split control: main button + caret, one shared border. */
+.sm-split { display: inline-flex; align-items: stretch; border: 2px solid var(--ink); border-radius: 12px; background: var(--glass-strong, rgb(255 255 255 / 86%)); box-shadow: 0 3px 0 var(--ink); }
+.sm-main, .sm-caret { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; border: 0; background: transparent; color: var(--ink); font-weight: 700; }
+.sm-main { flex: 1; flex-direction: column; align-items: flex-start; gap: .1rem; min-width: 0; padding: .3rem 1rem; border-radius: 10px 0 0 10px; text-align: left; }
+.sm-main-top { display: inline-flex; align-items: center; gap: .5rem; }
+/* The sub-line sits under the label inside the button: small, regular weight, still readable. */
+.sm-sub { color: var(--text-soft, #3d5560); font-size: .76rem; font-weight: 400; line-height: 1.25; }
+.sm-split { flex: 1; min-width: 0; }
+.sm-caret { width: 2.75rem; padding: 0; border-left: 2px solid var(--ink); border-radius: 0 10px 10px 0; }
+.sm-main:hover:not(:disabled), .sm-caret:hover:not(:disabled) { background: var(--sky-soft, #d9f0fb); }
+.sm.is-open .sm-caret { background: var(--ink); color: #fff; }
+.sm-main:focus-visible, .sm-caret:focus-visible { outline: 3px solid var(--ink); outline-offset: -5px; }
+.sm-main:disabled, .sm-caret:disabled { opacity: 1; cursor: not-allowed; }
+.sm-split:has(:disabled) { opacity: .55; }
+.sm-caret-icon { display: block; }
+.sm.is-open .sm-caret-icon { transform: rotate(180deg); }
+
+/* The popover. Glass panel, scrolls inside its max height, sits above the page (the hero has z-index 2, the stages 1). */
+.sm-menu { position: absolute; z-index: 30; top: calc(100% + .55rem); left: 0; box-sizing: border-box; width: min(34rem, calc(100vw - 1rem)); overflow-y: auto; overscroll-behavior: contain; padding: .75rem; border: 2px solid var(--ink); border-radius: 16px; background: rgb(255 255 255 / 97%); box-shadow: var(--glass-shadow), 0 4px 0 rgb(31 36 48 / 35%); color: var(--ink); }
+.sm-menu[data-side="above"] { top: auto; bottom: calc(100% + .55rem); }
+.sm-head { margin: 0 0 .6rem; padding: 0 .15rem; color: var(--text-soft, #3d5560); font-size: .85rem; line-height: 1.4; text-shadow: none; }
+.sm-head strong { display: block; color: var(--ink); font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; }
+
+.sm-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .5rem; margin: 0; padding: .2rem .2rem .3rem; list-style: none; }
+.sm-item { display: flex; flex-direction: column; min-width: 0; border: 1.5px solid var(--glass-edge, rgb(255 255 255 / 85%)); border-radius: 12px; background: rgb(255 255 255 / 70%); box-shadow: 0 1px 0 rgb(18 52 63 / 14%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
+
+.sm-pick { display: flex; align-items: center; gap: .55rem; flex: 1; min-width: 0; padding: .45rem .55rem; border: 0; background: transparent; color: var(--ink); text-align: left; text-shadow: none; }
+.sm-pick:hover { background: var(--sky-soft, #d9f0fb); }
+.sm-pick[aria-pressed="true"] { background: rgb(232 145 45 / 24%); }
+.sm-pick:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+.sm-icon { flex: none; display: block; width: 28px; height: 28px; image-rendering: pixelated; }
+.sm-text { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .45rem; min-width: 0; }
+.sm-label { font-family: var(--font-display); font-size: .95rem; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.sm-tag { padding: 0 .45rem; border: 1.5px solid var(--water-deep, #1b86a8); border-radius: 999px; background: var(--sky-soft, #d9f0fb); color: var(--text, #12343f); font-size: .7rem; font-weight: 700; line-height: 1.5; }
+
+.sm-links { display: flex; flex-wrap: wrap; gap: 0 .7rem; padding: .1rem .6rem .35rem 2.6rem; }
+.sm-links a { display: inline-flex; align-items: center; min-height: 1.5rem; font-size: .78rem; font-weight: 700; text-shadow: none; }
+/* Links sit on light glass, so they take the dark link colour. */
+.sm-menu a { color: var(--water-deep, #1b86a8); text-decoration-color: currentColor; }
+.sm-menu a:hover { color: var(--teal-dark); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sm-menu { animation: sm-pop .15s ease-out; }
+  @keyframes sm-pop { from { opacity: 0; transform: translateY(-4px); } }
+  .sm-menu[data-side="above"] { animation-name: sm-pop-up; }
+  @keyframes sm-pop-up { from { opacity: 0; transform: translateY(4px); } }
+  .sm-caret-icon { transition: transform .15s ease; }
+  .sm-main, .sm-caret, .sm-pick { transition: background-color .12s ease; }
+}

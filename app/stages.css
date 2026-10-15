@@ -1,0 +1,74 @@
+/* Stage rows and stage panels.
+   Desktop (1100px and up): each .stage-row holds two .stage glass panels side by side (every row is now .is-single, one full-width panel). Below 1100px the rows are one column.
+   A .stage is a size container named "stage", so builders can write @container stage (min-width: ...) rules inside it.
+   Every panel opens with a .stage-header: a teal "Stage n" tab and a frosted glass title plate on the stage's scene. */
+
+.wrap-wide { width: min(1840px, calc(100% - 3rem)); margin: 0 auto; }
+.stage-rows { display: grid; gap: 1.5rem; padding: 1.5rem 0 2rem; }
+.hero + .stage-rows { padding-top: 0; } /* the hero's own bottom padding is the gap, and it keeps the card shadows from being clipped */
+.stage-row { --row-gap: clamp(4rem, 8vw, 7.5rem); position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+@media (min-width: 1100px) {
+  .stage-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--row-gap); row-gap: 1.5rem; }
+  .stage-row.is-single { grid-template-columns: minmax(0, 1fr); }
+  /* Row 1: stage 1 takes two thirds so its role and résumé panes sit side by side (columns one and two); the readers spec sheet is column three. */
+  .stage-row.is-triple { grid-template-columns: minmax(0, 2fr) minmax(20rem, 1fr); }
+}
+
+/* A stage is a clipped window onto its own full-section scene (scenes/bg-*.svg, 16:9). The scene is a sticky layer 100svh tall that stays in place while
+   the stage scrolls past, so every part of the section is seen over a complete picture; a stage shorter than the screen just crops it. overflow: clip (not hidden)
+   keeps position: sticky working. The panels on top are glass (tokens in theme.css): the main overlay is the stage body's child, nested cards are flat. */
+.stage { position: relative; z-index: 1; isolation: isolate; overflow: clip; min-width: 0; container-type: inline-size; container-name: stage; scroll-margin-top: 5rem; color: var(--ink);
+  background: var(--sky-soft); border: 1.5px solid var(--glass-line); border-radius: var(--radius); box-shadow: var(--glass-shadow), var(--glass-ring); }
+.stage::before { content: ""; position: sticky; top: 0; z-index: -1; display: block; height: 100svh; margin-bottom: -100svh; background: var(--stage-scene, none) center / cover no-repeat; pointer-events: none; }
+#check { --stage-scene: url('/projects/itsa10but/assets/scenes/bg-camp.svg'); }
+#readers { --stage-scene: url('/projects/itsa10but/assets/scenes/bg-woods.svg'); }
+#radar { --stage-scene: url('/projects/itsa10but/assets/scenes/bg-lookout.svg'); }
+#level-up { --stage-scene: url('/projects/itsa10but/assets/scenes/bg-training.svg'); }
+#how-it-works { --stage-scene: url('/projects/itsa10but/assets/scenes/bg-workshop.svg'); }
+.stage-body { padding: .25rem 1.25rem 1.35rem; }
+.stage-body > .lu { padding: 1.25rem 1.25rem 1.35rem; }
+
+/* Panels inside a stage never blur on their own; only the main overlay (theme.css) does. */
+.stage :is(.card, .lu-ribbon, .lu-group, .qm-card, .skill) { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* Header: a compact frosted plate sitting on the scene, with room above and below so the picture shows around it. */
+.stage-header { position: relative; display: flex; align-items: flex-start; box-sizing: border-box; padding: 1.1rem 1.25rem .9rem; }
+.stage-plate { position: relative; max-width: min(36rem, 100%); padding: .65rem 1.1rem .75rem; border: 1.5px solid var(--glass-line); border-radius: 14px; background: rgb(255 255 255 / 76%); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); color: var(--ink); box-shadow: var(--glass-shadow), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 90%); }
+.stage-top { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .65rem; }
+.stage-tab { padding: .1rem .65rem .15rem; border-radius: 999px; background: var(--teal-dark); color: #fff; font-family: var(--font-display); font-size: .9rem; line-height: 1.3; white-space: nowrap; text-shadow: 0 1px 0 rgb(0 0 0 / 25%); }
+.stage-title { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.1; }
+.stage-line { display: flex; align-items: baseline; gap: .4rem; margin: .25rem 0 0; color: var(--ink); font-size: 1.1rem; font-weight: 700; line-height: 1.35; }
+.stage-line-icon { flex: none; font-size: 1.25rem; line-height: 1; }
+
+/* How it works keeps its own h2 and has no header: that h2 is for screen readers only. (Level up shows its h2 in the panel.) */
+.stage .hiw-title { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Intro lines inside a panel are on glass, so they take panel ink. */
+.stage-body .section-head p, .stage-body .progress, .stage-body .mode-note, .stage-body .trials-intro, .stage-body #skills > .hint { color: var(--ink); text-shadow: none; }
+.stage-body .section-head { margin-bottom: .75rem; }
+.stage-body .progress { color: var(--text-soft); }
+.skills-block { margin-top: 1rem; }
+.skills-block > .quest-title { margin-top: 0; }
+.skills-block > .hint { margin-bottom: .75rem; }
+
+/* The four readers, as a pipeline inside the "Meet the four readers" panel. */
+.agents .pipe { max-width: none; }
+
+@media (max-width: 640px) {
+  .stage { scroll-margin-top: 1rem; }
+  .stage-header { padding: .75rem .6rem .6rem; }
+  .stage-plate { max-width: none; padding: .45rem .7rem .55rem; }
+  .stage-title { font-size: 1.2rem; }
+  .stage-line { font-size: 1rem; line-height: 1.3; }
+  .stage-body { padding: .2rem .6rem 1rem; }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .stage-plate { background: rgb(255 255 255 / 94%); }
+}
+
+/* A short agents panel follows the reader down instead of leaving a blank column. The row-1 spec sheet is taller than a screen and
+   usually taller than stage 1, so it stays in flow there: a sticky panel taller than the viewport would hide its lower half. */
+@media (min-width: 1100px) {
+  .stage.agents { align-self: start; }
+  .stage-row:not(.is-triple) > .stage.agents { position: sticky; top: 5.5rem; }
+}

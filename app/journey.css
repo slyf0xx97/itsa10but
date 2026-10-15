@@ -1,0 +1,94 @@
+/* Journey bar: a painted mountain range fixed to the bottom of the screen. components/journey-bar.tsx draws the winding trail as one SVG path from the
+   geometry numbers below (unitless px: bar height, where the trail starts and ends, wiggle size, sprite spacing and lift), sets the four nodes on it (evenly spaced along its length, the last at the summit by the flag) and
+   walks the four reader sprites along it. The bar is transparent above its ridge line and hidden while the hero is on screen. */
+.jbar { --jb-hn: 108; --jb-ext: 22; --jb-sw: 115; --jb-near: 24; --jb-x0: 36; --jb-xr: 49; --jb-y0: 82; --jb-y1: 30; --jb-amp: 6; --jb-gap: 20; --jb-lift: 9;
+  --jb-node: 1.4rem; --jb-sprite: 1.9rem;
+  position: fixed; z-index: 15; left: 0; right: 0; bottom: 0; box-sizing: content-box; height: calc(var(--jb-hn) * 1px); padding-bottom: env(safe-area-inset-bottom);
+  pointer-events: none; color: var(--text, #12343f); }
+.jbar.is-hidden { opacity: 0; visibility: hidden; translate: 0 100%; }
+.jbar.is-hidden *, .jbar.is-hidden *::before, .jbar.is-hidden *::after { animation-play-state: paused !important; } /* nothing runs while the bar is off screen */
+
+/* Scenery: sky with clouds (behind), then far and middle ridges, the summit, and a near hill that also fills the safe-area strip. */
+.jbar-sky { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--jb-hn) * 1px); overflow: hidden; }
+.jbar-cloud { position: absolute; width: 54px; height: 20px; background: url("/projects/itsa10but/assets/art/journey-cloud.svg") 0 0 / 100% 100% no-repeat; opacity: .85; }
+.jbar-cloud.c1 { left: 14%; top: 18px; }
+.jbar-cloud.c2 { left: 46%; top: 28px; width: 42px; height: 15px; opacity: .7; }
+.jbar-cloud.c3 { left: 72%; top: 6px; width: 48px; height: 17px; opacity: .78; }
+.jbar-art { position: absolute; inset: 0; filter: drop-shadow(0 -3px 5px rgb(18 52 63 / 22%)); }
+.jbar-ridges { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--jb-hn) * 1px); background: url("/projects/itsa10but/assets/art/journey-ridges.svg") 0 0 / 100% 100% no-repeat; }
+.jbar-summit { position: absolute; right: 0; top: calc(var(--jb-ext) * -1px); width: calc(var(--jb-sw) * 1px); height: calc((var(--jb-hn) + var(--jb-ext)) * 1px); background: url("/projects/itsa10but/assets/art/journey-summit.svg") 0 0 / 100% 100% no-repeat; }
+.jbar-near { position: absolute; left: 0; right: 0; bottom: 0; top: calc((var(--jb-hn) - var(--jb-near)) * 1px);
+  background: url("/projects/itsa10but/assets/art/journey-near.svg") 0 0 / 100% calc(var(--jb-near) * 1px) no-repeat, #3a8f6f; }
+
+/* Track: same box as the painted bar (without the safe-area strip). Everything inside is placed in pixels by JS. */
+.jbar-track { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--jb-hn) * 1px); }
+.jbar-trail { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.jbar-trail path { stroke-linecap: round; stroke-linejoin: round; }
+.jbar-way-edge { stroke: rgb(18 52 63 / 38%); stroke-width: 8; }
+.jbar-way { stroke: #fbf5e2; stroke-width: 4; stroke-dasharray: 2 7; } /* the road ahead: dotted */
+.jbar-way-done { stroke: var(--lime, #b8e04a); stroke-width: 5; filter: drop-shadow(0 0 3px rgb(255 255 255 / 75%)); } /* the road walked: solid and bright */
+.jbar ol { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.jbar li { position: absolute; left: 0; top: 0; translate: -50% -50%; pointer-events: auto; }
+
+.jbar-node { position: relative; display: block; width: var(--jb-node); height: var(--jb-node); border-radius: 50%; color: var(--ink, #12343f); text-decoration: none; }
+.jbar-node::after { content: ""; position: absolute; inset: -.5rem; } /* a bigger tap area than the dot */
+.jbar-node:focus-visible { outline: 3px solid var(--ink, #12343f); outline-offset: 3px; }
+.jbar-node:focus-visible .jbar-face { box-shadow: 0 0 0 3px #fff; }
+.jbar-face { position: relative; display: grid; place-items: center; width: 100%; height: 100%; box-sizing: border-box; border: 2px solid var(--ink, #12343f); border-radius: 50%; background: #fff; box-shadow: 0 2px 0 rgb(18 52 63 / 30%); }
+.jbar-node.dim .jbar-face { background: rgb(255 255 255 / 72%); border-color: var(--text-soft, #3d5560); }
+.jbar-node.busy .jbar-face { background: var(--orange, #e8912d); }
+.jbar-node.done .jbar-face { background: var(--grass, #7cc65a); }
+.jbar-node:hover .jbar-face { background: var(--sky-soft, #d9f0fb); }
+.jbar-node[aria-current="step"] .jbar-face { background: var(--lime, #b8e04a); transform: scale(1.22); box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--leaf, #2f8a4a); }
+.jbar-node[aria-current="step"]:focus-visible .jbar-face { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--leaf, #2f8a4a); }
+.jbar-icon { display: grid; }
+.jbar-num { display: none; font-family: var(--font-body); font-size: .75rem; font-weight: 800; line-height: 1; }
+.jbar-badge { position: absolute; top: -.3rem; right: -.3rem; display: grid; place-items: center; width: .8rem; height: .8rem; border: 1.5px solid var(--ink, #12343f); border-radius: 50%; background: var(--leaf, #3f9e57); color: #fff; }
+
+/* Labels (900px up): a small glass chip under each node, on the hillside below the trail. Reading font at 14px, not the pixel font, so they stay easy to read. */
+.jbar-label { position: absolute; left: 50%; top: calc(100% + 3px); translate: -50% 0; padding: .05rem .55rem; border: 1px solid var(--glass-edge, rgb(255 255 255 / 90%)); border-radius: 999px; background: rgb(255 255 255 / 90%); color: var(--text-soft, #3d5560); font-family: var(--font-body); font-size: .875rem; font-weight: 700; line-height: 1.2; white-space: nowrap; box-shadow: 0 1px 3px rgb(18 52 63 / 25%); }
+.jbar li:first-child .jbar-label { left: calc(100% + .4rem); top: calc(50% + 3px); translate: 0 0; } /* the first node sits too low for a chip under it */
+.jbar-node[aria-current="step"] .jbar-label { color: var(--text, #12343f); font-weight: 800; box-shadow: 0 0 0 2px var(--leaf, #2f8a4a); }
+
+/* The party: JS puts each walker's bottom centre on the trail and leans it along the slope with one transform (translate3d then rotate). The body flips to face the way it travels. */
+.jbar-party { position: absolute; inset: 0; pointer-events: none; }
+.jbar-walker { position: absolute; left: calc(var(--jb-sprite) / -2); top: calc(var(--jb-sprite) * -1); width: var(--jb-sprite); height: var(--jb-sprite); transform-origin: 50% 100%; will-change: transform; filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff) drop-shadow(0 2px 1px rgb(18 52 63 / 45%)); } /* white edge so the sprites pop against the ridges */
+.jbar-body, .jbar-hop { display: block; width: 100%; height: 100%; }
+.jbar.is-back .jbar-body { transform: scaleX(-1); }
+.jbar-hop .agent { width: 100%; height: 100%; transition: none; }
+.jbar-hop .pixel-sprite { animation: none; } /* the bar does its own bobbing */
+
+@media (prefers-reduced-motion: no-preference) {
+  .jbar { transition: opacity .35s ease, visibility .35s, translate .35s ease; }
+  .jbar-face { transition: transform .25s cubic-bezier(.2, .8, .2, 1), background-color .2s, box-shadow .2s; }
+  .jbar-node.busy .jbar-face { animation: jbar-pulse 1.4s ease-in-out infinite; }
+  .jbar-cloud { left: 0; animation: jbar-drift 140s linear infinite; }
+  .jbar-cloud.c2 { animation-duration: 105s; animation-delay: -46s; }
+  .jbar-cloud.c3 { animation-duration: 170s; animation-delay: -110s; }
+  .jbar-cloud.c1 { animation-delay: -30s; }
+  .jbar-hop { animation: jbar-breathe 3.4s ease-in-out infinite; }
+  .jbar-walker:nth-child(2) .jbar-hop { animation-delay: -.6s; }
+  .jbar-walker:nth-child(3) .jbar-hop { animation-delay: -1.2s; }
+  .jbar-walker:nth-child(4) .jbar-hop { animation-delay: -1.8s; }
+  .jbar.is-walking .jbar-hop { animation: jbar-step .42s steps(1, end) infinite; }
+  .jbar.is-walking .jbar-walker:nth-child(even) .jbar-hop { animation-delay: -.21s; }
+  @keyframes jbar-drift { from { transform: translateX(-100px); } to { transform: translateX(100vw); } }
+  @keyframes jbar-step { 0% { transform: translateY(-3px) rotate(4deg); } 50% { transform: translateY(0) rotate(-4deg); } }
+  @keyframes jbar-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+  @keyframes jbar-pulse { 0%, 100% { box-shadow: 0 2px 0 rgb(18 52 63 / 30%), 0 0 0 0 rgb(232 145 45 / 60%); } 50% { box-shadow: 0 2px 0 rgb(18 52 63 / 30%), 0 0 0 .45rem rgb(232 145 45 / 0%); } }
+}
+
+/* Below 900px: numbered dots, no labels. */
+@media (max-width: 899px) {
+  .jbar-icon, .jbar-label { display: none; }
+  .jbar-num { display: block; }
+  .jbar { --jb-x0: 28; }
+}
+
+/* Phones: a slimmer, compact painting with a smaller summit, nodes and sprites. */
+@media (max-width: 639px) {
+  .jbar { --jb-hn: 80; --jb-ext: 16; --jb-sw: 88; --jb-near: 18; --jb-x0: 16; --jb-xr: 37; --jb-y0: 62; --jb-y1: 22; --jb-amp: 4; --jb-gap: 15; --jb-lift: 7; --jb-node: 1.3rem; --jb-sprite: 1.6rem; }
+  .jbar-num { font-size: .7rem; }
+  .jbar-badge { top: -.35rem; right: -.35rem; width: .65rem; height: .65rem; }
+  .jbar-cloud { transform-origin: 0 0; scale: .75; }
+}

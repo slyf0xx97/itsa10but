@@ -1,0 +1,53 @@
+/* Tooltips: the bubble WordTip opens (components/career/word-tip.tsx), used by <Term>, the map stations and the privacy panel.
+   A small card: a coloured header strip (icon tile and title in the display font), a body in the reading font, optional labelled
+   sections with pixel bullets, and an arrow that points at the word. Tone colours keep AA: white on the dark fills, ink on orange and lime. */
+.word-tip-bubble { --tip-bg: var(--teal-dark); --tip-fg: #fff; --tip-accent: var(--teal-dark); --tip-soft: #e4f5f1;
+  position: absolute; left: 0; top: calc(100% + .6rem); z-index: 30; display: block; box-sizing: border-box; width: min(22rem, calc(100vw - 2rem)); padding: 0; border: 2px solid var(--ink); border-radius: 14px; background: #fff; box-shadow: 3px 3px 0 rgb(31 36 48 / 20%), 0 12px 28px rgb(16 70 100 / 26%); color: var(--ink); font-family: var(--font-body); font-size: 1rem; font-weight: 500; line-height: 1.45; text-align: left; text-shadow: none; white-space: normal; }
+.word-tip-bubble[data-tone="water"] { --tip-bg: var(--link); --tip-accent: var(--link); --tip-soft: #e2f1f6; }
+.word-tip-bubble[data-tone="coral"] { --tip-bg: #b3301c; --tip-accent: #b3301c; --tip-soft: #fbe9e5; }
+.word-tip-bubble[data-tone="leaf"] { --tip-bg: var(--leaf-deep); --tip-accent: var(--leaf-deep); --tip-soft: #e5f3e9; }
+.word-tip-bubble[data-tone="orange"] { --tip-bg: var(--orange); --tip-fg: var(--ink); --tip-accent: var(--orange-dark); --tip-soft: #fdf0dd; }
+.word-tip-bubble[data-tone="lime"] { --tip-bg: var(--lime); --tip-fg: var(--ink); --tip-accent: var(--leaf-deep); --tip-soft: #f4f8d3; }
+.word-tip-bubble[hidden] { display: none; }
+
+/* The small bubble goes into the top layer and is placed with fixed coordinates by word-tip.tsx, so no card, scroll area or dialog clips it. */
+.word-tip-bubble[popover] { position: fixed; inset: auto; right: auto; bottom: auto; margin: 0; overflow: visible; }
+/* Bridges the gap to the word on both sides, so the pointer can travel into the bubble and reach a link. */
+.word-tip-bubble::before, .word-tip-bubble::after { content: ""; position: absolute; left: 0; right: 0; height: 14px; }
+.word-tip-bubble::before { bottom: 100%; }
+.word-tip-bubble::after { top: 100%; }
+
+.word-tip-head { display: flex; align-items: center; gap: .6rem; padding: .5rem .8rem; border-bottom: 2px solid var(--ink); border-radius: 12px 12px 0 0; background: var(--tip-bg); color: var(--tip-fg); }
+.word-tip-badge { flex: none; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 7px; background: #fff; color: var(--tip-accent); box-shadow: 0 0 0 1.5px var(--ink); }
+.word-tip-title { display: block; min-width: 0; margin: 0; color: inherit; font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.word-tip-head .tip-close { margin-left: auto; }
+
+.word-tip-body { display: block; max-height: min(30rem, 72vh, var(--tip-max, 100vh)); padding: .75rem .9rem .9rem; overflow-y: auto; overscroll-behavior: contain; }
+.word-tip-body > :first-child { margin-top: 0; }
+.word-tip-line { display: block; }
+.word-tip-line + .word-tip-line { margin-top: .45rem; }
+.word-tip-bubble a { color: var(--link); font-weight: 700; text-decoration: underline; }
+
+/* Labelled sections: a tinted block with a small pixel icon tile and an upper-case label, then points with pixel bullets. */
+.word-tip-sec { display: block; margin-top: .7rem; padding: .55rem .7rem .65rem; border-radius: 10px; background: var(--tip-soft); }
+.word-tip-line + .word-tip-sec { margin-top: .75rem; }
+.word-tip-sec-h { display: flex; align-items: center; gap: .45rem; margin-bottom: .35rem; color: var(--ink); font-size: .875rem; font-weight: 700; letter-spacing: .05em; line-height: 1.2; text-transform: uppercase; }
+.word-tip-sec-icon { flex: none; display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 5px; background: var(--tip-accent); color: #fff; }
+.word-tip-sec .word-tip-line + .word-tip-line { margin-top: .3rem; }
+.word-tip-item { position: relative; padding-left: 1.05rem; }
+.word-tip-item::before { content: ""; position: absolute; left: .05rem; top: .55em; width: .4rem; height: .4rem; background: var(--tip-accent); }
+.word-tip-source { margin-top: .7rem; padding-top: .55rem; border-top: 2px dashed rgb(31 36 48 / 20%); font-size: .9375rem; }
+
+/* The arrow: a rotated square that continues the header colour when the card is below its word, and the white body when it is above. */
+.word-tip-arrow { position: absolute; top: -9px; left: var(--tip-arrow-x, 1.6rem); width: 12px; height: 12px; margin-left: -6px; border: 2px solid var(--ink); border-right: 0; border-bottom: 0; background: var(--tip-bg); rotate: 45deg; pointer-events: none; }
+.word-tip-bubble[data-side="above"] .word-tip-arrow { top: auto; bottom: -9px; border: 2px solid var(--ink); border-left: 0; border-top: 0; background: #fff; }
+
+/* The panel variant (privacy and safety): wider, non-modal, scrolls as a whole, has its own Close button. */
+.word-tip-bubble.is-panel { left: 50%; translate: -50% 0; width: min(28rem, calc(100vw - 2rem)); max-height: min(26rem, 70vh); overflow-y: auto; overscroll-behavior: contain; }
+.word-tip-bubble.is-panel .word-tip-body { max-height: none; overflow: visible; }
+.word-tip-bubble.is-panel .word-tip-head { position: sticky; top: 0; z-index: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .word-tip-bubble:not([hidden]) { animation: tip-in .15s ease-out; }
+  @keyframes tip-in { from { opacity: 0; transform: translateY(4px); } }
+}

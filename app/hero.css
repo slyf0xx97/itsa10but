@@ -1,0 +1,130 @@
+/* Hero: compact, over the sunny scene. Left: a glass plate with the headline, one line of intro and the buttons (the sample list is a popover under them). The four
+   readers slide up and down a column in the plate's empty space at the right. Right: the three icon points in one glass card.
+   Loaded after ui.css, so these rules replace its .hero rules. Glass tokens come from theme.css. The hero has no background of its own:
+   the fixed mountain scene (body::before in theme.css) shows through it. */
+.hero { display: block; position: relative; z-index: 2; overflow: visible; overflow-x: clip; isolation: isolate; padding: 1.5rem 0 1.5rem; background: none; color: var(--text); --ink-soft: var(--text-soft); }
+.hero-grid { position: relative; z-index: 5; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1.75rem; align-items: stretch; }
+.hero-text, .hero-card { min-width: 0; color: var(--ink); background: rgb(255 255 255 / 80%); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); border: 1.5px solid var(--glass-line); border-radius: 18px; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); }
+.hero-text { position: relative; z-index: 3; container: hero-plate / inline-size; display: flex; flex-direction: column; padding: 1.4rem 1.4rem 1.4rem; }
+.hero-card { display: grid; align-content: stretch; padding: .6rem 1.5rem; }
+.hero h1 { color: var(--ink); font-size: clamp(1.8rem, 3.2vw, 2.5rem); line-height: 1.1; overflow-wrap: anywhere; }
+/* The "but" gets a soft lime marker stroke, not a red word, so the heading reads friendly. */
+.hero h1 mark { padding: 0 .08em; border-radius: .12em; background: linear-gradient(transparent 55%, var(--lime) 55%, var(--lime) 92%, transparent 92%); color: inherit; }
+.hero h1 .word-tip-icon { width: .4em; height: .4em; }
+.hero .hero-lede { position: relative; max-width: 36rem; margin-top: .7rem; color: var(--text); font-family: var(--font-body); font-size: clamp(1.05rem, 1.5vw, 1.2rem); font-weight: 400; line-height: 1.55; }
+.hero .hero-lede .ten { padding: 0 .2em; border-radius: .2em; background: linear-gradient(transparent 12%, var(--lime) 12%, var(--lime) 92%, transparent 92%); color: var(--ink); font-weight: 800; }
+
+/* Word tip: the two tooltip words in the lede. Ink text with a dotted teal underline and a small info icon; the bubble opens under the word. */
+.word-tip { position: relative; display: inline; white-space: nowrap; }
+.word-tip-btn { display: inline; margin: 0; padding: 0 .1em; border: 0; border-bottom: 2px dotted var(--teal-dark); border-radius: 4px; background: none; color: inherit; font: inherit; font-weight: 700; cursor: help; }
+.word-tip-btn:hover { background: rgb(31 169 138 / 14%); }
+.word-tip-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.hero .hero-lede .word-tip { white-space: normal; }
+.word-tip-icon { width: .6em; height: .6em; margin: 0 0 .5em .15em; vertical-align: middle; color: var(--teal-dark); }
+/* The bubble (card, header strip, body, arrow, animation) is styled in tooltip.css. */
+
+/* The three points share the card height in equal shares of the extra height with a divider between them, so the space above the first and below the last is the same as the space between. */
+.hero-points { display: flex; flex-direction: column; height: 100%; margin: 0; padding: 0; list-style: none; }
+.hero-points li { position: relative; flex: 1 1 auto; display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: 1rem; align-items: center; padding: .9rem 0; }
+.hero-points li + li { border-top: 1.5px dashed rgb(31 36 48 / 18%); }
+/* Pixel number badge on the icon tile's top-left corner. The list is an ol, so the number is already announced; the badge is aria-hidden. */
+.hero-num { position: absolute; top: calc(50% - 2.2rem); left: -.45rem; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border: 2px solid var(--ink); border-radius: 4px; background: var(--lime); box-shadow: 2px 2px 0 rgb(31 36 48 / 45%); color: var(--ink); font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; line-height: 1; }
+.hero-points img { display: block; box-sizing: border-box; width: 3.5rem; height: 3.5rem; padding: .55rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: var(--glass-fill); box-shadow: 0 1px 3px rgb(18 52 63 / 22%), inset 0 1px 0 rgb(255 255 255 / 90%); image-rendering: pixelated; }
+.hero .hero-points p { max-width: none; margin: 0; padding-top: .05rem; color: var(--ink); font-size: 1.1rem; line-height: 1.5; }
+.hero .hero-points strong { display: block; margin-bottom: .15rem; font-size: 1.4rem; font-weight: 800; line-height: 1.25; }
+.hero .hero-points b { font-weight: 800; }
+.hero .hero-points .hl { padding: 0 .2em; border-radius: .2em; background: linear-gradient(transparent 12%, var(--lime) 12%, var(--lime) 92%, transparent 92%); color: var(--ink); font-weight: 800; }
+
+.hero .start-row { position: relative; align-items: stretch; gap: .6rem; margin-top: .8rem; margin-bottom: .35rem; /* tighter than before: the two-line Play sample button is taller, and the plate must not grow */ }
+.hero .start-row .btn.quiet { padding-inline: .8rem; }
+/* Play sample: a split button, up to 24rem wide, with a small sub-line inside the label (its title attribute is the tooltip). No separate caption beside it. */
+.hero .sm-split { min-width: 0; }
+.hero .sm { flex: 1 1 14rem; max-width: 24rem; }
+.hero .sm-main { min-width: 0; padding: .3rem 1rem; }
+.hero .btn { text-shadow: none; }
+.hero .btn.quiet { border-color: var(--ink); color: var(--ink); }
+.hero .btn.quiet:hover:not(:disabled) { border-color: var(--ink); background: rgb(255 255 255 / 60%); color: var(--ink); }
+.hero a:not(.btn) { color: var(--water-deep); }
+
+/* Check card step badges: the body font keeps "2" from reading as "8". */
+.step-title .step-num { width: 2.1rem; height: 2.1rem; font-family: var(--font-body); font-size: 1.1rem; font-weight: 800; line-height: 1; }
+
+/* Clouds drift only when motion is welcome. */
+.hero::before { content: ""; position: absolute; inset: 0 0 45% 0; z-index: 0; background: url('/projects/itsa10but/assets/scenes/clouds.svg') 0 0 / 1100px auto repeat-x; opacity: .85; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero::before { animation: drift 160s linear infinite; }
+  @keyframes drift { to { background-position-x: -1100px; } }
+}
+
+/* The four readers in the plate's empty space at the right. The column is absolutely positioned, so it never adds height: the plate is as tall as its text
+   and buttons (or the points card beside it). It only shows when the plate is wide enough to have spare room next to the 36rem lede (container query).
+   Motion is transform and opacity only, split over four layers so none fight:
+   slot = swapping places in pairs (up and down), .agent = slow vertical slide, .ha-hop = the occasional wave and the hover hop, .pixel-sprite = the bob (ui.css).
+   Sizes live in custom properties so the swap distance (--ha-step) always equals one slot plus one gap. */
+.ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; right: 1.2rem; bottom: 1rem; width: var(--ha-size); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
+@container hero-plate (min-width: 45rem) {
+  .ha { display: flex; }
+  .hero h1 { max-width: calc(100% - 6.5rem); }
+}
+.ha-slot { position: relative; flex: none; width: var(--ha-size); height: var(--ha-size); pointer-events: auto; }
+.ha-slot:hover { z-index: 2; }
+.ha .agent { width: 100%; height: 100%; }
+.ha-slot::before { content: ""; position: absolute; left: 14%; right: 14%; bottom: -3px; height: 6px; border-radius: 50%; background: rgb(18 52 63 / 18%); }
+/* The name tag opens to the left of the sprite, into the empty space. */
+.ha-slot::after { content: attr(data-name); position: absolute; top: 50%; right: calc(100% + 8px); translate: 0 -50%; padding: .05rem .55rem; border-radius: 999px; background: var(--ink); color: #fff; font-size: .8rem; font-weight: 700; line-height: 1.5; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s; }
+.ha-slot:hover::after { opacity: 1; }
+.ha-hop { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; }
+/* Sparkles: tiny pixel plus signs that rise and fade between the readers. They stay invisible unless motion is on. */
+.ha-spark { position: absolute; width: 4px; height: 4px; background: currentcolor; box-shadow: -4px 0 currentcolor, 4px 0 currentcolor, 0 -4px currentcolor, 0 4px currentcolor; opacity: 0; pointer-events: none; }
+.ha-spark.s1 { left: -30%; top: 26%; color: var(--orange); }
+.ha-spark.s2 { left: 128%; top: 44%; color: var(--teal); }
+.ha-spark.s3 { left: -22%; top: 64%; color: var(--water); }
+.ha-spark.s4 { left: 122%; top: 82%; color: var(--grass); }
+.ha.is-off * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: no-preference) {
+  .ha-slot.scout, .ha-slot.recruiter { animation: ha-swap-down 15s ease-in-out infinite; }
+  .ha-slot.finder, .ha-slot.coach { animation: ha-swap-up 15s ease-in-out infinite; }
+  .ha-slot.recruiter, .ha-slot.coach { animation-duration: 17s; animation-delay: -8s; }
+  .ha .agent { animation: ha-slide 7s ease-in-out infinite; }
+  .ha-slot.finder .agent { animation-duration: 9s; animation-delay: -3s; }
+  .ha-slot.recruiter .agent { animation-duration: 8s; animation-delay: -5s; }
+  .ha-slot.coach .agent { animation-duration: 10s; animation-delay: -1s; }
+  .ha-hop { animation: ha-wave 11s ease-in-out infinite; }
+  .ha-slot.finder .ha-hop { animation-duration: 13s; animation-delay: -4s; }
+  .ha-slot.recruiter .ha-hop { animation-duration: 12s; animation-delay: -8s; }
+  .ha-slot.coach .ha-hop { animation-duration: 14s; animation-delay: -2s; }
+  .ha-slot:hover .ha-hop { animation: ha-hop .5s ease-out 1; }
+  .ha-spark { animation: ha-twinkle 4.6s ease-in-out infinite; }
+  .ha-spark.s2 { animation-delay: -1.2s; animation-duration: 5.4s; }
+  .ha-spark.s3 { animation-delay: -2.5s; }
+  .ha-spark.s4 { animation-delay: -3.6s; animation-duration: 6s; }
+  /* Pairs trade places up and down the column: one slides down in front, the other slides up behind, they rest, then trade back. */
+  @keyframes ha-swap-down { 0%, 22% { transform: none; } 30% { transform: translate3d(-14px, calc(var(--ha-step) / 2), 0); } 38%, 60% { transform: translate3d(0, var(--ha-step), 0); } 68% { transform: translate3d(-14px, calc(var(--ha-step) / 2), 0); } 76%, 100% { transform: none; } }
+  @keyframes ha-swap-up { 0%, 22% { transform: none; } 30% { transform: translate3d(8px, calc(var(--ha-step) / -2), 0); } 38%, 60% { transform: translate3d(0, calc(var(--ha-step) * -1), 0); } 68% { transform: translate3d(8px, calc(var(--ha-step) / -2), 0); } 76%, 100% { transform: none; } }
+  @keyframes ha-slide { 0%, 100% { transform: translate3d(0, -5px, 0); } 50% { transform: translate3d(0, 5px, 0); } }
+  @keyframes ha-wave { 0%, 84%, 100% { transform: none; } 87% { transform: translateY(-10px) rotate(-6deg); } 90% { transform: rotate(6deg); } 93% { transform: rotate(-5deg); } 96% { transform: rotate(3deg); } }
+  @keyframes ha-twinkle { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 30%, 65% { opacity: .95; } 100% { opacity: 0; transform: translateY(-14px) scale(1); } }
+  @keyframes ha-hop { 0% { transform: none; } 40% { transform: translateY(-14px) scale(1.06); } 70%, 100% { transform: none; } }
+}
+
+/* Run controls (Pause / Resume and Reset): they take Press start's place in the buttons row while a sample run is in progress, so the row keeps its height. */
+.run-ctl { display: flex; gap: .6rem; min-width: 0; }
+.rc-btn { min-width: 6.5rem; min-height: 2.75rem; }
+.rc-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .hero { padding: 1rem 0 1.25rem; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+}
+@media (max-width: 520px) {
+  .hero-text { padding: 1.1rem 1rem 1.1rem; }
+  .hero .start-row .btn.primary, .hero .sm, .hero .run-ctl { flex: 1 1 100%; max-width: none; }
+  .hero .sm-split { flex: 1; }
+  .hero .sm-main { flex: 1; }
+  .rc-btn { flex: 1; min-width: 0; }
+  .hero-card { padding: .4rem 1rem; }
+  .hero-points li { grid-template-columns: 3rem minmax(0, 1fr); gap: .8rem; }
+  .hero-points img { width: 3rem; height: 3rem; padding: .45rem; }
+  .hero-num { top: calc(50% - 1.95rem); width: 1.45rem; height: 1.45rem; font-size: 1rem; }
+  .hero .hero-points strong { font-size: 1.25rem; }
+}

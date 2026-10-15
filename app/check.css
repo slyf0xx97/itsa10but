@@ -1,0 +1,125 @@
+/* Stage 1 layout: stage 1 is a full-width panel (row 1 is .is-single). One glass card holds up to three columns (the role, the résumé, a reader's guide with the Singapore signals), then the action bar across the full width.
+   Glass tokens come from theme.css. Animations are gated by prefers-reduced-motion: no-preference at the bottom. */
+
+.check-card { padding: 1.25rem; color: var(--ink); } /* fill, blur and edge: the main overlay rule in theme.css */
+.check-card a { color: var(--water-deep); }
+.check-card .hint { color: var(--text-soft); font-size: 1rem; line-height: 1.45; }
+
+/* The card sits in a stage panel (container "stage"). Phone order: role, résumé, hiring signals. From 700px the role and résumé sit side by side
+   and the guide spans both columns below; from 1040px the guide is the third column. Each pane is its own container, so the how-to steps inside it size to the pane. */
+.check-grid { grid-template-columns: minmax(0, 1fr); align-items: stretch; gap: 1.25rem; }
+.check-pane { container: pane / inline-size; display: flex; flex-direction: column; gap: .9rem; min-width: 0; padding: 1rem; border: 1.5px solid var(--glass-edge); border-radius: 16px; background: rgb(255 255 255 / 55%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 1px 4px rgb(18 52 63 / 12%); }
+.check-pane > .role-input { display: flex; flex: 1; flex-direction: column; }
+.check-guide { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+.check-guide > .sgs { display: flex; flex: 1 1 auto; flex-direction: column; width: 100%; }
+.check-guide > .sgs > .sgs-box { flex: 1 1 auto; }
+.check-card .step-title { margin: 0; color: var(--ink); font-size: 1.5rem; line-height: 1.15; }
+.check-card .step-title .step-num { width: 2.4rem; height: 2.4rem; background: var(--water-deep); color: #fff; box-shadow: none; font-size: 1.25rem; }
+
+/* Drop zone: fills the rest of its pane (at least 14rem, 16rem in two columns), content centred, so no blank strip is left under it. */
+.dropzone { display: flex; flex: 1 1 auto; flex-direction: column; align-items: center; justify-content: center; gap: .7rem; min-height: 14rem; padding: 1.1rem 1rem; text-align: center; border: 2px dashed var(--water-deep); border-radius: 16px; background: rgb(255 255 255 / 60%); }
+.dropzone.is-over { border-color: var(--leaf-deep); background: var(--sky-soft); outline: 3px dashed var(--leaf-deep); outline-offset: 3px; }
+.dz-live { min-height: 1.45em; margin: 0; color: var(--ink); font-size: 1.05rem; font-weight: 700; line-height: 1.4; }
+.dz-live:empty { height: 0; min-height: 0; margin: -.35rem 0; overflow: hidden; } /* keeps the live region in the page without adding a gap */
+/* Role box drop state: the same dashed outline, plus a label over the box. */
+.role-field .ta-wrap { border-radius: 10px; }
+.role-field.is-over .ta-wrap { outline: 3px dashed var(--leaf-deep); outline-offset: 3px; }
+.role-field.is-over .ta-wrap textarea { background: var(--sky-soft); }
+.drop-hint { position: absolute; inset: 0; display: grid; place-items: center; padding: 1rem; border-radius: 10px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: 1.15rem; font-weight: 800; text-align: center; pointer-events: none; }
+.dropzone.has-file { min-height: 0; padding: 1rem; }
+.dz-art { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border: 1.5px solid var(--leaf-deep); border-radius: 18px; background: linear-gradient(160deg, var(--grass), var(--leaf)); box-shadow: 0 3px 0 var(--leaf-deep); }
+.dz-art img { display: block; width: 2.5rem; height: 2.5rem; image-rendering: pixelated; }
+.dz-title { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; line-height: 1.25; }
+.dropzone .hint { max-width: 26rem; margin: 0; }
+.dropzone .dz-hint { color: var(--ink); font-size: 1.05rem; }
+.dropzone .btn { font-size: 1.05rem; }
+.check-card .dz-privacy { color: var(--ink); font-size: 1rem; }
+
+.dz-files { display: grid; gap: .5rem; width: 100%; margin: 0; padding: 0; list-style: none; }
+.dz-files li { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .5rem; min-width: 0; padding: .5rem .6rem; text-align: left; border: 1.5px solid var(--glass-edge); border-radius: 12px; background: var(--glass-card); box-shadow: 0 1px 3px rgb(18 52 63 / 16%); }
+.dz-name { flex: 1 1 8rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.dz-btn.btn { min-height: 2.5rem; padding: .25rem .8rem; font-size: 1rem; }
+
+/* Privacy popover beside "Choose a file": a lock button that opens a wide, scrollable, non-modal dialog (WordTip, panel variant). */
+.dz-actions { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem; }
+.dz-actions .word-tip.is-panel { position: static; }
+.tip-icon-btn { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font-size: 1.25rem; line-height: 1; cursor: help; }
+.tip-icon-btn:hover { background: var(--sky-soft); }
+.tip-icon-btn:focus-visible, .tip-close:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.tip-close { flex: none; min-height: 2.5rem; padding: .2rem .9rem; border: 2px solid var(--ink); border-radius: 10px; background: #fff; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; }
+.tip-close:hover { background: var(--sky-soft); }
+.pv-group + .pv-group { margin-top: .9rem; }
+.pv-title { margin: 0 0 .4rem; color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.3; }
+.pv-list { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.word-tip-bubble.is-panel .cl-item { grid-template-columns: 2.25rem minmax(0, 1fr); gap: .6rem; }
+.word-tip-bubble.is-panel .cl-icon { width: 2.25rem; height: 2.25rem; border-radius: 10px; font-size: 1.1rem; }
+.word-tip-bubble.is-panel .cl-text { font-size: 1rem; line-height: 1.4; }
+.word-tip-bubble.is-panel .cl-lead { font-size: 1.05rem; }
+
+/* Safety panel inside the résumé pane. */
+.check-card .safety-panel { margin: 0; color: var(--ink); background: rgb(255 255 255 / 70%); border: 1.5px solid var(--glass-edge); border-radius: 14px; box-shadow: none; }
+.check-card .safety-panel p { color: var(--text-soft); }
+
+/* Start the check: one bar across both panes. */
+.check-card .actions { margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1.5px dashed var(--water-deep); }
+.check-card .actions .btn { font-size: 1.1rem; }
+.check-card .btn.quiet { border-color: var(--ink); color: var(--ink); }
+.check-card .btn.quiet:hover:not(:disabled) { background: var(--sky-soft); }
+.check-card .notice { border: 1.5px solid var(--water-deep); background: rgb(255 255 255 / 80%); color: var(--ink); }
+.check-card .notice.error { border-color: var(--coral); background: #fbe1db; color: #6e1a0e; }
+
+@container stage (min-width: 700px) {
+  .check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .check-guide { grid-column: 1 / -1; }
+  .dropzone { min-height: 16rem; }
+}
+@container stage (min-width: 1040px) {
+  .check-grid { grid-template-columns: minmax(0, 1fr) minmax(0, .85fr) minmax(0, 1.15fr); }
+  .check-guide { grid-column: auto; align-items: stretch; }
+}
+@container stage (max-width: 480px) {
+  .check-card { padding: .75rem; }
+  .check-pane { padding: .75rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dropzone { transition: border-color .15s ease, background-color .15s ease; }
+  .dropzone.is-over .dz-art { animation: dz-bob .6s ease-in-out infinite alternate; }
+  @keyframes dz-bob { to { transform: translateY(-4px); } }
+}
+
+/* Pane lead lines and the action-row status use the shared scannable pattern (icon, bold lead, one short line). */
+.ck-lead { margin: -.1rem 0 .1rem; }
+.cl-item.ck-lead { grid-template-columns: minmax(0, 1fr); } /* no icon tile, so one column */
+.check-card .act-hint { flex: 1 1 14rem; color: var(--ink); font-size: 1.15rem; font-weight: 800; line-height: 1.3; }
+.check-card .role-input [role="status"].hint:not(:empty) { color: var(--ink); font-size: 1.05rem; font-weight: 700; }
+
+/* "How to format your résumé for tech": a button above the drop zone that opens the shared Popup. Inside: three grouped tip cards (do and skip marks), then a grid of site cards with logos. */
+.check-card .rt-open { align-self: flex-start; gap: .6rem; font-size: 1.05rem; text-align: left; }
+.rt-short { display: none; }
+.rt { display: grid; gap: 1.25rem; color: var(--ink); }
+.rt-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+.rt-group, .rt-sites { min-width: 0; padding: .9rem 1rem 1rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: #fff; }
+.rt-title { display: flex; align-items: center; gap: .55rem; margin: 0 0 .65rem; font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+.rt-title svg { flex: none; color: var(--water-deep); }
+.rt-intro { margin: 0 0 .65rem; font-size: 1.05rem; line-height: 1.45; }
+.rt-intro .word-tip-btn { min-height: 1.5rem; }
+.rt-tips, .rt-grid { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.rt-tips li { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: .6rem; align-items: start; font-size: 1.05rem; font-weight: 700; line-height: 1.4; }
+.rt-tips small { display: block; margin-top: .1rem; color: var(--text-soft); font-size: 1rem; font-weight: 400; line-height: 1.4; }
+.rt-mark { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-top: .05rem; border-radius: 50%; color: #fff; }
+.is-do .rt-mark { background: var(--leaf-deep); }
+.is-skip .rt-mark { background: var(--coral); }
+.rt-grid { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.rt .rt-grid a { display: flex; gap: .75rem; align-items: center; height: 100%; padding: .65rem .75rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 12px; background: #fff; color: var(--ink); text-decoration: none; }
+.rt .rt-grid a:hover { background: var(--sky-soft); border-color: var(--ink); }
+.rt .rt-grid a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.rt-logo { display: grid; flex: none; place-items: center; width: 3rem; height: 3rem; overflow: hidden; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 10px; background: #fff; }
+.rt-logo img { display: block; width: 2.5rem; height: 2.5rem; object-fit: contain; }
+.rt-site-text { display: grid; flex: 1 1 auto; min-width: 0; font-size: 1rem; line-height: 1.3; }
+.rt-site-text strong { font-size: 1.1rem; font-weight: 800; }
+@media (max-width: 480px) {
+  .check-card .rt-open { align-self: stretch; }
+  .rt-long { display: none; }
+  .rt-short { display: inline; }
+}

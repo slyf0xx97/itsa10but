@@ -1,0 +1,33 @@
+/* Themed scrollbars and "there is more" cues. See docs/design-system.md, "Scrollbars and overflow cues".
+   Thumb #1b86a8 on track #d9f0fb is 3.5:1. Chrome ignores ::-webkit-scrollbar once scrollbar-width or scrollbar-color is set,
+   so the standard properties are only given to browsers without the WebKit pseudo (Firefox). */
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: #1b86a8 #d9f0fb; }
+}
+
+*::-webkit-scrollbar { width: 12px; height: 12px; }
+*::-webkit-scrollbar-track { border: 1px solid rgb(27 134 168 / 18%); border-radius: 999px; background: #d9f0fb; }
+*::-webkit-scrollbar-thumb { min-width: 2.5rem; min-height: 2.5rem; border: 2px solid #fff; border-radius: 999px; background: #1b86a8 padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: #166f8b padding-box; }
+*::-webkit-scrollbar-thumb:active { background: #0f5b73 padding-box; }
+*::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+*::-webkit-scrollbar-corner { background: transparent; }
+
+/* ScrollHint: a horizontally scrolling row with edge fades and arrow buttons that only show when there is more on that side. */
+.sh { position: relative; min-width: 0; }
+.sh-scroll { scroll-padding-inline: 3.5rem; }
+@media (prefers-reduced-motion: no-preference) { .sh-scroll { scroll-behavior: smooth; } }
+
+.sh-fade { position: absolute; top: 0; bottom: 0; z-index: 3; width: 3rem; pointer-events: none; opacity: 0; transition: opacity .15s; }
+.sh-fade.is-left { left: 0; background: linear-gradient(90deg, rgb(255 255 255 / 96%), rgb(255 255 255 / 0%)); }
+.sh-fade.is-right { right: 0; background: linear-gradient(270deg, rgb(255 255 255 / 96%), rgb(255 255 255 / 0%)); }
+.sh-fade[data-show="true"] { opacity: 1; }
+
+.sh-btn { position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; margin: 0; padding: 0; translate: 0 -50%; border: 2px solid var(--ink); border-radius: 50%; background: #fff; color: var(--ink); box-shadow: 0 2px 6px rgb(16 70 100 / 25%); cursor: pointer; visibility: hidden; opacity: 0; transition: opacity .15s, visibility .15s; }
+.sh-btn.is-left { left: .2rem; }
+.sh-btn.is-right { right: .2rem; }
+.sh-btn[data-show="true"] { visibility: visible; opacity: 1; }
+.sh-btn:hover { background: var(--sky-soft); }
+.sh-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sh-btn svg { width: 1.1rem; height: 1.1rem; }
+@media (prefers-reduced-motion: reduce) { .sh-fade, .sh-btn { transition: none; } }

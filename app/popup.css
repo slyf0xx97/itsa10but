@@ -1,0 +1,28 @@
+/* Modal popup (components/popup.tsx). Native <dialog>: the page behind keeps its height; the panel scrolls inside.
+   Sizes: a plain popup is up to 60rem wide, a wide one (findings, tips, sources, run modes) up to 1100px, both 94vw at most, and up to 90% of the screen tall.
+   On a phone the popup is a near full-width sheet with a small margin. Body text is 17px; the findings parts set their own larger type under .pop (dashboard.css, readers.css). */
+.pop { padding: 0; border: 0; background: transparent; color: var(--ink); width: min(60rem, 94vw); max-width: none; max-height: 90vh; max-height: 90dvh; margin: auto; overflow: visible; }
+.pop.pop-wide { width: min(1100px, 94vw); }
+.pop::backdrop { background: rgb(14 43 36 / 55%); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.pop-card { display: flex; flex-direction: column; max-height: 90vh; max-height: 90dvh; border: 1.5px solid var(--glass-edge); border-radius: 22px; background: rgb(255 255 255 / 97%); box-shadow: 0 24px 60px rgb(10 40 60 / 35%); overflow: hidden; }
+.pop-head { display: flex; align-items: center; gap: 1rem; padding: .55rem 1.25rem; border-bottom: 1.5px solid rgb(31 36 48 / 14%); background: var(--sky-soft); }
+.pop-icon { display: grid; place-items: center; flex: none; width: 2.75rem; height: 2.75rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: #fff; font-size: 1.5rem; }
+.pop-title { flex: 1; min-width: 0; margin: 0; font-family: var(--font-display); font-size: 1.6rem; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
+.pop-close { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-width: 3rem; min-height: 2.75rem; padding: .3rem 1.1rem; border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 1.0625rem; font-weight: 800; cursor: pointer; }
+.pop-close:hover { background: var(--lime); }
+.pop-close:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.pop-body { padding: 1rem 1.25rem 1.25rem; font-size: 1.0625rem; line-height: 1.5; overflow-y: auto; overscroll-behavior: contain; }
+@media (prefers-reduced-motion: no-preference) {
+  .pop[open] .pop-card { animation: pop-in .18s ease-out; }
+  @keyframes pop-in { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+}
+/* Findings popups (dashboard.css) fill the body themselves. */
+.pop-body:has(> .dp) { padding: .65rem 1rem .8rem; }
+@media (max-width: 640px) {
+  .pop, .pop.pop-wide { width: calc(100vw - .75rem); max-height: 94vh; max-height: 94dvh; }
+  .pop-card { max-height: 94vh; max-height: 94dvh; border-radius: 18px; }
+  .pop-head { gap: .6rem; padding: .8rem .9rem; }
+  .pop-icon { width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }
+  .pop-title { font-size: 1.3rem; }
+  .pop-body { padding: .8rem .75rem 1rem; }
+}

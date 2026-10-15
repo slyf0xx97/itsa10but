@@ -1,0 +1,22 @@
+/* One hover, press and focus treatment for every button (the .btn family, .button and the small plain buttons).
+   Loaded last from globals.css. Hover lifts 2px with a bigger hard shadow and a touch more light; press sinks 1px with a short shadow.
+   A button can set --btn-hover-shadow and --btn-active-shadow to keep its own shadow colour. The focus ring stays as set in ui.css.
+   Left out on purpose: tabs, the reader and skill rows, inline word tips, the scroll arrows and the two buttons that already have their own lift
+   (.dash-open and .pl-toggle in dashboard.css). Disabled and aria-disabled buttons do not move. */
+:where(button, .btn, .button) { --btn-hover-shadow: 0 5px 0 rgb(16 70 100 / 30%), 0 10px 18px rgb(16 70 100 / 16%); --btn-active-shadow: 0 1px 0 rgb(16 70 100 / 30%); }
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(button, .btn, .button):not(:disabled, [aria-disabled="true"], [role="tab"], .rd-btn, .rk-open, .sb-row, .pl-open, .word-tip-btn, .sh-btn, .dash-open, .pl-toggle) {
+    transition: transform .14s ease, box-shadow .14s ease, filter .14s ease, background-color .14s ease, border-color .14s ease, color .14s ease;
+  }
+  :where(button, .btn, .button):not(:disabled, [aria-disabled="true"], [role="tab"], .rd-btn, .rk-open, .sb-row, .pl-open, .word-tip-btn, .sh-btn, .dash-open, .pl-toggle):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--btn-hover-shadow);
+    filter: brightness(1.06);
+  }
+  :where(button, .btn, .button):not(:disabled, [aria-disabled="true"], [role="tab"], .rd-btn, .rk-open, .sb-row, .pl-open, .word-tip-btn, .sh-btn, .dash-open, .pl-toggle):active {
+    transform: translateY(1px);
+    box-shadow: var(--btn-active-shadow);
+    filter: brightness(.97);
+  }
+}

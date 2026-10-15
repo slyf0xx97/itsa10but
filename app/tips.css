@@ -1,0 +1,23 @@
+/* Under each tip: free lessons and the latest articles for its skill (components/career/skill-refs.tsx). */
+.pl-refs { display: grid; gap: 1rem; min-width: 0; padding-top: .9rem; border-top: 1.5px dashed rgb(18 52 63 / 30%); }
+.pl-refs-block { display: grid; gap: .45rem; min-width: 0; }
+.pl-refs-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .8rem; }
+.pl-refs-h { margin: 0; font-size: 1.125rem; font-weight: 800; line-height: 1.25; }
+.pl-refs-list { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.pl-refs-list li { display: grid; gap: .05rem; min-width: 0; font-size: 1.0625rem; line-height: 1.4; }
+.pl-refs-list a { color: var(--water-deep); font-weight: 700; overflow-wrap: anywhere; }
+.pl-refs-list a:hover { color: var(--coral); }
+.pl-refs-list a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.pl-refs-meta { color: var(--text-soft); font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+.pl-refs-status, .pl-refs-note { margin: 0; color: var(--text-soft); font-size: 1rem; line-height: 1.45; }
+.pl-refs-status { min-height: 1.45em; color: var(--ink); font-weight: 600; }
+.pl-refs-status.is-problem { padding: .4rem .6rem; border: 1.5px solid var(--coral); border-radius: 10px; background: #fbe1db; color: #6e1a0e; }
+.pl-refs .btn { gap: .4rem; }
+.pl-refs .btn[aria-disabled="true"] { opacity: .65; cursor: progress; }
+.pl-refs .btn.quiet { border-color: var(--ink); color: var(--ink); }
+.pl-refs .btn.quiet:hover:not([aria-disabled="true"]) { background: var(--sky-soft); }
+.pl-refs .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.pl-more { margin: 0; font-size: 1.0625rem; line-height: 1.5; }
+.pl-more a { color: var(--water-deep); font-weight: 700; }
+.pl-more a:hover { color: var(--coral); }
+.pl-more a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }

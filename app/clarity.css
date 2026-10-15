@@ -1,0 +1,19 @@
+/* Shared "scannable text" kit, the same pattern as the three hero points: an icon tile, a bold lead line, one short supporting line with the key phrase highlighted.
+   Use these instead of plain paragraphs inside the stages. Colours come from theme.css; everything is ink on glass. */
+.cl-list { display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.cl-item { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: .85rem; align-items: start; min-width: 0; }
+.cl-icon { display: grid; place-items: center; width: 3rem; height: 3rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: var(--glass-fill); box-shadow: 0 1px 3px rgb(18 52 63 / 22%), inset 0 1px 0 rgb(255 255 255 / 90%); font-size: 1.5rem; line-height: 1; }
+.cl-icon img { display: block; width: 1.8rem; height: 1.8rem; image-rendering: pixelated; }
+.cl-text { margin: 0; color: var(--ink); font-size: 1.05rem; line-height: 1.45; max-width: none; }
+.cl-lead { display: block; margin-bottom: .1rem; color: var(--ink); font-size: 1.25rem; font-weight: 800; line-height: 1.25; }
+.cl-text b, .cl-text strong:not(.cl-lead) { font-weight: 800; }
+.hl { padding: 0 .2em; border-radius: .2em; background: linear-gradient(transparent 12%, var(--lime) 12%, var(--lime) 92%, transparent 92%); color: var(--ink); font-weight: 800; }
+.hl-coral { background: linear-gradient(transparent 12%, var(--coral-soft) 12%, var(--coral-soft) 92%, transparent 92%); }
+.hl-sky { background: linear-gradient(transparent 12%, var(--sky-soft) 12%, var(--sky-soft) 92%, transparent 92%); }
+/* A short bold line that opens a block, bigger than body text. */
+.cl-kicker { margin: 0 0 .35rem; color: var(--ink); font-size: 1.35rem; font-weight: 800; line-height: 1.25; }
+@media (max-width: 480px) {
+  .cl-item { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .65rem; }
+  .cl-icon { width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }
+  .cl-lead { font-size: 1.15rem; }
+}

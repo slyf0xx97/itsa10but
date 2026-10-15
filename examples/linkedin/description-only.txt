@@ -1,0 +1,2 @@
+Build Python APIs and write unit tests.
+Work with SQL databases.
