@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ARRIVALS, CARD, CAVE, CORNER, CYCLE, FORK_SIGN, GAP, HOPS, NODE_ORDER, POWER_LABEL, RAIL, READER_IDS, ROAD_R, SEG_ENDS, STOP_ORDER, TITLE_SIGN, WIDE, bolt, cardAnchor, cardBox, elbow, powerLine, railFrom, type End, type Layout, type Pt, type SegId } from "./trail-geometry.ts";
+import { ARRIVALS, CARD, CAVE, CONTROLS, CORNER, CYCLE, FORK_SIGN, GAP, GATES, HOPS, NODE_ORDER, POWER_LABEL, RAIL, READER_IDS, ROAD_R, ROUTES, SEG_ENDS, STOP_ORDER, TITLE_SIGN, WIDE, arrivalsFor, bolt, cardAnchor, cardBox, elbow, gatePoint, hopsFor, powerLine, railFrom, type End, type Layout, type Pt, type SegId } from "./trail-geometry.ts";
 
 const nums = (d: string) => (d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
 
@@ -55,7 +55,7 @@ for (const [name, layout] of [["wide", WIDE], ["rail", RAIL], ["rail, other row 
   });
 }
 
-test("the stations are the four steps on the page: upload and mask, a fork that holds two cards, the four résumé agents in one card and the action plan", () => {
+test("the stations are the four steps on the page: upload résumé, a fork that holds two cards, the four résumé agents in one card and the action plan", () => {
   assert.deepEqual(STOP_ORDER, ["camp", "boost", "native", "readers", "result"]);
   assert.deepEqual(NODE_ORDER, ["camp", "boost", "native", ...READER_IDS, "result"]);
   assert.ok(!("mask" in CARD) && !("s1" in SEG_ENDS), "Mask and search is part of the first station now");
@@ -117,7 +117,8 @@ const powerLabel = () => { const [x, y] = cardAnchor(WIDE, "readers"); return { 
 type Box = { l: number; r: number; t: number; b: number };
 const gapBetween = (a: Box, b: Box) => Math.max(b.l - a.r, a.l - b.r, b.t - a.b, a.t - b.b);
 const cave: Box = { l: CAVE.l, r: CAVE.l + CAVE.w, t: CAVE.t, b: CAVE.t + CAVE.h };
-const boxes: [string, Box][] = [...STOP_ORDER.map((id) => [id, cardBox(id)] as [string, Box]), ["fork sign", forkSign()], ["title sign", titleSign], ["power label", powerLabel()], ["cave", cave]];
+const controls: Box = { l: CONTROLS.x, r: CONTROLS.x + CONTROLS.w, t: CONTROLS.y, b: CONTROLS.y + CONTROLS.h };
+const boxes: [string, Box][] = [...STOP_ORDER.map((id) => [id, cardBox(id)] as [string, Box]), ["fork sign", forkSign()], ["title sign", titleSign], ["controls", controls], ["power label", powerLabel()], ["cave", cave]];
 
 test("wide map: cards, signs and the cave stay inside the board with at least 12 units between any two", () => {
   for (const [name, c] of boxes) assert.ok(c.l >= 0 && c.r <= WIDE.w && c.t >= 0 && c.b <= WIDE.h, `${name} inside the board`);
@@ -158,4 +159,31 @@ test("wide map: the electric line stays clear of every card", () => {
       assert.ok(!hit, `the line crosses the ${name}`);
     }
   }
+});
+
+test("a chosen road runs alone: the shared stretches stay, the other road's hops and pulses go", () => {
+  assert.equal(hopsFor("turns"), HOPS);
+  for (const route of ["boost", "native"] as const) {
+    const hops = hopsFor(route);
+    assert.ok(hops.length < HOPS.length && hops.length > 0);
+    assert.ok(hops.every((hop) => !hop.road || hop.road === route), route);
+    assert.ok(hops.some((hop) => hop.seg === (route === "boost" ? "bA" : "nA")), route);
+    assert.ok(arrivalsFor(route).every((arrival) => !arrival.road || arrival.road === route));
+    // every stretch of road is still covered, so the note can reach the end
+    const covered = new Set(hops.map((hop) => hop.seg));
+    for (const seg of Object.keys(SEG_ENDS) as SegId[]) { if (route === "boost" && (seg === "nA" || seg === "nB")) continue; if (route === "native" && (seg === "bA" || seg === "bB")) continue; assert.ok(covered.has(seg), route + " " + seg); }
+  }
+  assert.deepEqual(ROUTES, ["turns", "boost", "native"]);
+});
+
+test("the gates stand on their own road just after the fork, and the controls keep clear of every road", () => {
+  const [bx, by] = GATES.boost, [nx, ny] = GATES.native;
+  assert.equal(bx, 350); // the high road climbs at x 350
+  assert.ok(by < WIDE.pts.fork[1] && by > WIDE.pts.boost[1]);
+  assert.equal(ny, WIDE.pts.fork[1]); // the low road runs level from the fork
+  assert.ok(nx > WIDE.pts.fork[0] && nx < WIDE.pts.native[0]);
+  assert.deepEqual(gatePoint(WIDE, true, "boost"), GATES.boost);
+  const [rx, ry] = gatePoint(RAIL, false, "native");
+  assert.ok(ry > RAIL.pts.fork[1] && ry < RAIL.pts.native[1] && rx >= 0 && rx <= RAIL.w);
+  assert.ok(controls.l >= 0 && controls.r <= WIDE.w && controls.t >= 0 && controls.b <= WIDE.h);
 });

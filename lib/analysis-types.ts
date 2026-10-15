@@ -5,8 +5,16 @@ export type Resume = { id: string; name: string; text: string };
 export type EvidenceQuote = { label: string; quote: string; matched: string[] };
 export type Skill = { name: string; demand: number; evidence: number; detail: string; source: string; resumeQuote?: EvidenceQuote; roleQuote?: EvidenceQuote; scoreReason?: string; breakdown?: SkillBreakdown };
 export type AgentNote = { role: string; note: string };
-/** One tip to close a gap. The type keeps its old name. The page calls these tips and tricks, and they carry no time estimate. */
-export type Quest = { title: string; task: string; proof: string; skill: string };
+/** What a resource is, shown as a small tag on its card. */
+export type LinkKind = "Course" | "Docs" | "Practice" | "Video" | "Tool" | "Dataset" | "Guide";
+export type QuestLink = { title: string; url: string; kind: LinkKind };
+/** How a tip helps: build something new, turn a mention into a project line, or put a number on a line that already shows the work. */
+export type QuestKind = "build" | "show" | "measure";
+/**
+ * One tip to close a gap. The type keeps its old name. The page calls these tips and tricks, and they carry no time estimate.
+ * title, task, proof and skill are always there. A native scan fills the rest from lib/skill-playbooks.ts: three short steps, a résumé line to adapt, and checked links.
+ */
+export type Quest = { title: string; task: string; proof: string; skill: string; kind?: QuestKind; steps?: string[]; bullet?: string; links?: QuestLink[] };
 export type MarketSource = { title: string; url: string };
 export type AtsStatus = "pass" | "warn" | "fail";
 export type AtsCheck = { id: string; group: "parse" | "keywords" | "wording" | "format"; label: string; status: AtsStatus; tip: string };

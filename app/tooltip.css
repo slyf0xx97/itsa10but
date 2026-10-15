@@ -42,6 +42,9 @@
 .word-tip-arrow { position: absolute; top: -9px; left: var(--tip-arrow-x, 1.6rem); width: 12px; height: 12px; margin-left: -6px; border: 2px solid var(--ink); border-right: 0; border-bottom: 0; background: var(--tip-bg); rotate: 45deg; pointer-events: none; }
 .word-tip-bubble[data-side="above"] .word-tip-arrow { top: auto; bottom: -9px; border: 2px solid var(--ink); border-left: 0; border-top: 0; background: #fff; }
 
+/* The short line beside the lock under the résumé drop zone. */
+.pv-note { display: inline-flex; align-items: center; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.3; }
+
 /* The panel variant (privacy and safety): wider, non-modal, scrolls as a whole, has its own Close button. */
 .word-tip-bubble.is-panel { width: min(28rem, calc(100vw - 2rem)); max-height: min(26rem, 70vh, var(--panel-max, 100vh)); overflow-y: auto; overscroll-behavior: contain; }
 .word-tip-bubble.is-panel .word-tip-body { max-height: none; overflow: visible; }

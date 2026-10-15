@@ -1,5 +1,6 @@
 import type { AgentNote, Analysis, AtsCheck, MarketSource, Skill } from "../analysis-types.ts";
 import { atsCheckInfo, atsNote, atsScore } from "../ats-check.ts";
+import { enrichQuest, playbookFor } from "../skill-playbooks.ts";
 import { actionPlanner, type ActionPlannerOutput } from "./action-planner.ts";
 import { experienceFinder, type ExperienceFinderOutput } from "./experience-finder.ts";
 import { recruiter, type RecruiterOutput } from "./recruiter.ts";
@@ -55,7 +56,8 @@ export function analysisShapeFromOutputs(
     confidence: match.confidence,
     skills,
     agents,
-    quests: plan.quests.map(({ title, task, proof, skill }) => ({ title, task, proof, skill })),
+    // The agent's own link (checked by the runner) leads the list, then the playbook's checked links, steps and résumé line for the skill.
+    quests: plan.quests.map(({ title, task, proof, skill, link }) => enrichQuest({ title, task, proof, skill, ...(link ? { links: [{ title: link.title, url: link.url, kind: "Guide" as const }, ...(playbookFor(skill)?.links ?? [])].slice(0, 4) } : {}) })),
     sources,
     mode: "live",
     matchPercent: match.matchPercent,

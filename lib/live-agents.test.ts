@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runLiveAgents, validateLiveBody, type Block, type LiveClient, type LiveRequest, type LiveResponse } from "./live-agents.ts";
+import { parseAgentJson, runLiveAgents, validateLiveBody, type Block, type LiveClient, type LiveRequest, type LiveResponse } from "./live-agents.ts";
+import { AGENT_SPECS } from "./agents/index.ts";
 import type { EngineEvent } from "./simulated-engine.ts";
 
 const resumes = [{ id: "1", name: "Alex", text: "Built a Python log parser that flags failed logins.\nConfigured a Linux home lab with Wireshark.\nEmail: alex@example.com" }];
@@ -101,11 +102,16 @@ test("the Recruiter reads the whole masked résumé cold, with no tools and no F
   assert.match(ats.note, /not a real employer/);
 });
 
-test("an ATS report with an unknown id or no check falls back", async () => {
-  const { client } = fake({ recruiter: () => final({ ...outputs.recruiter(), checks: [{ id: "made-up", label: "x", status: "pass", tip: "y" }] }) });
-  assert.match(notice(await run(client))!.message, /expected shape/, "an id outside the fixed list breaks the schema");
+test("an ATS report with an unknown id or no check is repaired once, then the native check stands in for the Recruiter alone", async () => {
+  const { client, requests } = fake({ recruiter: () => final({ ...outputs.recruiter(), checks: [{ id: "made-up", label: "x", status: "pass", tip: "y" }] }) });
+  const events = await run(client);
+  assert.equal(notice(events), undefined, "an id outside the fixed list breaks the schema, but only the Recruiter is replaced");
+  assert.match(complete(events).result.analysis.agents[2].note, /native ATS-style check/);
+  assert.equal(requests.filter((r) => agentOf(r) === "recruiter").length, 2, "one repair turn");
   const { client: empty } = fake({ recruiter: () => final({ ...outputs.recruiter(), checks: [] }) });
-  assert.match(notice(await run(empty))!.message, /expected shape/);
+  const emptyEvents = await run(empty);
+  assert.equal(notice(emptyEvents), undefined);
+  assert.match(complete(emptyEvents).result.analysis.agents[2].note, /native ATS-style check/);
 });
 
 test("only masked text reaches the model", async () => {
@@ -153,7 +159,8 @@ test("hostile posting text cannot change the output shape or reveal the instruct
   const { client, requests } = fake({ scout: () => final({ ...outputs.scout(), leaked: "SYSTEM PROMPT" }) });
   const events: EngineEvent[] = [];
   for await (const e of runLiveAgents(resumes, hostileJob, { client, env: {} })) events.push(e);
-  assert.match(notice(events)!.message, /expected shape/);
+  assert.equal(notice(events), undefined, "a key the schema does not name is dropped, so the run goes on");
+  assert.ok(events.some((e) => e.type === "complete"));
   const user = requests[0].messages[0].content as string;
   assert.ok(user.includes("<data source=\"role\">"));
   assert.equal(user.split("</data>").length - 1, 1, "the planted closing tag is defused");
@@ -436,4 +443,47 @@ test("with a Firecrawl key the web tools are offered as before and web is on", a
 
 test("a body with a model field still passes the body check, because the route checks the model on its own", () => {
   assert.equal(validateLiveBody({ resumes, job, model: "not/checked/here" }).ok, true);
+});
+
+test("parseAgentJson reads a fenced or wrapped object, turns number strings into numbers and drops keys the schema does not name", () => {
+  const schema = AGENT_SPECS[0].outputSchema;
+  const good = outputs.scout();
+  const wrapped = "Here is my answer:\n```json\n" + JSON.stringify({ ...good, extra: "nope", skills: good.skills.map((skill) => ({ ...skill, demand: String(skill.demand) })) }) + "\n```\nHope that helps.";
+  const parsed = parseAgentJson(wrapped, schema) as typeof good;
+  assert.ok(parsed, "a fenced object is read");
+  assert.equal(parsed.skills[0].demand, 70);
+  assert.ok(!("extra" in parsed), "a key the schema does not name is dropped");
+  assert.equal(parseAgentJson("no json here", schema), undefined);
+  assert.equal(parseAgentJson(JSON.stringify({ status: "ok" }), schema), undefined, "a missing required field still fails");
+});
+
+test("a reply that does not fit gets one repair turn, and a second bad reply falls back to the native scan", async () => {
+  const bad = (): LiveResponse => ({ stop_reason: "end_turn", content: [{ type: "text", text: "I think Python is strongest." }] });
+  const once = fake({ finder: (_a, _r, call) => (call === 1 ? bad() : final(outputs.finder())) });
+  const events = await run(once.client);
+  assert.equal(notice(events), undefined, "the repair turn saved the run");
+  assert.equal(complete(events).result.analysis.mode, "live");
+  const finderRequests = once.requests.filter((r) => agentOf(r) === "finder");
+  assert.equal(finderRequests.length, 2);
+  const repair = finderRequests[1].messages[finderRequests[1].messages.length - 1];
+  assert.equal(repair.role, "user");
+  assert.match(String(repair.content), /only that JSON object/);
+
+  const twice = fake({ finder: () => bad() });
+  const failed = await run(twice.client);
+  assert.match(notice(failed)?.message ?? "", /expected shape/);
+  assert.equal(twice.requests.filter((r) => agentOf(r) === "finder").length, 2, "exactly one repair, never a loop");
+});
+
+test("a Recruiter that fails does not cost the run: the native ATS-style check stands in and says so", async () => {
+  const bad = (): LiveResponse => ({ stop_reason: "end_turn", content: [{ type: "text", text: "not json" }] });
+  const { client } = fake({ recruiter: () => bad() });
+  const events = await run(client);
+  assert.equal(notice(events), undefined);
+  const analysis = complete(events).result.analysis;
+  assert.equal(analysis.mode, "live");
+  assert.ok(analysis.ats && analysis.ats.checks.length > 0);
+  assert.match(analysis.agents[2].note, /native ATS-style check/);
+  const refused = fake({ recruiter: () => ({ stop_reason: "refusal", content: [] }) });
+  assert.match(notice(await run(refused.client))?.message ?? "", /declined/);
 });

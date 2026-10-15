@@ -33,6 +33,8 @@ export type PlannerRow = { index: number; title: string; skill: string; want: Wa
 
 const WANT_WORDS: Record<Want, string> = { High: "a lot", Medium: "somewhat", Low: "a little" };
 const PROOF_WORDS: Record<Proof, string> = { None: "nothing yet", Weak: "only a little", Some: "some", Strong: "plenty" };
+/** A closing line for the proof levels where the tip is to sharpen what is there rather than start from nothing. */
+const PROOF_TAIL: Partial<Record<Proof, string>> = { Some: " A project line would make it clearer.", Strong: " A number would make it stronger." };
 
 /** Action Planner list: the first tips, each with the numbers for its skill (looked up by name, any case) and one plain sentence. A tip whose skill is not in the list gets a line built from the tip alone. */
 export function plannerRows(skills: Skill[], quests: Quest[]): PlannerRow[] {
@@ -42,7 +44,7 @@ export function plannerRows(skills: Skill[], quests: Quest[]): PlannerRow[] {
     if (!skill) return { ...base, want: "None" as const, proof: "None" as const, why: quest.skill ? `A tip that gives you something to show for ${quest.skill}.` : "A tip that gives you something to show." };
     const want = wantOf(skill.demand);
     const proof = proofOf(skill.evidence);
-    return { ...base, want, proof, why: `Asked for ${WANT_WORDS[want]}. Your résumé shows ${PROOF_WORDS[proof]}.` };
+    return { ...base, want, proof, why: `Asked for ${WANT_WORDS[want]}. Your résumé shows ${PROOF_WORDS[proof]}.${PROOF_TAIL[proof] ?? ""}` };
   });
 }
 

@@ -121,4 +121,6 @@ The tips come from `showItTips`, a rules table in `lib/company-culture.ts`, and 
 - Keep at most eight skills and three tips, and cut skill names and notes to a sensible length.
 - Let `firecrawl_scrape` open only links that agent's own search returned. `read_linkedin_posting` takes no input and reads only the link the user gave.
 - Keep only https links, checked with `safeJobUrl` from `lib/job-types.ts`. Drop the rest.
-- Treat `status: "refused"`, a `refusal` stop reason, a broken schema, a tripped limit or a timeout as a fallback to the rules engine, with a notice.
+- Read each agent's final text with `parseAgentJson` in `lib/live-agents.ts`. It accepts a fenced or wrapped JSON object, turns whole-number strings into integers and drops keys the schema doesn't name. A reply that still doesn't fit gets one repair turn that asks for the JSON again. A second bad reply is a fallback.
+- Let a Recruiter that fails for any reason except a refusal fall back on its own. The native `atsCheck` stands in for it and the report note says so. The other three agents keep their results.
+- Treat `status: "refused"`, a `refusal` stop reason, a broken schema after the repair turn, a tripped limit or a timeout as a fallback to the rules engine, with a notice.

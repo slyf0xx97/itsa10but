@@ -26,6 +26,7 @@ test("models follow KTD15 and can be overridden by env", () => {
   for (const spec of [experienceFinder, recruiter, actionPlanner]) assert.equal(spec.model, "claude-sonnet-5-5");
   assert.equal(resolveModel(recruiter, { AGENT_MODEL_RECRUITER: "claude-opus-5-5" }), "claude-opus-5-5");
   assert.equal(resolveModel(recruiter, { AGENT_MODEL_RECRUITER: "bad model; rm" }), "claude-sonnet-5-5");
+  assert.equal(resolveModel(recruiter, { AGENT_MODEL_RECRUITER: "anthropic/claude-sonnet-5:beta" }), "anthropic/claude-sonnet-5:beta");
   assert.equal(resolveModel(recruiter, {}), "claude-sonnet-5-5");
 });
 

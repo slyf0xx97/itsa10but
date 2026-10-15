@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { chunkResume, retrieveForSkill, buildRetrievalSteps, verifyQuote, scoreWithGrounding } from "./rag.ts";
-import { getKbEntry, skillsKnowledgeBase } from "./skills-knowledge-base.ts";
 
 test("chunks résumé text into one passage per line or sentence", () => {
   const chunks = chunkResume("Built a Python log parser.\nConfigured a Linux home lab.");
@@ -38,13 +37,6 @@ test("a quote not found in the source text is not grounded and scores 0", () => 
   assert.equal(verifyQuote(source, "Led a team of ten engineers."), false);
   assert.equal(scoreWithGrounding(80, "Led a team of ten engineers.", source), 0);
   assert.equal(scoreWithGrounding(80, "Built a Python log parser for failed logins.", source), 80);
-});
-
-test("every catalog skill used by retrieval has a knowledge-base entry with at least one link", () => {
-  for (const entry of skillsKnowledgeBase) {
-    assert.ok(entry.links.length > 0, `${entry.skill} should have at least one learning link`);
-  }
-  assert.equal(getKbEntry("python")?.skill, "Python");
 });
 
 test("quote check ignores whitespace, case and typographic quotes but not words", () => {

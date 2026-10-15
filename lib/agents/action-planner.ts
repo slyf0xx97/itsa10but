@@ -11,8 +11,9 @@ export type PlannerGap = {
 
 export type ActionPlannerInput = { roleTitle: string; gaps: PlannerGap[] };
 
-export type QuestLink = { title: string; url: string };
-export type PlannedQuest = Quest & { link: QuestLink | null };
+export type PlannerLink = { title: string; url: string };
+/** What the model writes for one tip. The steps, the résumé line and the checked links come from lib/skill-playbooks.ts after the run (enrichQuest). */
+export type PlannedQuest = Pick<Quest, "title" | "task" | "proof" | "skill"> & { link: PlannerLink | null };
 
 export type ActionPlannerOutput = BaseOutput & {
   /** The headline next step, shown as Analysis.verdict. One plain sentence. */
@@ -48,7 +49,7 @@ export const actionPlanner: AgentSpec<ActionPlannerInput, ActionPlannerOutput> =
         proof: str("What they will have at the end to show."),
         skill: str("Skill name, exactly as given."),
         link: nullable(
-          objectFor<QuestLink>({ title: str("Page title."), url: str("The https link, copied exactly from a search result.") }),
+          objectFor<PlannerLink>({ title: str("Page title."), url: str("The https link, copied exactly from a search result.") }),
           "One free learning page, or null.",
         ),
       }),

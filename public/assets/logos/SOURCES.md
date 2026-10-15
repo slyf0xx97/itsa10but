@@ -84,3 +84,58 @@ Added to the tech and AI news feeds so the three rows on the Singapore hiring si
 | `interconnects.png` | Interconnects AI | the 180 px apple-touch-icon in the Substack page head at https://www.interconnects.ai/ |
 
 OpenAI News and Google DeepMind were left out because their sites blocked an automated icon fetch.
+
+Added for the expanded Level up cards (fetched 2026-10-15). Each file is the site's own icon, taken from its page head (the apple-touch-icon where there is one, else the largest icon), resized to fit 128 px and saved as PNG. A few sites publish only a small icon, so those look soft:
+
+| File | Site | Origin |
+| --- | --- | --- |
+| `the-odin-project.png` | The Odin Project | https://www.theodinproject.com/apple-touch-icon.png |
+| `full-stack-open.png` | Full Stack Open | the 512 px icon in the page head at https://fullstackopen.com/en/ |
+| `exercism.png` | Exercism | https://assets.exercism.org/meta/apple-touch-icon.png |
+| `mdn.png` | MDN Learn web development | https://developer.mozilla.org/apple-touch-icon.png |
+| `sqlbolt.png` | SQLBolt | https://sqlbolt.com/cs/images/favicon.png (45 px, so it looks soft) |
+| `python.png` | The Python Tutorial | the 144 px apple-touch-icon at https://www.python.org/ |
+| `codewars.png` | Codewars | the 256 px icon in the page head at https://www.codewars.com/ |
+| `linux-foundation.png` | Introduction to Linux | the 180 px icon in the page head at https://training.linuxfoundation.org/ |
+| `tryhackme.png` | TryHackMe | https://tryhackme.com/apple-touch-icon.png |
+| `portswigger.png` | Web Security Academy | the apple-touch-icon in the page head at https://portswigger.net/ |
+| `ai-singapore.png` | AI Singapore AI Fundamentals | the 180 px icon in the page head at https://aifundamentals.aisingapore.org/ |
+| `govtech.png` | GovTech Singapore | the 33 px favicon in the page head at https://www.tech.gov.sg/ (soft) |
+| `careers-gov.png` | Careers@Gov | the favicon in the page head at https://www.careers.gov.sg/ |
+| `glints.png` | Glints Singapore | https://glints.com/favicon.ico |
+| `engineers-sg.png` | Engineers.SG | https://engineers.sg/apple-touch-icon.png |
+| `gdg.png` | Google Developer Groups | the 180 px icon in the page head at https://gdg.community.dev/ |
+| `tech-interview-handbook.png` | Tech Interview Handbook | https://www.techinterviewhandbook.org/img/favicon.png |
+| `frontend-mentor.png` | Frontend Mentor | https://www.frontendmentor.io/favicon/apple-touch-icon.png |
+| `good-first-issue.png` | Good First Issue | https://goodfirstissue.dev/apple-touch-icon.png |
+| `youtube.png` | the YouTube channels | the 144 px icon in the page head at https://www.youtube.com/ |
+
+Reused from this folder without a new download: `freecodecamp.png`, `coursera.png`, `edx.png`, `hugging-face.png` (Hugging Face Learn), `imda.png`, `jobs-skills-portal.png`, `tech-in-asia.png`, `jobscan.png`, `flowcv.png`, `overleaf.png`, `reactive-resume.png` and `the-batch.png` (the DeepLearning.AI icon). LeetCode, NeetCode, Google Skills, fast.ai, Cloud Resume Challenge, Wellfound, Stack Overflow, the Python User Group Singapore, Devpost and MIT OpenCourseWare did not give a usable icon to an automated fetch, so their cards show the group icon.
+
+## Tip card logos
+
+These files show on the Action Planner tip cards (`lib/site-logos.ts` maps a link's host to a file). Each was saved from the icon the site itself serves, either its apple-touch-icon or its favicon, and is never hotlinked.
+
+| File | Site | Host |
+| --- | --- | --- |
+| `sqlite-tutorial.png` | SQLite Tutorial | sqlitetutorial.net |
+| `looker-studio.png` | Looker Studio | lookerstudio.google.com |
+| `scikit-learn.png` | scikit-learn | scikit-learn.org |
+| `pytorch.png` | PyTorch | pytorch.org |
+| `docker.png` | Docker | docker.com |
+| `fastapi.png` | FastAPI | fastapi.tiangolo.com |
+| `mlops-org.png` | ml-ops.org | ml-ops.org |
+| `toastmasters.png` | Toastmasters International | toastmasters.org |
+| `javascript-info.png` | The Modern JavaScript Tutorial | javascript.info |
+| `web-dev.png` | web.dev | web.dev |
+| `restfulapi.png` | RESTful API | restfulapi.net |
+| `postman.png` | Postman | postman.com |
+| `testing-library.png` | Testing Library | testing-library.com |
+| `pytest.png` | pytest | pytest.org |
+| `playwright.png` | Playwright | playwright.dev |
+| `wireshark.png` | Wireshark | wireshark.org |
+| `splunk.png` | Splunk | splunk.com |
+| `security-onion.png` | Security Onion | securityonionsolutions.com |
+| `cyberdefenders.png` | CyberDefenders | cyberdefenders.org |
+| `write-the-docs.png` | Write the Docs | writethedocs.org |
+| `grow-google-tips.png` | Grow with Google interview tips | grow.google |

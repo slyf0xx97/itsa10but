@@ -17,7 +17,7 @@ function skillLink(name: string): { label: string; url: string } {
   if (value.includes("aws") || value.includes("cloud")) return { label: "Explore AWS Cloud Foundations", url: "https://aws.amazon.com/training/learn-about/cloud-practitioner/" };
   if (value.includes("python")) return { label: "Learn Python", url: "https://docs.python.org/3/tutorial/" };
   if (value.includes("sql") || value.includes("data model")) return { label: "Learn SQL", url: "https://www.postgresql.org/docs/current/tutorial.html" };
-  if (value.includes("linux")) return { label: "Explore Linux", url: "https://training.linuxfoundation.org/resources/free-courses/" };
+  if (value.includes("linux")) return { label: "Explore Linux", url: "https://training.linuxfoundation.org/training/introduction-to-linux/" };
   if (value.includes("network")) return { label: "Explore networking", url: "https://www.netacad.com/courses/networking-basics" };
   if (value.includes("siem") || value.includes("sentinel")) return { label: "Explore SIEM fundamentals", url: "https://learn.microsoft.com/en-us/training/paths/sc-200-utilize-kql-for-azure-sentinel/" };
   if (value.includes("incident") || value.includes("security")) return { label: "Explore incident response", url: "https://www.cisa.gov/resources-tools/resources/incident-response" };

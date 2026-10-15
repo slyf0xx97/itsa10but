@@ -3,11 +3,11 @@
 import { BASE_PATH } from "@/lib/base-path";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
-import { ShieldCheck, Zap } from "lucide-react";
+import { Pause, Play, RotateCcw, ShieldCheck, Zap } from "lucide-react";
 import { WordTip } from "@/components/career/word-tip";
 import { Skyline, TrailArt, TrailLive, type Which } from "@/components/trail-art";
 import { AGENT_FACTS, hasWeb } from "@/lib/agent-facts";
-import { CARD, FORK_SIGN, CAVE, RAIL, READER_IDS, SIDE, WIDE, cardAnchor, railFrom, type End, type Layout, type ReaderId, type StopId } from "@/lib/trail-geometry";
+import { CARD, FORK_SIGN, CAVE, RAIL, READER_IDS, ROUTES, SIDE, WIDE, cardAnchor, railFrom, type End, type Layout, type ReaderId, type Route, type StopId } from "@/lib/trail-geometry";
 
 // Technology logos, saved locally in public/assets/logos (origins in SOURCES.md). They are decorative: the name is always in the text beside them.
 const LOGO = { openrouter: "openrouter.png", firecrawl: "firecrawl.png", pdfjs: "pdfjs.svg", nextjs: "nextjs.ico", vercel: "vercel.png", mcp: "mcp.svg", react: "react.png" } as const;
@@ -28,8 +28,8 @@ function Marker({ logo }: { logo?: LogoId[] }) {
 // The model is never named here: the visitor picks it (lib/model-choice.ts) and "Recommended mix" is the default.
 const stations: Station[] = [
   {
-    id: "camp", n: "1", title: "Upload and mask",
-    line: "Read in your browser, with personal details hidden.",
+    id: "camp", n: "1", title: "Upload Résumé",
+    line: "Read in your browser, then mask personal details.",
     chips: [
       { t: "pdf.js", logo: "pdfjs", tip: { title: "pdf.js", lines: [
         "Pulls the text out of your PDF in your browser. The PDF file isn't uploaded.",
@@ -47,7 +47,7 @@ const stations: Station[] = [
         "5 prompt-injection patterns are flagged: ignore instructions, role override, reveal prompt, invisible characters, long encoded blocks",
       ] } },
     ],
-    tipTitle: "Upload and mask",
+    tipTitle: "Upload Résumé",
     tip: [
       { t: "PDF, TXT and MD files are read in your browser", logo: ["pdfjs"] },
       { t: "Role text: 30 to 15,000 characters. Résumés: 1 to 3, 25 to 30,000 characters each" },
@@ -211,15 +211,44 @@ function measureRail(list: HTMLElement): Layout | null {
 
 const NARROW = 72; // rem of board width where the wide map takes over (keep in sync with arch.css)
 
+const ROUTE_LABEL: Record<Route, string> = { turns: "Both", boost: "API boost", native: "Native scan" };
+
+/** A tiny pixel bridge, the mark of the route switch. */
+const BridgeMark = () => <svg className="qm-bridge-mark" viewBox="0 0 24 14" width="22" height="13" aria-hidden="true" focusable="false"><path d="M1 4h22v2H1zM3 6h2v6H3zM19 6h2v6h-2zM7 8h10v2H7z" fill="currentColor" /></svg>;
+
+/**
+ * Under the title sign: Play or Pause the walking note, Reset it to the start, and the bridge switch that sends it along API boost, along Native scan, or both in turn.
+ * The route is native radio inputs, so the arrow keys move between the choices. With reduced motion nothing walks, so Play and Reset are off, but the bridge still shows its road.
+ */
+function MapControls({ route, onRoute, playing, onToggle, onReset, motion }: { route: Route; onRoute: (next: Route) => void; playing: boolean; onToggle: () => void; onReset: () => void; motion: boolean }) {
+  return <div className="qm-controls" role="group" aria-label="Map controls">
+    <div className="qm-ctl-row">
+      <button type="button" className="qm-ctl" onClick={onToggle} disabled={!motion} title={motion ? undefined : "Your device asks for less motion, so the note stays still."}>
+        {playing ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}<span>{playing ? "Pause" : "Play"}</span>
+      </button>
+      <button type="button" className="qm-ctl" onClick={onReset} disabled={!motion}><RotateCcw size={16} aria-hidden="true" /><span>Reset</span></button>
+    </div>
+    <fieldset className="qm-bridge">
+      <legend className="qm-bridge-legend"><BridgeMark /> Bridge</legend>
+      {ROUTES.map((value) => <label key={value} className="qm-seg" data-route={value}>
+        <input type="radio" name="how-it-works-route" value={value} checked={route === value} onChange={() => onRoute(value)} />
+        <span>{ROUTE_LABEL[value]}</span>
+      </label>)}
+    </fieldset>
+  </div>;
+}
+
 export function HowItWorks() {
   const board = useRef<HTMLDivElement>(null);
   const live = useRef<SVGSVGElement>(null);
   const [motion, setMotion] = useState<boolean | null>(null); // null until the page knows; the still map shows meanwhile
   const [which, setWhich] = useState<Which>("rail");
   const [rail, setRail] = useState<Layout>(RAIL);
+  const [route, setRoute] = useState<Route>("turns");
+  const [paused, setPaused] = useState(false);
   const stopList = useRef<HTMLOListElement>(null);
   const [onScreen, setOnScreen] = useState(false);
-  const running = motion === true && onScreen;
+  const running = motion === true && onScreen && !paused;
 
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -257,7 +286,7 @@ export function HowItWorks() {
   useEffect(() => {
     const svg = live.current;
     if (svg) { if (running) svg.unpauseAnimations(); else svg.pauseAnimations(); }
-  }, [running, which, motion]);
+  }, [running, which, motion, route]);
 
   const [sx, sy] = WIDE.pts.fork;
   const signStyle = { "--x": `${(sx / WIDE.w) * 100}%`, "--y": `${((sy + FORK_SIGN.dy) / WIDE.h) * 100}%` } as CSSProperties;
@@ -266,11 +295,12 @@ export function HowItWorks() {
     <div className="qm-board" ref={board}>
       <div className="qm-map" data-run={running ? "on" : "off"} style={{ "--qm-ratio": `${WIDE.w} / ${WIDE.h}` } as CSSProperties}>
         <Skyline />
-        <TrailArt which="wide" layout={WIDE} still={motion !== true} />
-        <TrailArt which="rail" layout={rail} still={motion !== true} />
-        {motion === true && <TrailLive key={which} which={which} layout={which === "wide" ? WIDE : rail} svgRef={live} />}
+        <TrailArt which="wide" layout={WIDE} still={motion !== true} route={route} />
+        <TrailArt which="rail" layout={rail} still={motion !== true} route={route} />
+        {motion === true && <TrailLive key={which + route} which={which} layout={which === "wide" ? WIDE : rail} svgRef={live} route={route} />}
         <h2 id="how-it-works-title" className="qm-sign">How it works</h2>
-        <ol className="qm-stops" ref={stopList} aria-label="From your role and résumé to your action plan, in four steps: upload and mask, the two ways to run (API boost or Native scan), your four résumé agents, action plan">
+        <MapControls route={route} onRoute={setRoute} playing={!paused} motion={motion === true} onToggle={() => setPaused((now) => !now)} onReset={() => live.current?.setCurrentTime(0)} />
+        <ol className="qm-stops" ref={stopList} aria-label="From your role and résumé to your action plan, in four steps: upload your résumé, the two ways to run (API boost or Native scan), your four résumé agents, action plan">
           <StopBox s={station("camp")} />
           <li className="qm-group">
             <p className="qm-forksign" style={signStyle}><span className="sr-only">Pick one road: </span><span aria-hidden="true">Pick one</span></p>

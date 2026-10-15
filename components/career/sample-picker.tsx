@@ -10,6 +10,9 @@ const Caret = () => <svg className="sm-caret-icon" viewBox="0 0 16 16" width="16
 
 type Props = { onPick: (id: string) => void; disabled?: boolean; activeId?: string };
 
+/** The three job sites each sample links to, as small logos on the same row as the role (files in public/assets/logos). */
+const SITE_LOGO: Record<string, string> = { MyCareersFuture: "mycareersfuture", LinkedIn: "linkedin", JobStreet: "jobstreet" };
+
 /**
  * "Play sample" split control: the main button runs the first sample, the caret opens a menu of every sample role.
  * The menu is a popover: absolutely positioned under the buttons (above them when there is no room), so the page never changes height.
@@ -91,7 +94,7 @@ export function SampleMenu({ onPick, disabled = false, activeId = "" }: Props) {
       <button ref={triggerRef} type="button" className="sm-caret" disabled={disabled} aria-label="Choose a sample role" aria-expanded={shown} aria-controls={shown ? menuId : undefined} onClick={() => setOpen(!shown)}><Caret /></button>
     </div>
     {shown && <div className="sm-menu" id={menuId} ref={menuRef} data-side="below">
-      <p className="sm-head"><strong>Pick a sample role</strong> Made-up candidates. The links open each site&apos;s search for new jobs in Singapore.</p>
+      <p className="sm-head"><strong>Pick a sample role</strong> Made-up candidates. The logos open that site&apos;s search for new jobs in Singapore.</p>
       <ul className="sm-list" aria-label="Sample roles">
         {samplePaths.map((path) => <li key={path.id} className="sm-item">
           <button type="button" className="sm-pick" aria-pressed={activeId === path.id} onClick={() => pick(path.id)}>
@@ -99,7 +102,10 @@ export function SampleMenu({ onPick, disabled = false, activeId = "" }: Props) {
             <img className="sm-icon" src={`${BASE_PATH}/assets/icons/samples/${path.icon}.svg`} alt="" aria-hidden="true" width={28} height={28} />
             <span className="sm-text"><span className="sm-label">{path.label}</span><span className="sm-tag">{path.interest}</span></span>
           </button>
-          <span className="sm-links">{sampleJobLinks(path).map((link) => <a key={link.site} href={link.url} target="_blank" rel="noopener noreferrer" aria-label={`${link.label} for ${path.label} (opens in a new tab)`}>{link.site}</a>)}</span>
+          <span className="sm-links">{sampleJobLinks(path).map((link) => <a key={link.site} href={link.url} target="_blank" rel="noopener noreferrer" title={`${link.label}: new jobs for ${path.label}`} aria-label={`${link.label} for ${path.label} (opens in a new tab)`}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- small static logo file */}
+            <img src={`${BASE_PATH}/assets/logos/${SITE_LOGO[link.site]}.png`} alt="" aria-hidden="true" width={22} height={22} />
+          </a>)}</span>
         </li>)}
       </ul>
     </div>}

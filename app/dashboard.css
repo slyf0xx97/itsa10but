@@ -15,7 +15,7 @@
 .dash-sample { justify-self: start; margin: 0; border-radius: 14px; text-transform: none; letter-spacing: 0; font-size: .9rem; line-height: 1.3; }
 
 /* The headline ends with the overall figure out of 10. */
-.dash-ten { display: inline-block; padding: 0 .2em; border-radius: .2em; background: var(--lime); color: var(--ink); font-weight: 600; }
+.dash-ten { display: inline-block; padding: 0 .25em; border-radius: .2em; background: var(--lime); color: var(--ink); font-family: var(--font-body); font-size: 1.15em; font-weight: 800; font-variant-numeric: lining-nums; line-height: 1.1; }
 
 /* The cards: one column on a phone, then four rows that the cards share (see the breakpoints below). */
 .dash-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: stretch; }
@@ -33,7 +33,7 @@
 .dash-ava .agent { width: 100%; height: 100%; }
 .dash-ava .pixel-sprite { animation: none; transform-origin: 50% 92%; }
 .dash-big { grid-area: big; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 .35rem; min-width: 0; line-height: 1; }
-.dash-big b { font-family: var(--font-display); font-size: 2.5rem; font-weight: 600; line-height: 1; color: var(--ink); font-variant-numeric: lining-nums; }
+.dash-big b { font-family: var(--font-body); font-size: 2.6rem; font-weight: 800; line-height: 1; color: var(--ink); font-variant-numeric: lining-nums; }
 .dash-big i { font-style: normal; font-size: 1.1rem; font-weight: 700; color: var(--ink-soft); }
 .dash-of { font-size: 1.5rem; color: var(--ink-soft); }
 .dash-lab { grid-area: lab; font-size: 1rem; font-weight: 700; line-height: 1.25; color: var(--ink); }
@@ -240,42 +240,20 @@
 }
 @keyframes dash-grow { from { transform: scaleX(0); } }
 
-/* Action Planner: a short ordered list. Each row is two buttons side by side, the tick box on the left (marks it done) and the row (opens the full quest). */
-.pl-start { padding: .4rem .7rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--dash-item-bg); font-size: 1rem; line-height: 1.3; overflow-wrap: anywhere; }
-.pl-list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
-.pl-item { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); min-width: 0; border: 2px solid var(--ink); border-radius: 12px; background: var(--dash-item-bg); box-shadow: 0 2px 0 rgb(31 36 48 / 30%); }
-.pl-item[data-done="true"] { background: var(--mint-soft); }
-.pl-open, .pl-tick { margin: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
-.pl-open { display: grid; gap: .1rem; align-content: center; min-width: 0; min-height: 44px; padding: .4rem .6rem .45rem; border-radius: 10px; text-align: left; }
-.pl-open:hover, .pl-tick:hover { background: rgb(219 232 106 / 35%); }
-.pl-title { display: flex; align-items: center; gap: .45rem; font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
-.dash-card .pl-title > span:last-child { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-.pl-num { flex: none; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border: 2px solid var(--ink); border-radius: 7px; background: var(--lime); font-family: var(--font-display); font-size: 1rem; font-weight: 700; line-height: 1; }
-.pl-item[data-done="true"] .pl-num { background: var(--meadow); }
-.pl-chips { font-size: 1rem; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
-.pl-full { display: grid; gap: 1.1rem; margin: 0; padding: 0; list-style: none; }
-.pl-full > li { display: grid; gap: .7rem; padding: .9rem 1rem 1rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 14px; background: var(--sky-soft); }
-.pl-full-h { display: flex; align-items: center; gap: .6rem; margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.25; }
-.pl-why { font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
-.pl-tick { display: grid; place-items: center; min-height: 44px; padding: 0; border-right: 1.5px dashed rgb(18 52 63 / 40%); border-radius: 10px 0 0 10px; }
-.pl-box { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 2.5px solid var(--ink); border-radius: 6px; background: var(--dash-item-bg); }
-[aria-pressed="true"] > .pl-box { background: var(--meadow); }
-.pl-open:focus-visible, .pl-tick:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
-
-/* The quest popup. */
-.pl-pop { display: grid; gap: .8rem; overflow-wrap: anywhere; }
-.pl-task { font-size: 1.1rem; line-height: 1.5; }
-.pl-show { display: flex; align-items: flex-start; gap: .6rem; padding: .6rem .8rem; border: 2px dashed var(--ink); border-radius: 12px; background: var(--yellow-soft); font-size: 1.05rem; line-height: 1.4; }
-.pl-show > span { min-width: 0; overflow-wrap: anywhere; }
-.pl-show strong { display: block; font-size: 1rem; font-weight: 800; }
-.pl-skill { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; justify-self: start; padding: .3rem .85rem; border: 2px solid var(--ink); border-radius: 16px; background: var(--teal-soft); font-size: 1rem; line-height: 1.3; }
-.pl-skill span:not([aria-hidden]) { color: var(--ink-soft); font-weight: 700; }
-.pl-toggle { display: inline-flex; align-items: center; justify-self: start; gap: .6rem; min-height: 48px; padding: .4rem 1rem; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: inherit; font-size: 1.05rem; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 rgb(31 36 48 / 40%); }
-.pl-toggle[aria-pressed="true"] { background: var(--mint-soft); }
-.pl-toggle:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+/* Action Planner on the card: three numbered rows, each one button that opens the tip. No tick boxes: a tip is something to read and do. */
+.pl-item { display: grid; min-width: 0; border: 2px solid var(--ink); border-radius: 12px; background: var(--dash-item-bg); box-shadow: 0 2px 0 rgb(31 36 48 / 30%); }
+.pl-open { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .55rem; width: 100%; min-height: 44px; margin: 0; padding: .35rem .65rem; border: 0; border-radius: 10px; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.pl-open:hover { background: rgb(219 232 106 / 35%); }
+.pl-open:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+.pl-num { flex: none; display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border: 2px solid var(--ink); border-radius: 7px; background: var(--lime); font-family: var(--font-body); font-size: 1.05rem; font-weight: 800; line-height: 1; }
+.pl-title { font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.dash-card .pl-title > span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.pl-go { color: var(--ink); }
+.pl-more { margin: 0; font-size: 1rem; line-height: 1.4; color: var(--text-soft); }
+.pl-more a { color: var(--water-deep); font-weight: 800; }
 @media (prefers-reduced-motion: no-preference) {
-  .pl-toggle { transition: transform .12s ease-out, box-shadow .12s ease-out; }
-  .pl-toggle:hover { transform: translateY(-2px); box-shadow: 0 5px 0 rgb(31 36 48 / 40%); }
+  .pl-go { transition: transform .15s ease-out; }
+  .pl-open:hover .pl-go { transform: translateX(4px); }
 }
 
 /* ---- Findings popups (.dp) ----
@@ -288,6 +266,10 @@
 .fi-mode { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; margin: 0; padding: .35rem .7rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--sky-soft); }
 .fi-badge { display: inline-block; padding: .1rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--lime); color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.3; }
 .fi-mode-note { flex: 1 1 16rem; min-width: 0; font-size: 1rem; line-height: 1.35; color: var(--ink); }
+.fi-more { border: 1.5px dashed rgb(18 52 63 / 40%); border-radius: 12px; background: rgb(255 255 255 / 55%); }
+.fi-more > summary { display: flex; align-items: center; min-height: 44px; padding: 0 .8rem; color: var(--ink); font-size: 1rem; font-weight: 800; cursor: pointer; }
+.fi-more > summary:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; border-radius: 10px; }
+.fi-more > .fi-did { padding: 0 .8rem .6rem; }
 .fi-did { display: grid; grid-template-columns: minmax(0, 1fr); gap: .15rem .9rem; min-width: 0; }
 .fi-did-h { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; line-height: 1.2; color: var(--ink); }
 .fi-did-note { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
@@ -306,7 +288,7 @@
   .dp-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fi-did { grid-template-columns: auto minmax(0, 1fr); align-items: baseline; }
   .fi-steps { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dp-main[data-reader="planner"] > .dp-sec, .dp-main > .ats-note { grid-column: 1 / -1; }
+  .dp-main[data-reader="planner"] > .dp-sec, .dp-main[data-reader="planner"] > .pl-sec, .dp-main[data-reader="planner"] > .tip-quotes, .dp-main > .ats-note { grid-column: 1 / -1; }
 }
 @container dcard (min-width: 52rem) {
   .fi-steps { grid-template-columns: repeat(var(--fi-cols, 4), minmax(0, 1fr)); }
@@ -407,18 +389,63 @@
 .dp .ats-note { display: block; margin: 0; padding: 0 .2rem; }
 .ats-kw { align-content: start; }
 
-/* Action Planner: the tips side by side, then the quotes behind them. Tip content has its own rules (.pl-*). */
-.pl-full { display: grid; grid-template-columns: minmax(0, 1fr); gap: .7rem; margin: 0; padding: 0; list-style: none; }
-.pl-full > li { display: grid; align-content: start; gap: .5rem; min-width: 0; padding: .7rem .8rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 14px; background: var(--sky-soft); }
-.pl-full-h { display: flex; align-items: center; gap: .5rem; margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.25; }
-.pl-full-h .pl-num { width: 1.8rem; height: 1.8rem; font-size: 1rem; }
-.pl-why { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
-.pl-pop { gap: .6rem; }
-.pl-task, .pl-show, .pl-skill { font-size: 1.0625rem; line-height: 1.4; }
-.pl-show { padding: .5rem .7rem; }
-.pl-skill { padding: .25rem .8rem; }
-.pl-toggle { min-height: 2.75rem; padding: .3rem 1.1rem; font-size: 1.0625rem; }
-@container dcard (min-width: 40rem) { .pl-full { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); } }
+/* Action Planner popups: one tip in full, or the three tips side by side. A tip reads top to bottom: kind and title, why, three steps, what you will have, a résumé line to
+   copy, then the resources as site cards (a logo tile, the title, what it is and where it lives). The three-across layout starts at 50rem of popup, so on a wide screen the whole
+   plan shows without scrolling. */
+.pl-one { display: grid; gap: .8rem; min-width: 0; }
+.pl-sec { display: grid; gap: .6rem; min-width: 0; }
+.pl-lead { margin: 0; color: var(--ink); font-size: 1.1rem; font-weight: 700; line-height: 1.35; }
+.pl-plan { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; min-width: 0; }
+@container dcard (min-width: 50rem) { .pl-plan { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tip { display: grid; align-content: start; gap: .7rem; min-width: 0; padding: .9rem 1rem 1rem; border: 2px solid var(--ink); border-radius: 16px; background: #fff; box-shadow: 0 3px 0 rgb(31 36 48 / 30%); }
+.tip.is-compact { gap: .55rem; padding: .75rem .8rem .85rem; }
+.tip-head { display: flex; align-items: flex-start; gap: .7rem; min-width: 0; }
+.tip-num { flex: none; display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border: 2px solid var(--ink); border-radius: 10px; background: var(--orange); color: var(--ink); font-family: var(--font-body); font-size: 1.3rem; font-weight: 800; line-height: 1; }
+.tip-titles { display: grid; gap: .25rem; min-width: 0; }
+.tip-kind { justify-self: start; padding: 0 .65rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--mint-soft); color: var(--ink); font-size: .9rem; font-weight: 800; line-height: 1.5; }
+.tip[data-kind="show"] .tip-kind { background: var(--yellow-soft); }
+.tip[data-kind="measure"] .tip-kind { background: var(--teal-soft); }
+.tip-title { margin: 0; color: var(--ink); font-family: var(--font-body); font-size: 1.2rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.tip.is-compact .tip-title { font-size: 1.1rem; }
+.tip-why { margin: 0; color: var(--text-soft); font-size: 1rem; line-height: 1.4; }
+.tip-task { margin: 0; color: var(--ink); font-size: 1.05rem; line-height: 1.45; }
+.tip-label { display: block; margin: 0 0 .2rem; color: var(--teal-dark); font-size: .9rem; font-weight: 800; letter-spacing: .04em; line-height: 1.2; text-transform: uppercase; }
+.tip-steps { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.tip-steps li { display: grid; grid-template-columns: 1.7rem minmax(0, 1fr); align-items: start; gap: .55rem; counter-increment: step; font-size: 1rem; line-height: 1.4; }
+.tip-steps li::before { content: counter(step); display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; line-height: 1; }
+.tip-have { margin: 0; padding: .35rem .65rem; border-left: 5px solid var(--orange); border-radius: 4px 10px 10px 4px; background: var(--yellow-soft); font-size: 1rem; line-height: 1.4; }
+.tip-line { display: grid; gap: .25rem; padding: .45rem .7rem .6rem; border-radius: 12px; background: var(--sky-soft); }
+.tip-line-bar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.tip-line-bar .tip-label { margin: 0; }
+.tip-line-text { margin: 0; font-size: 1rem; line-height: 1.4; }
+.tip-line-text q { quotes: "“" "”"; font-weight: 700; overflow-wrap: anywhere; }
+.tip-copy { display: inline-flex; align-items: center; gap: .3rem; min-height: 2.25rem; padding: .1rem .6rem; border: 2px solid var(--ink); border-radius: 10px; background: #fff; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; cursor: pointer; }
+.tip-copy:hover { background: var(--lime); }
+.tip-copy:focus-visible, .tip-res:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.tip-res-list { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.tip-res { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .6rem; min-height: 3.2rem; padding: .35rem .65rem .35rem .4rem; border: 1.5px solid rgb(31 36 48 / 22%); border-radius: 12px; background: #fff; color: var(--ink); text-decoration: none; }
+.tip-res:hover { border-color: var(--ink); box-shadow: 0 3px 0 rgb(31 36 48 / 30%); }
+.tip-site { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1.5px solid rgb(31 36 48 / 22%); border-radius: 10px; background: var(--sky-soft); overflow: hidden; }
+.tip-site.has-logo { background: #fff; }
+.tip-site img { display: block; width: 2rem; height: 2rem; object-fit: contain; }
+.tip-site b { color: var(--teal-dark); font-size: 1.2rem; font-weight: 800; line-height: 1; }
+.tip-res-text { display: grid; gap: .05rem; min-width: 0; }
+.tip-res-text b { font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.tip-res-text small { color: var(--text-soft); font-size: .9rem; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.tip.is-compact .tip-res-text small { display: none; }
+.tip.is-compact .tip-res { min-height: 2.7rem; padding-block: .2rem; }
+.tip.is-compact .tip-site { width: 2.1rem; height: 2.1rem; }
+.tip.is-compact .tip-site img { width: 1.6rem; height: 1.6rem; }
+.tip-res-out { color: var(--text-soft); }
+@media (prefers-reduced-motion: no-preference) {
+  .tip-res { transition: transform .14s ease-out, box-shadow .14s ease-out, border-color .14s; }
+  .tip-res:hover { transform: translateY(-2px); }
+  .tip { transition: transform .18s ease-out, box-shadow .18s ease-out; }
+  .tip:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgb(31 36 48 / 30%); }
+}
+.tip-latest, .tip-quotes { padding: 0 .8rem .8rem; border: 1.5px dashed rgb(18 52 63 / 40%); border-radius: 12px; background: rgb(255 255 255 / 55%); }
+.tip-latest summary, .tip-quotes summary { display: flex; align-items: center; min-height: 44px; margin: 0 -.8rem; padding: 0 .8rem; color: var(--ink); font-size: 1rem; font-weight: 800; cursor: pointer; }
+.tip-latest summary:focus-visible, .tip-quotes summary:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; border-radius: 10px; }
 
 @media (max-width: 640px) {
   .dp { gap: .5rem; }

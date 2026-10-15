@@ -153,7 +153,7 @@ export type AgentSpec<Input, Output extends BaseOutput> = {
 
 export function resolveModel(spec: { model: string; modelEnv: string }, env: Record<string, string | undefined> = process.env): string {
   const override = env[spec.modelEnv]?.trim();
-  return override && /^[a-z0-9][a-z0-9.-]{2,80}$/i.test(override) ? override : spec.model;
+  return override && /^[a-z0-9][a-z0-9./:_-]{2,80}$/i.test(override) ? override : spec.model; // slashes and colons are allowed: an OpenRouter slug looks like vendor/model:variant
 }
 
 export const RUNNER_REFUSAL = "If status is \"refused\", the runner (or a stop_reason of \"refusal\") ends the live run and finishes with the rules engine, showing a visible notice.";

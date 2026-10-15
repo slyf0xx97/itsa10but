@@ -45,9 +45,11 @@ Other exports are `atsScore`, `atsNote`, `topFixes`, `keywordCoverage` and the i
 - `buildRetrievalSteps(chunks, jobText)` runs that for every skill the job or résumé mentions, sorted by score.
 - `verifyQuote(sourceText, quote)` and `scoreWithGrounding(evidence, quote, sourceText)` carry the rule the product promises. A quote that isn't a literal match in the source text scores 0.
 
-## lib/skills-knowledge-base.ts
+## lib/skill-playbooks.ts and lib/site-logos.ts
 
-`skillsKnowledgeBase` is a small local list with one entry per catalog skill. Each entry has a plain-language summary and one or two public learning links. `getKbEntry(skillName)` looks one up. Nothing here is fetched live. The links show under each tip as "Free lessons".
+`playbooks` is a hand-written list with one entry per catalog skill. Each entry has three short steps, a résumé line to copy and checked https links with a kind (Course, Docs, Practice, Video, Tool, Dataset or Guide). `playbookFor(name)` looks one up, `tipKind(skill)` picks the tip kind from a skill's evidence (build it, show it or measure it) and `questFor` / `enrichQuest` turn a playbook into a `Quest`. A `Quest` carries optional `kind`, `steps`, `bullet` and `links`, so older tips without them still render. Nothing here is fetched live.
+
+`site-logos.ts` maps a link's host to a file in `public/assets/logos` (`siteLogo`, `hostOf`). A host with no file gets a lettered tile. `lib/skill-playbooks.test.ts` checks that every link is https and every mapped logo file exists.
 
 ## lib/sg-snapshot.ts, lib/signals-news.ts, lib/native-scraper.ts and lib/news-sites.ts
 

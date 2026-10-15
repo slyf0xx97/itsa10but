@@ -28,10 +28,16 @@ function Group({ title, rows }: { title: string; rows: Row[] }) {
   </section>;
 }
 
-/** The lock button beside "Choose a file": a non-modal popover that holds everything about what stays in the browser and what can leave. */
+/**
+ * The lock button beside "Choose a file", with a short line next to it: the app has no database, so nothing you add is stored. The button opens a non-modal popover that holds
+ * everything about what stays in the browser and what can leave.
+ */
 export function PrivacyTip() {
-  return <WordTip panel word={<span aria-hidden="true">🔒</span>} label="Privacy and safety" title="Privacy and safety">
-    <Group title="Stays in this tab" rows={stays} />
-    <Group title="Leaves only if you switch API boost on" rows={leaves} />
-  </WordTip>;
+  return <>
+    <WordTip panel word={<span aria-hidden="true">🔒</span>} label="Privacy and safety" title="Privacy and safety">
+      <Group title="Stays in this tab" rows={stays} />
+      <Group title="Leaves only if you switch API boost on" rows={leaves} />
+    </WordTip>
+    <span className="pv-note">No database. Nothing you add is stored.</span>
+  </>;
 }

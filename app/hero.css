@@ -1,5 +1,5 @@
 /* Hero: compact, over the sunny scene. Left: a glass plate with the headline, one line of intro and the buttons (the sample list is a popover under them). The four
-   readers slide up and down a column in the plate's empty space at the right. Right: the three icon points in one glass card.
+   readers slide up and down a column right beside the headline (the plate's right edge on a narrow plate). Right: the three icon points in one glass card.
    Loaded after ui.css, so these rules replace its .hero rules. Glass tokens come from theme.css. The hero has no background of its own:
    the fixed mountain scene (body::before in theme.css) shows through it. */
 .hero { display: block; position: relative; z-index: 2; overflow: visible; overflow-x: clip; isolation: isolate; padding: 1.5rem 0 1.5rem; background: none; color: var(--text); --ink-soft: var(--text-soft); }
@@ -61,7 +61,7 @@
    Motion is transform and opacity only, split over four layers so none fight:
    slot = swapping places in pairs (up and down), .agent = slow vertical slide, .ha-hop = the occasional wave and the hover hop, .pixel-sprite = the bob (ui.css).
    Sizes live in custom properties so the swap distance (--ha-step) always equals one slot plus one gap. */
-.ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; right: 1.2rem; bottom: 1rem; width: var(--ha-size); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
+.ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; left: min(calc(100% - var(--ha-size) - 1.2rem), 41rem); bottom: 1rem; width: var(--ha-size); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
 @container hero-plate (min-width: 38rem) {
   .ha { display: flex; }
   .hero h1, .hero .hero-lede { max-width: min(36rem, calc(100% - 6.5rem)); }

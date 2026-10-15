@@ -30,11 +30,10 @@
 .lu-panel-title { margin: 0; color: var(--ink); font-size: 1.3rem; font-weight: 800; line-height: 1.25; }
 .lu-panel-text { margin: .15rem 0 0; color: var(--ink); font-size: 1.05rem; line-height: 1.45; }
 
-/* Under 700px of panel: one column, the panel scrolls inside 30rem. From 700px two columns, from 1000px three, from 1400px four, and the panel shows every card. */
+/* Under 700px of panel: one column, and the panel scrolls inside 30rem. From 700px the grid fits as many columns as it can, each at least 17rem wide (two, three, four or five),
+   and the panel shows every card, so a tab of ten to fourteen cards fills several rows. */
 .lu-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: .7rem; margin: 0; padding: 0; list-style: none; }
-@container stage (min-width: 700px) { .lu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .lu-group { max-height: none; overflow-y: visible; } }
-@container stage (min-width: 1000px) { .lu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@container stage (min-width: 1400px) { .lu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@container stage (min-width: 700px) { .lu-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: .8rem; } .lu-group { max-height: none; overflow-y: visible; } }
 
 /* Card: logo tile, tag and name on one row, the detail, then Open and Done. */
 .lu .lu-card { display: flex; flex-direction: column; gap: .5rem; min-width: 0; padding: .8rem .85rem .75rem; background: var(--glass-card); box-shadow: none; border: 1.5px solid var(--lu-line); }

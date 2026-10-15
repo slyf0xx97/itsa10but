@@ -27,6 +27,8 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
   const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState(-1);
   const activeRef = useRef(-2); // last index measured, so React state only changes when the stage does
+  const [away, setAway] = useState(false); // true once "How it works" is on screen: the bar steps aside for the map
+  const awayRef = useRef(false);
 
   useEffect(() => {
     const root = rootRef.current, track = trackRef.current, svg = svgRef.current;
@@ -40,7 +42,7 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
     let target = 0, face = 1, spread = 1, last = 0, lastY = window.scrollY, walkUntil = 0, placed = false, loop = 0, measureFrame = 0;
     let total = 0, lead = 0, gap = 0, lift = 0; // trail length, lead-in length, follower spacing and sprite lift, all in px
     const table = new Float32Array(SAMPLES * 3); // x, y and lean (degrees) at SAMPLES points evenly spaced along the trail
-    let tops: number[] = [], bottoms: number[] = []; // section edges in document space, refreshed on resize
+    let tops: number[] = [], bottoms: number[] = [], howTop = Infinity; // section edges in document space, refreshed on resize
     const lenOf = (p: number) => lead + p * (total - lead); // progress 0 is the first node, 1 the flag
 
     const place = () => {
@@ -119,6 +121,8 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
       const sy = window.scrollY;
       const r = els.map((el) => el!.getBoundingClientRect());
       tops = r.map((rect) => rect.top + sy); bottoms = r.map((rect) => rect.bottom + sy);
+      const how = document.getElementById("how-it-works");
+      howTop = how ? how.getBoundingClientRect().top + sy : Infinity;
     };
     const measure = () => {
       measureFrame = 0;
@@ -126,6 +130,8 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
       const viewport = window.innerHeight, sy = window.scrollY;
       const rects = tops.map((top, i) => ({ top: top - sy, bottom: bottoms[i] - sy }));
       const index = activeStage(rects, viewport);
+      const nowAway = howTop - sy < viewport * 0.92; // the map's top edge has come up into the screen
+      if (nowAway !== awayRef.current) { awayRef.current = nowAway; setAway(nowAway); }
       const prev = activeRef.current;
       if (index !== prev) { activeRef.current = index; setActive(index); }
       if (index < 0 && prev === -1) return; // still above stage 1: the bar is hidden and the party already stands at the start
@@ -163,7 +169,7 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
     return "lit";
   };
 
-  return <nav ref={rootRef} className={"jbar" + (active < 0 ? " is-hidden" : "")} aria-label="Your journey">
+  return <nav ref={rootRef} className={"jbar" + (active < 0 || away ? " is-hidden" : "")} aria-label="Your journey">
     <div className="jbar-sky" aria-hidden="true"><i className="jbar-cloud c1" /><i className="jbar-cloud c2" /><i className="jbar-cloud c3" /></div>
     <div className="jbar-art" aria-hidden="true"><span className="jbar-ridges" /><span className="jbar-summit" /><span className="jbar-near" /></div>
     <div ref={trackRef} className="jbar-track">

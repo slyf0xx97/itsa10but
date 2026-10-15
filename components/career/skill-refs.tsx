@@ -2,23 +2,20 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { LoaderCircle, RefreshCw } from "lucide-react";
-import { getKbEntry } from "@/lib/skills-knowledge-base";
 import { loadSkillNews, type SkillNewsResult } from "@/lib/skill-news-client";
 import { catalogSkill } from "@/lib/skill-news";
 
 type State = { kind: "loading" } | { kind: "ok"; result: SkillNewsResult } | { kind: "error"; message: string };
 
-const host = (url: string) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } };
 const clock = (iso: string) => { const date = new Date(iso); return Number.isNaN(date.getTime()) ? "" : date.toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" }); };
 
 /**
- * Under a tip: free lessons for the skill (our own short list, nothing fetched) and the latest articles on it from our own feed
- * reader. The articles load when this mounts, which is when the visitor opens the tip, and again on Refresh. Only the skill name is sent.
+ * Under a tip, behind a closed disclosure: the latest articles on the skill from our own feed reader. They load when this mounts, which is when the visitor
+ * opens the disclosure, and again on Refresh. Only the skill name is sent. The free lessons for a skill are the resource cards in the tip itself.
  */
 export function SkillRefs({ skill }: { skill: string }) {
   const id = useId();
   const name = catalogSkill(skill);
-  const links = (name && getKbEntry(name)?.links.slice(0, 3)) || [];
   const [state, setState] = useState<State>({ kind: "loading" });
   const latest = useRef(0);
   const gone = useRef(false);
@@ -40,18 +37,9 @@ export function SkillRefs({ skill }: { skill: string }) {
   const status = loading ? `Looking for recent articles on ${name}…`
     : state.kind === "error" ? state.message
     : items.length ? `${items.length} recent ${items.length === 1 ? "article" : "articles"} found.${at ? ` Checked ${at}.` : ""}`
-    : `No recent articles on ${name} in our feeds right now. The lessons above are a good place to start.`;
+    : `No recent articles on ${name} in our feeds right now.`;
 
   return <div className="pl-refs">
-    {links.length > 0 && <div className="pl-refs-block">
-      <p className="pl-refs-h" id={id + "-learn"}>Free lessons for {name}</p>
-      <ul className="pl-refs-list" aria-labelledby={id + "-learn"}>
-        {links.map((link) => <li key={link.url}>
-          <a href={link.url} target="_blank" rel="noopener noreferrer">{link.title}<span className="sr-only"> (opens in a new tab)</span></a>
-          <span className="pl-refs-meta">{host(link.url)}</span>
-        </li>)}
-      </ul>
-    </div>}
     <div className="pl-refs-block">
       <div className="pl-refs-bar">
         <p className="pl-refs-h" id={id + "-latest"}>Latest on {name}</p>

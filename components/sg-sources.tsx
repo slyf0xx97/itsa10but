@@ -2,25 +2,41 @@
 import { BASE_PATH } from "@/lib/base-path";
 import { useCallback, useState } from "react";
 import Image from "next/image";
-import { ChevronRight, ExternalLink, Newspaper } from "lucide-react";
+import { BookOpen, ChevronRight, ExternalLink, Newspaper } from "lucide-react";
 import { Popup } from "@/components/popup";
 import { PixelIcon } from "@/components/career/pixel-icons";
 import { SgNews } from "@/components/sg-news";
 import { newsSiteGroups } from "@/lib/news-sites";
-import { roleNames, roleSource, roleSourceNote, signals, snapshotSources } from "@/lib/sg-snapshot";
+import { SNAPSHOT_CHECKED, roleNames, roleSource, roleSourceNote, signals, snapshotSources, type SnapshotSourceId } from "@/lib/sg-snapshot";
 
-/** A button that opens the news and sources popup: Refresh news first, then the sites in groups (same cards as the résumé tips popup), then the extra sourced figures. */
+/** The source line under a figure: its period and a link to the page it comes from. */
+function Source({ id, period }: { id: SnapshotSourceId; period: string }) {
+  const source = snapshotSources[id];
+  return <span className="sgs-src">{period}. <a href={source.url} target="_blank" rel="noopener noreferrer" aria-label={`${source.publisher}, ${source.title}, ${source.published} (opens in a new tab)`}>{source.publisher}, {source.published}</a></span>;
+}
+
+/**
+ * Two buttons side by side under the card title. The wide one opens the reads and sites popup: Refresh news first, then the sites in groups (same cards as the résumé tips popup).
+ * The newspaper button opens the verified figures in a popup of their own, each with its source.
+ */
 export function SgSources({ firecrawlKey = "" }: { firecrawlKey?: string }) {
-  const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
+  const [reads, setReads] = useState(false);
+  const [figures, setFigures] = useState(false);
+  const closeReads = useCallback(() => setReads(false), []);
+  const closeFigures = useCallback(() => setFigures(false), []);
   return <>
-    <button type="button" className="btn primary sgs-open" aria-haspopup="dialog" onClick={() => setOpen(true)}>
-      <Newspaper size={20} aria-hidden="true" />
-      <span className="sgs-open-text"><span className="sgs-long">See more latest news and sources</span><span className="sgs-short">See more news and sources</span></span>
-      <ChevronRight size={20} strokeWidth={3} aria-hidden="true" />
-    </button>
-    <Popup open={open} onClose={close} title="Latest news and sources" icon={<PixelIcon name="signals" size={22} />} wide>
-      {open && <div className="rt sgs-pop">
+    <div className="sgs-actions">
+      <button type="button" className="btn primary sgs-open" aria-haspopup="dialog" onClick={() => setReads(true)}>
+        <BookOpen size={20} aria-hidden="true" />
+        <span className="sgs-open-text"><span className="sgs-long">See more reads and sites</span><span className="sgs-short">Reads and sites</span></span>
+        <ChevronRight size={20} strokeWidth={3} aria-hidden="true" />
+      </button>
+      <button type="button" className="sgs-figures" aria-haspopup="dialog" aria-label="Verified figures, each with its source" title="Verified figures, each with its source" onClick={() => setFigures(true)}>
+        <Newspaper size={22} aria-hidden="true" />
+      </button>
+    </div>
+    <Popup open={reads} onClose={closeReads} title="Reads and sites" icon={<PixelIcon name="signals" size={22} />} wide>
+      {reads && <div className="rt sgs-pop">
         <SgNews firecrawlKey={firecrawlKey} />
         {newsSiteGroups.map((group) => <section className="rt-sites" key={group.id} aria-labelledby={"sgs-g-" + group.id}>
           <h3 className="rt-title" id={"sgs-g-" + group.id}><PixelIcon name={group.icon} size={20} />{group.title}</h3>
@@ -33,24 +49,23 @@ export function SgSources({ firecrawlKey = "" }: { firecrawlKey?: string }) {
             </a>
           </li>)}</ul>
         </section>)}
-        <details className="sgs-more">
-          <summary>More verified figures, each with its source</summary>
-          <ul className="sgs-facts">
-            {signals.map((signal) => {
-              const source = snapshotSources[signal.source];
-              return <li key={signal.figure + signal.source}>
-                <b>{signal.figure}</b>
-                <span>{signal.text}</span>
-                <span className="sgs-src">{signal.period}. <a href={source.url} target="_blank" rel="noopener noreferrer" aria-label={`${source.publisher}, ${source.title}, ${source.published} (opens in a new tab)`}>{source.publisher}, {source.published}</a></span>
-              </li>;
-            })}
-            <li>
-              <b>{roleNames.length} roles</b>
-              <span>{roleNames.join(", ")}. {roleSourceNote}</span>
-              <span className="sgs-src">Job Vacancies 2025. <a href={snapshotSources[roleSource].url} target="_blank" rel="noopener noreferrer" aria-label={`${snapshotSources[roleSource].publisher}, ${snapshotSources[roleSource].title}, ${snapshotSources[roleSource].published} (opens in a new tab)`}>{snapshotSources[roleSource].publisher}, {snapshotSources[roleSource].published}</a></span>
-            </li>
-          </ul>
-        </details>
+      </div>}
+    </Popup>
+    <Popup open={figures} onClose={closeFigures} title="Verified figures" icon={<Newspaper size={22} aria-hidden="true" />} wide>
+      {figures && <div className="sgs-pop">
+        <p className="sgs-figures-lead">Each figure is dated and links to the page it comes from. Checked {SNAPSHOT_CHECKED}.</p>
+        <ul className="sgs-facts">
+          {signals.map((signal) => <li key={signal.figure + signal.source}>
+            <b>{signal.figure}</b>
+            <span>{signal.text}</span>
+            <Source id={signal.source} period={signal.period} />
+          </li>)}
+          <li>
+            <b>{roleNames.length} roles</b>
+            <span>{roleNames.join(", ")}. {roleSourceNote}</span>
+            <Source id={roleSource} period="Job Vacancies 2025" />
+          </li>
+        </ul>
       </div>}
     </Popup>
   </>;

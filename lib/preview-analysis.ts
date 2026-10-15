@@ -3,6 +3,7 @@ import type { Analysis, Resume, Skill, Quest } from "./analysis-types.ts";
 import { computeMatch } from "./scoring.ts";
 import { atsCheck } from "./ats-check.ts";
 import { detectCompany } from "./company-culture.ts";
+import { playbookFor, questFor, tipKind } from "./skill-playbooks.ts"; // skill-playbooks reads `catalog` only inside functions, so the import cycle is safe
 
 export type SkillSeed = { name: string; terms: string[]; tip: string; proof: string };
 export const catalog: SkillSeed[] = [
@@ -56,12 +57,15 @@ export function previewAnalysis(resumes: Resume[], job: string): Analysis {
   const primary = meaningfulGaps[0] ?? gaps[0];
   const strength = [...selected].sort((a, b) => b.skill.evidence - a.skill.evidence)[0];
   const hasGap = meaningfulGaps.length > 0;
-  const quests: Quest[] = meaningfulGaps.slice(0, 3).map(({ seed }) => ({
-    title: `Show ${seed.name} in a project`,
-    task: seed.tip,
-    proof: seed.proof,
-    skill: seed.name,
-  }));
+  // A tip comes from the skill's playbook, in the kind that fits what the résumé lacks (build it, show it, or put a number on it).
+  const tipFor = ({ seed, skill }: { seed: SkillSeed; skill: Skill }): Quest => questFor(seed.name, tipKind(skill)) ?? { title: `Show ${seed.name} in a project`, task: seed.tip, proof: seed.proof, skill: seed.name };
+  const quests: Quest[] = meaningfulGaps.slice(0, 3).map(tipFor);
+  // Fewer than three gaps: the skills with the least proof get the next tips.
+  for (const item of [...selected].sort((a, b) => a.skill.evidence - b.skill.evidence)) {
+    if (quests.length >= 3) break;
+    if (quests.some((quest) => quest.skill === item.seed.name) || !playbookFor(item.seed.name)) continue;
+    quests.push(tipFor(item));
+  }
   while (quests.length < 3) {
     const next = quests.length;
     quests.push(next === 0

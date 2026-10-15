@@ -26,7 +26,7 @@
 .sm-head strong { display: block; color: var(--ink); font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; }
 
 .sm-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .5rem; margin: 0; padding: .2rem .2rem .3rem; list-style: none; }
-.sm-item { display: flex; flex-direction: column; min-width: 0; border: 1.5px solid var(--glass-edge, rgb(255 255 255 / 85%)); border-radius: 12px; background: rgb(255 255 255 / 70%); box-shadow: 0 1px 0 rgb(18 52 63 / 14%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
+.sm-item { display: flex; flex-direction: row; align-items: stretch; min-width: 0; border: 1.5px solid var(--glass-edge, rgb(255 255 255 / 85%)); border-radius: 12px; background: rgb(255 255 255 / 70%); box-shadow: 0 1px 0 rgb(18 52 63 / 14%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
 
 .sm-pick { display: flex; align-items: center; gap: .55rem; flex: 1; min-width: 0; padding: .45rem .55rem; border: 0; background: transparent; color: var(--ink); text-align: left; text-shadow: none; }
 .sm-pick:hover { background: var(--sky-soft, #d9f0fb); }
@@ -37,8 +37,12 @@
 .sm-label { font-family: var(--font-display); font-size: .95rem; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
 .sm-tag { padding: 0 .45rem; border: 1.5px solid var(--water-deep, #1b86a8); border-radius: 999px; background: var(--sky-soft, #d9f0fb); color: var(--text, #12343f); font-size: .7rem; font-weight: 700; line-height: 1.5; }
 
-.sm-links { display: flex; flex-wrap: wrap; gap: 0 .7rem; padding: .1rem .6rem .35rem 2.6rem; }
-.sm-links a { display: inline-flex; align-items: center; min-height: 1.5rem; font-size: .78rem; font-weight: 700; text-shadow: none; }
+/* The three job sites are small logos at the end of the role's row, not a row of their own. */
+.sm-links { flex: none; display: flex; align-items: center; gap: .1rem; padding: 0 .4rem 0 0; }
+.sm-links a { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 8px; }
+.sm-links a:hover { background: var(--sky-soft, #d9f0fb); }
+.sm-links a:focus-visible { outline: 3px solid var(--ink); outline-offset: -2px; }
+.sm-links img { display: block; width: 1.4rem; height: 1.4rem; border-radius: 5px; object-fit: contain; background: #fff; }
 /* Links sit on light glass, so they take the dark link colour. */
 .sm-menu a { color: var(--water-deep, #1b86a8); text-decoration-color: currentColor; }
 .sm-menu a:hover { color: var(--teal-dark); }

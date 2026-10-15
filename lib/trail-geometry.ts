@@ -1,7 +1,7 @@
 // Geometry and timing for the "How it works" adventure map (components/trail-art.tsx draws it, components/how-it-works.tsx wraps it).
 // Two layouts share one set of stops: a wide map (percent-positioned, scales with the board) and a narrow rail (fixed rem sizes, one stop per row).
 
-/** A station is one card on the map. Upload and mask is the first. The fork holds two (API boost on the high road, Native scan below it), and the four résumé agents share one. */
+/** A station is one card on the map. Upload Résumé is the first. The fork holds two (API boost on the high road, Native scan below it), and the four résumé agents share one. */
 export type StopId = "camp" | "native" | "boost" | "readers" | "result";
 export type ReaderId = "scout" | "finder" | "recruiter" | "planner";
 /** A place on the road with a round marker. The agents stand one after another on a stretch of the road. */
@@ -48,7 +48,7 @@ export function elbow(points: Pt[], r = CORNER): string {
  *  The two roads of the fork are the main event, so their cards are the widest on the map and their type is a step larger (arch.css).
  *  `at` pins a card to a fixed top left corner instead (the Results card hangs in the sky beside the summit). */
 export const CARD: Record<StopId, { w: number; h: number; reach: number; at?: Pt }> = {
-  camp: { w: 216, h: 170, reach: 38 },
+  camp: { w: 196, h: 170, reach: 38 },
   native: { w: 252, h: 124, reach: 38 },
   boost: { w: 252, h: 124, reach: 38 },
   readers: { w: 226, h: 252, reach: 44 },
@@ -71,7 +71,7 @@ export const POWER_LABEL = { w: 196, h: 22, dy: -67 };
  *  while Native scan goes along the river valley and climbs to meet it (116 units apart, so the two roads read as two choices), the agents walk the next ledge,
  *  the road crosses the rope bridge and ends on the summit at the top right. The fork sits close to the camp and the two cards close to the fork, so little bare road is left. */
 const WIDE_PTS: Record<End, Pt> = {
-  camp: [116, 454], fork: [330, 366], boost: [520, 250], native: [520, 366], join: [750, 250],
+  camp: [140, 454], fork: [330, 366], boost: [520, 250], native: [520, 366], join: [750, 250],
   scout: [812, 224], finder: [864, 224], recruiter: [916, 224], planner: [968, 224], result: [1165, 70],
 };
 
@@ -79,7 +79,7 @@ export const WIDE: Layout = {
   w: 1200, h: 536,
   pts: WIDE_PTS,
   segs: ((p) => ({
-    s0: elbow([p.camp, [252, p.camp[1]], [252, p.fork[1]], p.fork]),
+    s0: elbow([p.camp, [268, p.camp[1]], [268, p.fork[1]], p.fork]),
     nA: elbow([p.fork, p.native]),
     bA: elbow([p.fork, [350, p.fork[1]], [350, p.boost[1]], p.boost]),
     nB: elbow([p.native, [p.join[0], p.native[1]], p.join]),
@@ -189,6 +189,26 @@ export const HOPS: Hop[] = [
   { id: "h8", seg: "s3", show: 22.4, go: 22.8, end: 30.0, hide: 35.4, glyph: "checked", walker: "planner" },
 ];
 
+/** Which road the visitor has lowered the bridge to. "turns" is the default: the note takes API boost, then Native scan, run after run. */
+export type Route = "turns" | "boost" | "native";
+export const ROUTES: Route[] = ["turns", "boost", "native"];
+
+/** The hops that run for a route. The shared stretches always run, and a chosen road runs alone in one 36 second cycle instead of taking turns in a doubled one. */
+export const hopsFor = (route: Route): Hop[] => (route === "turns" ? HOPS : HOPS.filter((hop) => !hop.road || hop.road === route));
+
+/** Where the two bridge gates stand on the wide map, one on each road just after the fork. */
+export const GATES: Record<"boost" | "native", Pt> = { boost: [350, 316], native: [430, 366] };
+
+/** The gate of a road: the fixed spot on the wide map, or halfway between the fork and the road's marker on the rail. */
+export function gatePoint(layout: Layout, wide: boolean, road: "boost" | "native"): Pt {
+  if (wide) return GATES[road];
+  const [fx, fy] = layout.pts.fork, [nx, ny] = layout.pts[road];
+  return [(fx + nx) / 2, (fy + ny) / 2];
+}
+
+/** The play, reset and bridge controls under the title sign, as a box in board units on the wide map. */
+export const CONTROLS = { x: 12, y: 70, w: 340, h: 92 };
+
 /** When the note reaches each marker, for the arrival pulse. Native scan and API boost arrive in their own run. */
 export const ARRIVALS: { stop: NodeId; at: number; road?: "native" | "boost" }[] = [
   { stop: "camp", at: 0.2 },
@@ -196,3 +216,6 @@ export const ARRIVALS: { stop: NodeId; at: number; road?: "native" | "boost" }[]
   { stop: "scout", at: 13.0 }, { stop: "finder", at: 16.0 }, { stop: "recruiter", at: 19.0 }, { stop: "planner", at: 22.0 },
   { stop: "result", at: 30.0 },
 ];
+
+/** The arrival pulses that run for a route. */
+export const arrivalsFor = (route: Route) => (route === "turns" ? ARRIVALS : ARRIVALS.filter((arrival) => !arrival.road || arrival.road === route));

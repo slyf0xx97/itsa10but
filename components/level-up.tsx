@@ -2,7 +2,7 @@
 
 import { BASE_PATH } from "@/lib/base-path";
 import { useCallback, useId, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
-import { elevateGroups } from "@/components/elevate-section";
+import { elevateGroups } from "@/lib/level-up-resources";
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
 import { ScrollHint } from "@/components/scroll-hint";
 import { LEVEL_UP_TITLE, STAGES } from "@/lib/journey";
@@ -48,12 +48,17 @@ export function ArtImage({ src, width, height, fallback, className }: { src: str
   return <img ref={check} className={className} src={src} width={width} height={height} alt="" aria-hidden="true" loading="lazy" onError={() => setFailed(true)} />;
 }
 
-/** Real logos of each resource's own site, saved once into /assets/logos/ (never hotlinked). Brands shared by several resources reuse one file. Resources not listed show the cover alone. */
+/** Real logos of each resource's own site, saved once into /assets/logos/ (never hotlinked; origins in SOURCES.md there). Brands shared by several resources reuse one file. A resource with no logo shows its group's icon. */
 const LOGO = {
   gallup: ["gallup", 180, 180], msf: ["myskillsfuture", 256, 73], sf: ["skillsfuture", 220, 48], onet: ["onet", 180, 180], aws: ["aws", 144, 144], ms: ["microsoft", 192, 192],
   gh: ["github", 180, 180], cs50: ["cs50", 64, 64], kaggle: ["kaggle", 256, 99], resume: ["resume-io", 180, 180], gdev: ["google-developers", 180, 180], canva: ["canva", 180, 180],
   devto: ["devto", 180, 179], li: ["linkedin", 256, 256], him: ["himalayas", 180, 180], jobicy: ["jobicy", 192, 192], mcf: ["mycareersfuture", 180, 180], js: ["jobstreet", 114, 114],
   reddit: ["reddit", 192, 192], hn: ["hacker-news", 256, 256], road: ["roadmap-sh", 180, 180], levels: ["levels-fyi", 192, 192], iio: ["interviewing-io", 120, 109], grow: ["google-grow", 180, 180],
+  odin: ["the-odin-project", 128, 128], fso: ["full-stack-open", 128, 128], exercism: ["exercism", 128, 128], mdn: ["mdn", 128, 128], sqlbolt: ["sqlbolt", 128, 128], py: ["python", 128, 128], cw: ["codewars", 128, 128],
+  lf: ["linux-foundation", 128, 128], thm: ["tryhackme", 128, 128], psw: ["portswigger", 128, 128], aisg: ["ai-singapore", 128, 128], gtech: ["govtech", 128, 128], cgov: ["careers-gov", 128, 128], glints: ["glints", 128, 128],
+  engsg: ["engineers-sg", 128, 128], gdg: ["gdg", 128, 128], tih: ["tech-interview-handbook", 128, 128], fem: ["frontend-mentor", 128, 128], gfi: ["good-first-issue", 128, 128], yt: ["youtube", 128, 128],
+  fcc: ["freecodecamp", 128, 128], cour: ["coursera", 128, 128], edx: ["edx", 128, 128], hf: ["hugging-face", 128, 128], imda: ["imda", 128, 128], jsp: ["jobs-skills-portal", 128, 128], tia: ["tech-in-asia", 128, 128],
+  jobscan: ["jobscan", 40, 40], flowcv: ["flowcv", 180, 180], overleaf: ["overleaf", 180, 180], rr: ["reactive-resume", 180, 180], dlai: ["the-batch", 128, 128],
 } as const;
 const LOGO_OF: Record<string, keyof typeof LOGO> = {
   cliftonstrengths: "gallup", "myskillsfuture-assessments": "msf", "careers-skills-passport": "msf", "onet-interest-profiler": "onet",
@@ -63,6 +68,14 @@ const LOGO_OF: Record<string, keyof typeof LOGO> = {
   "linkedin-jobs": "li", himalayas: "him", jobicy: "jobicy", mycareersfuture: "mcf", jobstreet: "js",
   "reddit-cscareerquestions": "reddit", "reddit-resumes": "reddit", "reddit-learnprogramming": "reddit", "reddit-cybersecurity": "reddit", "reddit-asksingapore": "reddit",
   "hacker-news": "hn", "roadmap-sh": "road", "levels-fyi": "levels", "interviewing-io": "iio", "interview-warmup": "grow",
+  freecodecamp: "fcc", "the-odin-project": "odin", "full-stack-open": "fso", cs50p: "cs50", "python-tutorial": "py", "mdn-learn": "mdn", sqlbolt: "sqlbolt", exercism: "exercism", codewars: "cw",
+  "aws-skill-builder": "aws", "azure-fundamentals": "ms", "linux-intro": "lf", "ml-crash-course": "gdev", "deeplearning-ai": "dlai", "hugging-face-learn": "hf", tryhackme: "thm", "portswigger-academy": "psw",
+  coursera: "cour", edx: "edx", "frontend-mentor": "fem", "build-your-own-x": "gh", "good-first-issue": "gfi", "github-student-pack": "gh",
+  "reactive-resume": "rr", flowcv: "flowcv", "overleaf-cv": "overleaf", "tih-resume": "tih", jobscan: "jobscan",
+  glints: "glints", "careers-gov": "cgov", "govtech-careers": "gtech", "tech-in-asia-jobs": "tia",
+  "imda-tesa": "imda", sctp: "sf", "ai-fundamentals": "aisg", "skills-framework": "sf", "jobs-skills-portal": "jsp", "govtech-developer": "gtech",
+  "reddit-machinelearning": "reddit", gdg: "gdg", "engineers-sg": "engsg", "tech-interview-handbook": "tih",
+  "yt-cs50": "yt", "yt-freecodecamp": "yt", "yt-fireship": "yt", "yt-3blue1brown": "yt", "yt-statquest": "yt", "yt-neetcode": "yt", "yt-bytebytego": "yt", "yt-karpathy": "yt", "yt-networkchuck": "yt", "yt-messer": "yt",
 };
 
 /** The brand logo (or, without one, the group icon) in a white tile at the top-left of a card. The logo hides itself if its file is missing. */

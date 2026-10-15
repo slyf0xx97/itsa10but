@@ -1,7 +1,7 @@
 import { BASE_PATH } from "@/lib/base-path";
 import type { CSSProperties, RefObject } from "react";
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
-import { ARRIVALS, CYCLE, HOPS, NODE_ORDER, READER_IDS, SEG_ENDS, WIDE, powerLine, type Hop, type Layout, type NodeId, type ReaderId, type SegId } from "@/lib/trail-geometry";
+import { CYCLE, NODE_ORDER, READER_IDS, SEG_ENDS, WIDE, arrivalsFor, gatePoint, hopsFor, powerLine, type Hop, type Layout, type NodeId, type ReaderId, type Route, type SegId } from "@/lib/trail-geometry";
 
 // The drawings of the "How it works" map. TrailArt is the still picture: the painted landscape, the road and its markers.
 // The scenery moves with small CSS animations (clouds, birds, fog, river glints, flag, fire), switched off for reduced motion and paused off screen (arch.css).
@@ -63,14 +63,44 @@ function Node({ id, x, y, which }: { id: NodeId; x: number; y: number; which: Wh
   </g>;
 }
 
-function Trail({ layout, which }: { layout: Layout; which: Which }) {
+/** The two stretches of each road, so a chosen route can fade the other one. */
+const ROAD_SEGS: Record<"boost" | "native", SegId[]> = { boost: ["bA", "bB"], native: ["nA", "nB"] };
+const closedSegs = (route: Route): SegId[] => (route === "boost" ? ROAD_SEGS.native : route === "native" ? ROAD_SEGS.boost : []);
+
+function Trail({ layout, which, route }: { layout: Layout; which: Which; route: Route }) {
   const ids = Object.keys(SEG_ENDS) as SegId[];
   const wide = which === "wide";
+  const closed = closedSegs(route);
+  const o = (id: SegId, base: number) => (closed.includes(id) ? base * 0.3 : base); // the road the bridge is raised from is faded
   return <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-    {ids.map((id) => <path key={id + "g"} d={layout.segs[id]} stroke="#dbe86a" strokeWidth={wide ? 26 : 20} opacity="0.28" />)}
-    {ids.map((id) => <path key={id + "e"} d={layout.segs[id]} stroke="#8a5a33" strokeWidth={wide ? 17 : 13} opacity="0.55" />)}
-    {ids.map((id) => <path key={id + "b"} d={layout.segs[id]} stroke="#f6ecd2" strokeWidth={wide ? 11 : 8} />)}
-    {ids.map((id) => <path key={id + "d"} d={layout.segs[id]} stroke="#b9651a" strokeWidth="2.4" strokeDasharray="1 11" opacity="0.6" />)}
+    {ids.map((id) => <path key={id + "g"} d={layout.segs[id]} stroke="#dbe86a" strokeWidth={wide ? 26 : 20} opacity={o(id, 0.28)} />)}
+    {ids.map((id) => <path key={id + "e"} d={layout.segs[id]} stroke="#8a5a33" strokeWidth={wide ? 17 : 13} opacity={o(id, 0.55)} />)}
+    {ids.map((id) => <path key={id + "b"} d={layout.segs[id]} stroke="#f6ecd2" strokeWidth={wide ? 11 : 8} opacity={o(id, 1)} />)}
+    {ids.map((id) => <path key={id + "d"} d={layout.segs[id]} stroke="#b9651a" strokeWidth="2.4" strokeDasharray="1 11" opacity={o(id, 0.6)} />)}
+  </g>;
+}
+
+/**
+ * The bridge gate at the start of a road. Lowered (the road is open): a plank bridge across the road. Raised (the other road is chosen): a red no-entry sign on two posts.
+ * `vertical` is the direction the road runs there, so the planks always lie across it. The gates are the fork's switch: the page's route control moves both.
+ */
+function Gate({ x, y, open, vertical, small }: { x: number; y: number; open: boolean; vertical: boolean; small: boolean }) {
+  const k = small ? 0.8 : 1;
+  return <g transform={`translate(${x} ${y}) scale(${k}) rotate(${vertical ? 0 : 90})`}>
+    {open
+      ? <g>
+        <rect x="-17" y="-8" width="34" height="16" rx="2" fill="#c98b4b" stroke={INK} strokeWidth="1.8" />
+        <path d="M-10 -8 v16 M-3 -8 v16 M4 -8 v16 M11 -8 v16" stroke="#8a5a33" strokeWidth="1.3" />
+        <path d="M-17 -12 H17 M-17 12 H17" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+      </g>
+      : <g>
+        <rect x="-19" y="-3" width="6" height="22" fill="#8a5a33" stroke={INK} strokeWidth="1.4" transform="translate(0 -8)" />
+        <rect x="13" y="-3" width="6" height="22" fill="#8a5a33" stroke={INK} strokeWidth="1.4" transform="translate(0 -8)" />
+        <g transform={`rotate(${vertical ? 0 : -90})`}>
+          <circle r="11" fill="#c93a25" stroke={INK} strokeWidth="1.8" />
+          <rect x="-7" y="-2.6" width="14" height="5.2" rx="1" fill="#fff" />
+        </g>
+      </g>}
   </g>;
 }
 
@@ -247,7 +277,7 @@ function Lit({ x, y, r, live, i = 0 }: { x: number; y: number; r: number; live: 
 }
 
 /** The still map. With `still` set (reduced motion, or before the page knows) every marker also carries the note, so the position at each step shows without motion. */
-export function TrailArt({ which, layout, still }: { which: Which; layout: Layout; still: boolean }) {
+export function TrailArt({ which, layout, still, route = "turns" }: { which: Which; layout: Layout; still: boolean; route?: Route }) {
   const p = which === "wide" ? "w-bg" : "r-bg";
   const style: CSSProperties | undefined = which === "rail" ? { width: layout.w, height: layout.h } : undefined;
   const { node, glyph } = SIZE[which];
@@ -255,12 +285,13 @@ export function TrailArt({ which, layout, still }: { which: Which; layout: Layou
   return <svg className={`qm-svg qm-svg-${which}`} viewBox={`0 0 ${layout.w} ${layout.h}`} style={style} aria-hidden="true" focusable="false">
     <Defs p={p} />
     {which === "wide" ? <WideScenery /> : <RailScenery layout={layout} />}
-    <Trail layout={layout} which={which} />
+    <Trail layout={layout} which={which} route={route} />
     {which === "wide" && <WideProps />}
+    {(["boost", "native"] as const).map((road) => { const [gx, gy] = gatePoint(layout, which === "wide", road); return <Gate key={road} x={gx} y={gy} open={route === "turns" || route === road} vertical={which !== "wide" || road === "boost"} small={which !== "wide"} />; })}
     {NODE_ORDER.map((id) => <Node key={id} id={id} x={layout.pts[id][0]} y={layout.pts[id][1]} which={which} />)}
     {/* the cable from API boost to the agents: dull and unplugged while nothing runs on a key, bright with lit agents in the still map */}
-    {still ? <Bolt d={power.d} wide={which === "wide"} /> : <path d={power.d} fill="none" stroke="#6b7c8a" strokeWidth="2" strokeDasharray="3 5" strokeLinecap="round" opacity="0.5" />}
-    {still && READER_IDS.map((id, i) => <Lit key={id} x={layout.pts[id][0]} y={layout.pts[id][1]} r={SIZE[which].sprite / 2 + 2} live={false} i={i} />)}
+    {still && route !== "native" ? <Bolt d={power.d} wide={which === "wide"} /> : <path d={power.d} fill="none" stroke="#6b7c8a" strokeWidth="2" strokeDasharray="3 5" strokeLinecap="round" opacity="0.5" />}
+    {still && route !== "native" && READER_IDS.map((id, i) => <Lit key={id} x={layout.pts[id][0]} y={layout.pts[id][1]} r={SIZE[which].sprite / 2 + 2} live={false} i={i} />)}
     {still && NODE_ORDER.map((id) => {
       const [x, y] = layout.pts[id];
       const ref = id === "camp" ? "raw" : id === "result" ? "checked" : "masked";
@@ -274,9 +305,10 @@ export function TrailArt({ which, layout, still }: { which: Which; layout: Layou
 const list = (xs: number[]) => xs.map(f).join(";");
 const SPLINE = ".42 0 .58 1";
 
-function HopShape({ hop, layout, which }: { hop: Hop; layout: Layout; which: Which }) {
-  const dur = hop.road ? CYCLE * 2 : CYCLE;
-  const off = hop.road === "boost" ? CYCLE : 0;
+function HopShape({ hop, layout, which, fixed }: { hop: Hop; layout: Layout; which: Which; fixed: boolean }) {
+  // Taking turns: a road hop sits in a doubled timeline (API boost in its second half). A chosen road runs alone in one cycle.
+  const dur = hop.road && !fixed ? CYCLE * 2 : CYCLE;
+  const off = hop.road === "boost" && !fixed ? CYCLE : 0;
   const t = (s: number) => (s + off) / dur;
   const fade = 0.2;
   const { sprite, glyph } = SIZE[which];
@@ -292,9 +324,9 @@ function HopShape({ hop, layout, which }: { hop: Hop; layout: Layout; which: Whi
   </g>;
 }
 
-function Pulse({ x, y, at, road, r }: { x: number; y: number; at: number; road?: "native" | "boost"; r: number }) {
-  const dur = road ? CYCLE * 2 : CYCLE;
-  const t0 = at + (road === "boost" ? CYCLE : 0);
+function Pulse({ x, y, at, road, r, fixed }: { x: number; y: number; at: number; road?: "native" | "boost"; r: number; fixed: boolean }) {
+  const dur = road && !fixed ? CYCLE * 2 : CYCLE;
+  const t0 = at + (road === "boost" && !fixed ? CYCLE : 0);
   const ks = list([0, t0 / dur, (t0 + 1.6) / dur, 1]);
   return <g transform={`translate(${x} ${y})`}>
     <circle r={r} fill="none" stroke="#dbe86a" strokeWidth="5" opacity="0">
@@ -327,7 +359,7 @@ function Beads({ layout, which }: { layout: Layout; which: Which }) {
   </g>;
 }
 
-export function TrailLive({ which, layout, svgRef }: { which: Which; layout: Layout; svgRef: RefObject<SVGSVGElement | null> }) {
+export function TrailLive({ which, layout, svgRef, route = "turns" }: { which: Which; layout: Layout; svgRef: RefObject<SVGSVGElement | null>; route?: Route }) {
   const p = which === "wide" ? "w-live" : "r-live";
   const { node } = SIZE[which];
   const wide = which === "wide";
@@ -335,8 +367,11 @@ export function TrailLive({ which, layout, svgRef }: { which: Which; layout: Lay
   const [mx, my] = layout.pts.camp;
   const [zx, zy] = layout.pts.result;
   const power = powerLine(layout, wide);
-  const boltT = list([0, (CYCLE + 8.6) / (CYCLE * 2), (CYCLE + 9.2) / (CYCLE * 2), (CYCLE + 33) / (CYCLE * 2), (CYCLE + 35) / (CYCLE * 2), 1]);
-  const litT = list([0, (CYCLE + 12.2) / (CYCLE * 2), (CYCLE + 13.2) / (CYCLE * 2), (CYCLE + 33) / (CYCLE * 2), (CYCLE + 35) / (CYCLE * 2), 1]);
+  const fixed = route !== "turns";
+  const powered = route !== "native"; // Native scan leaves the agents plain
+  const span = fixed ? CYCLE : CYCLE * 2, base = fixed ? 0 : CYCLE; // taking turns, API boost runs in the second half of a doubled cycle
+  const boltT = list([0, (base + 8.6) / span, (base + 9.2) / span, (base + 33) / span, (base + 35) / span, 1]);
+  const litT = list([0, (base + 12.2) / span, (base + 13.2) / span, (base + 33) / span, (base + 35) / span, 1]);
   const scanT = list([0, 0.4 / CYCLE, 0.6 / CYCLE, 1.0 / CYCLE, 1.1 / CYCLE, 1]);
   const spark = (dx: number, dy: number, at: number) => <g key={dx + "" + dy} transform={`translate(${zx + dx} ${zy + dy})`}>
     <path d="M0 -9 L2.5 -2.5 L9 0 L2.5 2.5 L0 9 L-2.5 2.5 L-9 0 L-2.5 -2.5 Z" fill="#ffe27a" stroke="#e8912d" strokeWidth="1" opacity="0">
@@ -346,7 +381,7 @@ export function TrailLive({ which, layout, svgRef }: { which: Which; layout: Lay
   return <svg ref={svgRef} className={`qm-svg qm-live qm-svg-${which}`} viewBox={`0 0 ${layout.w} ${layout.h}`} style={style} aria-hidden="true" focusable="false">
     <Defs p={p} />
     <Beads layout={layout} which={which} />
-    {ARRIVALS.map((a) => <Pulse key={a.stop + (a.road ?? "")} x={layout.pts[a.stop][0]} y={layout.pts[a.stop][1]} at={a.at} road={a.road} r={(READER_IDS as string[]).includes(a.stop) ? SIZE[which].sprite / 2 + 4 : node + 8} />)}
+    {arrivalsFor(route).map((a) => <Pulse key={a.stop + (a.road ?? "")} fixed={fixed} x={layout.pts[a.stop][0]} y={layout.pts[a.stop][1]} at={a.at} road={a.road} r={(READER_IDS as string[]).includes(a.stop) ? SIZE[which].sprite / 2 + 4 : node + 8} />)}
     {/* the privacy scan: a light bar sweeps over the camp while the note is raw, just before it is masked */}
     <g transform={`translate(${mx} ${my})`}>
       <rect x={-node - 10} y="-2" width={(node + 10) * 2} height="4" rx="2" fill="#dbe86a" opacity="0">
@@ -355,18 +390,18 @@ export function TrailLive({ which, layout, svgRef }: { which: Which; layout: Lay
       </rect>
     </g>
     {/* API boost powers the agents: the current runs along the line once the note is on the API boost road, and the four agents light up until the run ends. Native scan leaves them plain. */}
-    <g opacity="0">
-      <animate attributeName="opacity" dur={`${CYCLE * 2}s`} repeatCount="indefinite" keyTimes={boltT} values="0;0;1;1;0;0" />
+    {powered && <g opacity="0">
+      <animate attributeName="opacity" dur={`${span}s`} repeatCount="indefinite" keyTimes={boltT} values="0;0;1;1;0;0" />
       <g><animate attributeName="opacity" dur="0.5s" repeatCount="indefinite" values="1;0.6;1;0.8;1" /><Bolt d={power.d} wide={wide} /></g>
       {[0, 1].map((k) => <circle key={k} r={wide ? 5 : 4} fill="#fff" stroke="#e8912d" strokeWidth="1.4">
         <animateMotion dur="1.1s" begin={`${-k * 0.55}s`} repeatCount="indefinite" path={power.d} />
       </circle>)}
-    </g>
-    {READER_IDS.map((id, i) => <g key={id} opacity="0">
-      <animate attributeName="opacity" dur={`${CYCLE * 2}s`} repeatCount="indefinite" keyTimes={litT} values="0;0;1;1;0;0" />
+    </g>}
+    {powered && READER_IDS.map((id, i) => <g key={id} opacity="0">
+      <animate attributeName="opacity" dur={`${span}s`} repeatCount="indefinite" keyTimes={litT} values="0;0;1;1;0;0" />
       <Lit x={layout.pts[id][0]} y={layout.pts[id][1]} r={SIZE[which].sprite / 2 + 2} live i={i} />
     </g>)}
-    {HOPS.map((hop) => <HopShape key={hop.id} hop={hop} layout={layout} which={which} />)}
+    {hopsFor(route).map((hop) => <HopShape key={hop.id} hop={hop} layout={layout} which={which} fixed={fixed} />)}
     {(wide ? [[40, -30, 30.4], [88, -62, 30.9], [112, -8, 31.4]] : [[-16, -30, 30.4], [18, -34, 30.9]]).map(([dx, dy, at]) => spark(dx, dy, at))}
   </svg>;
 }

@@ -1,5 +1,5 @@
 import type { Analysis, AtsCheck, CompanyCulture, Resume } from "./analysis-types.ts";
-import { atsCheckInfo, atsScore, keywordCoverage, topFixes } from "./ats-check.ts";
+import { atsCheck, atsCheckInfo, atsScore, keywordCoverage, topFixes } from "./ats-check.ts";
 import { AGENT_SPECS, analysisShapeFromOutputs } from "./agents/index.ts";
 import type { ActionPlannerOutput, PlannerGap } from "./agents/action-planner.ts";
 import type { ExperienceFinderOutput, WeakProof } from "./agents/experience-finder.ts";
@@ -104,6 +104,42 @@ export function conforms(schema: JsonSchema, value: unknown): boolean {
   }
 }
 
+/** Brings a parsed reply closer to a schema without trusting it: whole-number strings and decimals become integers, and keys the schema does not name are dropped. */
+function coerce(schema: JsonSchema, value: unknown): unknown {
+  if ("anyOf" in schema) {
+    for (const option of schema.anyOf) { const next = coerce(option, value); if (conforms(option, next)) return next; }
+    return value;
+  }
+  switch (schema.type) {
+    case "integer":
+      if (typeof value === "string" && /^-?\d+(\.0+)?$/.test(value.trim())) return Number(value);
+      return typeof value === "number" && Number.isFinite(value) && !Number.isInteger(value) ? Math.round(value) : value;
+    case "array": return Array.isArray(value) ? value.map((item) => coerce(schema.items, item)) : value;
+    case "object": {
+      if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+      const record = value as Record<string, unknown>;
+      return Object.fromEntries(Object.entries(schema.properties).filter(([key]) => key in record).map(([key, child]) => [key, coerce(child, record[key])]));
+    }
+    default: return value;
+  }
+}
+
+/**
+ * Reads a model's final text as the agent's JSON. Models that are not Claude often wrap the object in a code fence or a sentence, send a number as a string or add a key, so this
+ * tries the whole text, a fenced block and the outermost braces, tidies the value (coerce) and returns it only when it conforms to the schema. Undefined means no attempt fit.
+ */
+export function parseAgentJson(text: string, schema: JsonSchema): unknown {
+  const attempts = [text.trim()];
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced) attempts.push(fenced[1].trim());
+  const first = text.indexOf("{"), last = text.lastIndexOf("}");
+  if (first >= 0 && last > first) attempts.push(text.slice(first, last + 1));
+  for (const attempt of attempts) {
+    try { const value = coerce(schema, JSON.parse(attempt)); if (conforms(schema, value)) return value; } catch { /* try the next reading */ }
+  }
+  return undefined;
+}
+
 async function readLinkedinPosting(url: string, fetchImpl: typeof fetch): Promise<{ title: string; company: string; location: string; description: string } | null> {
   const id = extractLinkedinJobId(url);
   if (!id) return null;
@@ -182,12 +218,13 @@ async function* runAgent<Input, Output extends BaseOutput>(spec: AgentSpec<Input
   const used: Partial<Record<ToolName, number>> = {};
   let totalCalls = 0;
   const tally = { checked: 0, literal: 0 };
+  let repaired = false; // a reply that does not fit the shape gets one more turn, asking for the JSON again
 
-  for (let turn = 0; turn < spec.limits.maxTurns; turn++) {
+  for (let turn = 0; turn < spec.limits.maxTurns + (repaired ? 1 : 0); turn++) {
     if (ctx.signal?.aborted) throw new LiveFallback("api-error");
     const remaining = agentDeadline - Date.now();
     if (remaining <= 0) throw new LiveFallback("timeout");
-    const lastTurn = turn === spec.limits.maxTurns - 1 || totalCalls >= spec.limits.maxToolCalls;
+    const lastTurn = turn === spec.limits.maxTurns - 1 + (repaired ? 1 : 0) || totalCalls >= spec.limits.maxToolCalls;
     const response = await callOnce(ctx, {
       model: ctx.model ?? resolveModel(spec, ctx.env),
       max_tokens: spec.limits.maxOutputTokens,
@@ -232,9 +269,13 @@ async function* runAgent<Input, Output extends BaseOutput>(spec: AgentSpec<Input
     }
 
     const textOut = response.content.filter((block) => block.type === "text").map((block) => block.text ?? "").join("");
-    let parsed: unknown;
-    try { parsed = JSON.parse(textOut); } catch { throw new LiveFallback("bad-output"); }
-    if (!conforms(spec.outputSchema, parsed)) throw new LiveFallback("bad-output");
+    const parsed = parseAgentJson(textOut, spec.outputSchema);
+    if (parsed === undefined) {
+      if (repaired) throw new LiveFallback("bad-output");
+      repaired = true;
+      messages.push({ role: "user", content: "Your last answer was not the JSON object the format needs. Reply again with only that JSON object, with every required field and no other text." });
+      continue;
+    }
     const output = parsed as Output;
     if (output.status !== "ok") throw new LiveFallback("refusal");
     return output;
@@ -435,19 +476,27 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
 
     /* 3. Recruiter: a cold read of the whole masked résumé. It gets the role's skill names and no Finder output. The runner checks the report. */
     const resumeText = safety.maskedResumes.map((resume) => resume.text).join("\n\n");
-    const rawRecruiter = yield* runAgent(recruiterSpec, { skillNames: scout.skills.filter((skill) => skill.demand > 0).map((skill) => skill.name), resumeText }, recruiterCtx);
+    const roleSkillNames = scout.skills.filter((skill) => skill.demand > 0).map((skill) => skill.name);
+    // A Recruiter that fails (not a refusal) does not cost the run: the native ATS-style check stands in for it, and its note says so.
+    let rawRecruiter: RecruiterOutput | undefined;
+    try { rawRecruiter = yield* runAgent(recruiterSpec, { skillNames: roleSkillNames, resumeText }, recruiterCtx); } catch (error) { if (!(error instanceof LiveFallback) || error.reason === "refusal") throw error; }
     const seenChecks = new Set<string>();
-    const checks: AtsCheck[] = rawRecruiter.checks.flatMap((item) => {
+    const checks: AtsCheck[] = (rawRecruiter?.checks ?? []).flatMap((item) => {
       const info = atsCheckInfo(item.id);
       if (!info || seenChecks.has(info.id) || !(["pass", "warn", "fail"] as const).includes(item.status)) return [];
       seenChecks.add(info.id);
       return [{ id: info.id, group: info.group, label: cut(item.label, 60) || info.label, status: item.status, tip: cut(item.tip, 240) }];
     }).slice(0, 12);
-    if (!checks.length) throw new LiveFallback("bad-output");
-    // Keyword lists come from the text itself, not from the model.
-    const coverage = keywordCoverage(resumeText, scout.skills.filter((skill) => skill.demand > 0).map((skill) => skill.name));
-    const fixes = rawRecruiter.fixes.map((fix) => cut(fix, 240)).filter(Boolean).slice(0, 3);
-    const recruiter: RecruiterOutput = { ...rawRecruiter, note: cut(rawRecruiter.note, 500), score: atsScore(checks), checks, keywordsFound: coverage.found, keywordsMissing: coverage.missing, fixes: fixes.length ? fixes : topFixes(checks) };
+    let recruiter: RecruiterOutput;
+    if (rawRecruiter && checks.length) {
+      // Keyword lists come from the text itself, not from the model.
+      const coverage = keywordCoverage(resumeText, roleSkillNames);
+      const fixes = rawRecruiter.fixes.map((fix) => cut(fix, 240)).filter(Boolean).slice(0, 3);
+      recruiter = { ...rawRecruiter, note: cut(rawRecruiter.note, 500), score: atsScore(checks), checks, keywordsFound: coverage.found, keywordsMissing: coverage.missing, fixes: fixes.length ? fixes : topFixes(checks) };
+    } else {
+      const native = atsCheck(resumeText, roleSkillNames);
+      recruiter = { status: "ok", refusalReason: "", note: "The model's check did not come through, so this is the native ATS-style check, a rule of thumb with no model call.", score: native.score, checks: native.checks, keywordsFound: native.keywordsFound, keywordsMissing: native.keywordsMissing, fixes: native.fixes };
+    }
     yield* present(2, "Experience Finder", recruiter.note);
 
     /* 4. Action Planner: numbers and fixed labels only, no résumé text */

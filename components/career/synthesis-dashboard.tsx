@@ -6,14 +6,15 @@ import { dashboardData, fixParts, rankSkills, type PlannerRow } from "@/lib/dash
 import { wantOf, type Want } from "@/lib/skill-levels";
 import { PixelAgent, ResultFlow, type SpriteKind } from "@/components/career/reader-cards";
 import { SkillBrowser } from "@/components/career/skill-browser";
-import { Marked, useQuestTicks } from "@/components/career/trials";
+import { Marked } from "@/components/career/trials";
+import { TipCard } from "@/components/career/tip-card";
 import { SkillRefs } from "@/components/career/skill-refs";
 import { glideTo } from "@/components/glide-to";
 import { Term } from "@/components/career/term";
 import { Popup } from "@/components/popup";
 import { POPUP_ADDS, companyMissing, modeInfo, quoteRows, readerSteps, type ReaderKey } from "@/lib/findings-info";
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 
 const pct = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
 const fill = (value: number) => ({ width: pct(value) + "%" });
@@ -74,13 +75,15 @@ function FindingsIntro({ reader, analysis, hasResult }: { reader: ReaderKey; ana
   const mode = modeInfo(analysis.mode, hasResult, analysis.run);
   const steps = readerSteps(reader, analysis);
   const headId = useId();
+  const did = <section className="fi-did" aria-labelledby={headId}>
+    <h5 className="fi-did-h" id={headId}>What this reader did, in order</h5>
+    <p className="fi-did-note">{mode.steps}</p>
+    <ol className="fi-steps" style={{ "--fi-cols": Math.min(steps.length, 5) } as CSSProperties}>{steps.map((step) => <li key={step}><span>{step}</span></li>)}</ol>
+  </section>;
+  // The planner's popup is about the tips, so it skips the list of steps the reader took and the tips start high up the screen.
   return <div className="fi-top">
     <p className="fi-mode"><span className="fi-badge"><span className="sr-only">Mode that ran: </span>{mode.name}</span><span className="fi-mode-note">{mode.note}</span></p>
-    <section className="fi-did" aria-labelledby={headId}>
-      <h5 className="fi-did-h" id={headId}>What this reader did, in order</h5>
-      <p className="fi-did-note">{mode.steps}</p>
-      <ol className="fi-steps" style={{ "--fi-cols": Math.min(steps.length, 5) } as CSSProperties}>{steps.map((step) => <li key={step}><span>{step}</span></li>)}</ol>
-    </section>
+    {reader !== "planner" && did}
   </div>;
 }
 
@@ -264,65 +267,56 @@ function CompanyBody({ company, mode }: { company: Company | null; mode: Analysi
   </>;
 }
 
-/** One tip in full: how to do it, what to show, the related skill, a tick box, then free lessons and the latest articles for the skill. The references load when this mounts, so only an opened tip asks for them. Shared by the single-tip popup and the full-plan popup. */
-function QuestBody({ quest, index, ticks }: { quest: Quest; index: number; ticks: ReturnType<typeof useQuestTicks> }) {
-  return <div className="pl-pop">
-    <p className="pl-task"><Marked text={quest.task} terms={[quest.skill]} /></p>
-    <p className="pl-show"><span><strong>What to show</strong>{quest.proof}</span></p>
-    <p className="pl-skill"><span>Related skill</span> <b>{quest.skill}</b></p>
-    <button type="button" className="pl-toggle" aria-pressed={ticks.isDone(index)} onClick={() => ticks.toggle(index)}>
-      <span className="pl-box" aria-hidden="true">{ticks.isDone(index) && <Check size={16} strokeWidth={4} />}</span>
-      Mark as done
-    </button>
-    <SkillRefs skill={quest.skill} />
-  </div>;
-}
-
 /** Closes the popup it sits in, then glides to the Level up stage. A link inside a modal dialog would otherwise leave the dialog open on top. */
 function LevelUpLink() {
-  return <p className="pl-more">More free courses and tools are in <a href="#level-up" onClick={(event) => { event.currentTarget.closest("dialog")?.close(); glideTo(event, "level-up"); }}>Level up</a>, under Build useful skills.</p>;
+  return <p className="pl-more">More free courses and tools are in <a href="#level-up" onClick={(event) => { event.currentTarget.closest("dialog")?.close(); glideTo(event, "level-up"); }}>Level up</a>.</p>;
 }
 
-/** Action Planner: the first tips in order. A row opens the full tip; the tick box beside it marks it done without opening anything. The card button opens every tip in full. */
+/** Recent articles on a tip's skill, behind a closed disclosure: nothing is looked up until the reader opens it. */
+function Latest({ skill }: { skill: string }) {
+  const [shown, setShown] = useState(false);
+  return <details className="tip-latest" onToggle={(event) => setShown(event.currentTarget.open)}>
+    <summary>Recent articles on {skill}</summary>
+    {shown && <SkillRefs skill={skill} />}
+  </details>;
+}
+
+/**
+ * Action Planner: the first three tips as a short numbered list. A row opens that tip in full (steps, a résumé line to copy and resources as site cards). The card button opens all
+ * three side by side, so the plan reads without scrolling on a wide screen. There are no tick boxes: a tip is something to read and do, not a list to check off.
+ */
 function PlannerCard({ quests, rows, verdict, skillNames, analysis, hasResult, sample }: { quests: Quest[]; rows: PlannerRow[]; verdict: string; skillNames: string[]; analysis: Analysis; hasResult: boolean; sample: boolean }) {
-  const ticks = useQuestTicks(quests);
   const [openAt, setOpenAt] = useState<number | null>(null);
   const close = useCallback(() => setOpenAt(null), []);
   const quest = openAt === null ? undefined : quests[openAt];
+  const row = openAt === null ? undefined : rows.find((item) => item.index === openAt);
   const names = [...skillNames, ...quests.flatMap((item) => [item.skill, item.title])];
-  const done = rows.filter((row) => ticks.isDone(row.index)).length;
   const list = rows.length ? <ol className="pl-list" aria-label="Tips and tricks, in order">
-    {rows.map((row) => {
-      const ticked = ticks.isDone(row.index);
-      return <li className="pl-item" key={row.index} data-done={ticked}>
-        <button type="button" className="pl-tick" aria-pressed={ticked} aria-label={`Mark ${row.title} as done`} onClick={() => ticks.toggle(row.index)}>
-          <span className="pl-box" aria-hidden="true">{ticked && <Check size={16} strokeWidth={4} />}</span>
-        </button>
-        <button type="button" className="pl-open" aria-haspopup="dialog" onClick={() => setOpenAt(row.index)}>
-          <span className="pl-title"><span className="pl-num" aria-hidden="true">{row.index + 1}</span><span>{row.title}{ticked && <span className="sr-only">, done</span>}</span></span>
-        </button>
-      </li>;
-    })}
+    {rows.map((item) => <li className="pl-item" key={item.index}>
+      <button type="button" className="pl-open" aria-haspopup="dialog" onClick={() => setOpenAt(item.index)}>
+        <span className="pl-num" aria-hidden="true">{item.index + 1}</span>
+        <span className="pl-title"><span>{item.title}</span></span>
+        <ChevronRight className="pl-go" size={18} strokeWidth={3} aria-hidden="true" focusable="false" />
+      </button>
+    </li>)}
   </ol> : <Empty>No tips yet.</Empty>;
   return <SumCard kind="coach" id="quests" agent="Action Planner" popTitle="Your tips and tricks" reader="planner" analysis={analysis} hasResult={hasResult} sample={sample}
-    stat={<Stat value={rows.length} unit={rows.length === 1 ? "tip" : "tips"} label={done ? `${done} of ${rows.length} done` : "to close your gaps"} />}
-    rows={<>{list}<Popup open={!!quest} onClose={close} title={quest?.title ?? "Tip"}>
-      {quest && openAt !== null && <><QuestBody quest={quest} index={openAt} ticks={ticks} /><LevelUpLink /></>}
+    stat={<Stat value={rows.length} unit={rows.length === 1 ? "tip" : "tips"} label="to close your gaps" />}
+    rows={<>{list}<Popup open={!!quest} onClose={close} title={quest?.title ?? "Tip"} wide>
+      {quest && row && <div className="pl-one"><TipCard quest={quest} number={row.index + 1} why={row.why} /><Latest skill={quest.skill} /><LevelUpLink /></div>}
     </Popup></>}
     foot={<Foot kicker="Start with">{rows[0]?.title ?? "No tips yet"}</Foot>}>
-    <PopSection title="The tips, in order" desc={verdict ? <Marked text={verdict} terms={names} /> : "Do them top to bottom. Each one ends with something you can show."}>
-      {rows.length ? <ol className="pl-full">
-        {rows.map((row) => <li key={row.index}>
-          <h6 className="pl-full-h"><span className="pl-num" aria-hidden="true">{row.index + 1}</span> {row.title}</h6>
-          <p className="pl-why">{row.why}</p>
-          <QuestBody quest={quests[row.index]} index={row.index} ticks={ticks} />
-        </li>)}
-      </ol> : <Empty>No tips yet.</Empty>}
-      <LevelUpLink />
-    </PopSection>
-    <PopSection title="Quotes behind the tips" desc="For each tip's skill, the role line and the résumé line the plan started from. Each was checked word for word against its source.">
-      <QuoteList analysis={analysis} names={rows.map((row) => row.skill)} sides={["role", "resume"]} />
-    </PopSection>
+    <section className="pl-sec" aria-label="Your tips, in order">
+      <p className="pl-lead">{verdict ? <Marked text={verdict} terms={names} /> : "Do them top to bottom. Each one ends with something you can show."}</p>
+      {rows.length ? <div className="pl-plan">
+        {rows.map((item) => <TipCard key={item.index} quest={quests[item.index]} number={item.index + 1} why={item.why} compact />)}
+      </div> : <Empty>No tips yet.</Empty>}
+    </section>
+    <details className="tip-quotes">
+      <summary>Quotes behind the tips</summary>
+      <p className="dp-desc">For each tip&apos;s skill, the role line and the résumé line the plan started from. Each was checked word for word against its source.</p>
+      <QuoteList analysis={analysis} names={rows.map((item) => item.skill)} sides={["role", "resume"]} />
+    </details>
   </SumCard>;
 }
 
