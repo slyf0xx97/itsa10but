@@ -8,7 +8,7 @@ export const LEVEL_UP_TITLE = "Level Up Your Résumé with Free / Open-Source We
 export const STAGES: readonly JourneyStage[] = [
   { id: "check", number: 1, label: "Add role & résumé", title: "Add your role and résumé", line: "Paste the job you want, then add your résumé.", scene: "camp" },
   { id: "readers", number: 2, label: "Résumé analysis", title: "The readers investigate", line: "Four readers check your résumé against the role. The Planner turns the gaps into tips and tricks.", scene: "woods" },
-  { id: "radar", number: 3, label: "Your skills radar", title: "Your skills map", line: "", scene: "lookout" },
+  { id: "radar", number: 3, label: "Your skills radar", title: "Your Skills Radar", line: "", scene: "lookout" },
   { id: "level-up", number: 4, label: "Level up", title: LEVEL_UP_TITLE, line: "", scene: "training" },
 ];
 

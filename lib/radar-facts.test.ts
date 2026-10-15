@@ -14,16 +14,25 @@ test("best lists the three strongest proofs, highest first, and skips zero proof
   assert.equal(facts.quotes, 1);
 });
 
-test("gaps list the three biggest shortfalls and count all of them", () => {
+test("gaps are the skills the proof does not cover yet: the three biggest shortfalls are listed and all are counted", () => {
   const facts = radarFacts([skill("A", 80, 0), skill("B", 60, 50), skill("C", 70, 20), skill("D", 40, 40), skill("E", 90, 10)]);
   assert.deepEqual(facts.gaps.map((row) => [row.name, row.short]), [["A", 80], ["E", 80], ["C", 50]]);
-  assert.equal(facts.gapCount, 4);
+  assert.equal(facts.gapCount, 3);
+  assert.equal(facts.gapCount, facts.verdicts.add + facts.verdicts.missing);
 });
 
-test("levels split the skills by proof and add up to the total", () => {
+test("verdicts split the skills into covered, add proof and missing and add up to the total", () => {
   const facts = radarFacts([skill("A", 80, 90), skill("B", 60, 45), skill("C", 70, 20), skill("D", 40, 0)]);
-  assert.deepEqual(facts.levels, { strong: 1, some: 1, weak: 2 });
+  assert.deepEqual(facts.verdicts, { covered: 2, add: 1, missing: 1 });
   assert.equal(facts.total, 4);
+});
+
+test("each row says how many proof steps it has and which one to add next", () => {
+  const facts = radarFacts([skill("A", 80, 45), skill("B", 60, 100)]);
+  const a = facts.best.find((row) => row.name === "A");
+  assert.equal(a?.steps, 2);
+  assert.equal(a?.fix, "Add a number, like users or time saved");
+  assert.equal(facts.best.find((row) => row.name === "B")?.fix, "");
 });
 
 test("bad numbers count as zero and nothing is invented for an empty list", () => {
@@ -38,5 +47,5 @@ test("the sample result gives rows from its own skills", () => {
   const facts = radarFacts(sampleAnalysis.skills);
   const names = new Set(sampleAnalysis.skills.map((item) => item.name));
   for (const row of [...facts.best, ...facts.gaps]) assert.ok(names.has(row.name));
-  assert.equal(facts.levels.strong + facts.levels.some + facts.levels.weak, sampleAnalysis.skills.length);
+  assert.equal(facts.verdicts.covered + facts.verdicts.add + facts.verdicts.missing, sampleAnalysis.skills.length);
 });

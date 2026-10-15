@@ -57,7 +57,7 @@ function ResumeLine({ text }: { text: string }) {
  */
 export function TipCard({ quest, number, why, compact = false }: { quest: Quest; number?: number; why?: string; compact?: boolean }) {
   const links = compact ? (quest.links ?? []).slice(0, 3) : (quest.links ?? []);
-  return <article className={"tip" + (compact ? " is-compact" : "")} data-kind={quest.kind ?? "build"}>
+  return <article className={"tip-card" + (compact ? " is-compact" : "")} data-kind={quest.kind ?? "build"}>
     <header className="tip-head">
       {number !== undefined && <span className="tip-num" aria-hidden="true">{number}</span>}
       <div className="tip-titles">

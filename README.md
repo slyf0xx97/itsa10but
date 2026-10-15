@@ -18,7 +18,7 @@ Here, a skill only scores if the text holds a quote that proves it. If no quote 
 
 1. Add a role. Paste a LinkedIn job link, paste the posting text, upload a PDF, TXT or MD file, or search the remote job feeds.
 2. Add one to three résumés, or press "Play sample" to run a made-up candidate from start to finish. PDFs need selectable text. Files are read in your browser.
-3. Watch the four readers work in order.
+3. Watch the four readers work in order. Every reader card has a .md button that peeks at the exact prompt that agent is given, and the whole file opens from there.
 4. Read the results under "Your résumé is a 10! But…". Each of the four cards opens a "See full findings" popup with the steps the reader took and the quotes behind them.
 5. Open the skills radar and the ranked skill list. Each skill shows what the role asks for, your proof as a percentage, a verdict and the quotes.
 6. Pick a tip from the Action Planner. Each tip has three short steps, a résumé line you can copy and checked links, and the latest articles on that skill load when you open it.
@@ -93,7 +93,7 @@ Checks:
     npx tsc --noEmit
     npm run build
 
-`npm test` runs 352 dependency-free tests with Node's built-in runner.
+`npm test` runs 369 dependency-free tests with Node's built-in runner.
 
 ## MCP tools
 

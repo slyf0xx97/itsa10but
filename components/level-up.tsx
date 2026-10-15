@@ -58,9 +58,10 @@ const LOGO = {
   lf: ["linux-foundation", 128, 128], thm: ["tryhackme", 128, 128], psw: ["portswigger", 128, 128], aisg: ["ai-singapore", 128, 128], gtech: ["govtech", 128, 128], cgov: ["careers-gov", 128, 128], glints: ["glints", 128, 128],
   engsg: ["engineers-sg", 128, 128], gdg: ["gdg", 128, 128], tih: ["tech-interview-handbook", 128, 128], fem: ["frontend-mentor", 128, 128], gfi: ["good-first-issue", 128, 128], yt: ["youtube", 128, 128],
   fcc: ["freecodecamp", 128, 128], cour: ["coursera", 128, 128], edx: ["edx", 128, 128], hf: ["hugging-face", 128, 128], imda: ["imda", 128, 128], jsp: ["jobs-skills-portal", 128, 128], tia: ["tech-in-asia", 128, 128],
-  jobscan: ["jobscan", 40, 40], flowcv: ["flowcv", 180, 180], overleaf: ["overleaf", 180, 180], rr: ["reactive-resume", 180, 180], dlai: ["the-batch", 128, 128],
+  jobscan: ["jobscan", 40, 40], pers16: ["16personalities", 180, 180], dope: ["dope-test", 180, 180], wow: ["my-world-of-work", 180, 180], htb: ["htb-academy", 180, 180], owasp: ["owasp", 180, 180], cyberd: ["cyberdefenders", 128, 128], csa: ["csa-singapore", 180, 180], flowcv: ["flowcv", 180, 180], overleaf: ["overleaf", 180, 180], rr: ["reactive-resume", 180, 180], dlai: ["the-batch", 128, 128],
 } as const;
 const LOGO_OF: Record<string, keyof typeof LOGO> = {
+  "16personalities": "pers16", "dope-bird-test": "dope", "animal-me": "wow", "htb-academy": "htb", "owasp-top-10": "owasp", cyberdefenders: "cyberd", "csa-singapore": "csa",
   cliftonstrengths: "gallup", "myskillsfuture-assessments": "msf", "careers-skills-passport": "msf", "onet-interest-profiler": "onet",
   "critical-core-skills": "sf", "skillsfuture-credit": "sf", "aws-cloud-practitioner": "aws", "microsoft-learn": "ms",
   "github-skills": "gh", "github-profile": "gh", "github-pages": "gh", cs50: "cs50", "kaggle-learn": "kaggle",

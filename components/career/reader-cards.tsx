@@ -1,8 +1,9 @@
 "use client";
 
 import { BASE_PATH } from "@/lib/base-path";
-import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Popup } from "@/components/popup";
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { PromptPeek } from "@/components/career/prompt-peek";
+import { WordTip } from "@/components/career/word-tip";
 import type { AgentNote } from "@/lib/analysis-types";
 import { abilitiesFor, AGENT_PROFILES, lanesFor, type Ability, type Mode } from "@/lib/agent-abilities";
 import { AGENT_FACTS, hasWeb, type AgentFact } from "@/lib/agent-facts";
@@ -62,13 +63,10 @@ const stateWord: Record<State, string> = { waiting: "Waiting", active: "Working"
  * one line down from each reader, joined by a bus line, then one arrow into the dashboard. activities is the latest state per
  * agent and lane (see applyActivity); mode picks which abilities to list until activity arrives. Both are optional.
  */
-export function ReaderCards({ agents, active, completed, activities, mode = "rules" }: { agents: AgentNote[]; active: number; completed: number; activities?: ActivityState; mode?: Mode }) {
+export function ReaderCards({ agents, active, completed, activities, mode = "rules", model }: { agents: AgentNote[]; active: number; completed: number; activities?: ActivityState; mode?: Mode; model?: string }) {
   // A pick only holds while the same reader is running (or while nothing runs: during is -1), so the panel follows the run again at the next handoff. index -1 means closed.
   const [picked, setPicked] = useState<{ index: number; during: number } | null>(null);
   const panelId = useId();
-  // The details popup is a modal <dialog>, so opening it never changes the height of a card.
-  const [detail, setDetail] = useState<number | null>(null);
-  const closeDetail = useCallback(() => setDetail(null), []);
   const shownIndex = picked && picked.during === active ? picked.index : active;
   const reader = shownIndex >= 0 ? readers[shownIndex] : null;
   const profile = reader ? AGENT_PROFILES[reader.name] : null;
@@ -107,10 +105,14 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
               <span className="rd-mt"><b className="rd-ml">{move.label}</b><span className="rd-md">{move.detail}</span></span>
             </li>)}
           </ul>
-          <button type="button" className="rd-more" aria-haspopup="dialog" onClick={() => setDetail(index)}>
-            <span>Strengths, limits &amp; tools</span>
-            <span aria-hidden="true">→</span>
-          </button>
+          {/* The details open as a panel over the page (top layer), on hover, focus or click, so a card never changes height. The prompt file peeks the same way. */}
+          <div className="rd-foot">
+          <WordTip panel wide clickOnly buttonClass="rd-more" tone="water" title={item.name + ": strengths, limits and tools"} label={item.name + ": strengths, limits and tools"}
+            word={<><span>Strengths, limits &amp; tools</span><span aria-hidden="true">→</span></>}>
+            <AgentDetails name={item.name} fact={fact} mode={itemMode} />
+          </WordTip>
+          <PromptPeek name={item.name} model={model} />
+          </div>
         </li>;
       })}
     </ol>
@@ -143,9 +145,6 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
       <p className="rd-finding">{note ? note : state === "active" ? "Working…" : "Waiting"}{state === "active" && note ? <span className="caret" aria-hidden="true">▌</span> : null}</p>
     </div>}
     <ResultFlow active={active} completed={completed} />
-    <Popup open={detail !== null} onClose={closeDetail} title={detail !== null ? readers[detail].name + ": strengths, limits and tools" : "Details"} wide>
-      {detail !== null && <AgentDetails name={readers[detail].name} fact={AGENT_FACTS[detail]} mode={activities?.[readers[detail].name]?.mode ?? mode} />}
-    </Popup>
   </div>;
 }
 

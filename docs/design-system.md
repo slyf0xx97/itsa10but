@@ -129,6 +129,12 @@ Only under `prefers-reduced-motion: no-preference`. Slow parallax drift on cloud
 - **Level up grid** (`app/levelup.css`): `repeat(auto-fill, minmax(min(100%, 17rem), 1fr))`, so it is four across at 1440px. The data is in `lib/level-up-resources.ts` (ten tabs). Never change an existing resource id, because ticks are stored by id.
 - **Journey bar** hides while How it works is on screen, since that section has its own map.
 
+- **Sources and sites card** (`components/sg-signals.tsx`, `.sgs-*` in `app/signals.css`): replaces the old hiring signals card. Two labelled buttons (Figures and news, Sources and sites) open a popup each, and hovering or focusing one gives a peek panel first (`WordTip` with `onActivate`). Under them the five site groups show as round logos. The verified figures live in `components/sg-figures.tsx`: a photo banner, skill bars, figure cards with publisher logos, and the news with Refresh.
+- **Context panels**: "How to add a role" and each reader's "Strengths, limits & tools" are `WordTip panel wide`, a top-layer panel that opens on hover, focus or click, so they never change the page height. The prompt file of each agent peeks the same way (`components/career/prompt-peek.tsx`, text built by `lib/agent-prompts.ts` from the real specs).
+- **Built with** (words in `lib/tech-stack.ts`): joins the tooltip of each stop on the How it works map. The map says how the site works and how it is made.
+- **Footer**: two columns, the long notes on the left and the copyright, author link and "Legal" and "MIT License" buttons on the right. The popup text is in `lib/legal-copy.ts`.
+- **Radar**: proof is shown as 0 to 5 proof steps (`lib/proof-steps.ts`), the legend is two equal cards and a full-width number key, and the three quick-fact tiles share one frame (head, three rows with notches, a closing line).
+
 ## Accessibility
 
 Contrast 4.5:1 for text, visible 3px focus ring (`--ink`), decorative art `aria-hidden`, scenery never carries information, layouts hold at 375px with no horizontal scroll.

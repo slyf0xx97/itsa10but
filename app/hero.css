@@ -11,7 +11,18 @@
 /* The "but" gets a soft lime marker stroke, not a red word, so the heading reads friendly. */
 .hero h1 mark { padding: 0 .08em; border-radius: .12em; background: linear-gradient(transparent 55%, var(--lime) 55%, var(--lime) 92%, transparent 92%); color: inherit; }
 .hero h1 .word-tip-icon { width: .4em; height: .4em; }
-.hero .hero-lede { position: relative; max-width: 36rem; margin-top: .7rem; color: var(--text); font-family: var(--font-body); font-size: clamp(1.05rem, 1.5vw, 1.2rem); font-weight: 400; line-height: 1.55; }
+.hero h1 .hero-ten { padding: 0 .1em; }
+.hero h1 .hero-q { display: inline-block; margin-left: .04em; color: var(--coral); }
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1 .hero-q { animation: hero-q-bob 1.6s ease-in-out infinite; }
+  @keyframes hero-q-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.12em); } }
+}
+/* Keeps the full stop with the tooltip term, so it never starts a line of its own. */
+.hero .hero-lede .nowrap { white-space: nowrap; }
+.hero .hero-lede .nowrap .word-tip { white-space: nowrap; }
+.hero .hero-lede { position: relative; max-width: 36rem; margin-top: .7rem; color: var(--text); font-family: var(--font-body); font-size: clamp(1.05rem, 1.45vw, 1.2rem); font-weight: 400; line-height: 1.55; text-wrap: balance; }
+/* The two tooltip words in the lede read a little larger than the sentence around them. */
+.hero .hero-lede .word-tip-btn { font-size: 1.1em; }
 .hero .hero-lede .ten { padding: 0 .2em; border-radius: .2em; background: linear-gradient(transparent 12%, var(--lime) 12%, var(--lime) 92%, transparent 92%); color: var(--ink); font-weight: 800; }
 
 /* Word tip: the two tooltip words in the lede. Ink text with a dotted teal underline and a small info icon; the bubble opens under the word. */
@@ -61,10 +72,10 @@
    Motion is transform and opacity only, split over four layers so none fight:
    slot = swapping places in pairs (up and down), .agent = slow vertical slide, .ha-hop = the occasional wave and the hover hop, .pixel-sprite = the bob (ui.css).
    Sizes live in custom properties so the swap distance (--ha-step) always equals one slot plus one gap. */
-.ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; left: min(calc(100% - var(--ha-size) - 1.2rem), 41rem); bottom: 1rem; width: var(--ha-size); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
+.ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; left: min(calc(100% - var(--ha-size) - 1.6rem), 40.2rem); bottom: 1rem; width: var(--ha-size); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
 @container hero-plate (min-width: 38rem) {
   .ha { display: flex; }
-  .hero h1, .hero .hero-lede { max-width: min(36rem, calc(100% - 6.5rem)); }
+  .hero h1, .hero .hero-lede { max-width: min(36rem, calc(100% - 5.6rem)); }
 }
 .ha-slot { position: relative; flex: none; width: var(--ha-size); height: var(--ha-size); pointer-events: auto; }
 .ha-slot:hover { z-index: 2; }

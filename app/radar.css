@@ -42,11 +42,13 @@
 @container radar (min-width: 1140px) {
   .so { grid-template-columns: minmax(0, 24rem) minmax(0, 1fr); }
 }
-.so-tile { container: tile / inline-size; position: relative; isolation: isolate; overflow: hidden; display: grid; align-content: start; min-width: 0; padding: .7rem .9rem .8rem; }
+.so-tile { container: tile / inline-size; position: relative; isolation: isolate; overflow: hidden; display: grid; align-content: stretch; min-width: 0; padding: .8rem .95rem .85rem; }
 .so-tile.best { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--mint-soft) 85%, #fff)); }
 .so-tile.gap { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--coral-soft) 85%, #fff)); }
 .so-tile.match { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--teal-soft) 85%, #fff)); }
-.so-tile-body { display: grid; align-content: start; gap: .6rem; min-width: 0; }
+/* Head, list and closing line: the list takes the spare height and spreads its three rows evenly, so the three tiles end on the same line and no tile has a gap at the bottom. */
+.so-tile-body { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: .7rem; min-width: 0; height: 100%; }
+.so-tile-foot { margin: 0; padding-top: .55rem; border-top: 1.5px dashed rgb(31 36 48 / 24%); color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.35; }
 .so-tile-head { display: grid; align-content: start; gap: .25rem; min-width: 0; }
 .so-art { position: absolute; z-index: -1; right: -.4rem; bottom: -.5rem; width: 7rem; height: auto; opacity: .26; pointer-events: none; }
 .so-tile.match .so-art { opacity: .24; }
@@ -78,21 +80,27 @@
 .so-meter .have { left: 0; background: var(--leaf-deep); }
 .so-meter .miss { background: repeating-linear-gradient(135deg, #c93a25 0 3px, #fff 3px 6px); }
 /* The lists: a marker (rank number, or a colour square for the proof levels), the name, a figure, and the bar under them. */
-.so-list { display: grid; gap: .6rem; font-variant-numeric: tabular-nums lining-nums; margin: 0; padding: 0; list-style: none; }
+.so-list { display: grid; align-content: space-evenly; gap: .6rem; font-variant-numeric: tabular-nums lining-nums; margin: 0; padding: 0; list-style: none; }
 .so-row { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; align-items: baseline; gap: .15rem .5rem; min-width: 0; }
 .so-mark { display: grid; place-items: center; align-self: center; width: 1.6rem; height: 1.6rem; border: 1.5px solid var(--ink); border-radius: 6px; background: #fff; font-family: var(--font-body); font-size: 1rem; font-weight: 700; line-height: 1; color: var(--ink); }
 .so-row-name { min-width: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
 .so-tick { color: var(--leaf-deep); font-weight: 800; }
 .so-row-fig { font-size: 1.05rem; font-weight: 700; line-height: 1.2; color: var(--ink-soft); white-space: nowrap; }
+.so-row-note { grid-column: 2 / -1; color: var(--ink-soft); font-size: 1rem; line-height: 1.3; }
+.so-row-note b { color: var(--ink); font-weight: 800; }
+.so-row-name .so-dots { margin-left: .45rem; vertical-align: .08em; }
+/* Five notches, one per proof step: filled where the résumé passes the step (green). In the gap tile the open notches are hatched coral, the steps still to add. */
+.so-steps { grid-column: 2 / -1; display: flex; gap: 3px; }
+.so-steps i { flex: 1 1 0; display: block; height: .7rem; border: 2px solid var(--ink); border-radius: 3px; background: #fff; }
+.so-steps i.on { background: var(--leaf-deep); }
+.so-tile.gap .so-steps i:not(.on) { background: repeating-linear-gradient(135deg, #c93a25 0 3px, #fff 3px 6px); }
 .so-row-fig b { font-weight: 700; color: var(--ink); }
 .so-row .so-meter { grid-column: 2 / -1; }
 .so-row.lv .so-mark { border-radius: 4px; }
-.so-row.strong .so-mark, .so-row.strong .so-meter .have { background: var(--leaf-deep); }
-.so-row.some .so-mark, .so-row.some .so-meter .have { background: var(--orange-dark); }
-.so-row.weak .so-mark, .so-row.weak .so-meter .have { background: repeating-linear-gradient(135deg, #c93a25 0 3px, #fff 3px 6px); }
+.so-row.covered .so-mark, .so-row.covered .so-meter .have { background: var(--leaf-deep); }
+.so-row.add .so-mark, .so-row.add .so-meter .have { background: var(--orange-dark); }
+.so-row.missing .so-mark, .so-row.missing .so-meter .have { background: repeating-linear-gradient(135deg, #c93a25 0 3px, #fff 3px 6px); }
 @container tile (max-width: 20rem) { .so-row-fig { white-space: normal; text-align: right; } }
-/* In a narrow card the long "asks 80, shows 20" figure drops under the gap names so they stay on one line. */
-@container tile (max-width: 17rem) { .so-tile.gap .so-row-fig { grid-column: 2 / -1; grid-row: 2; text-align: left; } .so-tile.gap .so-row .so-meter { grid-row: 3; } }
 .so-gauge { flex: none; width: 7rem; height: auto; }
 .so-gauge path { fill: none; stroke-width: 11; }
 .so-gauge .g-track { stroke: rgb(31 36 48 / 16%); }
@@ -104,10 +112,18 @@
 .so-key b { font-size: 1.1rem; font-weight: 800; }
 .so-key .sg-state { width: 1.4rem; height: 1.4rem; font-size: .85rem; }
 
-/* The key sits right under the radar chart, at the chart's width: four small glass chips in two columns (one column when very narrow), 13px type, each with a small glyph that matches what the chart draws. */
-.rd-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .3rem .4rem; margin: 0; padding: 0; list-style: none; }
-.rd-key { display: flex; align-items: center; gap: .35rem; min-width: 0; padding: .2rem .5rem .2rem .35rem; border: 1px solid rgb(31 36 48 / 30%); border-radius: 10px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: .8125rem; line-height: 1.25; }
-.rd-key b { font-weight: 800; }
+/* The key sits right under the radar chart, at the chart's width: Have and Gap side by side in two equal cards, and the number key full width under them. Each card has a glyph that matches what the chart draws,
+   a bold name and one plain line. One column when very narrow. */
+.rd-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.rd-key { display: flex; align-items: flex-start; gap: .5rem; min-width: 0; padding: .5rem .65rem .55rem; border: 1.5px solid rgb(31 36 48 / 30%); border-radius: 12px; background: rgb(255 255 255 / 75%); color: var(--ink); line-height: 1.3; }
+.rd-key.have { background: color-mix(in srgb, var(--mint-soft) 80%, #fff); }
+.rd-key.gap { background: color-mix(in srgb, var(--coral-soft) 80%, #fff); }
+.rd-key.wide { grid-column: 1 / -1; }
+.rd-key > span { display: grid; gap: .1rem; min-width: 0; }
+.rd-key small { color: var(--ink-soft); font-size: 1rem; line-height: 1.35; }
+.rd-key .rd-glyph { margin-top: .2rem; }
+@container radar (max-width: 28rem) { .rd-legend { grid-template-columns: minmax(0, 1fr); } }
+.rd-key b { font-size: 1.05rem; font-weight: 800; }
 .rd-key .word-tip-btn { color: var(--ink); }
 .rd-glyph { flex: none; display: inline-grid; place-items: center; width: 1rem; height: 1rem; font-style: normal; }
 .rd-glyph.dot { width: .75rem; height: .75rem; margin-inline: .125rem; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--meadow, #5bb86b); }

@@ -162,7 +162,6 @@ test("wide map: the electric line stays clear of every card", () => {
 });
 
 test("a chosen road runs alone: the shared stretches stay, the other road's hops and pulses go", () => {
-  assert.equal(hopsFor("turns"), HOPS);
   for (const route of ["boost", "native"] as const) {
     const hops = hopsFor(route);
     assert.ok(hops.length < HOPS.length && hops.length > 0);
@@ -173,7 +172,7 @@ test("a chosen road runs alone: the shared stretches stay, the other road's hops
     const covered = new Set(hops.map((hop) => hop.seg));
     for (const seg of Object.keys(SEG_ENDS) as SegId[]) { if (route === "boost" && (seg === "nA" || seg === "nB")) continue; if (route === "native" && (seg === "bA" || seg === "bB")) continue; assert.ok(covered.has(seg), route + " " + seg); }
   }
-  assert.deepEqual(ROUTES, ["turns", "boost", "native"]);
+  assert.deepEqual(ROUTES, ["native", "boost"]);
 });
 
 test("the gates stand on their own road just after the fork, and the controls keep clear of every road", () => {

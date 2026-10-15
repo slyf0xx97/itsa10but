@@ -7,7 +7,7 @@ import { GLOSSARY, type TermId } from "@/lib/glossary";
 /** A jargon word with a plain-word tooltip from the glossary. Children replace the label, the explanation stays. */
 export function Term({ id, children }: { id: TermId; children?: ReactNode }) {
   const entry = GLOSSARY[id];
-  return <WordTip title={entry.title} word={children ?? entry.word} tone={entry.tone} icon={entry.icon && <PixelIcon name={entry.icon} size={18} />}>
+  return <WordTip title={entry.title} word={children ?? entry.word} tone={entry.tone} wide={Boolean(entry.sections)} icon={entry.icon && <PixelIcon name={entry.icon} size={18} />}>
     {entry.lines.map((line) => <span key={line} className="word-tip-line">{line}</span>)}
     {entry.sections?.map((section) => <span key={section.label} className="word-tip-sec">
       <span className="word-tip-sec-h">{section.icon && <span className="word-tip-sec-icon"><PixelIcon name={section.icon} size={14} /></span>}{section.label}</span>

@@ -14,8 +14,10 @@ export const elevateGroups: ElevateGroup[] = [
     resources: [
       { id: "cliftonstrengths", name: "Gallup CliftonStrengths 34", tag: "Strengths", detail: "See your top themes and get guidance on your top 10. This report is paid.", url: "https://www.gallup.com/cliftonstrengths/en/403127/cliftonstrengths-34-report.aspx" },
       { id: "myskillsfuture-assessments", name: "MySkillsFuture assessments", tag: "Interests", detail: "Check your career interests, skills confidence and work values.", url: "https://www.myskillsfuture.gov.sg/content/portal/en/assessment/landing.html" },
-      { id: "careers-skills-passport", name: "Careers & Skills Passport", tag: "Verified record", detail: "Review verified skills and qualifications in one place.", url: "https://www.myskillsfuture.gov.sg/csp" },
       { id: "onet-interest-profiler", name: "O*NET Interest Profiler", tag: "Career ideas", detail: "Find activities you enjoy and roles that fit them.", url: "https://www.mynextmove.org/explore/ip" },
+      { id: "16personalities", name: "16Personalities", tag: "MBTI-style type", detail: "A free 60-question test that gives you a four-letter type like INTJ.", url: "https://www.16personalities.com/free-personality-test" },
+      { id: "dope-bird-test", name: "DOPE bird test", tag: "Work style", detail: "Find out if you are a Dove, Owl, Peacock or Eagle. A light read on how you work.", url: "https://richardstep.com/dope-personality-type-quiz/" },
+      { id: "animal-me", name: "Animal Me", tag: "Animal and careers", detail: "Find which animal you are most like and the careers that may suit you.", url: "https://www.myworldofwork.co.uk/tools-and-quizzes/animal-me" },
     ],
   },
   {
@@ -47,8 +49,18 @@ export const elevateGroups: ElevateGroup[] = [
       { id: "fast-ai", name: "fast.ai", tag: "Deep learning", detail: "A free course that teaches deep learning by building things.", url: "https://course.fast.ai/" },
       { id: "deeplearning-ai", name: "DeepLearning.AI courses", tag: "AI courses", detail: "Short courses and longer programmes on AI. Check which are free.", url: "https://www.deeplearning.ai/courses" },
       { id: "hugging-face-learn", name: "Hugging Face Learn", tag: "AI models", detail: "Courses on language models, agents and more.", url: "https://huggingface.co/learn" },
-      { id: "tryhackme", name: "TryHackMe", tag: "Security", detail: "Learn security through hands-on labs in your browser. Some are paid.", url: "https://tryhackme.com/" },
+    ],
+  },
+  {
+    title: "Cybersecurity", icon: "siem",
+    description: "Learn security by doing. Practise in safe labs, then write up what you solved.",
+    resources: [
+      { id: "tryhackme", name: "TryHackMe", tag: "Hands-on labs", detail: "Learn security through hands-on labs in your browser. Some are paid.", url: "https://tryhackme.com/" },
       { id: "portswigger-academy", name: "Web Security Academy", tag: "Web security", detail: "Free online training in web application security from PortSwigger.", url: "https://portswigger.net/web-security" },
+      { id: "htb-academy", name: "Hack The Box Academy", tag: "Security courses", detail: "Guided cybersecurity courses and labs. Some content is paid.", url: "https://academy.hackthebox.com/" },
+      { id: "owasp-top-10", name: "OWASP Top 10", tag: "Web risks", detail: "The reference list of the most critical web application security risks.", url: "https://owasp.org/www-project-top-ten/" },
+      { id: "cyberdefenders", name: "CyberDefenders", tag: "Blue team", detail: "Blue team training for SOC analysts, with cyber range investigations.", url: "https://cyberdefenders.org/" },
+      { id: "csa-singapore", name: "Cyber Security Agency", tag: "Singapore", detail: "Singapore's national cybersecurity agency. Read its guides and news.", url: "https://www.csa.gov.sg/" },
     ],
   },
   {
@@ -115,6 +127,7 @@ export const elevateGroups: ElevateGroup[] = [
       { id: "critical-core-skills", name: "SkillsFuture Critical Core Skills", tag: "Transferable skills", detail: "A Singapore framework for thinking and working with others.", url: "https://www.skillsfuture.gov.sg/skills-framework/criticalcoreskills" },
       { id: "skills-framework", name: "SkillsFuture Skills Frameworks", tag: "Skills lists", detail: "See the roles and skills Singapore lists for each sector.", url: "https://www.skillsfuture.gov.sg/skills-framework" },
       { id: "jobs-skills-portal", name: "Jobs-Skills Portal", tag: "In-demand roles", detail: "Skills insights and in-demand roles in Singapore.", url: "https://jobsandskills.swda.gov.sg/" },
+      { id: "careers-skills-passport", name: "Careers & Skills Passport", tag: "Verified record", detail: "Review verified skills and qualifications in one place.", url: "https://www.myskillsfuture.gov.sg/csp" },
       { id: "wsg", name: "Workforce Singapore", tag: "Career support", detail: "Read about the career support and job-matching programmes from this Singapore government agency.", url: "https://www.wsg.gov.sg/" },
       { id: "govtech-developer", name: "Government Developer Portal", tag: "Public sector tech", detail: "The Singapore government's portal for developers.", url: "https://www.developer.tech.gov.sg/" },
     ],

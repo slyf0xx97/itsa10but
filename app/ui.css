@@ -245,8 +245,8 @@ details.fold > .fold-body { padding: .9rem; }
 .elevate-card p { color: var(--ink-soft); font-size: .92rem; margin-top: .2rem; }
 
 /* Footer: ink text on the summit sky, with a soft grass strip at the bottom (the gradient is in shell.css). */
-.site-footer { position: relative; padding: 2.5rem 0 calc(7.5rem + env(safe-area-inset-bottom)); color: var(--text); font-size: 1rem; } /* the fixed journey bar covers the lower 108px (80px on phones), so the glass runs to the page end under it */
-@media (max-width: 639px) { .site-footer { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); } }
+.site-footer { position: relative; padding: 1.25rem 0 calc(1.25rem + env(safe-area-inset-bottom)); color: var(--text); font-size: 1rem; } /* the fixed journey bar covers the lower 108px (80px on phones), so the glass runs to the page end under it */
+@media (max-width: 639px) { .site-footer { padding-bottom: calc(1.25rem + env(safe-area-inset-bottom)); } }
 .site-footer .wrap { display: grid; gap: .75rem; }
 .site-footer a { color: var(--link); }
 .site-footer a:hover { color: var(--coral); }

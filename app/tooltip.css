@@ -43,9 +43,21 @@
 .word-tip-bubble[data-side="above"] .word-tip-arrow { top: auto; bottom: -9px; border: 2px solid var(--ink); border-left: 0; border-top: 0; background: #fff; }
 
 /* The short line beside the lock under the résumé drop zone. */
-.pv-note { display: inline-flex; align-items: center; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.3; }
+/* The crossed-out database beside the lock: a database mark with a coral X on its corner. It is a button, so the tooltip opens on hover, focus and tap. */
+.pv-nodb { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); cursor: help; }
+.pv-nodb:hover { background: var(--lime); }
+.pv-nodb:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.pv-nodb-mark { position: relative; display: inline-grid; place-items: center; }
+.pv-nodb-x { position: absolute; right: -.45rem; bottom: -.4rem; padding: 1px; border-radius: 50%; background: #fff; color: #c93a25; }
 
 /* The panel variant (privacy and safety): wider, non-modal, scrolls as a whole, has its own Close button. */
+/* Wide: the small bubble and the panel open roomy, so a tip with sections reads across and does not need scrolling. */
+.word-tip-bubble[data-wide] { width: min(46rem, calc(100vw - 2rem)); }
+.word-tip-bubble[data-wide] .word-tip-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .6rem; align-items: start; }
+.word-tip-bubble[data-wide] .word-tip-body > .word-tip-line { grid-column: 1 / -1; }
+.word-tip-bubble[data-wide] .word-tip-sec { margin-top: 0; height: 100%; box-sizing: border-box; }
+.word-tip-bubble.is-panel[data-wide] { width: min(60rem, calc(100vw - 2rem)); max-height: min(36rem, 78vh, var(--panel-max, 100vh)); }
+.word-tip-bubble.is-panel:has(.md-peek) { width: min(44rem, calc(100vw - 2rem)); }
 .word-tip-bubble.is-panel { width: min(28rem, calc(100vw - 2rem)); max-height: min(26rem, 70vh, var(--panel-max, 100vh)); overflow-y: auto; overscroll-behavior: contain; }
 .word-tip-bubble.is-panel .word-tip-body { max-height: none; overflow: visible; }
 .word-tip-bubble.is-panel .word-tip-head { position: sticky; top: 0; z-index: 1; }

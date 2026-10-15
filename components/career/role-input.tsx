@@ -1,7 +1,8 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
 import { useId, useRef, useState, type ClipboardEvent, type ReactNode } from "react";
-import { FileUp } from "lucide-react";
+import { HelpCircle } from "lucide-react";
+import { WordTip } from "@/components/career/word-tip";
 import { readResumeFile } from "@/lib/read-resume";
 import { runSafetyCheck } from "@/lib/safety";
 import { extractLinkedinJobId } from "@/lib/linkedin-url";
@@ -68,7 +69,6 @@ function Steps({ items }: { items: { scene: Scene; title: string; text: string }
 }
 
 export function RoleInput({ value, onChange, typing = false }: { value: string; onChange: (text: string) => void; typing?: boolean }) {
-  const fileRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
@@ -109,12 +109,6 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
   async function load(file: File, message = "") {
     try { requestRef.current++; setStatus(""); setNote(message); onChange(await readResumeFile(file)); setError(""); }
     catch (cause) { setError(cause instanceof Error ? cause.message.replace("résumé", "job description") : "This file could not be read."); }
-    if (fileRef.current) fileRef.current.value = "";
-  }
-
-  function upload(files: FileList | null) {
-    const file = files?.[0];
-    if (file) void load(file);
   }
 
   // A dropped link or text lands in the box as if it were pasted. A dropped file goes through the same reader as the upload button.
@@ -133,48 +127,50 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
   const zone = useDropZone(drop, !typing);
 
   return <div className="stack role-input">
-    <div className="li-head">
-      <LinkedInMark />
-      <strong>Paste from LinkedIn</strong>
-      <Tip label="What does this do?">Itsa10but has no link to your LinkedIn account. You copy the posting and paste it here.</Tip>
-    </div>
     <div className={"role-field" + (zone.over ? " is-over" : "")} {...zone.props}>
-      <label htmlFor="job-description" className="with-tip">Job description <Tip label="What should I paste?">Copy the whole posting, including the title, company and requirements. More text gives the Role Scout more to work with.</Tip></label>
+      <div className="rl-head">
+        <label htmlFor="job-description" className="with-tip">Job description <Tip label="What should I paste?">Copy the whole posting, including the title, company and requirements. More text gives the Role Scout more to work with. A public LinkedIn job link works too: Itsa10but has no link to your LinkedIn account, so it only reads the public posting. You can also drop a PDF, TXT or MD file on the box.</Tip></label>
+        <span className="rl-li"><LinkedInMark size={22} /><span>LinkedIn links work</span></span>
+      </div>
       <div className={"ta-wrap" + (typing ? " typing" : "")}>
-        <textarea id="job-description" value={value} readOnly={typing} onChange={(event) => void change(event.target.value)} onPaste={paste} placeholder="Paste or drop a LinkedIn job link, the posting text or any job description…" />
+        <textarea id="job-description" value={value} readOnly={typing} onChange={(event) => void change(event.target.value)} onPaste={paste} placeholder="Paste or drop a LinkedIn job link, the posting text, or a PDF, TXT or MD file…" />
         {typing && <span className="typing-caret" aria-hidden="true">▌</span>}
         {zone.over && <span className="drop-hint" aria-hidden="true">Drop a link, text or file here</span>}
       </div>
       <p role="status" aria-live="polite" className="hint">{status || (zone.over ? "Drop it to add it to the role box." : "")}</p>
       {note && <p className="notice">{note}</p>}
     </div>
-    <div className="role-actions">
-      <input ref={fileRef} type="file" accept=".txt,.md,.pdf" className="sr-only" id="job-file" onChange={(event) => upload(event.target.files)} />
-      <button type="button" className="btn quiet" onClick={() => fileRef.current?.click()}><FileUp size={16} aria-hidden="true" /> Upload a job file</button>
-      <Tip label="About uploading">PDF, TXT or MD. You can also drop a file, a link or text on the box above.</Tip>
-    </div>
     {error && <p className="notice error" role="alert">{error}</p>}
     {flags.length > 0 && <p className="notice error" role="alert">This text has wording that tries to instruct an AI: {[...new Set(flags.map((flag) => flag.label))].join(", ")}. The readers treat it as plain text, so check it before you continue.</p>}
 
-    <details className="fold"><summary>How to copy a job from LinkedIn</summary><div className="fold-body">
-      <Steps items={[
-        { scene: "open", title: "Open the job", text: "On LinkedIn, click a job to open its details on the right. You can also copy the page link and paste it here." },
-        { scene: "copy", title: "Copy the posting", text: "Select everything from the job title to the end of “About the job”, then press Ctrl+C (⌘+C on Mac)." },
-        { scene: "paste", title: "Paste it here", text: "Click the box above and press Ctrl+V (⌘+V on Mac)." },
-      ]} />
-      <p className="hint fold-tip"><b>Click “Show more” first.</b> LinkedIn hides long descriptions behind it.</p>
-    </div></details>
-    <details className="fold"><summary>Other ways to add a role</summary><div className="fold-body">
-      <h4>Paste raw text</h4>
-      <Steps items={[
-        { scene: "doc", title: "Copy from anywhere", text: "A company site, an email or a chat message all work. Include the requirements." },
-        { scene: "paste", title: "Paste it", text: "It goes in the same box. No formatting needed." },
-      ]} />
-      <h4>Upload a file</h4>
-      <Steps items={[
-        { scene: "file", title: "Save the posting", text: "On LinkedIn, print the page and choose “Save as PDF”, or save the text as a .txt or .md file." },
-        { scene: "doc", title: "Upload it", text: "Use “Upload a job file”. PDFs need text you can select, so scanned images won't work." },
-      ]} />
-    </div></details>
+    {/* The how-to opens as a panel over the page (top layer), so reading it never changes the height of the section. */}
+    <WordTip panel wide title="How to add a role" label="How to add a role" buttonClass="role-how" tone="water"
+      word={<><HelpCircle size={18} aria-hidden="true" /><span>How to add a role</span></>}>
+      <div className="role-how-body">
+        <section>
+          <h4>From LinkedIn</h4>
+          <Steps items={[
+            { scene: "open", title: "Open the job", text: "On LinkedIn, click a job to open its details on the right. You can also copy the page link and paste it here." },
+            { scene: "copy", title: "Copy the posting", text: "Select everything from the job title to the end of “About the job”, then press Ctrl+C (⌘+C on Mac)." },
+            { scene: "paste", title: "Paste it here", text: "Click the box and press Ctrl+V (⌘+V on Mac)." },
+          ]} />
+          <p className="hint fold-tip"><b>Click “Show more” first.</b> LinkedIn hides long descriptions behind it.</p>
+        </section>
+        <section>
+          <h4>Paste raw text</h4>
+          <Steps items={[
+            { scene: "doc", title: "Copy from anywhere", text: "A company site, an email or a chat message all work. Include the requirements." },
+            { scene: "paste", title: "Paste it", text: "It goes in the same box. No formatting needed." },
+          ]} />
+        </section>
+        <section>
+          <h4>Drop a file</h4>
+          <Steps items={[
+            { scene: "file", title: "Save the posting", text: "On LinkedIn, print the page and choose “Save as PDF”, or save the text as a .txt or .md file." },
+            { scene: "doc", title: "Drop it on the box", text: "Drop the file on the box. PDFs need text you can select, so scanned images won't work." },
+          ]} />
+        </section>
+      </div>
+    </WordTip>
   </div>;
 }

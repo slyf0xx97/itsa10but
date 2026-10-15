@@ -171,7 +171,7 @@ export const RAIL: Layout = guessRail();
 /** One stretch of the journey, with times in seconds inside the cycle. The note is on screen from `show` to `hide`, moves from `go` to `end`. */
 export type Hop = { id: string; seg: SegId; show: number; go: number; end: number; hide: number; glyph: "raw" | "masked" | "checked"; walker?: ReaderId; road?: "native" | "boost"; stay?: boolean };
 
-/** Length of one run. Road hops sit in a doubled timeline so Native scan and API boost take turns. */
+/** Length of one run, in seconds. The note takes one road per run: the one the bridge switch is on. */
 export const CYCLE = 36;
 
 export const HOPS: Hop[] = [
@@ -189,12 +189,12 @@ export const HOPS: Hop[] = [
   { id: "h8", seg: "s3", show: 22.4, go: 22.8, end: 30.0, hide: 35.4, glyph: "checked", walker: "planner" },
 ];
 
-/** Which road the visitor has lowered the bridge to. "turns" is the default: the note takes API boost, then Native scan, run after run. */
-export type Route = "turns" | "boost" | "native";
-export const ROUTES: Route[] = ["turns", "boost", "native"];
+/** Which road the visitor has lowered the bridge to. The switch has two positions, like Agent power in the header, so one road is always open. */
+export type Route = "native" | "boost";
+export const ROUTES: Route[] = ["native", "boost"];
 
-/** The hops that run for a route. The shared stretches always run, and a chosen road runs alone in one 36 second cycle instead of taking turns in a doubled one. */
-export const hopsFor = (route: Route): Hop[] => (route === "turns" ? HOPS : HOPS.filter((hop) => !hop.road || hop.road === route));
+/** The hops that run for a route: the shared stretches, and only the chosen road's own hops. */
+export const hopsFor = (route: Route): Hop[] => HOPS.filter((hop) => !hop.road || hop.road === route);
 
 /** Where the two bridge gates stand on the wide map, one on each road just after the fork. */
 export const GATES: Record<"boost" | "native", Pt> = { boost: [350, 316], native: [430, 366] };
@@ -209,7 +209,7 @@ export function gatePoint(layout: Layout, wide: boolean, road: "boost" | "native
 /** The play, reset and bridge controls under the title sign, as a box in board units on the wide map. */
 export const CONTROLS = { x: 12, y: 70, w: 340, h: 92 };
 
-/** When the note reaches each marker, for the arrival pulse. Native scan and API boost arrive in their own run. */
+/** When the note reaches each marker, for the arrival pulse. */
 export const ARRIVALS: { stop: NodeId; at: number; road?: "native" | "boost" }[] = [
   { stop: "camp", at: 0.2 },
   { stop: "native", at: 8.8, road: "native" }, { stop: "boost", at: 8.8, road: "boost" },
@@ -218,4 +218,4 @@ export const ARRIVALS: { stop: NodeId; at: number; road?: "native" | "boost" }[]
 ];
 
 /** The arrival pulses that run for a route. */
-export const arrivalsFor = (route: Route) => (route === "turns" ? ARRIVALS : ARRIVALS.filter((arrival) => !arrival.road || arrival.road === route));
+export const arrivalsFor = (route: Route) => ARRIVALS.filter((arrival) => !arrival.road || arrival.road === route);

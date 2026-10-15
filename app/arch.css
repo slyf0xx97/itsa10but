@@ -36,32 +36,38 @@
 .qm-group { margin: 0; padding: 0; }
 
 /* Map controls: Play or Pause, Reset and the bridge switch, under the title sign (in the flow on the rail, pinned under the sign on the wide map; CONTROLS in lib/trail-geometry.ts).
-   The bridge is three native radios styled as one segmented control: Both roads in turn, API boost (blue), Native scan (orange). */
+   The bridge is a two-position switch (see below). */
 .qm-controls { position: relative; z-index: 3; display: grid; gap: .45rem; width: fit-content; max-width: calc(100% - 1.6rem); margin: 0 .8rem .7rem; }
 .qm-ctl-row { display: flex; gap: .4rem; }
 .qm-ctl { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.5rem; padding: .2rem .8rem; border: 2px solid var(--ink); border-radius: 10px; background: rgb(255 255 255 / 92%); color: var(--ink); font-family: var(--font-body); font-size: 1rem; font-weight: 800; line-height: 1.2; box-shadow: 0 2px 0 rgb(31 36 48 / 35%); cursor: pointer; }
 .qm-ctl:hover:not(:disabled) { background: var(--lime); }
 .qm-ctl:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 .qm-ctl:disabled { opacity: .55; cursor: not-allowed; }
-.qm-bridge { display: flex; align-items: stretch; gap: 0; min-width: 0; margin: 0; padding: 0; border: 2px solid var(--ink); border-radius: 10px; background: rgb(255 255 255 / 92%); box-shadow: 0 2px 0 rgb(31 36 48 / 35%); overflow: hidden; }
-.qm-bridge-legend { display: inline-flex; align-items: center; gap: .35rem; float: left; padding: 0 .6rem; color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.2; }
-.qm-bridge-mark { flex: none; color: #8a5a33; }
-.qm-seg { position: relative; display: inline-flex; align-items: center; min-height: 2.5rem; padding: 0 .75rem; border-left: 2px solid var(--ink); color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.2; white-space: nowrap; cursor: pointer; }
-.qm-seg input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.qm-seg:hover { background: var(--sky-soft); }
-.qm-seg:has(input:checked) { font-weight: 800; background: #fff3a8; }
-.qm-seg[data-route="boost"]:has(input:checked) { background: #3bb4d6; }
-.qm-seg[data-route="native"]:has(input:checked) { background: #e8912d; }
-.qm-seg:has(input:focus-visible), .qm-ctl:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
-.qm-ctl:focus-visible { outline-offset: 2px; }
+/* The bridge switch copies Agent power in the header: Native scan on the left, API boost on the right, a plank bridge between them. The knob is the bridge piece and sits on the road
+   the note takes (orange for Native scan, blue for API boost). The chosen name is bold and underlined. */
+.qm-bridge { display: flex; align-items: center; gap: .55rem; min-width: 0; padding: .3rem .7rem; border: 2px solid var(--ink); border-radius: 10px; background: rgb(255 255 255 / 92%); box-shadow: 0 2px 0 rgb(31 36 48 / 35%); }
+.qm-bridge-legend { display: inline-flex; align-items: center; flex: none; color: #8a5a33; }
+.qm-switch { --knob: 22px; --travel: 30px; display: flex; flex: none; align-items: center; justify-content: center; gap: .5rem; min-width: 0; }
+.qm-side { position: relative; order: 1; padding: 0 .1rem .1rem; border-bottom: 2px solid transparent; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.2; white-space: nowrap; cursor: pointer; }
+.qm-side-boost { order: 3; }
+.qm-side input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.qm-side:has(input:checked) { border-bottom-color: var(--ink); font-weight: 800; }
+.qm-deck { position: relative; order: 2; flex: none; box-sizing: border-box; width: 62px; height: 30px; border: 2px solid var(--ink); border-radius: 8px; background: repeating-linear-gradient(90deg, #c98b4b 0 9px, #a9722f 9px 11px); box-shadow: 0 2px 0 rgb(31 36 48 / 35%); cursor: pointer; }
+.qm-deck::before { content: ""; position: absolute; inset: -9px -4px; } /* 44px tall hit area */
+.qm-knob { position: absolute; top: 2px; left: 2px; box-sizing: border-box; width: var(--knob); height: var(--knob); border: 2px solid var(--ink); border-radius: 6px; background: #e8912d; box-shadow: 0 1px 0 rgb(31 36 48 / 40%), inset 0 2px 0 rgb(255 255 255 / 35%); }
+.qm-bridge[data-route="boost"] .qm-knob { background: #3bb4d6; transform: translateX(var(--travel)); }
+.qm-switch:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 8px; }
+@media (prefers-reduced-motion: no-preference) { .qm-knob { transition: transform .18s ease, background-color .18s ease; } }
+.qm-ctl:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
 /* The title: a hanging wooden sign in the top left corner of the map. It is the section's h2. */
-.qm-sign, .qm-forksign { border: 2px solid var(--ink); border-radius: 8px; background: linear-gradient(180deg, #9c6024, #84501e); color: #fff8e6; text-shadow: 0 2px 0 rgb(31 36 48 / 55%); box-shadow: 0 3px 0 rgb(31 36 48 / 35%), inset 0 2px 0 rgb(255 255 255 / 25%); }
+.qm-sign { border: 2px solid var(--ink); border-radius: 8px; background: linear-gradient(180deg, #9c6024, #84501e); color: #fff8e6; text-shadow: 0 2px 0 rgb(31 36 48 / 55%); box-shadow: 0 3px 0 rgb(31 36 48 / 35%), inset 0 2px 0 rgb(255 255 255 / 25%); }
 .qm-sign { position: relative; z-index: 3; width: fit-content; margin: 1rem 0 .8rem .8rem; padding: .3em .75em .35em; font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; line-height: 1.1; }
 .qm-sign::before, .qm-sign::after { content: ""; position: absolute; bottom: 100%; width: 2px; height: 1rem; background: var(--ink); }
 .qm-sign::before { left: 18%; }
 .qm-sign::after { right: 18%; }
-.qm-forksign { box-sizing: border-box; width: fit-content; margin: 0 0 .55rem 5rem; padding: .1em .7em .15em; font-size: .95rem; font-weight: 700; line-height: 1.3; }
+/* The fork has no sign any more. The empty marker only keeps the rail's spacing and the fork's anchor (measureRail). */
+.qm-forksign { height: 1.5rem; margin: 0 0 .55rem; }
 
 /* The card: translucent paper with a soft blur where the browser can and a thin ink edge. Ink text on this tint stays far above AA, even over the darkest scenery. */
 .qm-box { width: fit-content; max-width: 100%; padding: .4em .65em .55em; border: 1.5px solid rgb(31 36 48 / 70%); border-radius: 12px; background: rgb(255 252 240 / 80%); color: var(--ink); font-family: var(--font-body); font-size: .9375rem; line-height: 1.3; box-shadow: 0 2px 10px rgb(31 36 48 / 16%); overflow-wrap: anywhere; }
@@ -174,13 +180,11 @@
   .qm-sign { position: absolute; left: 1%; top: 2.4%; margin: 0; padding-inline: .7em; font-size: clamp(1.1rem, 2cqw, 2rem); }
   .qm-sign::before, .qm-sign::after { height: 3cqw; }
   .qm-controls { position: absolute; left: calc(12 * 100cqw / 1200); top: calc(70 * 100cqw / 1200); width: calc(340 * 100cqw / 1200); max-width: none; margin: 0; }
-  .qm-ctl, .qm-seg, .qm-bridge-legend { font-size: clamp(.8125rem, 1.1cqw, 1rem); }
+  .qm-ctl, .qm-side { font-size: clamp(.8125rem, 1.1cqw, 1rem); }
   .qm-ctl { min-height: clamp(2rem, 2.6cqw, 2.5rem); padding-inline: .6rem; }
-  .qm-seg { min-height: clamp(2rem, 2.6cqw, 2.5rem); padding-inline: .55rem; }
-  .qm-bridge { width: 100%; }
-  .qm-seg { flex: 1 1 auto; justify-content: center; }
+  .qm-bridge { width: fit-content; box-sizing: border-box; padding-inline: .5rem; }
   .qm-stops { position: absolute; inset: 0; padding: 0; }
-  .qm-stop, .qm-forksign { position: absolute; left: var(--x); top: var(--y); }
+  .qm-stop { position: absolute; left: var(--x); top: var(--y); }
   .qm-stop { width: 0; height: 0; margin: 0; padding: 0; }
   /* the card is --w board units wide (CARD in lib/trail-geometry.ts), and the type grows with the board, so a big screen keeps the same look */
   .qm-box { position: absolute; left: 0; top: 0; width: calc(var(--w) * 100cqw / 1200); max-width: none; translate: -50% 0; font-size: clamp(.8125rem, 1.15cqw, 1.2rem); }
@@ -191,7 +195,7 @@
   .qm-chips.is-cave { grid-template-columns: minmax(0, 1fr); }
   .qm-agent .word-tip-icon { display: none; } /* the wide card has no room for the badge, the hover ring and pointer cursor show the row is live */
   .qm-agent .word-tip-btn { gap: .4em; padding-inline: .3em; }
-  .qm-forksign { display: grid; place-items: center; width: calc(74 * 100cqw / 1200); height: calc(26 * 100cqw / 1200); margin: 0; padding: 0; translate: -50% 0; font-size: clamp(.75rem, 1.05cqw, 1.1rem); }
+  .qm-forksign { display: none; }
 }
 
 .hiw :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
@@ -225,7 +229,7 @@
 /* Small phones: give the cards more room (the road stays left of them) so station names wrap by word, not by letter. */
 @media (max-width: 400px) {
   .qm-stop { padding-left: 4.6rem; padding-right: .35rem; }
-  .qm-forksign { margin-left: 4.6rem; }
   .qm-cave { margin-left: 4.6rem; margin-right: .35rem; padding-inline: 1.3em; }
   .qm-head { flex-wrap: wrap; } /* a long name drops under its number instead of breaking inside a word */
 }
+

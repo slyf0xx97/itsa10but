@@ -24,7 +24,7 @@ import { applyActivity, emptyActivity, type ActivityState } from "@/lib/activity
 import { RadarPanel, RadarTitle } from "@/components/career/skill-grid";
 import { STAGES } from "@/lib/journey";
 import { StageHeader } from "@/components/stage-banner";
-import { SgSignals } from "@/components/sg-signals";
+import { SourcesCard } from "@/components/sg-signals";
 import { JourneyBar } from "@/components/journey-bar";
 import { HeaderTabs } from "@/components/career/header-tabs";
 import { SynthesisDashboard } from "@/components/career/synthesis-dashboard";
@@ -50,7 +50,7 @@ const emptyAgents: AgentNote[] = [
 // Hero points: an icon from /assets/icons/, a short lead and one or two plain sentences with the key phrases marked.
 const heroPoints = [
   { icon: "abilities/read-role.svg", lead: "Add a role and your résumé.", text: <>Paste a <b>job posting</b> or a <b>LinkedIn link</b>, then add <b>one résumé file</b>.</> },
-  { icon: "abilities/verify-quotes.svg", lead: "Multi-agent checker to analyse and improve your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps. <mark className="hl">Every score has a quote</mark>. A skill with no matching line in your résumé <b>scores 0</b>.</> },
+  { icon: "abilities/verify-quotes.svg", lead: "Multi-agent checker to analyse and improve your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps.</> },
   { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>A <b>skills radar</b>, a breakdown of each skill and a short roadmap.</> },
 ];
 
@@ -343,8 +343,8 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="wrap-wide hero-grid">
           <div className="hero-text">
-            <h1 id="hero-title">Find the <mark>“but”</mark> in your résumé.</h1>
-            <p className="hero-lede"><Term id="itsa10but" /> is a free and open-source résumé enhancer tool that uses multi-agentic AI to analyse your résumé against a real job and <Term id="how-it-helps" />. Made for people in tech and tech-adjacent roles.</p>
+            <h1 id="hero-title">Your résumé is a <span className="hero-ten">10</span>!<br /><mark>But…</mark> it’s a…<span className="hero-q">?</span></h1>
+            <p className="hero-lede"><Term id="itsa10but" /> is a free and open-source résumé enhancer tool that uses multi-agentic AI to analyse your résumé against a real job and <span className="nowrap"><Term id="how-it-helps" />.</span><br />Made for tech and tech-adjacent roles.</p>
             <div className="start-row">
               {!sampleRunning && <a className="btn primary start" href="#check"><Play size={16} aria-hidden="true" /> Press start</a>}
               <RunControls active={sampleRunning} paused={paused} onToggle={togglePause} onReset={startOver} />
@@ -403,7 +403,7 @@ export default function Home() {
                   {resumes.length > 0 && stage !== "reading" && <div className="fade-in"><SafetyPanel report={safetyReport} /></div>}
                 </section>
                 <aside className="check-guide" aria-label="Reader's guide">
-                  <SgSignals firecrawlKey={keys.firecrawl} />
+                  <SourcesCard firecrawlKey={keys.firecrawl} />
                 </aside>
               </div>
               <div className="actions">
@@ -424,7 +424,7 @@ export default function Home() {
               <p className="progress rs-progress" role="status" aria-live="polite">{busy ? handoff : ""}</p>
               {notice && <p className="notice mode-notice" role="status">{notice}</p>}
               {shownMode === "live" && <p className="mode-note">{liveRunNote(hasResult ? analysis.run : undefined)}</p>}
-              <ReaderCards agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} />
+              <ReaderCards agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} model={chosenModel(keys)} />
               <SynthesisDashboard analysis={analysis} hasResult={hasResult} busy={busy} madeUp={resumes[0]?.id.startsWith("example-")} flow={{ active: busy ? activeAgent : -1, completed: visibleStep }} />
             </div>
           </section>
@@ -458,9 +458,11 @@ export default function Home() {
 
     <JourneyBar busy={busy} hasResult={hasResult} hasInput={Boolean(job.trim() && resumes.length)} />
 
-    <footer className="site-footer"><div className="wrap">
-      <p>itsa10but is independent. LinkedIn and the listed employers don&apos;t endorse or sponsor it, and their names and logos belong to their owners. Job listings come from outside feeds, so check the original posting before you apply.</p>
-      <p>The four agent characters are original, fictional illustrations made for this project. They don&apos;t depict any real person, company, brand or character.</p>
+    <footer className="site-footer"><div className="wrap ft-grid">
+      <div className="ft-text">
+        <p>itsa10but is independent. LinkedIn and the listed employers don&apos;t endorse or sponsor it, and their names and logos belong to their owners. Job listings come from outside feeds, so check the original posting before you apply.</p>
+        <p>The four agent characters are original, fictional illustrations made for this project. They don&apos;t depict any real person, company, brand or character.</p>
+      </div>
       <div className="ft-meta">
         {/* eslint-disable-next-line @next/next/no-img-element -- small static SVG, nothing to optimise */}
         <span className="ft-copy">© 2026 <a className="ft-author" href="https://sg.linkedin.com/in/ghernie" target="_blank" rel="noopener noreferrer"><img src={`${BASE_PATH}/assets/logos/linkedin-in.svg`} alt="" width="24" height="24" />Ghernie Encinas</a></span>

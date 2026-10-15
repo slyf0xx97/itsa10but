@@ -7,7 +7,8 @@ import { Pause, Play, RotateCcw, ShieldCheck, Zap } from "lucide-react";
 import { WordTip } from "@/components/career/word-tip";
 import { Skyline, TrailArt, TrailLive, type Which } from "@/components/trail-art";
 import { AGENT_FACTS, hasWeb } from "@/lib/agent-facts";
-import { CARD, FORK_SIGN, CAVE, RAIL, READER_IDS, ROUTES, SIDE, WIDE, cardAnchor, railFrom, type End, type Layout, type ReaderId, type Route, type StopId } from "@/lib/trail-geometry";
+import { STACK_GROUPS } from "@/lib/tech-stack";
+import { CARD, CAVE, RAIL, READER_IDS, ROUTES, SIDE, WIDE, cardAnchor, railFrom, type End, type Layout, type ReaderId, type Route, type StopId } from "@/lib/trail-geometry";
 
 // Technology logos, saved locally in public/assets/logos (origins in SOURCES.md). They are decorative: the name is always in the text beside them.
 const LOGO = { openrouter: "openrouter.png", firecrawl: "firecrawl.png", pdfjs: "pdfjs.svg", nextjs: "nextjs.ico", vercel: "vercel.png", mcp: "mcp.svg", react: "react.png" } as const;
@@ -24,6 +25,8 @@ function Marker({ logo }: { logo?: LogoId[] }) {
   return <span className="qm-logos">{logo.map((id) => logoImg(id, 20))}</span>;
 }
 
+// What each stop is built with comes from lib/tech-stack.ts and joins that stop's own tooltip, so the map is the one place that says how the site works and how it is made.
+const built = (...ids: string[]): Point[] => STACK_GROUPS.filter((group) => ids.includes(group.id)).flatMap((group) => group.items.map((item): Point => ({ t: `${item.name}: ${item.lines[0]}`, logo: item.logo && [item.logo] })));
 // A card is a short title, one plain line and the tech chips. The tooltip holds the deeper points, each one a fact from the code or from docs/agents.md and docs/engine.md.
 // The model is never named here: the visitor picks it (lib/model-choice.ts) and "Recommended mix" is the default.
 const stations: Station[] = [
@@ -57,6 +60,7 @@ const stations: Station[] = [
       { t: "Each résumé is split into passages, one per line or sentence. The best matches are found by word matching, with no embeddings" },
       { t: "All of this runs in both Native scan and API boost" },
       { t: "No database, so résumé text isn't stored" },
+      ...built("app"),
     ],
   },
   {
@@ -71,6 +75,7 @@ const stations: Station[] = [
       { t: "Role priority: High when the posting says required or repeats a skill, Medium when it names it once" },
       { t: "No supporting passage earns 0" },
       { t: "The Recruiter runs 11 ATS-style checks (lib/ats-check.ts)" },
+      ...built("native"),
     ],
   },
   {
@@ -94,19 +99,21 @@ const stations: Station[] = [
       { t: "Masked résumé text goes to the model. Role text shapes web searches" },
       { t: "A Next.js route streams the run, up to 120 s", logo: ["nextjs"] },
       { t: "A refusal, bad output, hit limit or timeout falls back to Native scan with a notice" },
+      ...built("agents"),
     ],
   },
   {
     id: "result", n: "4", title: "Your action plan",
-    line: "Skills map, tips and links to free tools.",
+    line: "Skills radar, tips and links to free tools.",
     chips: [],
     tipTitle: "Action plan",
     tip: [
-      { t: "A skills map: each skill with how much the role needs it and your proof in %, and the line from your résumé behind it" },
+      { t: "A skills radar: each skill with how much the role asks for it and how many of 5 proof steps you pass, and the line from your résumé behind it" },
       { t: "An ATS-style check of your wording and format, with tips on what to fix first" },
       { t: "A verdict and up to 3 tips and tricks, plus links to free and open-source tools" },
       { t: "Scores show proof in your text. They don't predict hiring" },
       { t: "The page says if it's a sample, and whether Native scan or API boost ran" },
+      ...built("data", "plumbing"),
     ],
   },
 ];
@@ -211,14 +218,13 @@ function measureRail(list: HTMLElement): Layout | null {
 
 const NARROW = 72; // rem of board width where the wide map takes over (keep in sync with arch.css)
 
-const ROUTE_LABEL: Record<Route, string> = { turns: "Both", boost: "API boost", native: "Native scan" };
-
 /** A tiny pixel bridge, the mark of the route switch. */
 const BridgeMark = () => <svg className="qm-bridge-mark" viewBox="0 0 24 14" width="22" height="13" aria-hidden="true" focusable="false"><path d="M1 4h22v2H1zM3 6h2v6H3zM19 6h2v6h-2zM7 8h10v2H7z" fill="currentColor" /></svg>;
 
 /**
- * Under the title sign: Play or Pause the walking note, Reset it to the start, and the bridge switch that sends it along API boost, along Native scan, or both in turn.
- * The route is native radio inputs, so the arrow keys move between the choices. With reduced motion nothing walks, so Play and Reset are off, but the bridge still shows its road.
+ * Under the title sign: Play or Pause the walking note, Reset it to the start, and the bridge switch. The switch looks like Agent power in the header: Native scan on the left,
+ * API boost on the right and a plank bridge between them. The knob is the bridge piece, and it sits on the road the note takes. The route is two native radio inputs, so the arrow keys
+ * work, and a click on the plank flips it. With reduced motion nothing walks, so Play and Reset are off, but the bridge still shows its road.
  */
 function MapControls({ route, onRoute, playing, onToggle, onReset, motion }: { route: Route; onRoute: (next: Route) => void; playing: boolean; onToggle: () => void; onReset: () => void; motion: boolean }) {
   return <div className="qm-controls" role="group" aria-label="Map controls">
@@ -228,13 +234,17 @@ function MapControls({ route, onRoute, playing, onToggle, onReset, motion }: { r
       </button>
       <button type="button" className="qm-ctl" onClick={onReset} disabled={!motion}><RotateCcw size={16} aria-hidden="true" /><span>Reset</span></button>
     </div>
-    <fieldset className="qm-bridge">
-      <legend className="qm-bridge-legend"><BridgeMark /> Bridge</legend>
-      {ROUTES.map((value) => <label key={value} className="qm-seg" data-route={value}>
-        <input type="radio" name="how-it-works-route" value={value} checked={route === value} onChange={() => onRoute(value)} />
-        <span>{ROUTE_LABEL[value]}</span>
-      </label>)}
-    </fieldset>
+    <div className="qm-bridge" data-route={route}>
+      <span id="qm-bridge-label" className="qm-bridge-legend" title="Bridge"><BridgeMark /><span className="sr-only">Bridge</span></span>
+      <div className="qm-switch" role="radiogroup" aria-labelledby="qm-bridge-label">
+        {ROUTES.map((value) => <label key={value} className={"qm-side qm-side-" + value}>
+          <input type="radio" name="how-it-works-route" value={value} checked={route === value} onChange={() => onRoute(value)} />
+          <span>{value === "native" ? "Native scan" : "API boost"}</span>
+        </label>)}
+        {/* The plank is a mouse and touch shortcut that flips the switch. The radios beside it are what keyboards and screen readers use. */}
+        <span className="qm-deck" aria-hidden="true" onClick={() => onRoute(route === "native" ? "boost" : "native")}><span className="qm-knob" /></span>
+      </div>
+    </div>
   </div>;
 }
 
@@ -244,7 +254,7 @@ export function HowItWorks() {
   const [motion, setMotion] = useState<boolean | null>(null); // null until the page knows; the still map shows meanwhile
   const [which, setWhich] = useState<Which>("rail");
   const [rail, setRail] = useState<Layout>(RAIL);
-  const [route, setRoute] = useState<Route>("turns");
+  const [route, setRoute] = useState<Route>("native");
   const [paused, setPaused] = useState(false);
   const stopList = useRef<HTMLOListElement>(null);
   const [onScreen, setOnScreen] = useState(false);
@@ -288,9 +298,6 @@ export function HowItWorks() {
     if (svg) { if (running) svg.unpauseAnimations(); else svg.pauseAnimations(); }
   }, [running, which, motion, route]);
 
-  const [sx, sy] = WIDE.pts.fork;
-  const signStyle = { "--x": `${(sx / WIDE.w) * 100}%`, "--y": `${((sy + FORK_SIGN.dy) / WIDE.h) * 100}%` } as CSSProperties;
-
   return <div className="hiw">
     <div className="qm-board" ref={board}>
       <div className="qm-map" data-run={running ? "on" : "off"} style={{ "--qm-ratio": `${WIDE.w} / ${WIDE.h}` } as CSSProperties}>
@@ -303,7 +310,7 @@ export function HowItWorks() {
         <ol className="qm-stops" ref={stopList} aria-label="From your role and résumé to your action plan, in four steps: upload your résumé, the two ways to run (API boost or Native scan), your four résumé agents, action plan">
           <StopBox s={station("camp")} />
           <li className="qm-group">
-            <p className="qm-forksign" style={signStyle}><span className="sr-only">Pick one road: </span><span aria-hidden="true">Pick one</span></p>
+            <p className="qm-forksign" aria-hidden="true" />
             <StopBox s={station("boost")} as="div" />
             <StopBox s={station("native")} as="div" />
           </li>

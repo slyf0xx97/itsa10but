@@ -67,7 +67,16 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 .rd-md { font-size: 1rem; font-weight: 500; line-height: 1.35; color: var(--ink-soft); overflow-wrap: anywhere; }
 
 /* The details button at the foot of each card (opens the popup, so the card never grows). A text button, 52px tall, full width of the card. */
-.rd-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: calc(100% + 2.4rem); min-height: 3.25rem; margin: auto -1.2rem 0; padding: .3rem 1.2rem; border: 0; border-top: 1.5px solid rgb(18 52 63 / 18%); border-radius: 0 0 17px 17px; background: none; color: var(--ink); cursor: pointer; font-family: var(--font-body); font-size: 1.0625rem; font-weight: 800; line-height: 1.3; text-align: left; }
+/* The foot holds two buttons, one over the other: the details panel and the prompt file peek. Both open over the page. */
+.rd-foot { width: calc(100% + 2.4rem); margin: auto -1.2rem 0; }
+.rd-foot .word-tip { display: block; white-space: normal; }
+.rd-prompt { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .5rem; box-sizing: border-box; width: 100%; min-height: 2.75rem; margin: 0; padding: .3rem 1.2rem; border: 0; border-top: 1.5px dashed rgb(18 52 63 / 22%); border-radius: 0 0 17px 17px; background: rgb(18 52 63 / 5%); color: var(--ink); cursor: pointer; font-family: var(--font-body); font-size: 1rem; font-weight: 700; line-height: 1.3; text-align: left; }
+.rd-prompt:hover { background: rgb(18 52 63 / 10%); }
+.rd-prompt:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+.rd-prompt svg { flex: none; }
+.rd-prompt-name { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 800; }
+.rd-prompt-hint { margin-left: auto; color: var(--ink-soft); font-size: .95rem; font-weight: 600; }
+.rd-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem; box-sizing: border-box; width: 100%; min-height: 3.25rem; margin: 0; padding: .3rem 1.2rem; border: 0; border-top: 1.5px solid rgb(18 52 63 / 18%); border-radius: 0; background: none; color: var(--ink); cursor: pointer; font-family: var(--font-body); font-size: 1.0625rem; font-weight: 800; line-height: 1.3; text-align: left; }
 .rd-more:hover { background: rgb(18 52 63 / 7%); }
 .rd-more:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
 
@@ -76,7 +85,7 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
   .rd-step { display: grid; grid-row: span 6; grid-template-rows: subgrid; row-gap: 0; margin-bottom: 1rem; }
   .rd-btn { grid-row: span 2; display: grid; grid-template-rows: subgrid; row-gap: 0; }
   .rd-move-list { grid-row: span 3; grid-template-rows: subgrid; }
-  .rd-more { align-self: end; }
+  .rd-foot { align-self: end; }
 }
 
 /* Shared bits used in the popup: the meter, access pips, the API tag and mono names. */
@@ -94,42 +103,42 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 
 /* Popup body (AgentDetails in reader-cards.tsx). One column on a phone; from 1000px of screen the sections sit two across (Moves and Limits, Tools and Native scan).
    17px text, 1.45rem headings, roomy boxes. The popup scrolls inside itself. */
-.rdp { display: grid; gap: 1.75rem; color: var(--ink); }
-.rdp-sec { display: grid; align-content: start; gap: .8rem; min-width: 0; }
-.rdp-h { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0; font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
+.rdp { display: grid; gap: 1rem; color: var(--ink); }
+.rdp-sec { display: grid; align-content: start; gap: .5rem; min-width: 0; }
+.rdp-h { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0; font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
 .rdp-use { padding: .05rem .7rem; border-radius: 999px; background: var(--lime); font-size: 1rem; font-weight: 800; line-height: 1.5; }
-.rdp-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
-.rdp-box { display: grid; align-content: start; gap: .6rem; min-width: 0; padding: 1.2rem 1.4rem; border: 1.5px solid var(--glass-edge); border-radius: 16px; background: var(--sky-soft); }
+.rdp-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+.rdp-box { display: grid; align-content: start; gap: .4rem; min-width: 0; padding: .7rem .9rem; border: 1.5px solid var(--glass-edge); border-radius: 12px; background: var(--sky-soft); }
 .rdp-box.good { background: var(--mint-soft); }
 .rdp-box.bad { background: var(--coral-soft); }
-.rdp-box .cl-text, .rdp-box .cl-lead { font-size: 1.1875rem; line-height: 1.45; }
-.rdp-plain { margin: 0; font-size: 1.0625rem; line-height: 1.5; overflow-wrap: anywhere; }
+.rdp-box .cl-text, .rdp-box .cl-lead { font-size: 1rem; line-height: 1.4; }
+.rdp-plain { margin: 0; font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
 .rdp-box > .rdp-plain { color: var(--ink); }
 .rdp-sec > .rdp-plain { color: var(--text-soft); }
 
 /* Limits: one fixed label column, bars centred in the middle, values right-aligned, every row the same height. */
-.rdp-limits, .rdp-tools, .rdp-steps { display: grid; gap: .8rem; margin: 0; padding: 0; list-style: none; }
-.rdp-limits li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) 6.5rem; align-items: center; gap: .9rem; min-height: 2.75rem; }
+.rdp-limits, .rdp-tools, .rdp-steps { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.rdp-limits li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) 6.5rem; align-items: center; gap: .9rem; min-height: 2.25rem; }
 .rdp-limits li:nth-child(2) .rd-meter i { background: var(--water); }
-.rdp-k { font-family: var(--font-display); font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
-.rdp-v { font-size: 1.0625rem; font-weight: 800; line-height: 1.3; text-align: right; white-space: nowrap; }
+.rdp-k { font-family: var(--font-display); font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.rdp-v { font-size: 1rem; font-weight: 800; line-height: 1.3; text-align: right; white-space: nowrap; }
 .rdp-pips { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: .6rem; }
 
 /* Tools: API tag in a fixed column, mono name on top, plain line under it. */
-.rdp-tools li { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: start; gap: .9rem; padding: .8rem 1rem; border: 1.5px solid rgb(18 52 63 / 25%); border-radius: 14px; background: rgb(255 255 255 / 75%); }
+.rdp-tools li { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: start; gap: .7rem; padding: .5rem .7rem; border: 1.5px solid rgb(18 52 63 / 25%); border-radius: 14px; background: rgb(255 255 255 / 75%); }
 .rdp-tools .rd-api { justify-self: start; margin-top: .15rem; text-align: center; }
-.rdp-tool { display: grid; gap: .15rem; min-width: 0; font-size: 1.0625rem; line-height: 1.45; overflow-wrap: anywhere; }
+.rdp-tool { display: grid; gap: .1rem; min-width: 0; font-size: 1rem; line-height: 1.35; overflow-wrap: anywhere; }
 
 /* Native scan: numbered chips. */
-.rdp-steps { display: flex; flex-wrap: wrap; gap: .7rem; counter-reset: rdp; }
-.rdp-steps li { counter-increment: rdp; display: inline-flex; align-items: center; gap: .6rem; padding: .3rem .95rem .3rem .35rem; border: 1.5px solid rgb(18 52 63 / 45%); border-radius: 999px; background: #fff; font-size: 1.0625rem; font-weight: 700; line-height: 1.3; }
-.rdp-steps li::before { content: counter(rdp); display: grid; place-items: center; flex: none; width: 2rem; height: 2rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; }
+.rdp-steps { display: flex; flex-wrap: wrap; gap: .5rem; counter-reset: rdp; }
+.rdp-steps li { counter-increment: rdp; display: inline-flex; align-items: center; gap: .6rem; padding: .3rem .95rem .3rem .35rem; border: 1.5px solid rgb(18 52 63 / 45%); border-radius: 999px; background: #fff; font-size: 1rem; font-weight: 700; line-height: 1.3; }
+.rdp-steps li::before { content: counter(rdp); display: grid; place-items: center; flex: none; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; }
 
-.rdp-moves { display: grid; gap: .8rem; margin: 0; padding: 0; list-style: none; font-size: 1.0625rem; line-height: 1.45; }
+.rdp-moves { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; font-size: 1rem; line-height: 1.4; }
 .rdp-moves li { padding-left: .9rem; border-left: 4px solid var(--hue-line, rgb(18 52 63 / 30%)); }
 
 @media (min-width: 1000px) {
-  .rdp { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; align-items: start; }
+  .rdp { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; align-items: start; }
   .rdp > .rdp-two { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) {
@@ -208,3 +217,19 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 @keyframes rd-sweep { from { transform: translateX(-100%); } to { transform: translateX(560%); } }
 @keyframes rd-log-in { from { opacity: 0; transform: translateY(4px); } }
 @keyframes rd-pulse { 50% { box-shadow: 0 2px 0 var(--coral); } }
+
+/* Prompt file view (components/career/prompt-peek.tsx): a Markdown file in a code-editor look. Light text on a deep teal ground gives far more than 4.5:1. */
+.md-peek { display: grid; gap: .6rem; }
+.md-lead { font-size: 1rem; line-height: 1.4; color: var(--ink-soft); }
+.md-view { overflow: auto; overscroll-behavior: contain; padding: .55rem 0; border: 2px solid var(--ink); border-radius: 10px; background: #14232b; color: #e8f1f4; font: .92rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.md-peek .md-view { max-height: none; overflow: hidden; }
+.md-l { display: grid; grid-template-columns: 2.8rem minmax(0, 1fr); }
+.md-n { padding-right: .8rem; color: #8fa9b4; text-align: right; user-select: none; }
+.md-t { padding-right: .9rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.md-h1 .md-t { color: #7ee0cb; font-size: 1.05em; font-weight: 800; }
+.md-h2 .md-t { color: #ffd666; font-weight: 800; }
+.md-li .md-t { color: #f3f8fa; }
+.md-more .md-t, .md-more .md-n { color: #8fa9b4; font-style: italic; }
+.md-open { justify-self: start; min-height: 2.5rem; padding: .3rem .95rem; border: 2px solid var(--ink); border-radius: 10px; background: var(--orange); color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--ink); }
+.md-open:hover { background: var(--lime); }
+.md-open:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }

@@ -65,7 +65,7 @@ function Node({ id, x, y, which }: { id: NodeId; x: number; y: number; which: Wh
 
 /** The two stretches of each road, so a chosen route can fade the other one. */
 const ROAD_SEGS: Record<"boost" | "native", SegId[]> = { boost: ["bA", "bB"], native: ["nA", "nB"] };
-const closedSegs = (route: Route): SegId[] => (route === "boost" ? ROAD_SEGS.native : route === "native" ? ROAD_SEGS.boost : []);
+const closedSegs = (route: Route): SegId[] => (route === "boost" ? ROAD_SEGS.native : ROAD_SEGS.boost);
 
 function Trail({ layout, which, route }: { layout: Layout; which: Which; route: Route }) {
   const ids = Object.keys(SEG_ENDS) as SegId[];
@@ -277,7 +277,7 @@ function Lit({ x, y, r, live, i = 0 }: { x: number; y: number; r: number; live: 
 }
 
 /** The still map. With `still` set (reduced motion, or before the page knows) every marker also carries the note, so the position at each step shows without motion. */
-export function TrailArt({ which, layout, still, route = "turns" }: { which: Which; layout: Layout; still: boolean; route?: Route }) {
+export function TrailArt({ which, layout, still, route = "native" }: { which: Which; layout: Layout; still: boolean; route?: Route }) {
   const p = which === "wide" ? "w-bg" : "r-bg";
   const style: CSSProperties | undefined = which === "rail" ? { width: layout.w, height: layout.h } : undefined;
   const { node, glyph } = SIZE[which];
@@ -287,7 +287,7 @@ export function TrailArt({ which, layout, still, route = "turns" }: { which: Whi
     {which === "wide" ? <WideScenery /> : <RailScenery layout={layout} />}
     <Trail layout={layout} which={which} route={route} />
     {which === "wide" && <WideProps />}
-    {(["boost", "native"] as const).map((road) => { const [gx, gy] = gatePoint(layout, which === "wide", road); return <Gate key={road} x={gx} y={gy} open={route === "turns" || route === road} vertical={which !== "wide" || road === "boost"} small={which !== "wide"} />; })}
+    {(["boost", "native"] as const).map((road) => { const [gx, gy] = gatePoint(layout, which === "wide", road); return <Gate key={road} x={gx} y={gy} open={route === road} vertical={which !== "wide" || road === "boost"} small={which !== "wide"} />; })}
     {NODE_ORDER.map((id) => <Node key={id} id={id} x={layout.pts[id][0]} y={layout.pts[id][1]} which={which} />)}
     {/* the cable from API boost to the agents: dull and unplugged while nothing runs on a key, bright with lit agents in the still map */}
     {still && route !== "native" ? <Bolt d={power.d} wide={which === "wide"} /> : <path d={power.d} fill="none" stroke="#6b7c8a" strokeWidth="2" strokeDasharray="3 5" strokeLinecap="round" opacity="0.5" />}
@@ -305,11 +305,9 @@ export function TrailArt({ which, layout, still, route = "turns" }: { which: Whi
 const list = (xs: number[]) => xs.map(f).join(";");
 const SPLINE = ".42 0 .58 1";
 
-function HopShape({ hop, layout, which, fixed }: { hop: Hop; layout: Layout; which: Which; fixed: boolean }) {
-  // Taking turns: a road hop sits in a doubled timeline (API boost in its second half). A chosen road runs alone in one cycle.
-  const dur = hop.road && !fixed ? CYCLE * 2 : CYCLE;
-  const off = hop.road === "boost" && !fixed ? CYCLE : 0;
-  const t = (s: number) => (s + off) / dur;
+function HopShape({ hop, layout, which }: { hop: Hop; layout: Layout; which: Which }) {
+  const dur = CYCLE;
+  const t = (s: number) => s / dur;
   const fade = 0.2;
   const { sprite, glyph } = SIZE[which];
   const carrier = hop.walker;
@@ -324,9 +322,9 @@ function HopShape({ hop, layout, which, fixed }: { hop: Hop; layout: Layout; whi
   </g>;
 }
 
-function Pulse({ x, y, at, road, r, fixed }: { x: number; y: number; at: number; road?: "native" | "boost"; r: number; fixed: boolean }) {
-  const dur = road && !fixed ? CYCLE * 2 : CYCLE;
-  const t0 = at + (road === "boost" && !fixed ? CYCLE : 0);
+function Pulse({ x, y, at, r }: { x: number; y: number; at: number; r: number }) {
+  const dur = CYCLE;
+  const t0 = at;
   const ks = list([0, t0 / dur, (t0 + 1.6) / dur, 1]);
   return <g transform={`translate(${x} ${y})`}>
     <circle r={r} fill="none" stroke="#dbe86a" strokeWidth="5" opacity="0">
@@ -359,7 +357,7 @@ function Beads({ layout, which }: { layout: Layout; which: Which }) {
   </g>;
 }
 
-export function TrailLive({ which, layout, svgRef, route = "turns" }: { which: Which; layout: Layout; svgRef: RefObject<SVGSVGElement | null>; route?: Route }) {
+export function TrailLive({ which, layout, svgRef, route = "native" }: { which: Which; layout: Layout; svgRef: RefObject<SVGSVGElement | null>; route?: Route }) {
   const p = which === "wide" ? "w-live" : "r-live";
   const { node } = SIZE[which];
   const wide = which === "wide";
@@ -367,11 +365,10 @@ export function TrailLive({ which, layout, svgRef, route = "turns" }: { which: W
   const [mx, my] = layout.pts.camp;
   const [zx, zy] = layout.pts.result;
   const power = powerLine(layout, wide);
-  const fixed = route !== "turns";
-  const powered = route !== "native"; // Native scan leaves the agents plain
-  const span = fixed ? CYCLE : CYCLE * 2, base = fixed ? 0 : CYCLE; // taking turns, API boost runs in the second half of a doubled cycle
-  const boltT = list([0, (base + 8.6) / span, (base + 9.2) / span, (base + 33) / span, (base + 35) / span, 1]);
-  const litT = list([0, (base + 12.2) / span, (base + 13.2) / span, (base + 33) / span, (base + 35) / span, 1]);
+  const powered = route === "boost"; // Native scan leaves the agents plain
+  const span = CYCLE;
+  const boltT = list([0, 8.6 / span, 9.2 / span, 33 / span, 35 / span, 1]);
+  const litT = list([0, 12.2 / span, 13.2 / span, 33 / span, 35 / span, 1]);
   const scanT = list([0, 0.4 / CYCLE, 0.6 / CYCLE, 1.0 / CYCLE, 1.1 / CYCLE, 1]);
   const spark = (dx: number, dy: number, at: number) => <g key={dx + "" + dy} transform={`translate(${zx + dx} ${zy + dy})`}>
     <path d="M0 -9 L2.5 -2.5 L9 0 L2.5 2.5 L0 9 L-2.5 2.5 L-9 0 L-2.5 -2.5 Z" fill="#ffe27a" stroke="#e8912d" strokeWidth="1" opacity="0">
@@ -381,7 +378,7 @@ export function TrailLive({ which, layout, svgRef, route = "turns" }: { which: W
   return <svg ref={svgRef} className={`qm-svg qm-live qm-svg-${which}`} viewBox={`0 0 ${layout.w} ${layout.h}`} style={style} aria-hidden="true" focusable="false">
     <Defs p={p} />
     <Beads layout={layout} which={which} />
-    {arrivalsFor(route).map((a) => <Pulse key={a.stop + (a.road ?? "")} fixed={fixed} x={layout.pts[a.stop][0]} y={layout.pts[a.stop][1]} at={a.at} road={a.road} r={(READER_IDS as string[]).includes(a.stop) ? SIZE[which].sprite / 2 + 4 : node + 8} />)}
+    {arrivalsFor(route).map((a) => <Pulse key={a.stop + (a.road ?? "")} x={layout.pts[a.stop][0]} y={layout.pts[a.stop][1]} at={a.at} r={(READER_IDS as string[]).includes(a.stop) ? SIZE[which].sprite / 2 + 4 : node + 8} />)}
     {/* the privacy scan: a light bar sweeps over the camp while the note is raw, just before it is masked */}
     <g transform={`translate(${mx} ${my})`}>
       <rect x={-node - 10} y="-2" width={(node + 10) * 2} height="4" rx="2" fill="#dbe86a" opacity="0">
@@ -401,7 +398,7 @@ export function TrailLive({ which, layout, svgRef, route = "turns" }: { which: W
       <animate attributeName="opacity" dur={`${span}s`} repeatCount="indefinite" keyTimes={litT} values="0;0;1;1;0;0" />
       <Lit x={layout.pts[id][0]} y={layout.pts[id][1]} r={SIZE[which].sprite / 2 + 2} live i={i} />
     </g>)}
-    {hopsFor(route).map((hop) => <HopShape key={hop.id} hop={hop} layout={layout} which={which} fixed={fixed} />)}
+    {hopsFor(route).map((hop) => <HopShape key={hop.id} hop={hop} layout={layout} which={which} />)}
     {(wide ? [[40, -30, 30.4], [88, -62, 30.9], [112, -8, 31.4]] : [[-16, -30, 30.4], [18, -34, 30.9]]).map(([dx, dy, at]) => spark(dx, dy, at))}
   </svg>;
 }

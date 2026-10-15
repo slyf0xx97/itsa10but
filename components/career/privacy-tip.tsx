@@ -1,5 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
+import { Database, X } from "lucide-react";
 import { WordTip } from "@/components/career/word-tip";
 
 type Row = { icon: string; lead: string; text: ReactNode };
@@ -29,7 +30,7 @@ function Group({ title, rows }: { title: string; rows: Row[] }) {
 }
 
 /**
- * The lock button beside "Choose a file", with a short line next to it: the app has no database, so nothing you add is stored. The button opens a non-modal popover that holds
+ * The lock button beside "Choose a file", with a database icon crossed out next to it (its tooltip says the app has no database, so nothing you add is stored). The lock opens a non-modal popover that holds
  * everything about what stays in the browser and what can leave.
  */
 export function PrivacyTip() {
@@ -38,6 +39,9 @@ export function PrivacyTip() {
       <Group title="Stays in this tab" rows={stays} />
       <Group title="Leaves only if you switch API boost on" rows={leaves} />
     </WordTip>
-    <span className="pv-note">No database. Nothing you add is stored.</span>
+    <WordTip title="No database" label="No database. Nothing you add is stored in this app." bare buttonClass="pv-nodb" tone="leaf"
+      word={<span className="pv-nodb-mark" aria-hidden="true"><Database size={22} strokeWidth={2.2} /><X className="pv-nodb-x" size={14} strokeWidth={4.5} /></span>}>
+      <span className="word-tip-line">No database. Nothing you add is stored in this app.</span>
+    </WordTip>
   </>;
 }

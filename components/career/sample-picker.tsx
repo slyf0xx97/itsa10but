@@ -94,7 +94,7 @@ export function SampleMenu({ onPick, disabled = false, activeId = "" }: Props) {
       <button ref={triggerRef} type="button" className="sm-caret" disabled={disabled} aria-label="Choose a sample role" aria-expanded={shown} aria-controls={shown ? menuId : undefined} onClick={() => setOpen(!shown)}><Caret /></button>
     </div>
     {shown && <div className="sm-menu" id={menuId} ref={menuRef} data-side="below">
-      <p className="sm-head"><strong>Pick a sample role</strong> Made-up candidates. The logos open that site&apos;s search for new jobs in Singapore.</p>
+      <p className="sm-head"><strong>Pick a sample role</strong><span className="sm-note">Made-up candidates. The logos open that site&apos;s search for new jobs in Singapore.</span></p>
       <ul className="sm-list" aria-label="Sample roles">
         {samplePaths.map((path) => <li key={path.id} className="sm-item">
           <button type="button" className="sm-pick" aria-pressed={activeId === path.id} onClick={() => pick(path.id)}>

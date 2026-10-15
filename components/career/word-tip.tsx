@@ -9,10 +9,12 @@ export type TipTone = "teal" | "water" | "coral" | "orange" | "lime" | "leaf";
  * closes on Escape or a press outside. Focus is never trapped.
  * `panel` is the rich variant: a wider non-modal dialog that may hold lists, scrolls when tall and has its own Close button for touch.
  * The trigger is then `word` (an icon or emoji) named by `label`.
- * The bubble is a small card: a coloured header strip (`icon` in a tile, default an info mark, and the title; `tone` picks the colour, default teal),
+ * `clickOnly` turns off the hover and focus peek, so the card opens only on a click, tap or Enter (a page you scroll past with the pointer never pops one open).
+ * `wide` makes the small bubble roomy (labelled sections sit side by side), `size="wide"` does the same for a panel, `buttonClass` swaps the trigger's look (a labelled button instead of a dotted word)
+ * and `bare` leaves out the info mark after the word. With `onActivate`, hover and focus are a peek and a click does that instead of pinning the card open (a button that opens a popup, with a preview first). The bubble is a small card: a coloured header strip (`icon` in a tile, default an info mark, and the title; `tone` picks the colour, default teal),
  * a scrollable body and, for the small bubble, an arrow that points at the word (placement sets data-side and --tip-arrow-x).
  */
-export function WordTip({ title, children, word, panel = false, label, icon, tone }: { title: string; children: ReactNode; word: ReactNode; panel?: boolean; label?: string; icon?: ReactNode; tone?: TipTone }) {
+export function WordTip({ title, children, word, panel = false, label, icon, tone, wide = false, buttonClass, bare = false, onActivate, clickOnly = false }: { title: string; children: ReactNode; word: ReactNode; panel?: boolean; label?: string; icon?: ReactNode; tone?: TipTone; wide?: boolean; buttonClass?: string; bare?: boolean; onActivate?: () => void; clickOnly?: boolean }) {
   const id = useId();
   const titleId = id + "-title";
   const root = useRef<HTMLDivElement>(null);
@@ -79,18 +81,18 @@ export function WordTip({ title, children, word, panel = false, label, icon, ton
   }, [open]);
 
   return <Wrap className={panel ? "word-tip is-panel" : "word-tip"} ref={root}
-    onPointerEnter={(event) => { if (event.pointerType === "mouse") setHover(true); }}
+    onPointerEnter={(event) => { if (!clickOnly && event.pointerType === "mouse") setHover(true); }}
     onPointerLeave={(event) => { if (event.pointerType === "mouse") setHover(false); }}
     // Focus may move from the trigger to the Close button inside; only leaving the whole widget closes the focus-opened state.
     onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocus(false); }}>
-    <button type="button" ref={trigger} className={panel ? "tip-icon-btn" : "word-tip-btn"} aria-expanded={open}
+    <button type="button" ref={trigger} className={buttonClass ?? (panel ? "tip-icon-btn" : "word-tip-btn")} aria-expanded={open}
       aria-label={label}
       {...(panel ? { "aria-haspopup": "dialog" as const, "aria-controls": id } : { "aria-describedby": id })}
-      onFocus={(event) => { if (event.currentTarget.matches(":focus-visible")) setFocus(true); }}
-      onClick={() => setPinned((value) => !value)}>
-      {word}{!panel && <Info className="word-tip-icon" aria-hidden="true" focusable="false" />}
+      onFocus={(event) => { if (!clickOnly && event.currentTarget.matches(":focus-visible")) setFocus(true); }}
+      onClick={() => { if (onActivate) { close(); onActivate(); } else setPinned((value) => !value); }}>
+      {word}{!panel && !bare && <Info className="word-tip-icon" aria-hidden="true" focusable="false" />}
     </button>
-    <Wrap id={id} ref={bubble} hidden={!open} className={panel ? "word-tip-bubble is-panel" : "word-tip-bubble"} data-tone={tone}
+    <Wrap id={id} ref={bubble} hidden={!open} className={panel ? "word-tip-bubble is-panel" : "word-tip-bubble"} data-tone={tone} data-wide={wide || undefined}
       popover="manual" {...(panel ? { role: "dialog", "aria-labelledby": titleId } : { role: "tooltip" })}>
       <span className="word-tip-head">
         <span className="word-tip-badge" aria-hidden="true">{icon ?? <Info size={18} strokeWidth={2.5} />}</span>

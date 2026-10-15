@@ -1,6 +1,5 @@
 import type { TipTone } from "../components/career/word-tip.tsx";
 import type { PixelIconName } from "../components/career/pixel-icons.tsx";
-import { HAVE_FROM } from "./radar-tiers.ts";
 
 /** Plain-word explanations for the jargon on the page. Shown by <Term> as a tooltip. */
 export type TermId = "ats" | "proof" | "gap" | "match" | "weak-proof" | "quest" | "native-scan" | "api-boost" | "expected" | "good" | "extra" | "keyword"
@@ -62,7 +61,7 @@ export const GLOSSARY: Record<TermId, TermEntry> = {
     word: "Match",
     title: "Match",
     icon: "dashboard", tone: "teal",
-    lines: ["How much of what the role asks for your résumé shows proof of, as a percent.", "Each skill's proof score is weighted by how much the role asks for it, then averaged. It doesn't show your hiring chance."],
+    lines: ["How much of what the role asks for your résumé shows proof of, as a percent.", "Each skill's proof is weighted by how much the role asks for it, then averaged. It doesn't show your hiring chance."],
   },
   "weak-proof": {
     word: "Weak proof",
@@ -144,27 +143,27 @@ export const GLOSSARY: Record<TermId, TermEntry> = {
   },
   "proof-score": {
     word: "Proof",
-    title: "Proof, in %",
+    title: "Proof steps",
     icon: "docsearch", tone: "leaf",
-    lines: ["How much your résumé proves a skill, from 0% to 100%. The native scan adds points for naming it, using it in a project or action, a number, an outcome and a second supporting line.", "A skill with no quote from your résumé scores 0%. It measures proof in your text and doesn't predict hiring."],
+    lines: ["Five checks decide a skill's proof: it is named, used in real work, has a number, shows a result and shows up a second time. The radar says how many you pass, like 3/5.", "A skill with no quote from your résumé passes none. This measures proof in your text and doesn't predict hiring."],
   },
   "best-proof": {
     word: "Best proof",
     title: "Best proof",
     icon: "clipboard", tone: "leaf",
-    lines: ["The skill your résumé backs up best, with its proof in %. Zero means nothing in your text matched."],
+    lines: ["The skills your résumé backs up best, with how many of the 5 proof steps each one passes. Zero means nothing in your text matched."],
   },
   "biggest-gap": {
     word: "Biggest gap",
     title: "Biggest gap",
     icon: "incident", tone: "coral",
-    lines: ["The skill where your proof falls furthest short of what the role asks for."],
+    lines: ["The skills where your proof falls furthest short of what the role asks for, and the next step that would close each one."],
   },
   radar: {
     word: "Skills radar",
     title: "How to read the radar",
     icon: "compass", tone: "teal",
-    lines: ["Each corner is one skill the role asks for. The further the shaded shape reaches toward a corner, the more proof your résumé gives for it, from 0% in the middle to 100% at the edge.", `Green dots have proof (${HAVE_FROM}% or more). Coral dots are gaps.`],
+    lines: ["Each corner is one skill the role asks for. The further the shaded shape reaches toward a corner, the more proof steps your résumé passes for it, from 0 in the middle to 5 at the edge.", "Green dots have proof (2 or more steps). Coral dots are gaps."],
   },
   keyword: {
     word: "Keywords",

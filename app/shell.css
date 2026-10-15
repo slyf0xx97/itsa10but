@@ -70,15 +70,25 @@ main { position: relative; }
 .site-footer .ft-author img { flex: none; width: 24px; height: 24px; border-radius: 4px; }
 .site-footer .ft-author:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
 
-/* Footer meta row: the copyright with the author link, and the MIT License button. Wraps on narrow screens. */
-.site-footer .ft-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1rem; }
+/* The footer is two columns: the long notes on the left, and on the right the copyright with the author link and the legal button, stacked and aligned to the right edge. One column on narrow screens.
+   The journey bar has already slid away by the time the footer shows (it hides while How it works is on screen), so the footer needs no extra bottom room. */
+.site-footer .ft-grid { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .5rem 3rem; }
+.site-footer .ft-text { display: grid; gap: .4rem; max-width: 70rem; }
+.site-footer .ft-text p { margin: 0; line-height: 1.5; }
+@media (max-width: 860px) { .site-footer .ft-grid { grid-template-columns: minmax(0, 1fr); } .site-footer .ft-meta { align-items: flex-start; } }
+/* Footer meta: the copyright with the author link and the legal button. */
+.site-footer .ft-meta { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; }
 .site-footer .ft-copy { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .1rem .5rem; min-width: 0; }
-.site-footer .ft-license { min-height: 2.75rem; padding: .25rem 1rem; border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
+.site-footer .ft-btns { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.site-footer .ft-license { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2.75rem; padding: .25rem 1rem; border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
 .site-footer .ft-license:hover { background: var(--lime); }
 .site-footer .ft-license:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
 /* License popup body (components/license-popup.tsx). */
-.lic { display: grid; gap: .9rem; }
+.lic { display: grid; gap: 1rem; }
+.lic-sec { display: grid; gap: .45rem; }
+.lic-sec h3 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; line-height: 1.2; }
+.lic-sec ul { display: grid; gap: .4rem; margin: 0; padding-left: 1.25rem; color: var(--ink); line-height: 1.5; }
 .lic p { margin: 0; color: var(--ink); line-height: 1.5; }
 .lic-text { max-height: 40vh; margin: 0; padding: .8rem .9rem; overflow: auto; border: 1.5px solid var(--glass-edge); border-radius: 12px; background: var(--sky-soft); color: var(--ink); font: .9rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
 .lic-text:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }

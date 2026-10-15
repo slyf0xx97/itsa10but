@@ -139,3 +139,14 @@ These files show on the Action Planner tip cards (`lib/site-logos.ts` maps a lin
 | `cyberdefenders.png` | CyberDefenders | cyberdefenders.org |
 | `write-the-docs.png` | Write the Docs | writethedocs.org |
 | `grow-google-tips.png` | Grow with Google interview tips | grow.google |
+
+Added for the Know yourself and Cybersecurity tabs of Level up (fetched 2026-10-15):
+
+| File | Site | Origin URL |
+| --- | --- | --- |
+| `16personalities.png` | 16Personalities | https://www.16personalities.com/static/images/favicons/apple-touch-icon.png |
+| `dope-test.png` | Richard Step (DOPE bird test) | https://richardstep.com/wp-content/uploads/2026/06/cropped-richardstep-icon-512-180x180.png |
+| `my-world-of-work.png` | My World of Work (Animal Me) | https://www.myworldofwork.co.uk/apple-touch-icon.png |
+| `htb-academy.png` | Hack The Box Academy | https://academy.hackthebox.com/images/apple-touch-icon.png |
+| `owasp.png` | OWASP | https://owasp.org/images/logos/favicon-owasp.svg, converted to PNG |
+| `csa-singapore.png` | Cyber Security Agency of Singapore | https://isomer-user-content.by.gov.sg/36/c91f8061-3b48-4613-912b-e56011f53857/csafavicon.svg, converted to PNG |

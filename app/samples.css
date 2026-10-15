@@ -20,25 +20,27 @@
 .sm.is-open .sm-caret-icon { transform: rotate(180deg); }
 
 /* The popover. Glass panel, scrolls inside its max height, sits above the page (the hero has z-index 2, the stages 1). */
-.sm-menu { position: absolute; z-index: 30; top: calc(100% + .55rem); left: 0; box-sizing: border-box; width: min(34rem, calc(100vw - 1rem)); overflow-y: auto; overscroll-behavior: contain; padding: .75rem; border: 2px solid var(--ink); border-radius: 16px; background: rgb(255 255 255 / 97%); box-shadow: var(--glass-shadow), 0 4px 0 rgb(31 36 48 / 35%); color: var(--ink); }
+.sm-menu { position: absolute; z-index: 30; top: calc(100% + .55rem); left: 0; box-sizing: border-box; width: min(66rem, calc(100vw - 1rem)); overflow-y: auto; overscroll-behavior: contain; padding: .75rem; border: 2px solid var(--ink); border-radius: 16px; background: rgb(255 255 255 / 97%); box-shadow: var(--glass-shadow), 0 4px 0 rgb(31 36 48 / 35%); color: var(--ink); }
 .sm-menu[data-side="above"] { top: auto; bottom: calc(100% + .55rem); }
-.sm-head { margin: 0 0 .6rem; padding: 0 .15rem; color: var(--text-soft, #3d5560); font-size: .85rem; line-height: 1.4; text-shadow: none; }
+.sm-head { text-align: center; margin: 0 0 .6rem; padding: 0 .15rem; color: var(--text-soft, #3d5560); font-size: .85rem; line-height: 1.4; text-shadow: none; }
+.sm-note { display: block; }
+@media (min-width: 52rem) { .sm-note { white-space: nowrap; } }
 .sm-head strong { display: block; color: var(--ink); font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; }
 
-.sm-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .5rem; margin: 0; padding: .2rem .2rem .3rem; list-style: none; }
-.sm-item { display: flex; flex-direction: row; align-items: stretch; min-width: 0; border: 1.5px solid var(--glass-edge, rgb(255 255 255 / 85%)); border-radius: 12px; background: rgb(255 255 255 / 70%); box-shadow: 0 1px 0 rgb(18 52 63 / 14%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
+.sm-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr)); gap: .6rem; margin: 0; padding: .2rem .2rem .3rem; list-style: none; }
+.sm-item { display: flex; flex-direction: column; align-items: stretch; min-width: 0; border: 1.5px solid var(--glass-edge, rgb(255 255 255 / 85%)); border-radius: 12px; background: rgb(255 255 255 / 70%); box-shadow: 0 1px 0 rgb(18 52 63 / 14%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
 
 .sm-pick { display: flex; align-items: center; gap: .55rem; flex: 1; min-width: 0; padding: .45rem .55rem; border: 0; background: transparent; color: var(--ink); text-align: left; text-shadow: none; }
 .sm-pick:hover { background: var(--sky-soft, #d9f0fb); }
 .sm-pick[aria-pressed="true"] { background: rgb(232 145 45 / 24%); }
 .sm-pick:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
 .sm-icon { flex: none; display: block; width: 28px; height: 28px; image-rendering: pixelated; }
-.sm-text { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .45rem; min-width: 0; }
+.sm-text { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; min-width: 0; }
 .sm-label { font-family: var(--font-display); font-size: .95rem; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
-.sm-tag { padding: 0 .45rem; border: 1.5px solid var(--water-deep, #1b86a8); border-radius: 999px; background: var(--sky-soft, #d9f0fb); color: var(--text, #12343f); font-size: .7rem; font-weight: 700; line-height: 1.5; }
+.sm-tag { padding: .1rem .7rem; border: 1.5px solid var(--water-deep, #1b86a8); border-radius: 999px; background: var(--sky-soft, #d9f0fb); color: var(--text, #12343f); font-size: .8rem; font-weight: 700; line-height: 1.4; }
 
 /* The three job sites are small logos at the end of the role's row, not a row of their own. */
-.sm-links { flex: none; display: flex; align-items: center; gap: .1rem; padding: 0 .4rem 0 0; }
+.sm-links { flex: none; display: flex; align-items: center; gap: .15rem; padding: 0 .55rem .45rem; }
 .sm-links a { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 8px; }
 .sm-links a:hover { background: var(--sky-soft, #d9f0fb); }
 .sm-links a:focus-visible { outline: 3px solid var(--ink); outline-offset: -2px; }

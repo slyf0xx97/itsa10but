@@ -1,7 +1,7 @@
 /** Geometry for the skills radar: rings, dots, score values and one label chip per skill, all inside the viewBox. Pure, so it is testable. */
 export type RadarSpec = { W: number; H: number; R: number; font: number; scoreFont: number; mark: number; gap: number; wrapAt: number };
 export type Box = { x: number; y: number; w: number; h: number };
-export type RadarItem = { name: string; low: boolean; value: number; dot: [number, number]; score: Box; chip: Box & { lines: string[]; textX: number; textY: number } };
+export type RadarItem = { name: string; low: boolean; value: number; label: string; dot: [number, number]; score: Box; chip: Box & { lines: string[]; textX: number; textY: number } };
 
 export const DOT = 7;
 export const CHIP_PAD = 7;
@@ -39,13 +39,14 @@ export const hitsDisc = (box: Box, cx: number, cy: number, radius: number) => {
 };
 
 /** Chips go to the free spot nearest their spoke: not on the rings, a dot, a score value or another chip, and inside the box. */
-export function layoutRadar(skills: { name: string; evidence: number }[], spec: RadarSpec): RadarItem[] {
+export function layoutRadar(skills: { name: string; evidence: number; label?: string }[], spec: RadarSpec): RadarItem[] {
   const n = skills.length, m = 3, step = 4, cx = spec.W / 2, cy = spec.H / 2;
   const items: RadarItem[] = skills.map((skill, index) => {
     const value = Math.max(skill.evidence, 4);
     const angle = (-90 + (index * 360) / n) * Math.PI / 180, ux = Math.cos(angle), uy = Math.sin(angle);
     const [dx, dy] = radarPoint(spec, index, n, value);
-    const sw = (String(skill.evidence).length + 1) * spec.scoreFont * CHAR, // the digits and the % sign
+    const label = skill.label ?? skill.evidence + "%";
+    const sw = label.length * spec.scoreFont * CHAR, // the printed score, "84%" or "4/5"
        sh = spec.scoreFont * 1.15;
     const sx = dx + ux * (DOT + 3 + sw / 2), sy = dy + uy * (DOT + 3 + sh / 2);
     const lines = wrapName(skill.name, spec.wrapAt);
@@ -53,7 +54,7 @@ export function layoutRadar(skills: { name: string; evidence: number }[], spec: 
     const h = Math.max(spec.mark, lines.length * spec.font * LINE) + 10;
     const [px, py] = radarPoint(spec, index, n, 100, spec.R + spec.gap);
     return {
-      name: skill.name, low: skill.evidence < 35, value: skill.evidence, dot: [dx, dy],
+      name: skill.name, low: skill.evidence < 35, value: skill.evidence, label, dot: [dx, dy],
       score: { x: sx - sw / 2, y: sy - sh / 2, w: sw, h: sh },
       chip: { x: px + ux * (w / 2) - w / 2, y: py + uy * (h / 2) - h / 2, w, h, lines, textX: 0, textY: 0 },
     };

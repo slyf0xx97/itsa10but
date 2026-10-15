@@ -13,7 +13,8 @@ import { Term } from "@/components/career/term";
 import { BestArt, GapArt, Gauge, MatchArt } from "@/components/career/stat-tile-art";
 import type { TermId } from "@/lib/glossary";
 import { radarFacts } from "@/lib/radar-facts";
-import { wantOf } from "@/lib/skill-levels";
+import { wantDots, wantOf } from "@/lib/skill-levels";
+import { PROOF_STEP_TOTAL } from "@/lib/proof-steps";
 import { Popup } from "@/components/popup";
 
 /** Chips shown per tier before the rest go behind a "+n more" popup. */
@@ -71,9 +72,10 @@ export function MatchesBody({ skills }: { skills: Skill[] }) {
 }
 
 const pct = (n: number) => Math.max(0, Math.min(100, n)) + "%";
+const upper = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
-/** A tile is a vertical card: label, big figure, a plain line, then a short list. */
-function Tile({ kind, icon, term, art, head, list }: { kind: "best" | "gap" | "match"; icon: PixelIconName; term: TermId; art: ReactNode; head: ReactNode; list?: ReactNode }) {
+/** A tile is a vertical card: label, big figure, a plain line, three rows and a closing line. All three tiles use this one frame, so they line up. */
+function Tile({ kind, icon, term, art, head, list, foot }: { kind: "best" | "gap" | "match"; icon: PixelIconName; term: TermId; art: ReactNode; head: ReactNode; list?: ReactNode; foot: string }) {
   return <li className={"so-tile " + kind}>
     {art}
     <div className="so-tile-body">
@@ -82,58 +84,76 @@ function Tile({ kind, icon, term, art, head, list }: { kind: "best" | "gap" | "m
         {head}
       </div>
       {list}
+      <p className="so-tile-foot">{foot}</p>
     </div>
   </li>;
 }
 
-/** One list row: a small marker, the name, a figure, and a bar underneath. The bar is decoration; the figure is the text. */
-function Row({ mark, name, fig, meter, kind }: { mark: ReactNode; name: ReactNode; fig: ReactNode; meter: ReactNode; kind?: string }) {
+/** Five notches, one per proof step. Filled notches are steps the résumé passes. The notches are decoration, the row's figure is the text. */
+function Notches({ done, total = PROOF_STEP_TOTAL }: { done: number; total?: number }) {
+  return <span className="so-steps" aria-hidden="true">{Array.from({ length: total }, (_, i) => <i key={i} className={i < done ? "on" : ""} />)}</span>;
+}
+
+/** One list row: a marker, the name, a figure, a bar and a short note, so every tile reads the same way. */
+function Row({ mark, name, fig, meter, note, kind }: { mark: ReactNode; name: ReactNode; fig: ReactNode; meter: ReactNode; note: ReactNode; kind?: string }) {
   return <li className={"so-row" + (kind ? " " + kind : "")}>
     <span className="so-mark" aria-hidden="true">{mark}</span>
     <span className="so-row-name">{name}</span>
     <span className="so-row-fig">{fig}</span>
-    <span className="so-meter" aria-hidden="true">{meter}</span>
+    {meter}
+    <span className="so-row-note">{note}</span>
   </li>;
 }
 
-const LEVEL_ROWS = [["strong", "Strong"], ["some", "Some"], ["weak", "Weak or none"]] as const;
+const WANT_WORDS = { High: "asks for it a lot", Medium: "asks for it", Low: "mentions it lightly" } as const;
+const VERDICT_ROWS = [
+  ["covered", "Covered", "Your proof meets what the role asks."],
+  ["add", "Add proof", "You show it, but the role asks for more."],
+  ["missing", "Missing", "The role asks and nothing shows it yet."],
+] as const;
 
-/** Three quick facts next to the radar. Each shows its top three skills (or the proof levels) with small bars, all from the numbers the analysis already holds. Match shows only when the analysis carries one. */
+/** Three quick facts next to the radar. Each shows three skills (or the three verdicts) in the same frame, all from the numbers the analysis already holds. Match shows only when the analysis carries one. */
 function StatTiles({ skills, matchPercent }: { skills: Skill[]; matchPercent?: number }) {
   if (!skills.length) return null;
   const facts = radarFacts(skills);
   const match = matchPercent === undefined ? 0 : Math.round(matchPercent);
   return <ul className="so-tiles" aria-label="Quick facts">
-    <Tile kind="best" icon="report" term="best-proof" art={<BestArt />}
+    <Tile kind="best" icon="report" term="best-proof" art={<BestArt />} foot="Put these near the top of your résumé."
       head={<>
         {facts.best.length > 0 && <span className="so-tile-row"><b className="so-tile-num">{facts.quotes}<small>/{facts.total}</small></b><span className="so-tile-unit">skills have a quote</span></span>}
         <span className="so-tile-cap">{facts.best.length ? "Your strongest skills. A tick means a quote backs it up." : "Nothing in your résumé matched a skill yet."}</span>
       </>}
       list={facts.best.length > 0 && <ol className="so-list" aria-label="Top proven skills, best first">
-        {facts.best.map((row, index) => <Row key={row.name} mark={index + 1} name={<>{row.name}{row.hasQuote && <span className="so-tick" aria-hidden="true"> ✓</span>}<span className="sr-only">{row.hasQuote ? ", quote found" : ", no quote"}</span></>}
-          fig={<b>{row.evidence}%</b>} meter={<i className="have" style={{ width: pct(row.evidence) }} />} />)}
+        {facts.best.map((row, index) => <Row key={row.name} mark={index + 1}
+          name={<>{row.name}{row.hasQuote && <span className="so-tick" aria-hidden="true"> ✓</span>}<span className="sr-only">{row.hasQuote ? ", quote found" : ", no quote"}</span></>}
+          fig={<><b>{row.steps}</b> of {PROOF_STEP_TOTAL} steps</>} meter={<Notches done={row.steps} />}
+          note={row.steps >= PROOF_STEP_TOTAL ? "All five proof steps are done." : upper(row.have) + "."} />)}
       </ol>} />
-    <Tile kind="gap" icon="search" term="biggest-gap" art={<GapArt />}
+    <Tile kind="gap" icon="search" term="biggest-gap" art={<GapArt />} foot="The tips in stage 2 close these, one small project each."
       head={<>
         {facts.gapCount > 0 && <span className="so-tile-row"><b className="so-tile-num">{facts.gapCount}<small>/{facts.total}</small></b><span className="so-tile-unit">skills fall short</span></span>}
-        <span className="so-tile-cap">{facts.gapCount ? "The role asks for these and your proof falls short of it." : "Your proof meets what the role asks."}</span>
+        <span className="so-tile-cap">{facts.gapCount ? "The role asks for these more than your résumé proves. The dots show how much it asks." : "Your proof meets what the role asks."}</span>
       </>}
       list={facts.gaps.length > 0 && <ol className="so-list" aria-label="Biggest gaps, largest first">
-        {facts.gaps.map((row, index) => <Row key={row.name} mark={index + 1} name={row.name}
-          fig={<><b>{wantOf(row.demand)}</b> priority, <b>{row.evidence}%</b></>}
-          meter={<i className="have" style={{ width: pct(row.evidence) }} />} />)}
+        {facts.gaps.map((row, index) => {
+          const want = wantOf(row.demand);
+          return <Row key={row.name} mark={index + 1}
+            name={<>{row.name}<span className="so-dots sk-dots" role="img" aria-label={`The role ${WANT_WORDS[want]}`}>{[1, 2, 3].map((n) => <i key={n} className={n <= wantDots(want) ? "on" : ""} />)}</span></>}
+            fig={<><b>{row.steps}</b> of {PROOF_STEP_TOTAL} steps</>} meter={<Notches done={row.steps} />}
+            note={row.fix ? <><b>Next:</b> {row.fix}.</> : "All five proof steps are done."} />;
+        })}
       </ol>} />
-    {matchPercent !== undefined && <Tile kind="match" icon="compass" term="match" art={<MatchArt />}
+    {matchPercent !== undefined && <Tile kind="match" icon="compass" term="match" art={<MatchArt />} foot="Match counts proof only. It is not a hiring chance."
       head={<>
         <span className="so-tile-row">
           <b className="so-tile-num">{match}<small>%</small></b>
           <Gauge pct={match} />
         </span>
-        <span className="so-tile-cap">How much of what the role asks your résumé proves, skill by skill. It says nothing about hiring odds.</span>
+        <span className="so-tile-cap">How much of what the role asks your résumé proves, skill by skill.</span>
       </>}
-      list={<ul className="so-list" aria-label="Skills by proof level">
-        {LEVEL_ROWS.map(([key, word]) => <Row key={key} kind={"lv " + key} mark="" name={word} fig={<><b>{facts.levels[key]}</b> of {facts.total}</>}
-          meter={<i className="have" style={{ width: pct((facts.levels[key] / facts.total) * 100) }} />} />)}
+      list={<ul className="so-list" aria-label="Skills by verdict">
+        {VERDICT_ROWS.map(([key, word, note]) => <Row key={key} kind={"lv " + key} mark="" name={word} fig={<><b>{facts.verdicts[key]}</b> of {facts.total}</>}
+          meter={<span className="so-meter" aria-hidden="true"><i className="have" style={{ width: pct((facts.verdicts[key] / facts.total) * 100) }} /></span>} note={note} />)}
       </ul>} />}
   </ul>;
 }

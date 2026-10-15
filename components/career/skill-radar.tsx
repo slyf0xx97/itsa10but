@@ -2,6 +2,7 @@ import { BASE_PATH } from "@/lib/base-path";
 import type { Skill } from "@/lib/analysis-types";
 import { skillArt } from "@/lib/skill-art";
 import { rankSkills } from "@/lib/dashboard-data";
+import { PROOF_STEP_TOTAL, proofCount } from "@/lib/proof-steps";
 import { COMPACT, DOT, LINE, WIDE, layoutRadar, radarPoint, type RadarSpec } from "@/lib/radar-layout";
 import { PixelIcon } from "@/components/career/pixel-icons";
 import { Term } from "@/components/career/term";
@@ -22,19 +23,23 @@ function crop(spec: RadarSpec, items: ReturnType<typeof layoutRadar>) {
   return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
 
-function Chart({ skills, spec, variant, summary }: { skills: Skill[]; spec: RadarSpec; variant: "wide" | "compact"; summary: string }) {
+/** A skill as the radar draws it: its proof in whole steps (3 of 5), on a 0 to 100 scale so each ring is one step. */
+type Plotted = { name: string; evidence: number; label: string };
+const STEP = 100 / PROOF_STEP_TOTAL;
+
+function Chart({ skills, spec, variant, summary }: { skills: Plotted[]; spec: RadarSpec; variant: "wide" | "compact"; summary: string }) {
   const n = skills.length;
   const ring = (level: number) => skills.map((_, index) => radarPoint(spec, index, n, level).join(",")).join(" ");
   const items = layoutRadar(skills, spec);
   const cx = spec.W / 2, cy = spec.H / 2;
   const box = crop(spec, items);
   return <svg className={"radar-" + variant} viewBox={`${box.x} ${box.y} ${box.w} ${box.h}`} style={{ maxWidth: `${((box.w * SCALE[variant]) / 16).toFixed(1)}rem` }} role="img" aria-label={"Skills radar of your proof. " + summary}>
-    {[25, 50, 75].map((level) => <polygon key={level} className="ring" points={ring(level)} />)}
+    {Array.from({ length: PROOF_STEP_TOTAL - 1 }, (_, i) => STEP * (i + 1)).map((level) => <polygon key={level} className="ring" points={ring(level)} />)}
     <polygon className="ring outer" points={ring(100)} />
     {skills.map((_, index) => { const [x, y] = radarPoint(spec, index, n, 100); return <line key={index} className="spoke" x1={cx} y1={cy} x2={x} y2={y} />; })}
     <polygon className="shape" points={items.map((item) => item.dot.join(",")).join(" ")} />
     {items.map((item) => <circle key={item.name} className={"dot" + (item.low ? " low" : "")} cx={item.dot[0]} cy={item.dot[1]} r={DOT} />)}
-    {items.map((item) => <text key={item.name} className="rd-score" x={item.score.x + item.score.w / 2} y={item.score.y + item.score.h / 2} fontSize={spec.scoreFont} textAnchor="middle" dominantBaseline="central">{item.value}%</text>)}
+    {items.map((item) => <text key={item.name} className="rd-score" x={item.score.x + item.score.w / 2} y={item.score.y + item.score.h / 2} fontSize={spec.scoreFont} textAnchor="middle" dominantBaseline="central">{item.label}</text>)}
     {items.map((item) => {
       const art = skillArt(item.name);
       const { chip } = item;
@@ -55,9 +60,9 @@ function Chart({ skills, spec, variant, summary }: { skills: Skill[]; spec: Rada
 /** The key under the radar: small pills, each a real sentence with a matching glyph (the glyphs are decoration). Terms carry the score explanations. */
 export function RadarLegend() {
   return <ul className="rd-legend" aria-label="How to read the radar">
-    <li className="rd-key have"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="proof">Have</Term></b> your résumé shows it</span></li>
-    <li className="rd-key gap"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="gap">Gap</Term></b> no proof yet</span></li>
-    <li className="rd-key"><i className="rd-glyph num" aria-hidden="true">70%</i><span><b>Number</b> = your <Term id="proof-score">proof</Term>, in %. Not a hiring chance</span></li>
+    <li className="rd-key have"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="proof">Have</Term></b><small>Your résumé shows it, with 2 or more proof steps.</small></span></li>
+    <li className="rd-key gap"><i className="rd-glyph dot" aria-hidden="true" /><span><b><Term id="gap">Gap</Term></b><small>Fewer than 2 proof steps, so a recruiter has little to check.</small></span></li>
+    <li className="rd-key wide"><i className="rd-glyph num" aria-hidden="true">3/5</i><span><b>Number</b><small>How many of the 5 <Term id="proof-score">proof steps</Term> your résumé passes for that skill: named, used in work, has a number, shows a result, shown twice. It is not a hiring chance.</small></span></li>
   </ul>;
 }
 
@@ -67,8 +72,8 @@ export function RadarLegend() {
  */
 export function SkillRadar({ skills }: { skills: Skill[] }) {
   if (skills.length < 3) return null;
-  const ranked = rankSkills(skills);
-  const summary = ranked.map((skill) => `${skill.name} ${skill.evidence} percent`).join(", ");
+  const ranked: Plotted[] = rankSkills(skills).map((skill) => { const steps = proofCount(skill); return { name: skill.name, evidence: steps * STEP, label: `${steps}/${PROOF_STEP_TOTAL}` }; });
+  const summary = ranked.map((skill) => `${skill.name} ${skill.label} proof steps`).join(", ");
   return <figure className="radar">
     <div className="radar-box">
       <Chart skills={ranked} spec={WIDE_TIGHT} variant="wide" summary={summary} />

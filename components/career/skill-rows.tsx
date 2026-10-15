@@ -7,6 +7,7 @@ import { ArrowUpRight } from "lucide-react";
 import type { Skill } from "@/lib/analysis-types";
 import { skillArt } from "@/lib/skill-art";
 import { rankSkills } from "@/lib/dashboard-data";
+import { PROOF_STEP_TOTAL, proofCount, stepsMissing } from "@/lib/proof-steps";
 import { VERDICT_LABEL, proofOf, proofSteps, verdictOf, wantDots, wantOf, whyLine, type Proof } from "@/lib/skill-levels";
 import { PixelIcon } from "@/components/career/pixel-icons";
 import { Popup } from "@/components/popup";
@@ -73,6 +74,7 @@ function Row({ skill, rank, onOpen }: { skill: Skill; rank: number; onOpen: (nam
 function Detail({ skill }: { skill: Skill }) {
   const link = skillLink(skill.name);
   const { breakdown } = skill;
+  const nextStep = stepsMissing(skill)[0];
   return <div className="sk-pop">
     <p className="sk-detail"><span>{skill.detail}</span></p>
     {skill.resumeQuote
@@ -84,7 +86,7 @@ function Detail({ skill }: { skill: Skill }) {
     <p className="sk-why"><strong>Why this score</strong> {whyLine(skill.demand, skill.evidence)}</p>
     <details className="sk-how" open>
       <summary>How we score</summary>
-      <p>Your <Term id="proof-score">proof</Term> is <b>{skill.evidence}%</b>. The role asks for the skill at <b>{wantOf(skill.demand).toLowerCase()}</b> priority. Both come from the text. Neither predicts whether you&apos;ll be hired.</p>
+      <p>Your <Term id="proof-score">proof</Term> passes <b>{proofCount(skill)} of {PROOF_STEP_TOTAL} steps</b>, worth {skill.evidence} of 100 points. {nextStep ? <>To add more, <b>{nextStep.fix.charAt(0).toLowerCase() + nextStep.fix.slice(1)}</b>. </> : "Every step is covered. "}The role asks for the skill at <b>{wantOf(skill.demand).toLowerCase()}</b> priority. Both come from the text. Neither predicts whether you&apos;ll be hired.</p>
       {breakdown
         ? <div className="sk-parts">
             <Parts title="Proof, from your résumé" parts={breakdown.parts} none="No résumé passage matches, so no points are added." />

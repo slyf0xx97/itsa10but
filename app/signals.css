@@ -1,4 +1,4 @@
-/* Singapore hiring signals card (components/sg-signals.tsx) and its news and sources popup (components/sg-sources.tsx, sg-news.tsx), then the role picker's glass finish. Tokens from theme.css. */
+/* The Sources and sites card (components/sg-signals.tsx) with its figures popup (sg-figures.tsx) and news (sg-news.tsx), then the role picker's glass finish. Tokens from theme.css. */
 
 .sgs { container-type: inline-size; color: var(--ink); }
 .sgs-box { display: flex; flex-direction: column; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); box-shadow: 0 1px 4px rgb(18 52 63 / 18%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
@@ -6,58 +6,55 @@
 .sgs-head { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; }
 .sgs-head img { flex: 0 0 auto; width: 1.75rem; height: 1.75rem; image-rendering: pixelated; }
 .sgs-tab { padding: .15rem .5rem; border: 1.5px solid var(--teal-dark); border-radius: 10px; background: var(--teal-dark); color: #fff; font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; line-height: 1.2; letter-spacing: .02em; }
-.sgs-key { margin: 0; color: var(--text-soft); font-size: .95rem; line-height: 1.35; }
 
-/* Title block: the title with its "Checked" date right under it, then a row with the "See more reads and sites" button and the newspaper button for the verified figures. */
+/* Title block: the title with its "Checked" line under it, then two labelled buttons side by side. Each opens a popup, and hovering one gives a peek (a panel over the page). */
 .sgs-top { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
-.sgs-titles { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; min-width: 0; }
-.sgs-checked { margin: 0; padding-left: .15rem; color: var(--ink); font-size: .95rem; font-weight: 700; line-height: 1.2; }
-/* The button: solid orange, 2px ink border, a hard ink shadow, newspaper icon, one line of bold text and a chevron. The shared lift is in buttons.css. */
-.sgs-actions { display: flex; align-items: stretch; gap: .5rem; min-width: 0; }
-.sgs-figures { flex: none; display: grid; place-items: center; width: 2.75rem; min-height: 2.75rem; margin: 0; padding: 0; border: 2px solid var(--ink); border-radius: 10px; background: #fff; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; }
-.sgs-figures:hover { background: var(--lime); box-shadow: 5px 5px 0 var(--ink); }
-.sgs-figures:active { box-shadow: 1px 1px 0 var(--ink); }
-.sgs-figures:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-.sgs-top .sgs-open { --btn-hover-shadow: 5px 5px 0 var(--ink); --btn-active-shadow: 1px 1px 0 var(--ink); flex: 1 1 auto; min-width: 0; width: auto; min-height: 2.75rem; padding: .35rem .8rem; border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
-.sgs-open-text { flex: 1 1 auto; min-width: 0; text-align: left; }
-.sgs-short { display: none; }
-@container (max-width: 24rem) { .sgs-long { display: none; } .sgs-short { display: inline; } }
-/* Under about 300px there is no room for the icon as well, so it goes and the text may wrap rather than get cut. */
-@container (max-width: 19rem) { .sgs-top .sgs-open { gap: .4rem; padding-inline: .5rem; font-size: .88rem; white-space: normal; } .sgs-top .sgs-open > svg:first-child { display: none; } }
+.sgs-titles { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; min-width: 0; }
+.sgs-head svg { flex: none; color: var(--teal-dark); }
+.sgs-checked { margin: 0; padding-left: .15rem; color: var(--ink); font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.sgs-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; min-width: 0; }
+.sgs-actions .word-tip { display: block; min-width: 0; white-space: normal; }
+.sgs-actions .sgs-open, .sgs-actions .sgs-book { --btn-hover-shadow: 5px 5px 0 var(--ink); --btn-active-shadow: 1px 1px 0 var(--ink); display: flex; align-items: center; justify-content: center; gap: .45rem; box-sizing: border-box; width: 100%; min-height: 3rem; padding: .35rem .6rem; border: 2px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); font-family: var(--font-body); font-size: 1rem; font-weight: 800; line-height: 1.2; text-align: left; cursor: pointer; }
+.sgs-actions .sgs-book { background: #fff; color: var(--ink); }
+.sgs-actions .sgs-book:hover { background: var(--lime); }
+.sgs-actions svg { flex: none; }
+.sgs-open-text { min-width: 0; }
+.sgs-actions .sgs-open:focus-visible, .sgs-actions .sgs-book:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+@container (max-width: 21rem) { .sgs-actions { grid-template-columns: minmax(0, 1fr); } }
 
-/* The tech and AI news sites sit in three rows of four that scroll sideways together (one scroll box, three lists), with a fade on the right edge. */
-.sgs-sites { display: grid; gap: .3rem; min-width: 0; padding: .1rem 1.75rem .35rem .1rem; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--water-deep) rgb(255 255 255 / 60%); -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 2.25rem), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 2.25rem), transparent); }
-.sgs-sites:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-.sgs-sites ul { display: flex; gap: .45rem; width: max-content; margin: 0; padding: 0; list-style: none; }
-.sgs-sites li { flex: 0 0 auto; }
-.sgs-sites a { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .15rem .7rem .15rem .3rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; transition: transform .12s, background-color .12s; }
-.sgs-sites a:hover { background: var(--sky-soft); transform: translateY(-2px); }
-.sgs-sites a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-.sgs-sites img { display: block; width: 1.65rem; height: 1.65rem; border-radius: 50%; object-fit: contain; background: #fff; }
+/* The five groups of sites, each with its title, a count and up to seven round logos (the name and what it covers are the hover text, the rest are in the popup). */
+.sgs-groups { display: grid; gap: .55rem; min-width: 0; }
+.sgs-group { display: grid; gap: .3rem; min-width: 0; padding: .45rem .55rem .55rem; border: 1.5px solid rgb(31 36 48 / 16%); border-radius: 12px; background: rgb(255 255 255 / 70%); }
+.sgs-group h3 { display: flex; align-items: center; gap: .4rem; margin: 0; color: var(--ink); font-size: 1.02rem; font-weight: 800; line-height: 1.2; }
+.sgs-group h3 small { margin-left: auto; padding: 0 .5rem; border-radius: 999px; background: var(--sky-soft); color: var(--ink); font-size: .9rem; font-weight: 800; }
+.sgs-group ul { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.sgs-group a, .sgs-group .sgs-logo { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: #fff; transition: transform .12s, background-color .12s; }
+.sgs-group .sgs-logo { box-sizing: border-box; cursor: pointer; font: inherit; }
+.sgs-group a:hover, .sgs-group .sgs-logo:hover { transform: translateY(-2px); }
+.sgs-group a.sgs-more { display: inline-flex; place-items: initial; width: auto; height: auto; padding: 0 .8rem; border-radius: 999px; border-style: dashed; text-decoration: none; }
+.rt-sites .sgs-jump { margin-top: .6rem; text-decoration: none; }
+.sgs-more { display: inline-flex; align-items: center; min-height: 2.5rem; padding: 0 .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .98rem; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; }
+.sgs-group img { display: block; width: 1.9rem; height: 1.9rem; border-radius: 50%; object-fit: contain; background: #fff; }
+.sgs-more { border-style: dashed; color: var(--water-deep); }
+.sgs-group a:hover, .sgs-group .sgs-logo:hover, .sgs-more:hover { background: var(--sky-soft); }
+.sgs-group a:focus-visible, .sgs-group .sgs-logo:focus-visible, .sgs-more:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
-/* Five compact tiles: two across in the narrow column (a lone last tile takes the full row), five across when the card is wide. */
-.sgs-tiles { display: grid; flex: 1 1 auto; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: .4rem; margin: 0; padding: 0; list-style: none; }
-.sgs-tiles li { display: grid; align-content: center; gap: .1rem; min-width: 0; padding: .3rem .35rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 10px; background: rgb(255 255 255 / 80%); }
-.sgs-tiles li:last-child:nth-child(odd) { grid-column: 1 / -1; }
-@container (min-width: 44rem) { .sgs-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } .sgs-tiles li:last-child:nth-child(odd) { grid-column: auto; } }
-.sgs-row { display: flex; align-items: center; gap: .35rem; font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+/* The peek panels (hover or focus on a button): a photo and three figures, or the five groups with their logos. */
+.sgk { display: grid; gap: .6rem; }
+.sgk-photo { display: block; width: 100%; height: auto; aspect-ratio: 16 / 5; object-fit: cover; border: 1.5px solid var(--ink); border-radius: 10px; }
+.sgk-figs, .sgk-groups { display: grid; gap: .5rem; }
+.sgk-fig { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); align-items: baseline; gap: .5rem; font-size: 1rem; line-height: 1.35; }
+.sgk-fig b { font-size: 1.3rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; line-height: 1.1; }
+.sgk-group { display: grid; gap: .25rem; }
+.sgk-group-h { display: flex; align-items: center; gap: .4rem; font-size: 1rem; line-height: 1.2; }
+.sgk-group-h small { margin-left: auto; font-size: .9rem; font-weight: 700; color: var(--ink-soft); }
+.sgk-logos { display: flex; flex-wrap: wrap; gap: .3rem; }
+.sgk-logos img { display: block; width: 1.65rem; height: 1.65rem; border-radius: 50%; border: 1.5px solid rgb(31 36 48 / 30%); background: #fff; object-fit: contain; }
+.sgk-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-top: .4rem; border-top: 2px dashed rgb(31 36 48 / 20%); color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.3; }
+.sgk-cta { padding-top: .5rem; border-top: 2px dashed rgb(31 36 48 / 20%); color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.35; }
+
 .sgs-mark { display: inline-grid; flex: 0 0 auto; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 8px; background: rgb(255 255 255 / 85%); color: var(--water-deep); }
 .sgs-mark img { display: block; width: 1.2rem; height: 1.2rem; object-fit: contain; }
-.sgs-name { min-width: 0; overflow-wrap: anywhere; }
-.sgs-fig { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .25rem; }
-.sgs-fig b { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.sgs-chip { display: inline-flex; align-items: center; gap: .1rem; padding: 0 .3rem 0 .15rem; border: 1.5px solid #2f7d46; border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.25; white-space: nowrap; }
-.sgs-chip.is-plain { padding: 0 .4rem; border-color: var(--water-deep); background: #fff; color: var(--ink); font-weight: 700; }
-/* Very narrow (small phones): one short row per skill. Name, share and change on one line (they wrap if they must), the source under them. */
-@container (max-width: 19rem) {
-  .sgs-head img { display: none; }
-  .sgs-tiles { grid-template-columns: minmax(0, 1fr); gap: .3rem; }
-  .sgs-tiles li { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .5rem; padding: .3rem .5rem; }
-  .sgs-tiles li:last-child:nth-child(odd) { grid-column: auto; }
-  .sgs-row { flex: 1 1 auto; }
-  .sgs-fig { display: contents; }
-  .sgs-tiles li > .sgs-src { flex: 1 1 100%; }
-}
 
 /* Latest in AI: four recent developments, one compact row each: a kind tag and the headline, then the source with its date. The one plain line about each item is its hover text and its spoken label. */
 .sgs-ai { display: grid; gap: .45rem; margin-top: .65rem; }
@@ -103,25 +100,33 @@
 .sgs-headlines p { margin: 0; color: var(--text-soft); }
 .sgs-meta { display: flex; flex-wrap: wrap; gap: 0 .9rem; color: var(--text-soft); font-size: 1rem; font-weight: 600; }
 .sgs-tag { justify-self: start; margin-top: .15rem; padding: 0 .45rem; border: 1.5px solid var(--leaf-deep); border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-style: normal; font-weight: 800; line-height: 1.35; }
-/* The verified figures popup: a card per figure with the number big and in the reading font (the pixel font made the digits hard to tell apart). */
-.sgs-figures-lead { margin: 0 0 .8rem; color: var(--ink); font-size: 1.05rem; line-height: 1.4; }
-.sgs-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: .8rem; margin: 0; padding: 0; list-style: none; }
-.sgs-facts li { display: grid; align-content: start; gap: .3rem; min-width: 0; padding: .8rem .95rem .9rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: var(--sky-soft, #e8f4fb); font-size: 1.05rem; line-height: 1.45; }
-.sgs-facts li > b { color: var(--ink); font-family: var(--font-body); font-size: 1.9rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; line-height: 1.1; }
 
 @media (prefers-reduced-motion: reduce) { .sgs-sites a { transition: none; } .sgs-sites a:hover { transform: none; } }
 
 /* Role picker: glass finish for the pieces that still carried the older parchment look. */
-.role-input .li-head { font-size: 1.2rem; }
-.role-input .li-head strong { font-family: var(--font-display); font-weight: 600; }
+/* Label row of the role box: the label and its tip on the left, a small LinkedIn note on the right. */
+.role-input .rl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .8rem; margin-bottom: .4rem; }
+.role-input .rl-head label { margin: 0; }
+.role-input .rl-li { display: inline-flex; align-items: center; gap: .45rem; padding: .2rem .7rem .2rem .45rem; border: 1.5px solid var(--glass-edge); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: 1rem; font-weight: 700; }
+.role-input .rl-li .li-mark { flex: none; }
 .role-input label.with-tip { color: var(--ink); font-size: 1.1rem; font-weight: 800; }
 .role-input .role-field { display: flex; flex: 1 1 auto; flex-direction: column; }
-.role-input .role-field .ta-wrap { display: flex; flex: 1 1 auto; min-height: 10rem; }
-.role-input .role-field .ta-wrap textarea { flex: 1 1 auto; min-height: 10rem; resize: vertical; }
-.role-input textarea { min-height: 10rem; font-size: 1rem; line-height: 1.5; }
+.role-input .role-field .ta-wrap { display: flex; flex: 1 1 auto; min-height: 8.5rem; }
+.role-input .role-field .ta-wrap textarea { flex: 1 1 auto; min-height: 8.5rem; resize: vertical; }
+.role-input textarea { min-height: 8.5rem; font-size: 1rem; line-height: 1.5; }
 .role-input .btn { font-size: 1.05rem; }
 .role-input textarea { background-color: rgb(255 255 255 / 80%); color: var(--ink); border: 1.5px solid var(--water-deep); border-radius: 12px; }
-.role-input .role-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .6rem; }
+/* "How to add a role": a pill button that opens a wide panel over the page, so the section never grows. Three how-tos sit side by side in the panel. */
+.role-input .role-how { display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 2.75rem; margin: 0; padding: .4rem .9rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); color: var(--ink); font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; text-align: left; cursor: pointer; }
+.role-input .role-how:hover { background: var(--sky-soft); }
+.role-input .role-how:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.role-how-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1.1rem; align-items: start; }
+.role-how-body > section > h4 { margin: 0 0 .5rem; color: var(--ink); font-size: 1.1rem; }
+.role-how-body .guide { gap: .6rem; margin-bottom: .5rem; }
+.role-input .role-how-body .guide li { grid-template-columns: 6.5rem minmax(0, 1fr); column-gap: .7rem; }
+.role-input .role-how-body .guide .art { grid-row: 1 / span 2; width: 100%; }
+.role-how-body .guide p { margin: 0; color: var(--text-soft); font-size: 1rem; }
+.role-how-body .fold-tip { margin: 0; color: var(--ink); font-size: 1rem; }
 .role-input .btn.quiet { border: 1.5px dashed var(--water-deep); background: rgb(255 255 255 / 70%); color: var(--ink); }
 .role-input .btn.quiet:hover:not(:disabled) { border-style: solid; background: var(--sky-soft); }
 .role-input .tip-btn { background: var(--orange); color: var(--ink); }
@@ -147,3 +152,59 @@
 /* Fold tip and step titles: bold key phrase first. */
 .role-input .fold-body .hint.fold-tip { color: var(--ink); font-size: 1.05rem; }
 .role-input .guide strong { font-size: 1.15rem; font-weight: 800; }
+
+/* Verified figures and news popup (components/sg-figures.tsx): a photo banner, skill bars, figure cards with the publisher's logo, then the latest news.
+   Numbers use the reading font because the pixel font made the digits hard to tell apart. Photos are local files in public/assets/photos. */
+.sgf { display: grid; gap: 1.4rem; min-width: 0; }
+.sgf-banner { position: relative; margin: 0; overflow: hidden; aspect-ratio: 16 / 5; border: 2px solid var(--ink); border-radius: 16px; background: var(--water-deep); }
+.sgf-banner img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+.sgf-banner figcaption { position: absolute; inset: auto 0 0 0; display: grid; gap: .1rem; padding: 2rem 1.1rem .8rem; background: linear-gradient(transparent, rgb(10 25 40 / 80%)); color: #fff; }
+.sgf-banner figcaption b { font-size: 1.5rem; font-weight: 800; line-height: 1.15; }
+.sgf-banner figcaption span { font-size: 1rem; line-height: 1.35; }
+.sgf-sec { display: grid; gap: .75rem; min-width: 0; }
+.sgf-sec > h3 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; line-height: 1.2; }
+.sgf-lead, .sgf-src-line { margin: 0; color: var(--ink); font-size: 1.02rem; line-height: 1.45; }
+.sgf-src-line a, .sgf-src a, .sgf-credit a { color: var(--water-deep); font-weight: 700; overflow-wrap: anywhere; }
+.sgf-src-line a:hover, .sgf-src a:hover, .sgf-credit a:hover { color: var(--coral); }
+.sgf-bars { display: grid; gap: .55rem; margin: 0; padding: .9rem 1rem; list-style: none; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: #fff; }
+.sgf-bars li { display: grid; grid-template-columns: 8rem minmax(0, 1fr) 9.5rem; align-items: center; gap: .8rem; min-width: 0; }
+.sgf-bar-name { display: inline-flex; align-items: center; gap: .5rem; color: var(--ink); font-size: 1.05rem; font-weight: 800; }
+.sgf-track { display: flex; height: 1.15rem; overflow: hidden; border-radius: 999px; background: rgb(31 36 48 / 9%); }
+.sgf-base { display: block; background: var(--water-deep); }
+.sgf-gain { display: block; background: repeating-linear-gradient(135deg, #2f9e5c 0 6px, #46b873 6px 12px); }
+.sgf-bar-fig { display: inline-flex; align-items: center; justify-content: flex-end; gap: .45rem; }
+.sgf-bar-fig b { color: var(--ink); font-size: 1.25rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; }
+.sgf-chip { display: inline-flex; align-items: center; gap: .15rem; padding: 0 .4rem; border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-weight: 800; line-height: 1.5; }
+.sgf-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16.5rem), 1fr)); gap: .8rem; margin: 0; padding: 0; list-style: none; }
+.sgf-cards > li { display: grid; align-content: start; gap: .5rem; min-width: 0; padding: .85rem .95rem .95rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: var(--sky-soft, #e8f4fb); color: var(--ink); font-size: 1.02rem; line-height: 1.45; }
+.sgf-fig { display: flex; align-items: center; gap: .65rem; }
+.sgf-fig b, .sgf-feature-body > b { color: var(--ink); font-size: 1.9rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; line-height: 1.1; }
+.sgf-logo { flex: none; border-radius: 8px; background: #fff; object-fit: contain; }
+.sgf-letter { display: inline-grid; place-items: center; width: 1.25rem; height: 1.25rem; background: var(--water-deep); color: #fff; font-size: .8rem; font-weight: 800; }
+.sgf-fig .sgf-letter { width: 2.1rem; height: 2.1rem; font-size: 1.1rem; }
+.sgf-ring { flex: none; display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: conic-gradient(var(--teal-dark, #1fa98a) calc(var(--p) * 1%), rgb(31 36 48 / 14%) 0); }
+.sgf-ring i { width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--sky-soft, #e8f4fb); }
+.sgf-src { display: flex; align-items: flex-start; gap: .45rem; align-self: end; margin-top: .1rem; color: var(--text-soft); font-size: .95rem; line-height: 1.35; }
+.sgf-src .sgf-logo { margin-top: .05rem; }
+.sgf-feature { grid-column: 1 / -1; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 1rem; padding: 0; overflow: hidden; }
+.sgf-feature > img { display: block; width: 100%; height: 100%; min-height: 11rem; object-fit: cover; }
+.sgf-feature-body { display: grid; align-content: center; gap: .5rem; padding: .9rem 1rem .95rem 0; }
+.sgf-roles-card { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 1rem; }
+.sgf-roles-card .sgf-fig { grid-row: 1 / span 3; }
+.sgf-roles { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.sgf-cards .sgf-roles li { display: inline-block; padding: .1rem .6rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; font-size: .95rem; font-weight: 700; }
+.sgf-ai { grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: .55rem; }
+.sgf-ai .sgs-ai-kind { grid-row: 1 / span 3; }
+.sgf-ai-text { grid-column: 2; color: var(--text-soft); font-size: .95rem; line-height: 1.4; }
+.sgf-ai .sgs-ai-src img { border-radius: 4px; }
+.sgf-credit { margin: 0; color: var(--text-soft); font-size: .92rem; line-height: 1.4; }
+@media (max-width: 640px) {
+  .sgf-banner { aspect-ratio: 16 / 8; }
+  .sgf-bars li { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .6rem; }
+  .sgf-track { grid-column: 1 / -1; grid-row: 2; }
+  .sgf-feature { grid-template-columns: minmax(0, 1fr); }
+  .sgf-roles-card { grid-template-columns: minmax(0, 1fr); }
+  .sgf-roles-card .sgf-fig { grid-row: auto; }
+  .sgf-feature-body { padding: 0 1rem .95rem; }
+  .sgf-feature > img { min-height: 0; aspect-ratio: 16 / 8; }
+}

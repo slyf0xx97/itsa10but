@@ -63,7 +63,7 @@ export function SgNews({ firecrawlKey = "" }: { firecrawlKey?: string }) {
         {loading ? <LoaderCircle className="spin" size={15} aria-hidden="true" /> : <RefreshCw size={15} aria-hidden="true" />} {loading ? "Refreshing…" : state.kind === "error" ? "Try again" : "Refresh news"}
       </button>
     </div>
-    <p id={id + "-hint"} className="sgs-note">Reads the feeds of the sites tagged In Refresh below. No key needed. A Firecrawl key in Agent power adds search results.</p>
+    <p id={id + "-hint"} className="sgs-note">Reads the feeds of the sites tagged In Refresh in Reads and sites. No key needed. A Firecrawl key in Agent power adds search results.</p>
     <p className={"sgs-status" + (state.kind === "error" ? " is-problem" : "")} role="status" aria-live="polite">{status}</p>
     {state.kind === "ok" && <div>
       <h4>Latest news, fetched {when(state.fetchedAt)}</h4>

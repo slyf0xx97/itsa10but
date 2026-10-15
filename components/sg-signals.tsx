@@ -1,99 +1,110 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
-import { useId } from "react";
+import { useCallback, useId, useState } from "react";
 import Image from "next/image";
-import { ArrowUp, ExternalLink, Sparkles } from "lucide-react";
-import { SgSources } from "@/components/sg-sources";
+import { ArrowRight, BookOpen, ExternalLink, Library, Newspaper } from "lucide-react";
+import { Popup } from "@/components/popup";
 import { PixelIcon } from "@/components/career/pixel-icons";
 import { WordTip } from "@/components/career/word-tip";
-import { SNAPSHOT_CHECKED, latestAi, skillShares, snapshotSources, type SnapshotSourceId } from "@/lib/sg-snapshot";
+import { glideTo } from "@/components/glide-to";
+import { SgFigures } from "@/components/sg-figures";
+import { SNAPSHOT_CHECKED, signals } from "@/lib/sg-snapshot";
 import { newsSiteGroups, type NewsSite } from "@/lib/news-sites";
-import { skillArt } from "@/lib/skill-art";
 
-const techSites = newsSiteGroups.find((group) => group.id === "tech")?.sites ?? [];
+/** Sites shown per group in the card. The rest are in the Sources and sites popup. */
+const SHOWN = 7;
+const firstSentence = (text: string) => text.split(/(?<=[.!?])\s/)[0];
 
-/** Three rows of about the same total width (a chip is about as wide as its name), the list order kept inside each row, so no row ends early and leaves a gap. */
-function balanced(sites: NewsSite[], rows = 3): NewsSite[][] {
-  const out = Array.from({ length: rows }, () => ({ width: 0, items: [] as NewsSite[] }));
-  for (const site of sites) {
-    const row = out.reduce((a, b) => (b.width < a.width ? b : a));
-    row.items.push(site);
-    row.width += site.name.length + 7;
-  }
-  return out.map((row) => row.items);
-}
-const techRows = balanced(techSites);
-
-// skillArt maps "Cloud" to three vendors; each tile here names one vendor, so it gets that logo.
-const ownLogo: Record<string, string> = { AWS: "amazonwebservices-original-wordmark.svg", Azure: "azure-original.svg" };
-
-function Mark({ name }: { name: string }) {
-  const art = skillArt(name);
-  const logos = ownLogo[name] ? [ownLogo[name]] : art.logos;
-  return <span className="sgs-mark" aria-hidden="true">{logos.length
-    ? logos.map((file) => <Image key={file} src={BASE_PATH + "/tool-logos/" + file} width={24} height={24} alt="" unoptimized />)
-    : <PixelIcon name={art.icon} size={22} />}</span>;
+function SiteLogo({ site, size }: { site: NewsSite; size: number }) {
+  return <Image src={BASE_PATH + "/assets/logos/" + site.logo + ".png"} width={size} height={size} alt="" unoptimized />;
 }
 
-/** Short link to a named source: "IMDA 2025". The full publisher, title and date are in the accessible name. */
-function Cite({ id }: { id: SnapshotSourceId }) {
-  const source = snapshotSources[id];
-  return <a href={source.url} target="_blank" rel="noopener noreferrer" aria-label={`${source.publisher}, ${source.title}, ${source.published} (opens in a new tab)`}>{source.publisher} {source.published.match(/\d{4}/)?.[0]}</a>;
-}
-
-/** Dated, sourced Singapore tech hiring figures in four even tiles, a full-width button for news and sources under the title, a three-row scrolling strip of tech and AI news sites (rows of equal width) and the latest AI developments. Data lives in lib/sg-snapshot.ts and lib/news-sites.ts. */
-export function SgSignals({ firecrawlKey = "" }: { firecrawlKey?: string }) {
+/**
+ * Stage 1's third card: where the figures, news, jobs and lessons come from. Two labelled buttons open a popup each, and hovering or focusing a button gives a peek at what is inside first:
+ * "Figures and news" (the verified Singapore figures with their sources, the skill bars, the latest news and its Refresh button) and "Sources and sites" (every site, by group).
+ * Under them the same sites sit in their five groups as logos (the name is the hover text), so a visitor can go straight to one. Data: lib/news-sites.ts and lib/sg-snapshot.ts.
+ */
+export function SourcesCard({ firecrawlKey = "" }: { firecrawlKey?: string }) {
   const panelId = useId();
+  const [figures, setFigures] = useState(false);
+  const [sites, setSites] = useState(false);
+  const closeFigures = useCallback(() => setFigures(false), []);
+  const closeSites = useCallback(() => setSites(false), []);
+  const total = newsSiteGroups.reduce((sum, group) => sum + group.sites.length, 0);
+  const peekShown = newsSiteGroups.reduce((sum, group) => sum + Math.min(group.sites.length, 7), 0);
   return <section className="sgs" aria-labelledby={panelId + "-t"}>
     <div className="sgs-box">
       <div className="sgs-bar">
         <div className="sgs-top">
           <div className="sgs-titles">
             <span className="sgs-head">
-              {/* eslint-disable-next-line @next/next/no-img-element -- tiny static pixel SVG, nothing to optimise */}
-              <img src={`${BASE_PATH}/assets/icons/abilities/rank-demand.svg`} alt="" aria-hidden="true" width={22} height={22} />
-              <span className="sgs-tab" id={panelId + "-t"}>Singapore hiring signals</span>
+              <Library size={24} aria-hidden="true" focusable="false" />
+              <span className="sgs-tab" id={panelId + "-t"}>Sources and sites</span>
             </span>
-            <p className="sgs-checked">Checked {SNAPSHOT_CHECKED}</p>
+            <p className="sgs-checked">Where the figures, news, jobs and lessons come from. Checked {SNAPSHOT_CHECKED}.</p>
           </div>
-          <SgSources firecrawlKey={firecrawlKey} />
-        </div>
-        <div className="sgs-sites" role="group" aria-label="Tech and AI news sites" tabIndex={0}>
-          {techRows.map((row, index) => <ul key={index}>
-            {row.map((site) => <li key={site.name}>
-              <a href={site.href} target="_blank" rel="noopener noreferrer" aria-label={site.name + " (opens in a new tab)"}>
-                <Image src={BASE_PATH + "/assets/logos/" + site.logo + ".png"} width={40} height={40} alt="" unoptimized />
-                <span>{site.name}</span>
-              </a>
-            </li>)}
-          </ul>)}
-        </div>
-        <p className="sgs-key">Share of tech postings that name each skill. Green is the change since 2019, in <WordTip title="pp" word="pp">pp means percentage points, the gap between two shares. A share that goes from 10% to 15% is up 5 pp.</WordTip>.</p>
-        <ul className="sgs-tiles" aria-label="Share of Singapore tech job postings that name each skill">
-          {skillShares.map((skill) => {
-            return <li key={skill.name}>
-              <span className="sgs-row"><Mark name={skill.name} /><span className="sgs-name">{skill.name}</span></span>
-              <span className="sgs-fig">
-                <b>{skill.share}%<span className="sr-only"> of Singapore tech postings in {skill.year}</span></b>
-                <span className="sgs-chip"><ArrowUp size={12} strokeWidth={3} aria-hidden="true" /><span className="sr-only">up </span>{skill.gain} pp<span className="sr-only"> since {skill.since}</span></span>
+          <div className="sgs-actions">
+            <WordTip panel buttonClass="btn sgs-open sgs-book" tone="water" title="Verified figures and news" icon={<Newspaper size={18} aria-hidden="true" />} onActivate={() => setFigures(true)}
+              label="Figures and news. Hover for a peek, press to open."
+              word={<><Newspaper size={20} aria-hidden="true" /><span className="sgs-open-text">Figures and news</span></>}>
+              <span className="sgk">
+                <Image className="sgk-photo" src={BASE_PATH + "/assets/photos/marina-bay.jpg"} width={400} height={225} alt="" unoptimized />
+                <span className="sgk-figs">{signals.slice(0, 3).map((signal) => <span key={signal.figure} className="sgk-fig"><b>{signal.figure}</b><span>{firstSentence(signal.text)}</span></span>)}</span>
+                <span className="sgk-more" aria-hidden="true">+{signals.length - 2} more figures, skill bars and news <ArrowRight size={16} focusable="false" /></span>
               </span>
-              <span className="sgs-src">{skill.year}<span className="sr-only"> postings</span>, <Cite id={skill.source} /></span>
-            </li>;
+            </WordTip>
+            <WordTip panel buttonClass="btn sgs-book" tone="water" title="Sources and sites" icon={<BookOpen size={18} aria-hidden="true" />} onActivate={() => setSites(true)}
+              label="Sources and sites. Hover for a peek, press to open."
+              word={<><BookOpen size={20} aria-hidden="true" /><span className="sgs-open-text">Sources and sites</span></>}>
+              <span className="sgk">
+                <span className="sgk-groups">{newsSiteGroups.map((group) => <span key={group.id} className="sgk-group">
+                  <span className="sgk-group-h"><PixelIcon name={group.icon} size={16} /><b>{group.title}</b><small>{group.sites.length}</small></span>
+                  <span className="sgk-logos">{group.sites.slice(0, 7).map((site) => <SiteLogo key={site.name} site={site} size={26} />)}</span>
+                </span>)}</span>
+                <span className="sgk-more" aria-hidden="true">+{total - peekShown} more sites <ArrowRight size={16} focusable="false" /></span>
+              </span>
+            </WordTip>
+          </div>
+        </div>
+        <div className="sgs-groups">
+          {newsSiteGroups.map((group) => {
+            const rest = group.sites.length - SHOWN;
+            return <section key={group.id} className="sgs-group" aria-labelledby={panelId + "-" + group.id}>
+              <h3 id={panelId + "-" + group.id}><PixelIcon name={group.icon} size={18} /><span>{group.title}</span><small>{group.sites.length}</small></h3>
+              <ul>
+                {group.sites.slice(0, SHOWN).map((site) => <li key={site.name}>
+                  <WordTip title={site.name} tone="water" wide={false} bare buttonClass="sgs-logo" label={site.name + " (opens in a new tab)"} onActivate={() => window.open(site.href, "_blank", "noopener,noreferrer")}
+                    word={<SiteLogo site={site} size={40} />}>
+                    <span className="word-tip-line">{site.what}</span>
+                    {site.inRefresh && <span className="word-tip-line"><em className="sgs-tag">In Refresh</em></span>}
+                  </WordTip>
+                </li>)}
+                {group.id === "learn" && <li><a className="sgs-more" href="#level-up" onClick={(event) => glideTo(event, "level-up")}>See more<span className="sr-only"> in Level up your résumé</span></a></li>}
+                {group.id !== "learn" && rest > 0 && <li><button type="button" className="sgs-more" aria-haspopup="dialog" onClick={() => setSites(true)}>+{rest} more<span className="sr-only"> in {group.title}</span></button></li>}
+              </ul>
+            </section>;
           })}
-        </ul>
-        <div className="sgs-ai">
-          <h3 className="sgs-ai-h"><Sparkles size={18} aria-hidden="true" focusable="false" /><span>Latest in AI</span><small>Read {SNAPSHOT_CHECKED}</small></h3>
-          <ul className="sgs-ai-list" aria-label="Recent AI models, research and findings">
-            {latestAi.map((item) => <li key={item.url}>
-              <a href={item.url} target="_blank" rel="noopener noreferrer" title={item.text} aria-label={`${item.kind}: ${item.title}. ${item.text} ${item.publisher}, ${item.published} (opens in a new tab)`}>
-                <span className="sgs-ai-kind" data-kind={item.kind}>{item.kind}</span>
-                <b>{item.title}</b>
-                <span className="sgs-ai-src">{item.publisher}, {item.published}<ExternalLink size={13} aria-hidden="true" focusable="false" /></span>
-              </a>
-            </li>)}
-          </ul>
         </div>
       </div>
     </div>
+    <Popup open={figures} onClose={closeFigures} title="Verified figures and news" icon={<Newspaper size={22} aria-hidden="true" />} wide>
+      {figures && <SgFigures firecrawlKey={firecrawlKey} />}
+    </Popup>
+    <Popup open={sites} onClose={closeSites} title="Sources and sites" icon={<PixelIcon name="signals" size={22} />} wide>
+      {sites && <div className="rt sgs-pop">
+        {newsSiteGroups.map((group) => <section className="rt-sites" key={group.id} aria-labelledby={"sgs-g-" + group.id}>
+          <h3 className="rt-title" id={"sgs-g-" + group.id}><PixelIcon name={group.icon} size={20} />{group.title}</h3>
+          <ul className="rt-grid">{group.sites.map((site) => <li key={site.name}>
+            <a href={site.href} target="_blank" rel="noopener noreferrer">
+              <span className="rt-logo"><SiteLogo site={site} size={40} /></span>
+              <span className="rt-site-text"><strong>{site.name}</strong><span>{site.what}</span>{site.inRefresh && <em className="sgs-tag">In Refresh</em>}</span>
+              <ExternalLink size={16} aria-hidden="true" focusable="false" />
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
+          </li>)}</ul>
+          {group.id === "learn" && <a className="sgs-more sgs-jump" href="#level-up" onClick={(event) => { closeSites(); glideTo(event, "level-up"); }}>See more<span className="sr-only"> in Level up your résumé</span></a>}
+        </section>)}
+      </div>}
+    </Popup>
   </section>;
 }
