@@ -6,7 +6,7 @@
    with a status beside or under it: a dot and a short title ("Native scan, no key used"), and the detail line in an "i" tooltip (shown as a second line on phones).
    The bar around it is in shell.css. */
 .reader-switch { flex: 1 1 0; display: flex; flex-direction: column; align-items: flex-end; gap: .1rem; min-width: 0; }
-@media (min-width: 960px) {.reader-switch { flex-direction: row-reverse; align-items: center; justify-content: flex-start; gap: .25rem 1rem; }}
+@media (min-width: 1400px) {.reader-switch { flex-direction: row-reverse; align-items: center; justify-content: flex-start; gap: .25rem 1rem; }}
 /* status to the left of the toggle, so the sticky bar stays short */
 .rs-main { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; }
 .rs-caption { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -69,6 +69,17 @@
 .rs-optional { padding-top: .85rem; border-top: 1.5px dashed rgb(31 36 48 / 30%); }
 .rs-disclosure { margin: .85rem 0 0; font-size: .88rem; }
 .rs-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+/* The API boost panel in groups: an intro with the cost, then numbered steps (key, model), an optional block, the privacy line and the key handling note. */
+.rs-intro { margin: 0; }
+.rs-group { margin-top: .9rem; }
+.rs-group-title { display: flex; align-items: center; gap: .5rem; margin: 0; font-size: 1rem; line-height: 1.3; }
+.rs-step { display: inline-grid; place-items: center; flex: none; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: .875rem; font-weight: 700; }
+.rs-group .rs-field { margin-top: .5rem; }
+.rs-optional { margin-top: 1.1rem; }
+.rs-more { margin-top: .5rem; }
+.rs-more summary { display: flex; align-items: center; min-height: 2.75rem; font-weight: 700; font-size: .95rem; cursor: pointer; }
+.rs-more p { margin: 0 0 .25rem; font-size: .9rem; line-height: 1.4; }
+
 @media (max-width: 900px) {.reader-switch { order: 3; flex: 1 1 100%; align-items: stretch; }
 .rs-main { align-items: stretch; }
 .rs-caption { position: static; width: auto; height: auto; margin: 0 0 .1rem .25rem; overflow: visible; clip: auto; color: var(--ink-soft); font-size: .8125rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
@@ -85,3 +96,11 @@
 @media (max-width: 340px) {.rs-more { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }}
 /* The popup body reuses the tiles from How it works. */
 .run-modes { display: grid; gap: 1.1rem; min-width: 0; }
+
+/* API boost failure callout: icon, message and three choices. Wraps to one column on narrow screens. */
+.run-error { display: grid; grid-template-columns: auto 1fr; gap: .75rem 1rem; align-items: start; margin: 0 0 1rem; padding: 1rem 1.15rem; border-radius: 16px; background: var(--glass-card); border: 1px solid var(--glass-line); border-left: 6px solid var(--coral); box-shadow: var(--glass-shadow); color: var(--ink); }
+.run-error-icon { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 12px; background: color-mix(in srgb, var(--coral) 22%, transparent); color: var(--ink); }
+.run-error h3 { margin: 0 0 .2rem; font-size: 1.15rem; }
+.run-error p { margin: 0; font-size: 1rem; line-height: 1.45; }
+.run-error-hint { margin-top: .35rem !important; opacity: .85; }
+.run-error-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem; }

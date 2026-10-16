@@ -1,0 +1,2474 @@
+{
+ "roles": {
+  "Data analyst": {
+   "role": "Data analyst",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Reporting",
+     "share": 59
+    },
+    {
+     "name": "Communication",
+     "share": 50
+    },
+    {
+     "name": "Data analysis",
+     "share": 45
+    },
+    {
+     "name": "Dashboards",
+     "share": 36
+    },
+    {
+     "name": "Testing",
+     "share": 27
+    },
+    {
+     "name": "Cloud",
+     "share": 23
+    },
+    {
+     "name": "SQL",
+     "share": 18
+    },
+    {
+     "name": "Python",
+     "share": 9
+    },
+    {
+     "name": "Machine learning",
+     "share": 9
+    },
+    {
+     "name": "Incident response",
+     "share": 9
+    },
+    {
+     "name": "Data engineering",
+     "share": 9
+    },
+    {
+     "name": "Statistics",
+     "share": 9
+    },
+    {
+     "name": "Agile",
+     "share": 9
+    },
+    {
+     "name": "APIs",
+     "share": 5
+    },
+    {
+     "name": "Networking",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    },
+    {
+     "name": "Git",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    },
+    {
+     "name": "UX design",
+     "share": 5
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 5
+    }
+   ]
+  },
+  "Data scientist": {
+   "role": "Data scientist",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Communication",
+     "share": 64
+    },
+    {
+     "name": "Data analysis",
+     "share": 59
+    },
+    {
+     "name": "Machine learning",
+     "share": 55
+    },
+    {
+     "name": "Python",
+     "share": 32
+    },
+    {
+     "name": "Cloud",
+     "share": 32
+    },
+    {
+     "name": "Statistics",
+     "share": 32
+    },
+    {
+     "name": "Deep learning",
+     "share": 23
+    },
+    {
+     "name": "Reporting",
+     "share": 23
+    },
+    {
+     "name": "Data engineering",
+     "share": 23
+    },
+    {
+     "name": "SQL",
+     "share": 18
+    },
+    {
+     "name": "UX design",
+     "share": 18
+    },
+    {
+     "name": "Dashboards",
+     "share": 14
+    },
+    {
+     "name": "APIs",
+     "share": 14
+    },
+    {
+     "name": "Testing",
+     "share": 14
+    },
+    {
+     "name": "Linux",
+     "share": 9
+    },
+    {
+     "name": "Git",
+     "share": 9
+    },
+    {
+     "name": "Agile",
+     "share": 9
+    },
+    {
+     "name": "MLOps",
+     "share": 5
+    },
+    {
+     "name": "JavaScript",
+     "share": 5
+    },
+    {
+     "name": "Incident response",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    }
+   ]
+  },
+  "Data engineer": {
+   "role": "Data engineer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "APIs",
+     "share": 50
+    },
+    {
+     "name": "Cloud",
+     "share": 45
+    },
+    {
+     "name": "Communication",
+     "share": 32
+    },
+    {
+     "name": "Python",
+     "share": 23
+    },
+    {
+     "name": "Testing",
+     "share": 23
+    },
+    {
+     "name": "Git",
+     "share": 23
+    },
+    {
+     "name": "SQL",
+     "share": 18
+    },
+    {
+     "name": "Deep learning",
+     "share": 18
+    },
+    {
+     "name": "JavaScript",
+     "share": 18
+    },
+    {
+     "name": "Data analysis",
+     "share": 14
+    },
+    {
+     "name": "Machine learning",
+     "share": 14
+    },
+    {
+     "name": "React",
+     "share": 14
+    },
+    {
+     "name": "Dashboards",
+     "share": 9
+    },
+    {
+     "name": "Networking",
+     "share": 9
+    },
+    {
+     "name": "Excel",
+     "share": 9
+    },
+    {
+     "name": "Java",
+     "share": 9
+    },
+    {
+     "name": "Data engineering",
+     "share": 9
+    },
+    {
+     "name": "UX design",
+     "share": 9
+    },
+    {
+     "name": "Reporting",
+     "share": 5
+    },
+    {
+     "name": "Statistics",
+     "share": 5
+    },
+    {
+     "name": "Agile",
+     "share": 5
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 5
+    }
+   ]
+  },
+  "Machine learning engineer": {
+   "role": "Machine learning engineer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Communication",
+     "share": 64
+    },
+    {
+     "name": "Deep learning",
+     "share": 55
+    },
+    {
+     "name": "Python",
+     "share": 45
+    },
+    {
+     "name": "Cloud",
+     "share": 41
+    },
+    {
+     "name": "Machine learning",
+     "share": 36
+    },
+    {
+     "name": "APIs",
+     "share": 32
+    },
+    {
+     "name": "Reporting",
+     "share": 23
+    },
+    {
+     "name": "SQL",
+     "share": 18
+    },
+    {
+     "name": "Data analysis",
+     "share": 18
+    },
+    {
+     "name": "UX design",
+     "share": 18
+    },
+    {
+     "name": "JavaScript",
+     "share": 14
+    },
+    {
+     "name": "Testing",
+     "share": 14
+    },
+    {
+     "name": "Incident response",
+     "share": 14
+    },
+    {
+     "name": "Statistics",
+     "share": 14
+    },
+    {
+     "name": "Dashboards",
+     "share": 9
+    },
+    {
+     "name": "Networking",
+     "share": 9
+    },
+    {
+     "name": "Git",
+     "share": 9
+    },
+    {
+     "name": "Data engineering",
+     "share": 9
+    },
+    {
+     "name": "React",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    }
+   ]
+  },
+  "Software engineer": {
+   "role": "Software engineer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Communication",
+     "share": 55
+    },
+    {
+     "name": "APIs",
+     "share": 50
+    },
+    {
+     "name": "Git",
+     "share": 41
+    },
+    {
+     "name": "Testing",
+     "share": 36
+    },
+    {
+     "name": "Cloud",
+     "share": 36
+    },
+    {
+     "name": "Python",
+     "share": 32
+    },
+    {
+     "name": "JavaScript",
+     "share": 32
+    },
+    {
+     "name": "Agile",
+     "share": 27
+    },
+    {
+     "name": "Reporting",
+     "share": 23
+    },
+    {
+     "name": "Java",
+     "share": 23
+    },
+    {
+     "name": "React",
+     "share": 18
+    },
+    {
+     "name": "UX design",
+     "share": 18
+    },
+    {
+     "name": "SQL",
+     "share": 14
+    },
+    {
+     "name": "Networking",
+     "share": 14
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 14
+    },
+    {
+     "name": "Dashboards",
+     "share": 9
+    },
+    {
+     "name": "Deep learning",
+     "share": 9
+    },
+    {
+     "name": "Data analysis",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    },
+    {
+     "name": "Data engineering",
+     "share": 5
+    }
+   ]
+  },
+  "Frontend developer": {
+   "role": "Frontend developer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "React",
+     "share": 73
+    },
+    {
+     "name": "APIs",
+     "share": 55
+    },
+    {
+     "name": "Testing",
+     "share": 55
+    },
+    {
+     "name": "Cloud",
+     "share": 50
+    },
+    {
+     "name": "JavaScript",
+     "share": 45
+    },
+    {
+     "name": "Reporting",
+     "share": 41
+    },
+    {
+     "name": "Git",
+     "share": 27
+    },
+    {
+     "name": "Dashboards",
+     "share": 23
+    },
+    {
+     "name": "Incident response",
+     "share": 23
+    },
+    {
+     "name": "Agile",
+     "share": 23
+    },
+    {
+     "name": "SQL",
+     "share": 18
+    },
+    {
+     "name": "Java",
+     "share": 18
+    },
+    {
+     "name": "Communication",
+     "share": 14
+    },
+    {
+     "name": "UX design",
+     "share": 14
+    },
+    {
+     "name": "Linux",
+     "share": 9
+    },
+    {
+     "name": "Python",
+     "share": 5
+    },
+    {
+     "name": "Networking",
+     "share": 5
+    },
+    {
+     "name": "Data engineering",
+     "share": 5
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 5
+    }
+   ]
+  },
+  "Backend developer": {
+   "role": "Backend developer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "APIs",
+     "share": 64
+    },
+    {
+     "name": "Cloud",
+     "share": 59
+    },
+    {
+     "name": "SQL",
+     "share": 55
+    },
+    {
+     "name": "Testing",
+     "share": 45
+    },
+    {
+     "name": "Git",
+     "share": 41
+    },
+    {
+     "name": "JavaScript",
+     "share": 32
+    },
+    {
+     "name": "Communication",
+     "share": 27
+    },
+    {
+     "name": "Reporting",
+     "share": 27
+    },
+    {
+     "name": "Agile",
+     "share": 27
+    },
+    {
+     "name": "React",
+     "share": 23
+    },
+    {
+     "name": "Python",
+     "share": 18
+    },
+    {
+     "name": "Incident response",
+     "share": 18
+    },
+    {
+     "name": "Dashboards",
+     "share": 14
+    },
+    {
+     "name": "Java",
+     "share": 14
+    },
+    {
+     "name": "Deep learning",
+     "share": 9
+    },
+    {
+     "name": "Networking",
+     "share": 9
+    },
+    {
+     "name": "Data analysis",
+     "share": 5
+    },
+    {
+     "name": "Machine learning",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    },
+    {
+     "name": "Data engineering",
+     "share": 5
+    },
+    {
+     "name": "UX design",
+     "share": 5
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 5
+    }
+   ]
+  },
+  "Cloud engineer": {
+   "role": "Cloud engineer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Cloud",
+     "share": 73
+    },
+    {
+     "name": "APIs",
+     "share": 55
+    },
+    {
+     "name": "Communication",
+     "share": 45
+    },
+    {
+     "name": "Networking",
+     "share": 32
+    },
+    {
+     "name": "React",
+     "share": 27
+    },
+    {
+     "name": "Python",
+     "share": 23
+    },
+    {
+     "name": "JavaScript",
+     "share": 23
+    },
+    {
+     "name": "Reporting",
+     "share": 23
+    },
+    {
+     "name": "Data analysis",
+     "share": 14
+    },
+    {
+     "name": "Machine learning",
+     "share": 14
+    },
+    {
+     "name": "Deep learning",
+     "share": 14
+    },
+    {
+     "name": "Testing",
+     "share": 14
+    },
+    {
+     "name": "Incident response",
+     "share": 14
+    },
+    {
+     "name": "Git",
+     "share": 14
+    },
+    {
+     "name": "SQL",
+     "share": 9
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 9
+    },
+    {
+     "name": "Dashboards",
+     "share": 5
+    },
+    {
+     "name": "Linux",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    },
+    {
+     "name": "Data engineering",
+     "share": 5
+    },
+    {
+     "name": "UX design",
+     "share": 5
+    },
+    {
+     "name": "Agile",
+     "share": 5
+    }
+   ]
+  },
+  "DevOps engineer": {
+   "role": "DevOps engineer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Cloud",
+     "share": 64
+    },
+    {
+     "name": "APIs",
+     "share": 55
+    },
+    {
+     "name": "Git",
+     "share": 45
+    },
+    {
+     "name": "Testing",
+     "share": 36
+    },
+    {
+     "name": "React",
+     "share": 32
+    },
+    {
+     "name": "Networking",
+     "share": 32
+    },
+    {
+     "name": "Reporting",
+     "share": 32
+    },
+    {
+     "name": "Agile",
+     "share": 32
+    },
+    {
+     "name": "Python",
+     "share": 27
+    },
+    {
+     "name": "JavaScript",
+     "share": 27
+    },
+    {
+     "name": "Incident response",
+     "share": 27
+    },
+    {
+     "name": "Communication",
+     "share": 23
+    },
+    {
+     "name": "Linux",
+     "share": 18
+    },
+    {
+     "name": "UX design",
+     "share": 18
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 18
+    },
+    {
+     "name": "SQL",
+     "share": 14
+    },
+    {
+     "name": "Data analysis",
+     "share": 14
+    },
+    {
+     "name": "Dashboards",
+     "share": 14
+    },
+    {
+     "name": "SIEM",
+     "share": 9
+    },
+    {
+     "name": "Java",
+     "share": 9
+    }
+   ]
+  },
+  "QA engineer": {
+   "role": "QA engineer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Testing",
+     "share": 86
+    },
+    {
+     "name": "APIs",
+     "share": 55
+    },
+    {
+     "name": "Reporting",
+     "share": 45
+    },
+    {
+     "name": "SQL",
+     "share": 27
+    },
+    {
+     "name": "Communication",
+     "share": 27
+    },
+    {
+     "name": "Git",
+     "share": 27
+    },
+    {
+     "name": "Agile",
+     "share": 27
+    },
+    {
+     "name": "Data analysis",
+     "share": 23
+    },
+    {
+     "name": "Java",
+     "share": 23
+    },
+    {
+     "name": "Python",
+     "share": 18
+    },
+    {
+     "name": "JavaScript",
+     "share": 18
+    },
+    {
+     "name": "Deep learning",
+     "share": 14
+    },
+    {
+     "name": "Incident response",
+     "share": 14
+    },
+    {
+     "name": "Cloud",
+     "share": 14
+    },
+    {
+     "name": "React",
+     "share": 9
+    },
+    {
+     "name": "Networking",
+     "share": 9
+    },
+    {
+     "name": "Data engineering",
+     "share": 9
+    },
+    {
+     "name": "UX design",
+     "share": 9
+    },
+    {
+     "name": "Machine learning",
+     "share": 5
+    },
+    {
+     "name": "Linux",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    }
+   ]
+  },
+  "Cybersecurity analyst": {
+   "role": "Cybersecurity analyst",
+   "sample": 19,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Security fundamentals",
+     "share": 89
+    },
+    {
+     "name": "Cloud",
+     "share": 58
+    },
+    {
+     "name": "Incident response",
+     "share": 47
+    },
+    {
+     "name": "Communication",
+     "share": 42
+    },
+    {
+     "name": "Networking",
+     "share": 32
+    },
+    {
+     "name": "Reporting",
+     "share": 32
+    },
+    {
+     "name": "APIs",
+     "share": 26
+    },
+    {
+     "name": "Python",
+     "share": 16
+    },
+    {
+     "name": "Data analysis",
+     "share": 16
+    },
+    {
+     "name": "Machine learning",
+     "share": 16
+    },
+    {
+     "name": "Testing",
+     "share": 16
+    },
+    {
+     "name": "Linux",
+     "share": 11
+    },
+    {
+     "name": "Agile",
+     "share": 11
+    },
+    {
+     "name": "JavaScript",
+     "share": 5
+    },
+    {
+     "name": "React",
+     "share": 5
+    },
+    {
+     "name": "SIEM",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    },
+    {
+     "name": "Git",
+     "share": 5
+    },
+    {
+     "name": "Data engineering",
+     "share": 5
+    },
+    {
+     "name": "Statistics",
+     "share": 5
+    }
+   ]
+  },
+  "SOC analyst": {
+   "role": "SOC analyst",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Security fundamentals",
+     "share": 59
+    },
+    {
+     "name": "Communication",
+     "share": 55
+    },
+    {
+     "name": "Incident response",
+     "share": 55
+    },
+    {
+     "name": "Cloud",
+     "share": 32
+    },
+    {
+     "name": "Reporting",
+     "share": 27
+    },
+    {
+     "name": "APIs",
+     "share": 23
+    },
+    {
+     "name": "Data analysis",
+     "share": 14
+    },
+    {
+     "name": "Python",
+     "share": 9
+    },
+    {
+     "name": "Testing",
+     "share": 9
+    },
+    {
+     "name": "Networking",
+     "share": 9
+    },
+    {
+     "name": "Linux",
+     "share": 9
+    },
+    {
+     "name": "SIEM",
+     "share": 9
+    },
+    {
+     "name": "Statistics",
+     "share": 5
+    }
+   ]
+  },
+  "Business analyst": {
+   "role": "Business analyst",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Reporting",
+     "share": 59
+    },
+    {
+     "name": "Data analysis",
+     "share": 55
+    },
+    {
+     "name": "Communication",
+     "share": 55
+    },
+    {
+     "name": "Dashboards",
+     "share": 32
+    },
+    {
+     "name": "Cloud",
+     "share": 27
+    },
+    {
+     "name": "SQL",
+     "share": 23
+    },
+    {
+     "name": "Testing",
+     "share": 23
+    },
+    {
+     "name": "Agile",
+     "share": 23
+    },
+    {
+     "name": "Python",
+     "share": 18
+    },
+    {
+     "name": "Data engineering",
+     "share": 18
+    },
+    {
+     "name": "Git",
+     "share": 14
+    },
+    {
+     "name": "Machine learning",
+     "share": 9
+    },
+    {
+     "name": "APIs",
+     "share": 9
+    },
+    {
+     "name": "Networking",
+     "share": 9
+    },
+    {
+     "name": "Excel",
+     "share": 9
+    },
+    {
+     "name": "Statistics",
+     "share": 9
+    },
+    {
+     "name": "UX design",
+     "share": 9
+    },
+    {
+     "name": "Deep learning",
+     "share": 5
+    },
+    {
+     "name": "JavaScript",
+     "share": 5
+    },
+    {
+     "name": "Linux",
+     "share": 5
+    },
+    {
+     "name": "Incident response",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 5
+    }
+   ]
+  },
+  "Product manager": {
+   "role": "Product manager",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Communication",
+     "share": 50
+    },
+    {
+     "name": "Reporting",
+     "share": 36
+    },
+    {
+     "name": "Data analysis",
+     "share": 27
+    },
+    {
+     "name": "APIs",
+     "share": 23
+    },
+    {
+     "name": "Testing",
+     "share": 23
+    },
+    {
+     "name": "Python",
+     "share": 18
+    },
+    {
+     "name": "Networking",
+     "share": 18
+    },
+    {
+     "name": "UX design",
+     "share": 18
+    },
+    {
+     "name": "Agile",
+     "share": 18
+    },
+    {
+     "name": "Cloud",
+     "share": 14
+    },
+    {
+     "name": "Git",
+     "share": 14
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 14
+    },
+    {
+     "name": "JavaScript",
+     "share": 9
+    },
+    {
+     "name": "Incident response",
+     "share": 9
+    },
+    {
+     "name": "SQL",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    }
+   ]
+  },
+  "UX designer": {
+   "role": "UX designer",
+   "sample": 22,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Communication",
+     "share": 73
+    },
+    {
+     "name": "UX design",
+     "share": 68
+    },
+    {
+     "name": "Testing",
+     "share": 41
+    },
+    {
+     "name": "Cloud",
+     "share": 23
+    },
+    {
+     "name": "Data analysis",
+     "share": 18
+    },
+    {
+     "name": "Agile",
+     "share": 18
+    },
+    {
+     "name": "React",
+     "share": 9
+    },
+    {
+     "name": "Networking",
+     "share": 9
+    },
+    {
+     "name": "Dashboards",
+     "share": 5
+    },
+    {
+     "name": "Deep learning",
+     "share": 5
+    },
+    {
+     "name": "JavaScript",
+     "share": 5
+    },
+    {
+     "name": "Reporting",
+     "share": 5
+    },
+    {
+     "name": "Git",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    },
+    {
+     "name": "Statistics",
+     "share": 5
+    }
+   ]
+  }
+ },
+ "sg": {
+  "Data analyst": {
+   "role": "Data analyst",
+   "sample": 67,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Data analysis",
+     "share": 69
+    },
+    {
+     "name": "Dashboards",
+     "share": 69
+    },
+    {
+     "name": "Reporting",
+     "share": 61
+    },
+    {
+     "name": "Communication",
+     "share": 36
+    },
+    {
+     "name": "Excel",
+     "share": 36
+    },
+    {
+     "name": "SQL",
+     "share": 31
+    },
+    {
+     "name": "Python",
+     "share": 15
+    },
+    {
+     "name": "Statistics",
+     "share": 15
+    },
+    {
+     "name": "Data engineering",
+     "share": 10
+    },
+    {
+     "name": "Cloud",
+     "share": 9
+    },
+    {
+     "name": "Machine learning",
+     "share": 6
+    },
+    {
+     "name": "Testing",
+     "share": 6
+    },
+    {
+     "name": "Deep learning",
+     "share": 4
+    },
+    {
+     "name": "JavaScript",
+     "share": 4
+    },
+    {
+     "name": "React",
+     "share": 1
+    },
+    {
+     "name": "APIs",
+     "share": 1
+    },
+    {
+     "name": "Linux",
+     "share": 1
+    },
+    {
+     "name": "Incident response",
+     "share": 1
+    },
+    {
+     "name": "Java",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 3900,
+    "mid": 5300,
+    "high": 8000,
+    "n": 67
+   }
+  },
+  "Data scientist": {
+   "role": "Data scientist",
+   "sample": 84,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Machine learning",
+     "share": 62
+    },
+    {
+     "name": "Statistics",
+     "share": 44
+    },
+    {
+     "name": "Data engineering",
+     "share": 37
+    },
+    {
+     "name": "Python",
+     "share": 33
+    },
+    {
+     "name": "Data analysis",
+     "share": 32
+    },
+    {
+     "name": "Cloud",
+     "share": 31
+    },
+    {
+     "name": "SQL",
+     "share": 30
+    },
+    {
+     "name": "Deep learning",
+     "share": 19
+    },
+    {
+     "name": "Communication",
+     "share": 19
+    },
+    {
+     "name": "Dashboards",
+     "share": 13
+    },
+    {
+     "name": "Reporting",
+     "share": 13
+    },
+    {
+     "name": "Agile",
+     "share": 11
+    },
+    {
+     "name": "MLOps",
+     "share": 10
+    },
+    {
+     "name": "Git",
+     "share": 7
+    },
+    {
+     "name": "Testing",
+     "share": 5
+    },
+    {
+     "name": "APIs",
+     "share": 4
+    },
+    {
+     "name": "Java",
+     "share": 4
+    },
+    {
+     "name": "JavaScript",
+     "share": 2
+    },
+    {
+     "name": "Networking",
+     "share": 1
+    },
+    {
+     "name": "Linux",
+     "share": 1
+    },
+    {
+     "name": "Excel",
+     "share": 1
+    },
+    {
+     "name": "UX design",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 6300,
+    "mid": 8000,
+    "high": 10800,
+    "n": 84
+   }
+  },
+  "Data engineer": {
+   "role": "Data engineer",
+   "sample": 96,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Data engineering",
+     "share": 82
+    },
+    {
+     "name": "SQL",
+     "share": 54
+    },
+    {
+     "name": "Cloud",
+     "share": 42
+    },
+    {
+     "name": "Python",
+     "share": 28
+    },
+    {
+     "name": "Data analysis",
+     "share": 28
+    },
+    {
+     "name": "Dashboards",
+     "share": 15
+    },
+    {
+     "name": "Java",
+     "share": 14
+    },
+    {
+     "name": "Communication",
+     "share": 13
+    },
+    {
+     "name": "Testing",
+     "share": 11
+    },
+    {
+     "name": "APIs",
+     "share": 10
+    },
+    {
+     "name": "Git",
+     "share": 9
+    },
+    {
+     "name": "Reporting",
+     "share": 7
+    },
+    {
+     "name": "Deep learning",
+     "share": 5
+    },
+    {
+     "name": "Machine learning",
+     "share": 4
+    },
+    {
+     "name": "Agile",
+     "share": 4
+    },
+    {
+     "name": "Networking",
+     "share": 3
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 3
+    },
+    {
+     "name": "JavaScript",
+     "share": 2
+    },
+    {
+     "name": "Incident response",
+     "share": 2
+    },
+    {
+     "name": "Excel",
+     "share": 2
+    },
+    {
+     "name": "Statistics",
+     "share": 2
+    },
+    {
+     "name": "Linux",
+     "share": 1
+    },
+    {
+     "name": "SIEM",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 6500,
+    "mid": 8000,
+    "high": 9800,
+    "n": 96
+   }
+  },
+  "Machine learning engineer": {
+   "role": "Machine learning engineer",
+   "sample": 57,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Machine learning",
+     "share": 53
+    },
+    {
+     "name": "Python",
+     "share": 44
+    },
+    {
+     "name": "Deep learning",
+     "share": 44
+    },
+    {
+     "name": "Statistics",
+     "share": 23
+    },
+    {
+     "name": "Cloud",
+     "share": 18
+    },
+    {
+     "name": "Data engineering",
+     "share": 14
+    },
+    {
+     "name": "Agile",
+     "share": 14
+    },
+    {
+     "name": "MLOps",
+     "share": 9
+    },
+    {
+     "name": "Linux",
+     "share": 9
+    },
+    {
+     "name": "Testing",
+     "share": 7
+    },
+    {
+     "name": "Git",
+     "share": 7
+    },
+    {
+     "name": "Data analysis",
+     "share": 5
+    },
+    {
+     "name": "Communication",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 5
+    },
+    {
+     "name": "SQL",
+     "share": 4
+    },
+    {
+     "name": "APIs",
+     "share": 4
+    },
+    {
+     "name": "Networking",
+     "share": 4
+    },
+    {
+     "name": "Dashboards",
+     "share": 2
+    },
+    {
+     "name": "JavaScript",
+     "share": 2
+    },
+    {
+     "name": "Reporting",
+     "share": 2
+    },
+    {
+     "name": "UX design",
+     "share": 2
+    }
+   ],
+   "pay": {
+    "low": 7000,
+    "mid": 9800,
+    "high": 12000,
+    "n": 57
+   }
+  },
+  "Software engineer": {
+   "role": "Software engineer",
+   "sample": 86,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Cloud",
+     "share": 37
+    },
+    {
+     "name": "JavaScript",
+     "share": 30
+    },
+    {
+     "name": "APIs",
+     "share": 30
+    },
+    {
+     "name": "Python",
+     "share": 23
+    },
+    {
+     "name": "Java",
+     "share": 21
+    },
+    {
+     "name": "SQL",
+     "share": 20
+    },
+    {
+     "name": "Testing",
+     "share": 17
+    },
+    {
+     "name": "Agile",
+     "share": 17
+    },
+    {
+     "name": "Git",
+     "share": 16
+    },
+    {
+     "name": "Communication",
+     "share": 13
+    },
+    {
+     "name": "Reporting",
+     "share": 12
+    },
+    {
+     "name": "React",
+     "share": 10
+    },
+    {
+     "name": "Linux",
+     "share": 8
+    },
+    {
+     "name": "Networking",
+     "share": 6
+    },
+    {
+     "name": "Data analysis",
+     "share": 5
+    },
+    {
+     "name": "Machine learning",
+     "share": 3
+    },
+    {
+     "name": "UX design",
+     "share": 3
+    },
+    {
+     "name": "Dashboards",
+     "share": 2
+    },
+    {
+     "name": "Data engineering",
+     "share": 2
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 2
+    }
+   ],
+   "pay": {
+    "low": 5800,
+    "mid": 7500,
+    "high": 12000,
+    "n": 86
+   }
+  },
+  "Frontend developer": {
+   "role": "Frontend developer",
+   "sample": 9,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "JavaScript",
+     "share": 89
+    },
+    {
+     "name": "React",
+     "share": 56
+    },
+    {
+     "name": "APIs",
+     "share": 56
+    },
+    {
+     "name": "Testing",
+     "share": 44
+    },
+    {
+     "name": "Git",
+     "share": 33
+    },
+    {
+     "name": "SQL",
+     "share": 22
+    },
+    {
+     "name": "Agile",
+     "share": 22
+    },
+    {
+     "name": "Communication",
+     "share": 11
+    },
+    {
+     "name": "Cloud",
+     "share": 11
+    },
+    {
+     "name": "UX design",
+     "share": 11
+    }
+   ],
+   "pay": {
+    "low": 5500,
+    "mid": 6500,
+    "high": 7000,
+    "n": 9
+   }
+  },
+  "Backend developer": {
+   "role": "Backend developer",
+   "sample": 23,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "APIs",
+     "share": 61
+    },
+    {
+     "name": "Cloud",
+     "share": 57
+    },
+    {
+     "name": "Java",
+     "share": 57
+    },
+    {
+     "name": "SQL",
+     "share": 39
+    },
+    {
+     "name": "Testing",
+     "share": 30
+    },
+    {
+     "name": "Git",
+     "share": 30
+    },
+    {
+     "name": "JavaScript",
+     "share": 17
+    },
+    {
+     "name": "Python",
+     "share": 13
+    },
+    {
+     "name": "Machine learning",
+     "share": 9
+    },
+    {
+     "name": "Communication",
+     "share": 9
+    },
+    {
+     "name": "Data analysis",
+     "share": 4
+    },
+    {
+     "name": "Dashboards",
+     "share": 4
+    },
+    {
+     "name": "Networking",
+     "share": 4
+    },
+    {
+     "name": "Incident response",
+     "share": 4
+    },
+    {
+     "name": "Reporting",
+     "share": 4
+    },
+    {
+     "name": "Agile",
+     "share": 4
+    }
+   ],
+   "pay": {
+    "low": 6300,
+    "mid": 7300,
+    "high": 7800,
+    "n": 23
+   }
+  },
+  "Cloud engineer": {
+   "role": "Cloud engineer",
+   "sample": 93,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Cloud",
+     "share": 92
+    },
+    {
+     "name": "Networking",
+     "share": 38
+    },
+    {
+     "name": "Linux",
+     "share": 31
+    },
+    {
+     "name": "Communication",
+     "share": 22
+    },
+    {
+     "name": "Incident response",
+     "share": 13
+    },
+    {
+     "name": "Git",
+     "share": 13
+    },
+    {
+     "name": "Python",
+     "share": 11
+    },
+    {
+     "name": "Reporting",
+     "share": 11
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 10
+    },
+    {
+     "name": "APIs",
+     "share": 8
+    },
+    {
+     "name": "Testing",
+     "share": 6
+    },
+    {
+     "name": "SQL",
+     "share": 4
+    },
+    {
+     "name": "Agile",
+     "share": 4
+    },
+    {
+     "name": "Data analysis",
+     "share": 2
+    },
+    {
+     "name": "JavaScript",
+     "share": 2
+    },
+    {
+     "name": "SIEM",
+     "share": 2
+    },
+    {
+     "name": "Java",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 5500,
+    "mid": 6500,
+    "high": 9000,
+    "n": 93
+   }
+  },
+  "DevOps engineer": {
+   "role": "DevOps engineer",
+   "sample": 99,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Cloud",
+     "share": 90
+    },
+    {
+     "name": "Git",
+     "share": 42
+    },
+    {
+     "name": "Python",
+     "share": 31
+    },
+    {
+     "name": "Linux",
+     "share": 28
+    },
+    {
+     "name": "Networking",
+     "share": 23
+    },
+    {
+     "name": "SQL",
+     "share": 12
+    },
+    {
+     "name": "Testing",
+     "share": 12
+    },
+    {
+     "name": "Dashboards",
+     "share": 11
+    },
+    {
+     "name": "Agile",
+     "share": 11
+    },
+    {
+     "name": "JavaScript",
+     "share": 10
+    },
+    {
+     "name": "Communication",
+     "share": 8
+    },
+    {
+     "name": "APIs",
+     "share": 7
+    },
+    {
+     "name": "Incident response",
+     "share": 6
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 6
+    },
+    {
+     "name": "Reporting",
+     "share": 5
+    },
+    {
+     "name": "Java",
+     "share": 3
+    },
+    {
+     "name": "SIEM",
+     "share": 2
+    },
+    {
+     "name": "Data engineering",
+     "share": 2
+    },
+    {
+     "name": "Data analysis",
+     "share": 1
+    },
+    {
+     "name": "MLOps",
+     "share": 1
+    },
+    {
+     "name": "React",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 5500,
+    "mid": 6900,
+    "high": 8300,
+    "n": 99
+   }
+  },
+  "QA engineer": {
+   "role": "QA engineer",
+   "sample": 79,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Testing",
+     "share": 71
+    },
+    {
+     "name": "Reporting",
+     "share": 44
+    },
+    {
+     "name": "APIs",
+     "share": 15
+    },
+    {
+     "name": "Communication",
+     "share": 8
+    },
+    {
+     "name": "Agile",
+     "share": 6
+    },
+    {
+     "name": "Cloud",
+     "share": 5
+    },
+    {
+     "name": "Data analysis",
+     "share": 4
+    },
+    {
+     "name": "Python",
+     "share": 3
+    },
+    {
+     "name": "SQL",
+     "share": 3
+    },
+    {
+     "name": "JavaScript",
+     "share": 3
+    },
+    {
+     "name": "Excel",
+     "share": 3
+    },
+    {
+     "name": "Git",
+     "share": 3
+    },
+    {
+     "name": "Java",
+     "share": 3
+    },
+    {
+     "name": "Statistics",
+     "share": 3
+    },
+    {
+     "name": "Linux",
+     "share": 1
+    },
+    {
+     "name": "UX design",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 3600,
+    "mid": 4300,
+    "high": 5000,
+    "n": 79
+   }
+  },
+  "Cybersecurity analyst": {
+   "role": "Cybersecurity analyst",
+   "sample": 8,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Security fundamentals",
+     "share": 75
+    },
+    {
+     "name": "Incident response",
+     "share": 63
+    },
+    {
+     "name": "SIEM",
+     "share": 38
+    },
+    {
+     "name": "APIs",
+     "share": 25
+    },
+    {
+     "name": "Testing",
+     "share": 25
+    },
+    {
+     "name": "Networking",
+     "share": 25
+    },
+    {
+     "name": "Reporting",
+     "share": 25
+    },
+    {
+     "name": "Deep learning",
+     "share": 13
+    },
+    {
+     "name": "Communication",
+     "share": 13
+    },
+    {
+     "name": "Linux",
+     "share": 13
+    },
+    {
+     "name": "Cloud",
+     "share": 13
+    }
+   ],
+   "pay": {
+    "low": 4300,
+    "mid": 5400,
+    "high": 6800,
+    "n": 8
+   }
+  },
+  "SOC analyst": {
+   "role": "SOC analyst",
+   "sample": 7,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Incident response",
+     "share": 86
+    },
+    {
+     "name": "Networking",
+     "share": 71
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 71
+    },
+    {
+     "name": "SIEM",
+     "share": 57
+    },
+    {
+     "name": "APIs",
+     "share": 43
+    },
+    {
+     "name": "Cloud",
+     "share": 29
+    },
+    {
+     "name": "Reporting",
+     "share": 14
+    }
+   ],
+   "pay": {
+    "low": 4500,
+    "mid": 4500,
+    "high": 6000,
+    "n": 7
+   }
+  },
+  "Business analyst": {
+   "role": "Business analyst",
+   "sample": 99,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Communication",
+     "share": 65
+    },
+    {
+     "name": "Agile",
+     "share": 47
+    },
+    {
+     "name": "Testing",
+     "share": 32
+    },
+    {
+     "name": "Reporting",
+     "share": 24
+    },
+    {
+     "name": "Data analysis",
+     "share": 22
+    },
+    {
+     "name": "Dashboards",
+     "share": 12
+    },
+    {
+     "name": "SQL",
+     "share": 10
+    },
+    {
+     "name": "Cloud",
+     "share": 10
+    },
+    {
+     "name": "Excel",
+     "share": 10
+    },
+    {
+     "name": "APIs",
+     "share": 6
+    },
+    {
+     "name": "UX design",
+     "share": 4
+    },
+    {
+     "name": "JavaScript",
+     "share": 2
+    },
+    {
+     "name": "Incident response",
+     "share": 2
+    },
+    {
+     "name": "Java",
+     "share": 2
+    },
+    {
+     "name": "Python",
+     "share": 1
+    },
+    {
+     "name": "Statistics",
+     "share": 1
+    },
+    {
+     "name": "Security fundamentals",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 5800,
+    "mid": 7000,
+    "high": 9000,
+    "n": 99
+   }
+  },
+  "Product manager": {
+   "role": "Product manager",
+   "sample": 95,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "Communication",
+     "share": 44
+    },
+    {
+     "name": "Agile",
+     "share": 36
+    },
+    {
+     "name": "Data analysis",
+     "share": 12
+    },
+    {
+     "name": "Testing",
+     "share": 9
+    },
+    {
+     "name": "UX design",
+     "share": 9
+    },
+    {
+     "name": "Machine learning",
+     "share": 5
+    },
+    {
+     "name": "APIs",
+     "share": 5
+    },
+    {
+     "name": "Cloud",
+     "share": 5
+    },
+    {
+     "name": "Excel",
+     "share": 5
+    },
+    {
+     "name": "Reporting",
+     "share": 4
+    },
+    {
+     "name": "Dashboards",
+     "share": 2
+    },
+    {
+     "name": "Networking",
+     "share": 2
+    },
+    {
+     "name": "Python",
+     "share": 1
+    },
+    {
+     "name": "SQL",
+     "share": 1
+    },
+    {
+     "name": "Git",
+     "share": 1
+    },
+    {
+     "name": "Statistics",
+     "share": 1
+    }
+   ],
+   "pay": {
+    "low": 7000,
+    "mid": 9000,
+    "high": 11300,
+    "n": 95
+   }
+  },
+  "UX designer": {
+   "role": "UX designer",
+   "sample": 38,
+   "updated": "2026-10-16",
+   "skills": [
+    {
+     "name": "UX design",
+     "share": 87
+    },
+    {
+     "name": "Testing",
+     "share": 53
+    },
+    {
+     "name": "Communication",
+     "share": 42
+    },
+    {
+     "name": "Agile",
+     "share": 16
+    },
+    {
+     "name": "Data analysis",
+     "share": 5
+    },
+    {
+     "name": "Dashboards",
+     "share": 5
+    },
+    {
+     "name": "JavaScript",
+     "share": 5
+    },
+    {
+     "name": "Cloud",
+     "share": 5
+    },
+    {
+     "name": "React",
+     "share": 3
+    },
+    {
+     "name": "Git",
+     "share": 3
+    }
+   ],
+   "pay": {
+    "low": 5500,
+    "mid": 7000,
+    "high": 8000,
+    "n": 38
+   }
+  }
+ }
+}

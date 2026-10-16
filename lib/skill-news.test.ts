@@ -50,9 +50,10 @@ test("a skill name must be one of the catalog's own, whatever the case", () => {
 });
 
 test("article terms come from the catalog, without words that match everyday news", () => {
-  assert.deepEqual(skillTerms("MLOps"), ["mlops", "mlflow", "model deployment", "model serving", "docker", "kubernetes"]);
+  assert.deepEqual(skillTerms("MLOps"), ["mlops", "mlflow", "model deployment", "model serving", "kubeflow", "model monitoring", "deployed models", "deploying models", "deploy models"]);
   assert.ok(skillTerms("Deep learning").includes("pytorch"));
   assert.ok(!skillTerms("React").includes("react"));
+  assert.ok(skillTerms("Cloud").includes("docker") && skillTerms("Cloud").includes("kubernetes"), "container tools belong to Cloud now");
   assert.ok(skillTerms("React").includes("reactjs"));
   assert.ok(!skillTerms("APIs").includes("rest"));
   assert.ok(skillTerms("Incident response").includes("incident response"));
@@ -62,7 +63,7 @@ test("article terms come from the catalog, without words that match everyday new
 test("an article fits a skill by a whole-word catalog term, and a title hit counts double", () => {
   assert.equal(skillScore({ title: "PyTorch 3 ships", snippet: "" }, "Deep learning"), 2);
   assert.equal(skillScore({ title: "A release", snippet: "Faster PyTorch kernels" }, "Deep learning"), 1);
-  assert.equal(skillScore({ title: "Docker and Kubernetes at scale", snippet: "" }, "MLOps"), 4);
+  assert.equal(skillScore({ title: "Docker and Kubernetes at scale", snippet: "" }, "Cloud"), 4);
   assert.equal(skillScore({ title: "Why we use AWS", snippet: "" }, "SQL"), 0);
   assert.equal(skillScore({ title: "Investors react to the news", snippet: "The rest of the report is due" }, "React"), 0);
   assert.equal(skillScore({ title: "Investors react to the news", snippet: "The rest of the report is due" }, "APIs"), 0);
@@ -80,16 +81,16 @@ test("up to three articles per skill, best fit first, then newest, one per link"
     entry({ title: "Docker older", url: "https://huggingface.co/blog/4", time: NOW - 20 * DAY }),
     entry({ title: "Unrelated", url: "https://huggingface.co/blog/5" }),
   ];
-  const picked = pickForSkill(entries, "MLOps");
+  const picked = pickForSkill(entries, "Cloud");
   assert.deepEqual(picked.map((item) => item.url), ["https://huggingface.co/blog/2", "https://huggingface.co/blog/3", "https://huggingface.co/blog/1"]);
   assert.deepEqual(picked[1], { title: "Docker news", source: "Hugging Face Blog", url: "https://huggingface.co/blog/3", date: "14 Oct 2026" });
   assert.deepEqual(pickForSkill(entries, "Communication"), []);
   // One passing mention in the text is not enough. A title hit or two different terms is.
   const passing = [entry({ title: "A quote", snippet: "He mentioned machine learning once", url: "https://huggingface.co/blog/q" }), entry({ title: "Weekly notes", snippet: "Docker and Kubernetes came up", url: "https://huggingface.co/blog/w" })];
   assert.deepEqual(pickForSkill(passing, "Machine learning"), []);
-  assert.deepEqual(pickForSkill(passing, "MLOps").map((row) => row.url), ["https://huggingface.co/blog/w"]);
-  assert.deepEqual(pickForSkill([], "MLOps"), []);
-  assert.equal(pickForSkill(entries, "MLOps", 1).length, 1);
+  assert.deepEqual(pickForSkill(passing, "Cloud").map((row) => row.url), ["https://huggingface.co/blog/w"]);
+  assert.deepEqual(pickForSkill([], "Cloud"), []);
+  assert.equal(pickForSkill(entries, "Cloud", 1).length, 1);
 });
 
 test("links are https on a tech source host, with no login part and no fragment", () => {
@@ -147,7 +148,7 @@ test("fetchTechEntries reads what answers, drops markup and off-list links, and 
   assert.equal(out.entries[0].title, "Serving models with Docker");
   assert.equal(out.entries[0].source, "Hugging Face Blog");
   assert.ok(!/[<>]|script/i.test(out.entries[0].title + out.entries[0].snippet));
-  assert.deepEqual(pickForSkill(out.entries, "MLOps").map((row) => row.url), ["https://huggingface.co/blog/docker"]);
+  assert.deepEqual(pickForSkill(out.entries, "Cloud").map((row) => row.url), ["https://huggingface.co/blog/docker"]);
   assert.equal((await fetchTechEntries({ fetchImpl: feedFetch, resolve: async () => ["127.0.0.1"], now: () => NOW })).ok, 0);
 });
 
@@ -155,15 +156,15 @@ const limit = (max = 20) => createLimiter({ perVisitorMax: max, perVisitorWindow
 const good = (entries: TechEntry[] = [entry({ title: "Docker in production", url: "https://huggingface.co/blog/d" })]) => async () => ({ entries, ok: 3, total: 7 });
 
 test("a lookup returns articles for each requested skill, labelled as our own reader with no key", async () => {
-  const out = await answerSkillNews({ bodyText: '{"skills":["MLOps","Communication"]}', visitor: "v", read: good(), cache: createTechCache(), limit: limit() });
+  const out = await answerSkillNews({ bodyText: '{"skills":["Cloud","Communication"]}', visitor: "v", read: good(), cache: createTechCache(), limit: limit() });
   assert.equal(out.status, 200);
   assert.equal(out.body.method, "native");
   assert.deepEqual(out.body.feeds, { ok: 3, total: 7 });
   assert.equal(out.body.cached, false);
   assert.match(String(out.body.fetchedAt), /^\d{4}-\d\d-\d\dT/);
   const results = out.body.results as Record<string, { url: string }[]>;
-  assert.deepEqual(Object.keys(results), ["MLOps", "Communication"]);
-  assert.equal(results.MLOps.length, 1);
+  assert.deepEqual(Object.keys(results), ["Cloud", "Communication"]);
+  assert.equal(results.Cloud.length, 1);
   assert.deepEqual(results.Communication, []);
   assert.ok(!JSON.stringify(out.body).includes("snippet"));
 });

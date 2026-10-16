@@ -7,7 +7,8 @@ import { PixelIcon } from "@/components/career/pixel-icons";
 import { Mark } from "@/components/sg-mark";
 import { SgNews } from "@/components/sg-news";
 import { figureGroups } from "@/lib/news-sites";
-import { SNAPSHOT_CHECKED, latestAi, roleNames, roleSource, roleSourceNote, signals, skillShares, snapshotSources, type SnapshotSourceId } from "@/lib/sg-snapshot";
+import { useSnapshot } from "@/components/use-snapshot";
+import { roleNames, roleSource, roleSourceNote, signals, skillShares, snapshotSources, type SnapshotSourceId } from "@/lib/sg-snapshot";
 
 /** The logo file (public/assets/logos, without ".png") of each source's publisher. PwC has no file here, so its card shows a lettered tile. */
 const SOURCE_LOGO: Partial<Record<SnapshotSourceId, string>> = {
@@ -43,6 +44,7 @@ function Ring({ value }: { value: number }) {
  * Every number comes from lib/sg-snapshot.ts and names its source. The Singapore government and news sites are listed at the bottom.
  */
 export function SgFigures() {
+  const { checked: SNAPSHOT_CHECKED, ai: latestAi } = useSnapshot();
   const workers = signals.find((signal) => signal.figure === "222,200");
   const others = signals.filter((signal) => signal !== workers);
   return <div className="sgf">

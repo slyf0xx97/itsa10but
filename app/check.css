@@ -35,6 +35,9 @@
 .dz-files { display: grid; gap: .5rem; width: 100%; margin: 0; padding: 0; list-style: none; }
 .dz-files li { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .5rem; min-width: 0; padding: .5rem .6rem; text-align: left; border: 1.5px solid var(--glass-edge); border-radius: 12px; background: var(--glass-card); box-shadow: 0 1px 3px rgb(18 52 63 / 16%); }
 .dz-name { flex: 1 1 8rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.dz-btns { display: flex; flex: none; gap: .4rem; margin-left: auto; }
+.dz-replace.btn { background: var(--mint-soft); border-color: var(--teal-dark); color: var(--ink); }
+.dz-remove.btn { padding-inline: .6rem; background: var(--coral-soft); border-color: #8f2515; color: #8f2515; }
 .dz-btn.btn { min-height: 2.5rem; padding: .25rem .8rem; font-size: 1rem; }
 /* Privacy popover beside "Choose a file": a lock button that opens a wide, scrollable, non-modal dialog (WordTip, panel variant). */
 .dz-actions { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem; }
@@ -120,3 +123,6 @@
 /* The safety check header is one row: the shield and the title. Nothing else, to save height. */
 .check-card .safety-head { display: flex; align-items: center; gap: .6rem; margin: 0; }
 .check-card .safety-head h3 { margin: 0; }
+
+.check-pane .step-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-bottom: .75rem; }
+.check-pane .step-head .step-title { margin: 0; }

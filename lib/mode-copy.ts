@@ -1,10 +1,12 @@
 import type { LiveRunInfo } from "./analysis-types.ts";
+import type { ModelProvider } from "./model-choice.ts";
+import { KEY_LABEL, PROVIDER_LABEL, keyHint } from "./provider-copy.ts";
 
 /** Mode wording in one place. Keyed by the mode that actually ran, so a native scan result never mentions Claude and an API boost result never says "native scan". */
 export type RunMode = "rules" | "live";
 
 export const MODE_NOTE: Record<RunMode, string> = {
-  rules: "Native scan: the readers match words and check quotes in your browser. It uses no API key or AI and sends nothing out.",
+  rules: "Native scan: the readers match words and check quotes in your browser. Your résumé stays in this tab. Only the role text is also read by Cloudflare AI, and no API key is needed.",
   live: "API boost: four agents read your résumé. Every quote below was checked against your text.",
 };
 
@@ -21,8 +23,8 @@ export const RESULT_TAG: Record<RunMode, { reading: string; sample: string; resu
 };
 
 export const MODE_OPTIONS: Record<RunMode, { label: string; hint: string }> = {
-  rules: { label: "Native scan, no API key", hint: "Matches words and checks quotes in your browser. It uses no AI or key and sends nothing." },
-  live: { label: "API boost, AI agents", hint: "Four agents read your résumé in turn, using your own API key (Anthropic or OpenRouter). You can pick the model." },
+  rules: { label: "Native scan, no API key", hint: "Matches words and checks quotes in your browser. Your résumé stays here. Cloudflare AI also reads the role text. No key needed." },
+  live: { label: "API boost, AI agents", hint: "Four agents read your résumé in turn, using your own API key (Anthropic, OpenRouter or Gemini). You can pick the model." },
 };
 
 /** Shorter state text for the header pill. MODE_OPTIONS keeps the full wording for everywhere else. */
@@ -34,32 +36,26 @@ export type SwitchStatus = { state: "native" | "on" | "needs-key"; title: string
 
 /** The two-part status next to the toggle switch: a short title for the header and a plain detail line (tooltip on wide screens, shown under the title on phones).
  *  It says what will run, so a model is only named when the visitor picked one, and Claude is never named here. */
-export function switchStatus(mode: RunMode, key: { provider: "anthropic" | "openrouter"; entered: boolean; siteKey: boolean; model?: string }): SwitchStatus {
+export function switchStatus(mode: RunMode, key: { provider: ModelProvider; entered: boolean; siteKey: boolean; model?: string }): SwitchStatus {
   if (mode === "rules") return { state: "native", title: "Native scan, no key used", detail: "Your four agents run on simple rules, so they're less powerful. Switch to API boost for the full version." };
   if (key.entered) {
-    const who = key.provider === "openrouter" ? "OpenRouter" : "Anthropic";
+    const who = PROVIDER_LABEL[key.provider];
     return { state: "on", title: "API boost is on", detail: `Your ${who} key powers the four agents.${key.model ? ` Model: ${key.model}.` : ""}` };
   }
   if (key.siteKey) return { state: "on", title: "API boost is on", detail: "This site's key powers the four agents." };
   return { state: "needs-key", title: "Add your API key", detail: "A key lets your four agents think with a real AI model." };
 }
 
-/** Shown whenever the agents are selected. Accurate for a visitor key and for this site's key. */
-export const LEAVES_BROWSER =
-  "Your résumé text goes to Anthropic with contact details masked. With an OpenRouter key it goes to OpenRouter first, then to the company behind the model you pick, which is Anthropic for the Claude models. Names, employers and schools are not masked. The role text also shapes the agents' web searches, but only when a Firecrawl key is added.";
-
 export const KEY_HANDLING =
   "Your keys stay in this tab and are never saved in your browser or cookies. Each run sends them over HTTPS to this site's server, which never stores or logs them. Closing the tab clears them.";
 
 export const KEY_FIELDS = {
-  anthropic: { label: "Anthropic or OpenRouter API key", hint: "Starts with sk-ant- (Anthropic) or sk-or- (OpenRouter). Charges go to your account." },
+  anthropic: { label: KEY_LABEL, hint: keyHint(undefined) },
   firecrawl: { label: "Optional: Firecrawl key", hint: "The site already looks up company pages for you. Your own key adds wider web search for role and course details, using your Firecrawl credits." },
 };
 
 export const MODEL_FIELD = {
   label: "Model",
-  anthropicHint: "All four agents use the model you pick. The recommended mix puts Haiku 5.5 on Role Scout and Sonnet 5.5 on the rest.",
-  openrouterHint: "All four agents use the model you pick. Bigger models cost more and run slower. A run that takes too long falls back to the native scan.",
   customLabel: "Custom model id",
   customHint: "Use provider/model-name, for example openai/gpt-5.6-terra.",
   customError: "Use provider/model-name with letters, digits, dots, dashes, underscores or a colon.",

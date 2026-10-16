@@ -39,7 +39,7 @@ Itsa10but is a one-page career workspace for students and people moving into tec
 
 | | 🧰 Native scan | 🚀 API boost |
 |---|---|---|
-| Needs a key? | No | Yes (Anthropic or OpenRouter) |
+| Needs a key? | No | Yes (Anthropic, OpenRouter or Gemini) |
 | Where it runs | In your browser | Claude agents on the server |
 | Web lookups | None | Role and company pages, learning links |
 | Passages | Matched by words in your browser | Matched by words, then read by a model (RAG) |
@@ -53,8 +53,9 @@ Native scan uses text rules, so its wording is templated. API boost uses real Cl
 ## 🔒 Privacy
 
 - 📄 Résumés are read in your browser. Nothing is stored.
+- ☁️ In native scan, the role text (never the résumé) is read by a small Cloudflare Workers AI model to find skills the word list misses. Each name it returns must appear word for word in the role text.
 - 🕶️ Email, phone numbers and addresses are masked before anything leaves the page.
-- 🔑 In API boost, masked résumé text goes to Anthropic (or to OpenRouter, then Anthropic). Names, employers and schools are **not** masked.
+- 🔑 In API boost, masked résumé text goes to the company behind the key you add: Anthropic, Google (Gemini), or OpenRouter, which passes it to the maker of the model you pick. The privacy and legal text names only that company. Names, employers and schools are **not** masked.
 - 🗝️ Visitor keys live in React state and one request header. They are never stored or logged.
 
 ---
@@ -89,6 +90,8 @@ npm run dev        # http://localhost:3000/projects/itsa10but
 | `npm run lint` | ESLint |
 | `npx tsc --noEmit` | Type check |
 | `npm run build` | Production build |
+| `npm run eval` | Scores the native scan on 43 hand-written résumé and role pairs and lists every miss |
+| `npm run demand` | Rebuilds `lib/role-demand.json` from the free job feeds and MyCareersFuture |
 
 Run all four before you submit.
 
@@ -102,11 +105,14 @@ The site works with none of these set. It stays on Native scan.
 | `ANTHROPIC_API_KEY` | Optional | The site's key for API boost |
 | `FIRECRAWL_API_KEY` | Optional | Lets agents search the web when the edge Worker isn't set |
 | `EDGE_URL`, `EDGE_SECRET` | Optional | Point the server at the edge Worker |
-| `FIRECRAWL_DAILY` | Optional | Daily Firecrawl budget for the Worker's key (default 25) |
+| `FIRECRAWL_DAILY` | Optional | Daily Firecrawl budget for the Worker's own key (default 0, so visitors never spend your credits; a visitor's own key is always free to you) |
 | `AGENT_MODEL_ROLE_SCOUT`, `AGENT_MODEL_EXPERIENCE_FINDER`, `AGENT_MODEL_RECRUITER`, `AGENT_MODEL_ACTION_PLANNER` | Optional | Model overrides per agent |
 | `LIVE_AGENTS_PER_VISITOR` | Optional | Runs per hour on the site key (default 3) |
 | `LIVE_AGENTS_DAILY_CAP` | Optional | Runs per day on the site key (default 50) |
 | `LIVE_OWN_KEY_PER_VISITOR` | Optional | Runs per hour on a visitor's own key (default 10) |
+| `TURNSTILE_SECRET`, `NEXT_PUBLIC_TURNSTILE_SITEKEY` | Optional | Cloudflare Turnstile bot check on `/api/agents/stream` and `/api/role-skills`. Free. With the secret unset every request passes |
+| `NEXT_PUBLIC_CF_BEACON` | Optional | Cloudflare Web Analytics token (free, no cookies). The script loads only when this is set |
+| `ROLE_AI_DAILY` | Optional | Worker setting: Cloudflare AI role reads a day (default 200, 0 turns it off). Stays inside the free 10,000 neurons |
 
 ⚠️ Before you switch the site key on, add a Vercel Firewall rate-limit rule on `/api/agents/stream` and a spend limit on the Anthropic and Firecrawl keys.
 
@@ -118,6 +124,8 @@ vercel deploy --prod
 ```
 
 For the Worker: create a KV namespace and a D1 database, put their IDs in `worker/wrangler.jsonc`, run `npx wrangler d1 execute itsa10but-edge --remote --file worker/schema.sql`, set `EDGE_SECRET`, `ADMIN_SECRET` and (optionally) `FIRECRAWL_API_KEY` with `npx wrangler secret put`, then `npx wrangler deploy` from `worker/`. Daily totals are at `GET /usage/summary` with the `x-admin-secret` header.
+
+The Worker also holds two free Cloudflare features. An hourly cron refreshes one role's market-demand table in KV from the free Himalayas and Jobicy feeds (remote postings) and from MyCareersFuture, Singapore's government job portal (the skills each employer tagged, plus advertised monthly pay) (`GET /demand`, served to the page by `/api/demand`; `npm run demand` builds the offline fallback `lib/role-demand.json`). The `AI` binding lets `POST /role-skills` have a small Workers AI model read the role text only and name skills the word list misses; each name must appear word for word in the role text. Redeploy the Worker with `npx wrangler deploy` after pulling these changes. Do not run `wrangler dev` with the AI binding, because Workers AI bills local use too.
 
 ---
 
@@ -153,10 +161,10 @@ claude mcp add --transport http itsa10but https://ghernie.com/projects/itsa10but
 ## 🚧 Limits
 
 - 🕳️ Masking is pattern-based, so unusual name or address formats can slip through.
-- 🔤 Skill matching uses word-boundary terms. It misses synonyms, and a high score only means the text mentions the skill.
+- 🔤 Skill matching uses whole-word terms with plural, -ing, -ed and spelling variants, plus a short list of phrases it ignores ("the rest of", "2022 to present"). It still misses many synonyms, and a high score only means the text shows the skill. On the 43 hand-written cases in `lib/eval`, written by one person, it finds the skills a résumé shows about 95% of the time, and gives strong proof to real project work about 90% of the time. Treat these as a direction, not a benchmark.
 - 🛡️ The prompt-injection checks are a short rule list.
 - 📋 A quote check catches invented quotes. It can't catch a weak reading of a real one.
-- 🌍 Job feeds are remote-only. A listing may be closed.
+- 🌍 Demand numbers come from recent postings on free remote feeds and from the skills Singapore employers tagged on MyCareersFuture. A listing may be closed, and a tag is not a requirement.
 - ⏱️ An API boost run takes about a minute.
 
 ---

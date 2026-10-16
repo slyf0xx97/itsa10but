@@ -198,6 +198,86 @@ export const playbooks: Playbook[] = [
     },
     links: [link("Course", "Google Technical Writing", "https://developers.google.com/tech-writing"), link("Guide", "Write the Docs: Guide", "https://www.writethedocs.org/guide/"), link("Course", "Coursera: Technical Writing", "https://www.coursera.org/learn/technical-writing")],
   },
+  {
+    skill: "Excel", tool: "Excel", metric: "rows summarised, time saved or errors removed",
+    build: {
+      title: "Turn a messy sheet into a small model",
+      task: "Clean a messy public sheet, then answer a question with a pivot table and a chart.",
+      steps: ["Download a messy public dataset and clean its columns.", "Build a pivot table and one chart that answer a question.", "Write two lines on what the sheet shows and share the file."],
+      bullet: "Built an Excel model (pivot tables, lookups) on [dataset] that showed [finding] for [who].",
+    },
+    links: [link("Docs", "Microsoft Excel help and learning", "https://support.microsoft.com/en-us/excel"), link("Guide", "Exceljet: formulas and examples", "https://exceljet.net/")],
+  },
+  {
+    skill: "Git", tool: "Git", metric: "commits, pull requests merged or contributors",
+    build: {
+      title: "Keep one project in Git with a pull request",
+      task: "Put one project in Git, work on a branch and merge it with a pull request.",
+      steps: ["Create a repository for a project and commit in small steps.", "Make a change on a branch and open a pull request.", "Merge it and keep the readable history on GitHub."],
+      bullet: "Used Git and GitHub pull requests on [project] with [n] commits and [n] merged changes.",
+    },
+    links: [link("Docs", "Pro Git book", "https://git-scm.com/book/en/v2"), link("Practice", "Learn Git Branching", "https://learngitbranching.js.org/"), link("Docs", "GitHub: start your journey", "https://docs.github.com/en/get-started/start-your-journey")],
+  },
+  {
+    skill: "Java", tool: "Java", metric: "endpoints built, tests passing or users served",
+    build: {
+      title: "Build a small Java service with tests",
+      task: "Build a small Java program or Spring Boot service and cover it with unit tests.",
+      steps: ["Pick a small idea, such as a booking or expense tracker.", "Build it in Java with a few classes and unit tests.", "Put it on GitHub with a README and how to run it."],
+      bullet: "Built a Java [app or service] that [does what] for [who], with [n] unit tests.",
+    },
+    links: [link("Course", "dev.java: learn Java", "https://dev.java/learn/"), link("Docs", "The Java Tutorials", "https://docs.oracle.com/javase/tutorial/")],
+  },
+  {
+    skill: "Data engineering", tool: "Airflow", metric: "rows loaded, jobs scheduled or minutes saved",
+    build: {
+      title: "Build a small data pipeline",
+      task: "Load a public dataset, clean it and store it so a later query can use it.",
+      steps: ["Pick a public dataset that updates, such as city open data.", "Write a script that loads, cleans and stores it in a database.", "Draw the steps in a diagram and add it to the README."],
+      bullet: "Built a data pipeline that loads [source] into [store] and cleans [n] rows for [who].",
+    },
+    links: [link("Docs", "Apache Airflow tutorial", "https://airflow.apache.org/docs/apache-airflow/stable/tutorial/index.html"), link("Docs", "DuckDB documentation", "https://duckdb.org/docs/"), link("Course", "Data Engineering Zoomcamp", "https://github.com/DataTalksClub/data-engineering-zoomcamp")],
+  },
+  {
+    skill: "Statistics", tool: "statistics", metric: "sample size, effect size or confidence level",
+    build: {
+      title: "Test one question on real data",
+      task: "Pick a question, test it on real data and explain the result in plain words.",
+      steps: ["Pick a question that two groups in a dataset could answer.", "Run a simple test and note the sample size and result.", "Write what the result means and where it could be wrong."],
+      bullet: "Used [test] on [n] records of [dataset] to check [question], finding [result].",
+    },
+    links: [link("Course", "Khan Academy: statistics and probability", "https://www.khanacademy.org/math/statistics-probability"), link("Guide", "Seeing Theory", "https://seeing-theory.brown.edu/")],
+  },
+  {
+    skill: "UX design", tool: "Figma", metric: "people tested, tasks completed or screens redesigned",
+    build: {
+      title: "Redesign one screen after watching users",
+      task: "Watch three people use one screen, then redesign it and show what changed.",
+      steps: ["Ask three people to do one task on an app and watch.", "Sketch a better screen in Figma that fixes what slowed them.", "Show before and after with one line on what you learned."],
+      bullet: "Redesigned [screen] in Figma after testing with [n] people, cutting [task] from [before] to [after].",
+    },
+    links: [link("Guide", "Nielsen Norman Group: UX research cheat sheet", "https://www.nngroup.com/articles/ux-research-cheat-sheet/"), link("Guide", "Figma: what is UX design", "https://www.figma.com/resource-library/what-is-ux-design/")],
+  },
+  {
+    skill: "Agile", tool: "Scrum", metric: "sprints run, stories finished or team size",
+    build: {
+      title: "Run a short sprint on a team project",
+      task: "Plan and run one short sprint with a team and keep the board visible.",
+      steps: ["Write the work as short user stories on a shared board.", "Plan a short sprint, work it and hold quick check ins.", "Hold a retrospective and write down what you would change."],
+      bullet: "Ran [n] sprints as [role] on [project] with a team of [n], finishing [n] stories.",
+    },
+    links: [link("Guide", "The Agile Manifesto", "https://agilemanifesto.org/"), link("Guide", "The Scrum Guide", "https://scrumguides.org/scrum-guide.html"), link("Guide", "Atlassian: Agile coach", "https://www.atlassian.com/agile")],
+  },
+  {
+    skill: "Security fundamentals", tool: "OWASP", metric: "flaws found, issues fixed or systems checked",
+    build: {
+      title: "Find and fix three common web flaws",
+      task: "Use a practice app to find three common web flaws and fix each one.",
+      steps: ["Read the OWASP Top 10 and pick three flaws to look for.", "Find each one in a practice app built to be broken.", "Fix them and write down what each flaw was and how."],
+      bullet: "Found and fixed [n] OWASP Top 10 flaws in [app], including [flaw], and documented each fix.",
+    },
+    links: [link("Guide", "OWASP Top Ten", "https://owasp.org/www-project-top-ten/"), link("Guide", "CISA: cybersecurity best practices", "https://www.cisa.gov/topics/cybersecurity-best-practices")],
+  },
 ];
 
 /** The playbook for a skill name. A catalog name matches exactly (any case); a free name such as "PyTorch" matches the catalog skill that lists it as a term. */

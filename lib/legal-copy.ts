@@ -2,9 +2,15 @@
  * The words in the footer's "Legal" popup, apart from the MIT text (license-text.ts). Plain data so a test can check the voice rules.
  * Anything that names a source, a licence or a date here must match SOURCES.md, the README and lib/sg-snapshot.ts.
  */
+import { PROVIDER_COMPANIES, recipient, type ChosenProvider } from "./provider-copy.ts";
+
 export type LegalSection = { id: string; title: string; text?: string[]; list?: string[] };
 
-export const LEGAL_SECTIONS: LegalSection[] = [
+/** Names the notice says belong to their owners. The AI companies come from the provider list, so a new provider is named here without anyone remembering to. */
+const TRADEMARKS = ["LinkedIn", ...PROVIDER_COMPANIES, "Gemini", "Cloudflare", "Firecrawl", "MyCareersFuture", "IMDA", "MOM", "PwC", "The Straits Times"];
+
+/** The sections of the Legal popup. `provider` is the provider of the key the visitor entered, so the data section names who actually receives text. */
+export const legalSections = (provider?: ChosenProvider): LegalSection[] => [
   {
     id: "copyright",
     title: "Copyright",
@@ -23,7 +29,7 @@ export const LEGAL_SECTIONS: LegalSection[] = [
   {
     id: "names",
     title: "Names, logos and trademarks",
-    text: ["LinkedIn, Anthropic, OpenRouter, Firecrawl, IMDA, MOM, PwC, The Straits Times and every other name or logo shown belong to their owners. They appear only to say where a figure, a link or a feature comes from. Itsa10but is independent, and none of them endorse or sponsor it."],
+    text: [`${TRADEMARKS.join(", ")} and every other name or logo shown belong to their owners. They appear only to say where a figure, a link or a feature comes from. Itsa10but is independent, and none of them endorse or sponsor it.`],
   },
   {
     id: "sources",
@@ -31,15 +37,19 @@ export const LEGAL_SECTIONS: LegalSection[] = [
     list: [
       "Singapore figures come from the sources named beside each one, checked 15 Oct 2026. They are dated snapshots and not forecasts.",
       "News headlines and snippets belong to their publishers. They are read from public feeds and link back to the original.",
-      "Job listings come from public feeds (Himalayas, Jobicy, Arbeitnow and Remotive) and belong to the employers who posted them. Check the original posting before you apply.",
+      "Job listings come from public feeds (Himalayas, Jobicy, Arbeitnow and Remotive) and from MyCareersFuture, Singapore's government job portal. They belong to the employers who posted them. Check the original posting before you apply.",
+      "Pay ranges and skill shares are counts from those postings. They aren't offers, and a skill tagged on a posting isn't a requirement.",
       "Tool marks come from Devicon under the MIT license. PDFs are read with pdf.js under the Apache License 2.0. The fonts are Pixelify Sans and Atkinson Hyperlegible under the SIL Open Font License.",
     ],
   },
   {
     id: "data",
     title: "Your data",
-    text: ["There is no database, and nothing you add is stored. Your résumé is read in your browser. With API boost on, the masked résumé text goes to the model provider you chose. Your keys stay in this tab and travel only in request headers."],
+    text: [`There is no database, and nothing you add is stored. Your résumé is read in your browser. In the native scan, a small Cloudflare AI model also reads the role text, never your résumé. With API boost on, the masked résumé text goes to ${recipient(provider)}. Your keys stay in this tab and travel only in request headers.`],
   },
 ];
+
+/** The sections with no key entered: the data section names the choices. */
+export const LEGAL_SECTIONS: LegalSection[] = legalSections();
 
 export const LEGAL_CONTACT = "If you own something shown here and want it removed or credited differently, get in touch and it will be sorted out.";

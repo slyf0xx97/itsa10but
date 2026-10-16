@@ -4,8 +4,11 @@ import type { ReaderName } from "./simulated-engine.ts";
  * What the Stage 2 reader cards show about each API boost agent.
  * A static copy of lib/agents/*.ts (tools, limits) so the browser bundle does not import the server-side specs.
  * It holds no model ids: the visitor picks the model, so the UI never names one per agent. lib/agent-facts.test.ts fails if it drifts from AGENT_SPECS.
- * Plain-language "sees", "returns", the card type, tagline, moves, strong-at and can't lines follow docs/agents.md.
+ * Plain-language summary, in and out chips, does-well and can't lists, the card type, tagline and moves follow docs/agents.md.
  */
+/** One chip in the popup flow: an icon file in public/assets/icons/abilities/, a 1 to 5 word label, and whether it only happens in API boost. */
+export type FlowItem = { icon: string; label: string; boost?: true };
+
 export type AgentFact = {
   name: ReaderName;
   /** Short badge on the card ribbon. */
@@ -18,12 +21,19 @@ export type AgentFact = {
   tools: { name: string; cap?: number; label: string }[];
   /** Whether the agent gets to read the masked résumé text, through a tool or directly (shown as the Résumé access pip). */
   resumeAccess: boolean;
+  /** One plain line: what the reader does and why it matters to the visitor. */
+  summary: string;
+  /** What it looks at, as chips. Also read by the How it works tooltip. */
   sees: string;
-  returns: string;
-  /** What it does best, from what it returns. */
-  strongAt: string;
-  /** What it cannot do, from the tools and inputs it is not given. */
-  cant: string;
+  looksAt: FlowItem[];
+  /** What it gives back, as chips. */
+  gives: FlowItem[];
+  /** What it does well: short items, each a card with a tick. */
+  does: string[];
+  /** What it cannot do, from the tools and inputs it is not given: short items, each a card with a cross. */
+  cannot: string[];
+  /** Short extra facts: what it never sees, what its score means. */
+  goodToKnow: string[];
   /** Tool calls across the whole run. */
   toolCalls: number;
   /** Time limit in seconds. */
@@ -52,10 +62,20 @@ export const AGENT_FACTS: AgentFact[] = [
       { name: "firecrawl_scrape", cap: 1, label: "Open a found page" },
     ],
     resumeAccess: false,
+    summary: "Reads the job post and lists the skills it asks for, so the other readers know what to look for.",
     sees: "The role text with personal details masked. Never your résumé.",
-    returns: "The job title, 3 to 8 skills with how much each is asked for and a role quote, and a market note.",
-    strongAt: "Ranking skills by how much the role asks, with quotes",
-    cant: "Can't see your résumé",
+    looksAt: [
+      { icon: "read-role.svg", label: "The role text (masked)" },
+      { icon: "web-search.svg", label: "Company pages on the web", boost: true },
+    ],
+    gives: [
+      { icon: "rank-demand.svg", label: "A ranked list of skills" },
+      { icon: "verify-quotes.svg", label: "A role quote for each skill" },
+      { icon: "web-search.svg", label: "A short market note", boost: true },
+    ],
+    does: ["Ranks skills by how much the role asks", "Backs each skill with a quote from the role text"],
+    cannot: ["See your résumé", "Say how well you match"],
+    goodToKnow: ["It never sees your résumé."],
     toolCalls: 4,
     seconds: 40,
   },
@@ -70,10 +90,20 @@ export const AGENT_FACTS: AgentFact[] = [
     ],
     tools: [{ name: "search_resume_passages", label: "Search your résumé" }],
     resumeAccess: true,
+    summary: "Searches your résumé for proof of each skill and scores how strong that proof is.",
     sees: "The Scout's skills and the résumé lines picked for each one. It can search for more.",
-    returns: "For each skill, a proof score and a résumé quote. Also weak-proof flags and the \"but\" line.",
-    strongAt: "Scoring proof and flagging weak proof",
-    cant: "Can't use the web",
+    looksAt: [
+      { icon: "rank-demand.svg", label: "The Scout's skill list" },
+      { icon: "search-passages.svg", label: "Résumé lines (masked)" },
+    ],
+    gives: [
+      { icon: "score-evidence.svg", label: "A proof score for each skill" },
+      { icon: "verify-quotes.svg", label: "A résumé quote for each skill" },
+      { icon: "flag-proof.svg", label: "Flags on weak proof" },
+    ],
+    does: ["Scores how strong your proof is", "Flags claims that need more proof"],
+    cannot: ["Use the web"],
+    goodToKnow: ["It starts with the lines picked for each skill.", "In API boost it can search for more."],
     toolCalls: 1,
     seconds: 45,
   },
@@ -88,10 +118,20 @@ export const AGENT_FACTS: AgentFact[] = [
     ],
     tools: [],
     resumeAccess: true,
+    summary: "Checks your résumé the way hiring software (ATS) would, then lists the fixes to make first.",
     sees: "The role's skill names and your whole résumé with personal details masked. Not the Finder's notes.",
-    returns: "Checks marked passed, to check or to fix, the keywords found and missing, and the top three fixes.",
-    strongAt: "Catching wording, keyword and format problems",
-    cant: "Can't use the web or see the Finder's résumé notes",
+    looksAt: [
+      { icon: "rank-demand.svg", label: "The role's skill names" },
+      { icon: "read-page.svg", label: "Your whole résumé (masked)" },
+    ],
+    gives: [
+      { icon: "flag-proof.svg", label: "Checks marked pass, check or fix" },
+      { icon: "match-terms.svg", label: "Keywords found and missing" },
+      { icon: "pick-passage.svg", label: "The top three fixes" },
+    ],
+    does: ["Catches wording, keyword and format problems", "Shows which role keywords your résumé has"],
+    cannot: ["Use the web", "See the Finder's résumé notes"],
+    goodToKnow: ["It is a rule-of-thumb check, not a real employer's system.", "Its score says how ready your résumé is. It never says your chance of being hired."],
     toolCalls: 0,
     seconds: 35,
   },
@@ -106,10 +146,21 @@ export const AGENT_FACTS: AgentFact[] = [
     ],
     tools: [{ name: "firecrawl_search", label: "Search the web" }],
     resumeAccess: false,
+    summary: "Turns your biggest gaps into short tips you can act on, with a link to learn from.",
     sees: "The role title and your gaps as numbers. Never your résumé text.",
-    returns: "Verdict and four to six tips, each with an optional link.",
-    strongAt: "Turning a gap into a project you can show",
-    cant: "Sees only numbers, never your résumé text",
+    looksAt: [
+      { icon: "read-role.svg", label: "The role title" },
+      { icon: "rank-gaps.svg", label: "Your gaps, as numbers" },
+      { icon: "web-search.svg", label: "A web search for courses", boost: true },
+    ],
+    gives: [
+      { icon: "score-evidence.svg", label: "A short verdict" },
+      { icon: "match-quests.svg", label: "Four to six practical tips" },
+      { icon: "web-search.svg", label: "A link to learn from", boost: true },
+    ],
+    does: ["Turns a gap into a project you can show", "Picks short tips you can act on"],
+    cannot: ["See your résumé text"],
+    goodToKnow: ["It sees skill names and numbers only.", "Tip links need web search, so some can be missing."],
     toolCalls: 1,
     seconds: 25,
   },

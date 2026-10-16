@@ -5,22 +5,29 @@ import { Popup } from "@/components/popup";
 import { RunModes } from "@/components/run-modes";
 import { WordTip } from "@/components/career/word-tip";
 import { keyProvider } from "@/lib/openrouter-models";
-import { CUSTOM, CUSTOM_NOTE, RECOMMENDED, RECOMMENDED_OPTION, isCustomModelId, modelLabel, modelOptions, modelToSend } from "@/lib/model-choice";
-import { KEY_FIELDS, KEY_HANDLING, LEAVES_BROWSER, MODEL_FIELD, MODE_OPTIONS, NO_OWN_KEY_REASON, RUN_LOCKED_REASON, SWITCH_LABEL, UNKNOWN_STATUS_REASON, switchStatus, type RunMode } from "@/lib/mode-copy";
+import { CUSTOM, CUSTOM_NOTE, RECOMMENDED, agentModelsToSend, isCustomModelId, modelLabel, modelOptions, modelToSend, recommendedOption, type AgentModels } from "@/lib/model-choice";
+import { keyHint, leavesBrowser, modelHint } from "@/lib/provider-copy";
+import { costOverview, costSentence } from "@/lib/run-cost";
+import { KEY_FIELDS, KEY_HANDLING, MODEL_FIELD, MODE_OPTIONS, NO_OWN_KEY_REASON, RUN_LOCKED_REASON, SWITCH_LABEL, UNKNOWN_STATUS_REASON, switchStatus, type RunMode } from "@/lib/mode-copy";
 
 /** `anthropic` holds the model key (Anthropic or OpenRouter). `model` is the picked option (recommended, a listed id or "custom") and `customModel` the typed id. Neither is a secret. */
-export type VisitorKeyState = { anthropic: string; firecrawl: string; model?: string; customModel?: string };
+export type VisitorKeyState = { anthropic: string; firecrawl: string; model?: string; customModel?: string; /** A model picked for single agents, from the gear on each reader card. */ agentModels?: AgentModels };
 
 /** The model to send in the request body, or undefined for the recommended mix. Only a visitor's own key can choose one. */
 export function chosenModel(keys: VisitorKeyState): string | undefined {
   const key = keys.anthropic.trim();
   return key ? modelToSend(keys.model, keys.customModel, keyProvider(key)) : undefined;
 }
+/** The picks for single agents to send, only those the key's provider can take, or undefined. */
+export function chosenAgentModels(keys: VisitorKeyState): AgentModels | undefined {
+  const key = keys.anthropic.trim();
+  return key ? agentModelsToSend(keys.agentModels, keyProvider(key)) : undefined;
+}
 /** Request headers for a run: the model key goes in the header that matches its provider, the Firecrawl key in its own. Empty keys are left out. */
 export function modelKeyHeaders(keys: VisitorKeyState): Record<string, string> {
   const headers: Record<string, string> = {};
   const model = keys.anthropic.trim();
-  if (model) headers[keyProvider(model) === "openrouter" ? "x-openrouter-key" : "x-anthropic-key"] = model;
+  if (model) headers[{ anthropic: "x-anthropic-key", openrouter: "x-openrouter-key", gemini: "x-gemini-key" }[keyProvider(model)]] = model;
   const firecrawl = keys.firecrawl.trim();
   if (firecrawl) headers["x-firecrawl-key"] = firecrawl;
   return headers;
@@ -80,13 +87,16 @@ export function ReaderSwitch({ mode, onMode, keys, onKeys, status, disabled }: {
   const hasAny = hasKey || keys.firecrawl.trim() !== "";
   const reason = ownKeyOff ? status?.reason ?? NO_OWN_KEY_REASON : disabled ? RUN_LOCKED_REASON : "";
   const labelId = ids.reason + "-label";
-  // The model picker follows the key: Claude models only for an Anthropic key, a longer list plus a custom id for OpenRouter.
+  // The model picker follows the key: Claude models for an Anthropic key, Gemini Lite models for a Gemini key, a longer list plus a custom id for OpenRouter.
   const provider = keyProvider(keys.anthropic.trim());
   const options = modelOptions(provider);
   const pick = keys.model === CUSTOM && provider === "openrouter" ? CUSTOM : options.some((option) => option.id === keys.model) ? keys.model! : RECOMMENDED;
-  const pickedNote = pick === CUSTOM ? CUSTOM_NOTE : (pick === RECOMMENDED ? RECOMMENDED_OPTION : options.find((option) => option.id === pick))?.note ?? "";
+  const pickedNote = pick === CUSTOM ? CUSTOM_NOTE : (pick === RECOMMENDED ? recommendedOption(provider) : options.find((option) => option.id === pick))?.note ?? "";
+  // Copy names a provider only once a key says which one it is.
+  const named = hasKey ? provider : undefined;
   const customText = (keys.customModel ?? "").trim();
   const customBad = pick === CUSTOM && customText !== "" && !isCustomModelId(customText);
+  useEffect(() => { const show = () => setOpen(true); window.addEventListener("itsa10but:open-keys", show); return () => window.removeEventListener("itsa10but:open-keys", show); }, []);
   const pickMode = (next: RunMode) => { if (next === "live") { onMode("live"); setOpen(true); } else { onMode("rules"); setOpen(false); } };
   // The status says what will run. A site key counts as a key, and a model is only named when the visitor picked one.
   const picked = chosenModel(keys);
@@ -101,7 +111,7 @@ export function ReaderSwitch({ mode, onMode, keys, onKeys, status, disabled }: {
       <div className="rs-toggle" data-mode={mode} role="radiogroup" aria-labelledby={labelId} aria-describedby={reason ? ids.reason : undefined}>
         {choices.map((choice) => <label key={choice.mode} className={"rs-name rs-name-" + choice.mode} title={MODE_OPTIONS[choice.mode].hint}>
           <input type="radio" className="rs-input" name={ids.panel + "-mode"} checked={mode === choice.mode} disabled={locked}
-            aria-controls={choice.mode === "live" && open ? ids.panel : undefined} onChange={() => pickMode(choice.mode)} />
+            aria-controls={choice.mode === "live" && open ? ids.panel : undefined} onChange={() => pickMode(choice.mode)} onClick={() => { if (choice.mode === "live" && mode === "live" && !locked) setOpen((was) => !was); }} />
           <span>{choice.short}<span className="rs-more">{choice.more}</span></span>
         </label>)}
         {/* The track is a mouse and touch shortcut: it flips the switch. The radios above are what keyboards and screen readers use. */}
@@ -120,26 +130,32 @@ export function ReaderSwitch({ mode, onMode, keys, onKeys, status, disabled }: {
       </span>
       {on && !open &&<button type="button" className="rs-keys" disabled={disabled} aria-haspopup="dialog" onClick={() => setOpen(true)}>Keys</button>}
     </div>
-    <Popup open={help} onClose={closeHelp} title="Two ways to run" wide><div className="run-modes"><RunModes safety /></div></Popup>
+    <Popup open={help} onClose={closeHelp} title="Two ways to run" wide><div className="run-modes"><RunModes safety provider={named} /></div></Popup>
     {reason && <p id={ids.reason} className="hint rs-reason">{reason}</p>}
-    {open && on && <div id={ids.panel} className="rs-panel" role="dialog" aria-label="API key">
-      <h2>API key</h2>
-      <p className="hint">API boost: four agents read your résumé one after another. Your key pays for the run.{status?.live ? " Leave it empty to use this site’s key while it lasts." : ""}</p>
-      <div className="rs-field">
-        <label htmlFor={ids.anthropic}>{KEY_FIELDS.anthropic.label}</label>
-        <input id={ids.anthropic} ref={firstField} type="password" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} data-1p-ignore="true"
-          value={keys.anthropic} onChange={(event) => onKeys({ ...keys, anthropic: event.target.value })} aria-describedby={ids.anthropic + "-hint"} />
-        <span id={ids.anthropic + "-hint"} className="hint">{KEY_FIELDS.anthropic.hint}</span>
-      </div>
-      {hasKey && <>
+    {open && on && <div id={ids.panel} className="rs-panel" role="dialog" aria-label="API boost settings">
+      <h2>API boost</h2>
+      <p className="hint rs-intro">API boost: four agents read your résumé one after another. Your key pays for the run. {hasKey ? costSentence(provider, picked, chosenAgentModels(keys)) : costOverview()}{status?.live ? " Leave the key empty to use this site’s key while it lasts." : ""}</p>
+
+      <section className="rs-group" aria-labelledby={ids.panel + "-key"}>
+        <h3 id={ids.panel + "-key"} className="rs-group-title"><span className="rs-step" aria-hidden="true">1</span>Your key</h3>
         <div className="rs-field">
-          <label htmlFor={ids.model}>{MODEL_FIELD.label}</label>
+          <label htmlFor={ids.anthropic}>{KEY_FIELDS.anthropic.label}</label>
+          <input id={ids.anthropic} ref={firstField} type="password" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} data-1p-ignore="true"
+            value={keys.anthropic} onChange={(event) => onKeys({ ...keys, anthropic: event.target.value })} aria-describedby={ids.anthropic + "-hint"} />
+          <span id={ids.anthropic + "-hint"} className="hint">{keyHint(named)}</span>
+        </div>
+      </section>
+
+      {hasKey && <section className="rs-group" aria-labelledby={ids.panel + "-model"}>
+        <h3 id={ids.panel + "-model"} className="rs-group-title"><span className="rs-step" aria-hidden="true">2</span>Model</h3>
+        <div className="rs-field">
+          <label htmlFor={ids.model} className="sr-only">{MODEL_FIELD.label}</label>
           <select id={ids.model} value={pick} aria-describedby={ids.model + "-hint"} onChange={(event) => onKeys({ ...keys, model: event.target.value })}>
-            <option value={RECOMMENDED}>{RECOMMENDED_OPTION.label}</option>
+            <option value={RECOMMENDED}>{recommendedOption(provider).label}</option>
             {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
             {provider === "openrouter" && <option value={CUSTOM}>{MODEL_FIELD.customLabel}</option>}
           </select>
-          <span id={ids.model + "-hint"} className="hint" role="status">{pickedNote}{pick === CUSTOM ? "" : " " + (provider === "openrouter" ? MODEL_FIELD.openrouterHint : MODEL_FIELD.anthropicHint)}</span>
+          <span id={ids.model + "-hint"} className="hint" role="status">{pickedNote}{pick === CUSTOM ? "" : " " + modelHint(provider)}</span>
         </div>
         {pick === CUSTOM && <div className="rs-field">
           <label htmlFor={ids.custom}>{MODEL_FIELD.customLabel}</label>
@@ -149,16 +165,24 @@ export function ReaderSwitch({ mode, onMode, keys, onKeys, status, disabled }: {
           <span id={ids.custom + "-hint"} className="hint">{MODEL_FIELD.customHint}</span>
           {customBad && <span id={ids.custom + "-error"} className="rs-error" role="alert">{MODEL_FIELD.customError}</span>}
         </div>}
-      </>}
-      <div className="rs-field rs-optional">
-        <label htmlFor={ids.firecrawl}>{KEY_FIELDS.firecrawl.label}</label>
-        <input id={ids.firecrawl} type="password" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} data-1p-ignore="true"
-          value={keys.firecrawl} onChange={(event) => onKeys({ ...keys, firecrawl: event.target.value })} aria-describedby={ids.firecrawl + "-hint"} />
-        <span id={ids.firecrawl + "-hint"} className="hint">{KEY_FIELDS.firecrawl.hint}</span>
-      </div>
-      <p className="notice rs-disclosure">{KEY_HANDLING}</p>
-      <p className="notice rs-disclosure">{LEAVES_BROWSER}</p>
-      {!hasKey && !status?.live && <p className="hint" role="status">Paste an Anthropic or OpenRouter key to run the agents. Without one, you get the native scan.</p>}
+      </section>}
+
+      <section className="rs-group rs-optional" aria-labelledby={ids.panel + "-web"}>
+        <h3 id={ids.panel + "-web"} className="rs-group-title">Optional: wider web search</h3>
+        <div className="rs-field">
+          <label htmlFor={ids.firecrawl}>{KEY_FIELDS.firecrawl.label}</label>
+          <input id={ids.firecrawl} type="password" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} data-1p-ignore="true"
+            value={keys.firecrawl} onChange={(event) => onKeys({ ...keys, firecrawl: event.target.value })} aria-describedby={ids.firecrawl + "-hint"} />
+          <span id={ids.firecrawl + "-hint"} className="hint">{KEY_FIELDS.firecrawl.hint}</span>
+        </div>
+      </section>
+
+      <p className="notice rs-disclosure">{leavesBrowser(named)}</p>
+      <details className="rs-more">
+        <summary>How your key is handled</summary>
+        <p>{KEY_HANDLING}</p>
+      </details>
+      {!hasKey && !status?.live && <p className="hint" role="status">Paste an Anthropic, OpenRouter or Gemini key to run the agents. Without one, you get the native scan.</p>}
       <div className="rs-actions">
         <button type="button" className="btn primary small" onClick={() => { setOpen(false); focusChoice(); }}>Done</button>
         <button type="button" className="btn quiet small" disabled={!hasAny} onClick={() => { onKeys({ anthropic: "", firecrawl: "" }); firstField.current?.focus(); }}>Remove keys</button>

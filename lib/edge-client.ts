@@ -30,6 +30,16 @@ export async function edgeCall<T = unknown>(edge: Edge, path: string, body: unkn
   }
 }
 
+/** GETs JSON from the Worker (the shared secret in a header) and returns it, or null on any failure. */
+export async function edgeGet<T = unknown>(edge: Edge, path: string, timeoutMs = 4000): Promise<T | null> {
+  try {
+    const response = await (edge.fetchImpl ?? fetch)(edge.url + path, { headers: { "x-edge-secret": edge.secret }, signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
+    return response.ok ? ((await response.json()) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
 export type UsageLogRow = { agent: string; model?: string; provider: string; inputTokens: number; outputTokens: number; ms: number; fallback: boolean };
 
 /** The usage log must never slow or break a run, so callers do not wait for it; the promise is returned so a serverless host can keep the function alive until it lands. Counts and timings only. */

@@ -9,7 +9,7 @@
 .sgs-top { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
 .sgs-titles { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; min-width: 0; }
 .sgs-head svg { flex: none; color: var(--teal-dark); }
-.sgs-checked { margin: 0; padding-left: .15rem; color: var(--ink); font-size: 1rem; font-weight: 600; line-height: 1.3; }
+.sgs-checked { position: relative; margin: 0; padding: .2rem .65rem; display: inline-flex; align-items: center; gap: .4rem; width: fit-content; border-radius: 999px; background: var(--glass-strong); border: 1px solid var(--glass-edge); color: var(--ink); font-size: 1rem; font-weight: 600; line-height: 1.3; }
 .sgs-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; min-width: 0; }
 .sgs-actions .word-tip { display: block; min-width: 0; white-space: normal; }
 .sgs-actions .sgs-open, .sgs-actions .sgs-book { --btn-hover-shadow: 5px 5px 0 var(--ink); --btn-active-shadow: 1px 1px 0 var(--ink); display: flex; align-items: center; justify-content: center; gap: .45rem; box-sizing: border-box; width: 100%; min-height: 3rem; padding: .35rem .6rem; border: 2px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); font-family: var(--font-body); font-size: 1rem; font-weight: 800; line-height: 1.2; text-align: left; cursor: pointer; }
@@ -185,10 +185,18 @@
 
 /* Sources card, main view: every group is one row that never wraps. The logos share one size that shrinks with the card (--c, from the card width through cqw)
    so seven of them and the small "+N" pill always fit. */
-.sgs-group { --c: clamp(2.2rem, calc((100cqw - 10.5rem) / 7), 4.6rem); }
+.sgs-group { --c: var(--cx, clamp(2.2rem, calc((100cqw - 10.5rem) / 7), 4.6rem)); }
+/* --cx is set by the card (sg-signals.tsx) when it is stretched taller than its logos need: bigger tiles, fewer of them, still one row. */
 .sgs-group ul { flex-wrap: nowrap; align-items: center; gap: .4rem; }
 .sgs-group li { flex: none; }
 .sgs-group li.sgs-pill { flex: none; }
 .sgs-group a, .sgs-group .sgs-logo { width: var(--c); height: var(--c); }
 .sgs-group img { width: calc(var(--c) * .74); height: calc(var(--c) * .74); }
 .sgs-group .sgs-pill > .sgs-more { width: auto; min-width: calc(var(--c) * .8); height: calc(var(--c) * .7); min-height: 0; padding: 0 .6rem; justify-content: center; box-sizing: border-box; font-size: .88rem; }
+
+.sgs-checked { cursor: help; }
+.sgs-checked img { display: block; border-radius: 6px; }
+.sgs-checked:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.sgs-checked time { font-weight: 800; }
+.sgs-fc-tip { position: absolute; left: 0; top: calc(100% + .4rem); width: min(19rem, calc(100vw - 4.5rem)); padding: .6rem .75rem; border-radius: 10px; background: var(--glass-strong); border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow); color: var(--ink); font-size: 1rem; font-weight: 400; line-height: 1.4; opacity: 0; visibility: hidden; pointer-events: none; z-index: 5; }
+.sgs-checked:hover .sgs-fc-tip, .sgs-checked:focus .sgs-fc-tip { opacity: 1; visibility: visible; }

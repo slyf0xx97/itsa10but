@@ -39,7 +39,7 @@ export type EngineEvent =
 export type ActivityEvent = Extract<EngineEvent, { type: "activity" }>;
 
 /** stepDelayMs paces the older events. paceMs is the time each reader spends on its activity lanes (default 4800 ms when stepDelayMs is set, else 0). Reduced-motion callers pass a smaller paceMs and still get every event. */
-export type EngineOptions = { stepDelayMs?: number; paceMs?: number };
+export type EngineOptions = { stepDelayMs?: number; paceMs?: number; /** Skills the posting names that the catalog lacks. Each is checked against the posting again in the engine. */ extraSkills?: string[] };
 
 const wait = (ms: number) => (ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve());
 
@@ -150,7 +150,7 @@ export async function* runSimulatedEngine(resumes: Resume[], job: string, option
     yield { type: "tool-call", agent: "Orchestrator", tool: "chunk_resume", input: { resumeCount: safety.maskedResumes.length }, output: { chunkCount: chunks.length }, simulated: true };
     await wait(delay);
 
-    const analysis = previewAnalysis(safety.maskedResumes, safety.maskedJob);
+    const analysis = previewAnalysis(safety.maskedResumes, safety.maskedJob, (options.extraSkills ?? []).filter((name) => hasTerm(safety.maskedJob, name)));
     const retrievalSteps = buildRetrievalSteps(chunks, safety.maskedJob);
 
     const laneInput: LaneInput = { job: safety.maskedJob, resumeText: safety.maskedResumes.map((resume) => resume.text).join("\n"), resumeCount: safety.maskedResumes.length, chunks, analysis, retrievalSteps };

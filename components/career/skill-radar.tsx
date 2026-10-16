@@ -1,6 +1,7 @@
 import { BASE_PATH } from "@/lib/base-path";
 import type { Skill } from "@/lib/analysis-types";
 import { skillArt } from "@/lib/skill-art";
+import { stateOf } from "@/lib/radar-tiers";
 import { rankSkills } from "@/lib/dashboard-data";
 import { PROOF_STEP_TOTAL, proofCount } from "@/lib/proof-steps";
 import { COMPACT, DOT, LINE, MAX_AXES, WIDE, layoutRadar, radarPoint, type RadarSpec } from "@/lib/radar-layout";
@@ -48,7 +49,10 @@ function Chart({ skills, spec, variant, summary }: { skills: Plotted[]; spec: Ra
     <polygon className="ring outer" points={ring(100)} />
     {skills.map((_, index) => { const [x, y] = radarPoint(spec, index, n, 100); return <line key={index} className="spoke" x1={cx} y1={cy} x2={x} y2={y} />; })}
     <polygon className="shape" points={items.map((item) => item.dot.join(",")).join(" ")} />
-    {items.map((item) => <circle key={item.name} className={"dot" + (item.low ? " low" : "")} cx={item.dot[0]} cy={item.dot[1]} r={DOT} />)}
+    {items.map((item) => item.low
+      // A gap is a diamond and a have is a circle, so the two read apart without colour.
+      ? <rect key={item.name} className="dot low" x={item.dot[0] - DOT * 0.85} y={item.dot[1] - DOT * 0.85} width={DOT * 1.7} height={DOT * 1.7} transform={`rotate(45 ${item.dot[0]} ${item.dot[1]})`} />
+      : <circle key={item.name} className="dot" cx={item.dot[0]} cy={item.dot[1]} r={DOT} />)}
     {numbered
       ? items.map((item, index) => {
         const [bx, by] = radarPoint(spec, index, n, 100, spec.R + spec.gap);
@@ -81,13 +85,15 @@ export function RadarLegend() {
 
 /** Phone key: each skill's icon (the same one on its spoke), its name and its proof in steps. */
 function NumberKey({ skills }: { skills: Plotted[] }) {
-  return <ol className="radar-key" aria-label="Skills on the radar. Press one to learn it.">
+  return <ol className="radar-key" aria-label="Skills on the radar, with proof steps out of 5. Press one to learn it.">
     {skills.map((skill) => {
       const art = skillArt(skill.name);
+      const gap = stateOf(skill.evidence) === "gap";
       return <li key={skill.name}><LearnPill name={skill.name} className="rkl-row">
         <span className="rk-mark">{art.logos.length ? <img src={BASE_PATH + "/tool-logos/" + art.logos[0]} alt="" width={18} height={18} /> : <PixelIcon name={art.icon} size={18} />}</span> {/* eslint-disable-line @next/next/no-img-element */}
         <span className="rk-name">{skill.name}</span>
-        <span className="rk-steps">{skill.label}</span>
+        <span className={"rk-state " + (gap ? "gap" : "have")} aria-hidden="true">{gap ? "!" : "✓"}</span>
+        <span className="rk-steps">{skill.label}<span className="sr-only"> proof steps, {gap ? "gap" : "have"}</span></span>
       </LearnPill></li>;
     })}
   </ol>;

@@ -67,59 +67,55 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 .rd-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem; box-sizing: border-box; width: 100%; min-height: 3.25rem; margin: 0; padding: .3rem 1.2rem; border: 0; border-top: 1.5px solid rgb(18 52 63 / 18%); border-radius: 0; background: none; color: var(--ink); cursor: pointer; font-family: var(--font-body); font-size: 1.0625rem; font-weight: 800; line-height: 1.3; text-align: left; }
 .rd-more:hover { background: rgb(18 52 63 / 7%); }
 .rd-more:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+/* The model button sits left of "Strengths, limits & tools". It shows the logo of the model this agent runs on (a letter for a maker without a file, a settings icon before a key is entered)
+   and a small chevron, so it reads as a dropdown. A dot marks a model picked for this agent alone. */
+.rd-more-row { display: flex; align-items: stretch; border-top: 1.5px solid rgb(18 52 63 / 18%); }
+.rd-more-row .rd-more { flex: 1; width: auto; min-width: 0; border-top: 0; }
+.rd-gear { position: relative; display: inline-flex; flex: none; align-items: center; justify-content: center; gap: .25rem; box-sizing: border-box; min-width: 3.25rem; min-height: 3.25rem; margin: 0; padding: .3rem .6rem .3rem 1rem; border: 0; border-right: 1.5px solid rgb(18 52 63 / 18%); background: none; color: var(--ink); cursor: pointer; }
+.rd-gear:hover { background: rgb(18 52 63 / 7%); }
+.rd-gear:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
+.rd-gear-logo { width: 1.5rem; height: 1.5rem; border-radius: 6px; object-fit: contain; background: #fff; }
+.rd-gear-letter { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 1.5px solid var(--ink); border-radius: 6px; background: #fff; font-size: .85rem; font-weight: 800; }
+.rd-gear[data-picked="true"]::after { content: ""; position: absolute; top: .55rem; right: .35rem; width: .5rem; height: .5rem; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--orange); }
 @supports (grid-template-rows: subgrid) {.rd-steps { row-gap: 0; margin-bottom: -1rem; }
 .rd-step { display: grid; grid-row: span 7; grid-template-rows: subgrid; row-gap: 0; margin-bottom: 1rem; }
 .rd-btn { grid-row: span 2; display: grid; grid-template-rows: subgrid; row-gap: 0; }
 .rd-move-list { grid-row: span 3; grid-template-rows: subgrid; }
 .rd-foot { align-self: start; }}
-/* Shared bits used in the popup: the meter, access pips, the API tag and mono names. */
-.rd-meter { position: relative; display: block; min-width: 0; height: 1.1rem; overflow: hidden; border: 1.5px solid rgb(18 52 63 / 65%); border-radius: 6px; background: rgb(255 255 255 / 90%); }
-.rd-meter i { display: block; height: 100%; background: var(--orange); transform: scaleX(var(--v, 1)); transform-origin: 0 50%; }
-.rd-meter::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgb(255 255 255 / 95%) calc(10% - 2px) 10%); pointer-events: none; }
-.rd-pip { padding: .1rem .8rem; border: 1.5px solid rgb(18 52 63 / 55%); border-radius: 999px; font-size: 1rem; font-weight: 800; line-height: 1.4; white-space: nowrap; }
-.rd-pip.yes { background: var(--mint-soft); }
-.rd-pip.yes::before { content: "✓ "; color: var(--ok); }
-.rd-pip.no { background: #e9eef0; }
-.rd-pip.no::before { content: "✕ "; }
-.rd-api { flex: none; padding: 0 .5rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--orange); color: var(--ink); font-family: var(--font-display); font-size: .95rem; font-weight: 600; line-height: 1.4; }
-.rd-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 1rem; font-weight: 700; }
-.rd-cap { color: var(--text-soft); }
-/* Popup body (AgentDetails in reader-cards.tsx). One column on a phone; from 1000px of screen the sections sit two across (Moves and Limits, Tools and Native scan).
-   17px text, 1.45rem headings, roomy boxes. The popup scrolls inside itself. */
-.rdp { display: grid; gap: 1rem; color: var(--ink); }
-.rdp-sec { display: grid; align-content: start; gap: .5rem; min-width: 0; }
-.rdp-h { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0; font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
-.rdp-use { padding: .05rem .7rem; border-radius: 999px; background: var(--lime); font-size: 1rem; font-weight: 800; line-height: 1.5; }
-.rdp-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
-.rdp-box { display: grid; align-content: start; gap: .4rem; min-width: 0; padding: .7rem .9rem; border: 1.5px solid var(--glass-edge); border-radius: 12px; background: var(--sky-soft); }
-.rdp-box.good { background: var(--mint-soft); }
-.rdp-box.bad { background: var(--coral-soft); }
-.rdp-box .cl-text, .rdp-box .cl-lead { font-size: 1rem; line-height: 1.4; }
-.rdp-plain { margin: 0; font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
-.rdp-box > .rdp-plain { color: var(--ink); }
-.rdp-sec > .rdp-plain { color: var(--text-soft); }
-/* Limits: one fixed label column, bars centred in the middle, values right-aligned, every row the same height. */
-.rdp-limits, .rdp-tools, .rdp-steps { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
-.rdp-limits li { display: grid; grid-template-columns: 7rem minmax(0, 1fr) 6.5rem; align-items: center; gap: .9rem; min-height: 2.25rem; }
-.rdp-limits li:nth-child(2) .rd-meter i { background: var(--water); }
-.rdp-k { font-family: var(--font-display); font-size: 1rem; font-weight: 600; line-height: 1.3; }
-.rdp-v { font-size: 1rem; font-weight: 800; line-height: 1.3; text-align: right; white-space: nowrap; }
-.rdp-pips { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: .6rem; }
-/* Tools: API tag in a fixed column, mono name on top, plain line under it. */
-.rdp-tools li { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: start; gap: .7rem; padding: .5rem .7rem; border: 1.5px solid rgb(18 52 63 / 25%); border-radius: 14px; background: rgb(255 255 255 / 75%); }
-.rdp-tools .rd-api { justify-self: start; margin-top: .15rem; text-align: center; }
-.rdp-tool { display: grid; gap: .1rem; min-width: 0; font-size: 1rem; line-height: 1.35; overflow-wrap: anywhere; }
-/* Native scan: numbered chips. */
-.rdp-steps { display: flex; flex-wrap: wrap; gap: .5rem; counter-reset: rdp; }
-.rdp-steps li { counter-increment: rdp; display: inline-flex; align-items: center; gap: .6rem; padding: .3rem .95rem .3rem .35rem; border: 1.5px solid rgb(18 52 63 / 45%); border-radius: 999px; background: #fff; font-size: 1rem; font-weight: 700; line-height: 1.3; }
-.rdp-steps li::before { content: counter(rdp); display: grid; place-items: center; flex: none; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; }
-.rdp-moves { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; font-size: 1rem; line-height: 1.4; }
-.rdp-moves li { padding-left: .9rem; border-left: 4px solid var(--hue-line, rgb(18 52 63 / 30%)); }
-@media (min-width: 1000px) {.rdp { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; align-items: start; }
-.rdp > .rdp-two { grid-column: 1 / -1; }
-.rdp-two:last-child { grid-column: 1 / -1; }}
-@media (max-width: 560px) {.rdp-two { grid-template-columns: minmax(0, 1fr); }}
-@media (max-width: 480px) {.rdp-limits li { grid-template-columns: 5.6rem minmax(0, 1fr) 5.4rem; gap: .6rem; }}
+/* Popup body (AgentDetails in reader-cards.tsx), top to bottom: summary, in and out chips, does well, can't do, tools, good to know.
+   One column on a phone. From 760px the two lists (well / can't) sit side by side and the in and out chips sit left and right of an arrow. Text is 1rem or more.
+   Every item is a small card with words, so a tick or cross never carries the meaning alone. The popup scrolls inside itself. */
+.rdp { --hue: #8fd6df; display: grid; gap: 1.1rem; color: var(--ink); }
+.rdp.finder { --hue: #a8e2bd; }
+.rdp.recruiter { --hue: #f6b5a6; }
+.rdp.coach { --hue: #f6d877; }
+.rdp-top { display: flex; align-items: center; gap: 1rem; padding: .8rem 1rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: color-mix(in srgb, var(--hue) 40%, #fff); }
+.rdp-sum { margin: 0; font-size: 1.15rem; font-weight: 700; line-height: 1.4; }
+.rdp-sec { display: grid; align-content: start; gap: .6rem; min-width: 0; }
+.rdp-h { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; line-height: 1.25; color: var(--ink); }
+.rdp-sub { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .2rem 0 0; font-size: 1rem; font-weight: 800; line-height: 1.3; color: var(--text-soft); }
+.rdp-use { padding: .05rem .7rem; border-radius: 999px; background: var(--lime); color: var(--ink); font-family: var(--font-body); font-size: 1rem; font-weight: 800; line-height: 1.5; }
+.rdp-plain { margin: 0; font-size: 1rem; line-height: 1.4; color: var(--text-soft); overflow-wrap: anywhere; }
+.rdp-ic { display: block; width: 1.75rem; height: 1.75rem; image-rendering: pixelated; }
+.rdp-chip-ic { display: grid; place-items: center; flex: none; width: 2.75rem; height: 2.75rem; border-radius: 12px; background: color-mix(in srgb, var(--hue) 50%, #fff); }
+.rdp-flow { display: grid; gap: .5rem; align-items: stretch; }
+.rdp-side { display: grid; align-content: start; gap: .5rem; min-width: 0; }
+.rdp-arrow { justify-self: center; align-self: center; font-size: 1.6rem; line-height: 1; transform: rotate(90deg); }
+.rdp-chips, .rdp-cards, .rdp-tools, .rdp-know { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.rdp-chip, .rdp-tools li { display: flex; align-items: center; gap: .75rem; min-width: 0; min-height: 2.75rem; padding: .45rem .75rem .45rem .45rem; border: 1.5px solid rgb(18 52 63 / 28%); border-radius: 14px; background: rgb(255 255 255 / 80%); font-size: 1rem; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.rdp-boost { display: inline-block; margin-left: .5rem; padding: 0 .5rem; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--orange); font-size: 1rem; font-weight: 800; line-height: 1.4; white-space: nowrap; }
+.rdp-tools li { align-items: flex-start; }
+.rdp-tools li > span:last-child { display: grid; gap: .15rem; min-width: 0; }
+.rdp-line { font-weight: 400; color: var(--text-soft); }
+.rdp-cards li { display: flex; align-items: flex-start; gap: .7rem; padding: .6rem .8rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; font-size: 1rem; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.rdp-cards.good li { background: var(--mint-soft); }
+.rdp-cards.bad li { background: var(--coral-soft); }
+.rdp-mark { display: grid; place-items: center; flex: none; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; line-height: 1; }
+.rdp-know { gap: .4rem; padding-left: 1.2rem; list-style: disc; font-size: 1rem; line-height: 1.45; }
+@media (min-width: 760px) {.rdp { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; }
+.rdp > :is(.rdp-top, .rdp-sec:nth-of-type(1), .rdp-sec:nth-of-type(4), .rdp-sec:nth-of-type(5)) { grid-column: 1 / -1; }
+.rdp-flow { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 1rem; }
+.rdp-arrow { transform: none; }}
 .rd-panel { position: relative; display: grid; gap: .7rem; min-width: 0; padding: 1rem; border: 1.5px solid var(--glass-edge); border-radius: 18px; background: rgb(255 255 255 / 82%); backdrop-filter: var(--glass-blur-panel); -webkit-backdrop-filter: var(--glass-blur-panel); color: var(--ink); text-shadow: none; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); overflow-wrap: anywhere; }
 .rd-panel a { color: #8f2515; }
 .rd-panel h3 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; line-height: 1.2; color: var(--ink); }
@@ -166,7 +162,6 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 .rd-step.active .rd-dots i { animation: rd-dot 1.2s steps(1) infinite; }
 .rd-step.active .rd-dots i:nth-child(2) { animation-delay: .2s; }
 .rd-step.active .rd-dots i:nth-child(3) { animation-delay: .4s; }
-.rdp .rd-meter i { animation: rd-fill .9s steps(10) both; }
 .rd-bar i { transition: width .5s steps(8); }
 .rd-lane.unknown:not(.done) .rd-bar i { animation: rd-sweep 1.4s steps(14) infinite; transition: none; }
 .rd-log li:last-child { animation: rd-log-in .3s ease-out; }
@@ -174,7 +169,6 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 @keyframes rd-in { from { opacity: 0; transform: translateY(12px); } }
 @keyframes rd-work { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
 @keyframes rd-dot-pulse { 50% { opacity: .35; } }
-@keyframes rd-fill { from { transform: scaleX(0); } }
 @keyframes rd-dot { 0%, 100% { opacity: .2; } 33% { opacity: 1; } }
 @keyframes rd-sweep { from { transform: translateX(-100%); } to { transform: translateX(560%); } }
 @keyframes rd-log-in { from { opacity: 0; transform: translateY(4px); } }

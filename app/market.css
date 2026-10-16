@@ -1,0 +1,3 @@
+/* Market context lines (components/career/market-note.tsx). One short sentence with a small tag, on the same glass as the panel it sits in. */
+.mkt-note { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .5rem; margin: 0; font-size: 1rem; line-height: 1.4; color: var(--ink); }
+.mkt-tag { padding: .05rem .5rem; border: 2px solid var(--teal-dark); border-radius: 999px; font-size: .875rem; font-weight: 700; }

@@ -1,10 +1,13 @@
 import { after } from "next/server";
 import { anthropicClient } from "@/lib/anthropic-client";
+import { openRouterChatClient } from "@/lib/openrouter-chat-client";
+import { geminiClient } from "@/lib/gemini-client";
 import { runLiveAgents, validateLiveBody, type LiveClient } from "@/lib/live-agents";
 import { edgeFromEnv } from "@/lib/edge-client";
 import { liveStatus, sharedLimiter, sharedOwnKeyLimiter, takeRun, visitorKey } from "@/lib/rate-limit";
-import { checkModelChoice } from "@/lib/model-choice";
+import { DEFAULT_MODELS, checkAgentModels, checkModelChoice } from "@/lib/model-choice";
 import { isAuthRejection, readVisitorKeys, scrubKeys } from "@/lib/visitor-keys";
+import { TURNSTILE_HEADER, verifyTurnstile } from "@/lib/turnstile";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -13,7 +16,14 @@ const headers = { "Cache-Control": "no-store, no-transform", "X-Accel-Buffering"
 const REJECTED = {
   anthropic: "Anthropic rejected that key. Showing the native scan result instead.",
   openrouter: "OpenRouter rejected that key. Showing the native scan result instead.",
-};
+  gemini: "Google rejected that key. Showing the native scan result instead.",
+} as const;
+// A 429 usually means the key's own quota. On Google's free plan that is only a few requests a minute, far fewer than four agents need.
+const LIMITED = {
+  anthropic: "Anthropic is limiting this key right now. Showing the native scan result instead.",
+  openrouter: "OpenRouter is limiting this key right now. Showing the native scan result instead.",
+  gemini: "Google is limiting this key right now. The free Gemini plan allows only a few requests a minute, so the agents can't finish. Showing the native scan result instead.",
+} as const;
 
 /**
  * Live Claude agents as NDJSON, same event shapes as api/engine/stream. Order: validate,
@@ -32,20 +42,26 @@ export async function POST(request: Request) {
 
   const status = liveStatus(process.env, sharedLimiter());
 
-  const ownModelKey = visitorKeys.openrouter ?? visitorKeys.anthropic;
-  const provider = visitorKeys.openrouter ? "openrouter" : "anthropic";
+  const ownModelKey = visitorKeys.openrouter ?? visitorKeys.gemini ?? visitorKeys.anthropic;
+  const provider = visitorKeys.openrouter ? "openrouter" : visitorKeys.gemini ? "gemini" : "anthropic";
   const ownKey = Boolean(ownModelKey);
   // The model choice is not a secret, so it rides in the body. It is checked here and nothing unchecked reaches the upstream request. The site key keeps the recommended mix.
   const chosen = checkModelChoice((body as { model?: unknown } | null)?.model, ownKey ? provider : "site");
   if (!chosen.ok) return Response.json({ error: chosen.error }, { status: 400, headers });
+  // A pick for single agents is checked the same way, agent by agent. The site key takes none.
+  const perAgent = checkAgentModels((body as { agentModels?: unknown } | null)?.agentModels, ownKey ? provider : "site");
+  if (!perAgent.ok) return Response.json({ error: perAgent.error }, { status: 400, headers });
   if (!ownKey && !status.live) {
-    const error = `${status.reason} You can paste your own Anthropic or OpenRouter key in Agent power, in the header.`;
+    const error = `${status.reason} You can paste your own Anthropic, OpenRouter or Gemini key in Agent power, in the header.`;
     return Response.json({ error, fallback: "rules" }, { status: 503, headers });
+  }
+  if (!(await verifyTurnstile(request.headers.get(TURNSTILE_HEADER), process.env, visitorKey(request.headers)))) {
+    return Response.json({ error: "The bot check did not pass. Reload the page and try again.", fallback: "rules" }, { status: 403, headers });
   }
   const edge = edgeFromEnv();
   const taken = await takeRun({ edge, ownKey, visitor: visitorKey(request.headers), env: process.env, fallback: ownKey ? sharedOwnKeyLimiter() : sharedLimiter() });
   if (!taken.ok) {
-    const error = taken.reason === "daily" ? "Today's Claude runs are used up. Try again tomorrow." : "You have used your Claude runs for now. Try again later.";
+    const error = taken.reason === "daily" ? "Today's API boost runs are used up. Try again tomorrow." : "You have used your API boost runs for now. Try again later.";
     return Response.json({ error, fallback: "rules" }, { status: 429, headers });
   }
 
@@ -54,11 +70,15 @@ export async function POST(request: Request) {
   const firecrawlKey = visitorKeys.firecrawl;
 
   let rejected = false;
-  const base = anthropicClient(apiKey, provider);
+  let limited = false;
+  // On OpenRouter, Claude models keep the Anthropic-style path (prompt caching); every other model goes through chat completions so its thinking can be turned down.
+  const claudeBase = provider === "gemini" ? geminiClient(apiKey) : anthropicClient(apiKey, provider);
+  const chatBase = provider === "openrouter" ? openRouterChatClient(apiKey) : null;
+  const base: LiveClient = chatBase ? { create: (req, signal) => (/^(?:anthropic\/)?claude-/i.test(req.model) ? claudeBase : chatBase).create(req, signal) } : claudeBase;
   const client: LiveClient = {
     async create(req, signal) {
       try { return await base.create(req, signal); }
-      catch (error) { if (isAuthRejection(error)) rejected = true; throw error; }
+      catch (error) { if (isAuthRejection(error)) rejected = true; else if ((error as { status?: unknown } | null)?.status === 429) limited = true; throw error; }
     },
   };
 
@@ -73,10 +93,10 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const events = runLiveAgents(checked.resumes, checked.job, { client, firecrawlKey, edge, provider, paceMs: 220, track: (task) => background.push(task), model: chosen.model, linkedinUrl: checked.linkedinUrl, signal: request.signal, runId });
+        const events = runLiveAgents(checked.resumes, checked.job, { client, firecrawlKey, edge, provider, paceMs: 220, track: (task) => background.push(task), model: chosen.model ?? (ownKey ? DEFAULT_MODELS[provider] : undefined), agentModels: perAgent.models, linkedinUrl: checked.linkedinUrl, signal: request.signal, runId });
         for await (const event of events) {
           // The runner reports a refused key as a generic outage; say what happened.
-          controller.enqueue(line(ownKey && rejected && event.type === "notice" ? { ...event, message: REJECTED[provider] } : event));
+          controller.enqueue(line(ownKey && (rejected || limited) && event.type === "notice" ? { ...event, message: rejected ? REJECTED[provider] : LIMITED[provider] } : event));
         }
       } catch {
         controller.enqueue(line({ type: "error", error: "The live run couldn't finish." }));

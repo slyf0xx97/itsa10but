@@ -5,16 +5,24 @@
  *   POST /limit   shared run counters in D1 (the day rolls over at midnight in Singapore)
  *   POST /usage   one row per agent per run: counts and timings only
  *   GET  /usage/summary  totals by day and model (admin secret)
+ *   POST /role-skills  Workers AI reads the role text only (never a résumé) and names skills it asks for; cached, and capped per day in D1
+ *   GET  /demand  the market-demand table: for each tracked role, the share of recent public postings that name each skill
+ * An hourly cron refreshes one role of that table from the free Himalayas and Jobicy feeds; it uses no key and no Firecrawl credit.
  * Lookups are cached in KV. Request bodies, page text, keys and visitor addresses are never logged or stored in D1.
  */
 import { companyFromQuery, companyHits, type SearchHit } from "../../lib/edge/company.ts";
 import { firecrawlBudgetId, firecrawlDailyCap, needsWeb } from "../../lib/edge/budget.ts";
 import { cacheKey, htmlToText, publicHttpsUrl, sgtDay, sgtHour } from "../../lib/edge/html.ts";
+import { ROLE_AI_MODEL, ROLE_MIN, pickSkills, roleAiDailyCap, rolePrompt } from "../../lib/edge/role-skills.ts";
+import { MCF_URL, jobsFromMcf, mcfBody } from "../../lib/edge/mcf.ts";
+import { catalog } from "../../lib/catalog.ts";
+import { aiPicks, cleanSnapshot } from "../../lib/edge/snapshot.ts";
+import { MIN_SAMPLE, cleanTable, countDemand, feedUrls, postingsFromFeeds, roleToRefresh, type DemandJob } from "../../lib/edge/demand.ts";
 
 type Kv = { get(key: string, type: "json"): Promise<unknown>; put(key: string, value: string, options?: { expirationTtl: number }): Promise<void> };
 type Stmt = { bind(...values: unknown[]): Stmt; run(): Promise<unknown>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> };
 type Db = { prepare(sql: string): Stmt };
-type Env = { CACHE: Kv; DB: Db; EDGE_SECRET: string; ADMIN_SECRET?: string; FIRECRAWL_API_KEY?: string; FIRECRAWL_DAILY?: string };
+type Env = { CACHE: Kv; DB: Db; EDGE_SECRET: string; ADMIN_SECRET?: string; FIRECRAWL_API_KEY?: string; FIRECRAWL_DAILY?: string; AI?: { run(model: string, input: unknown): Promise<unknown> }; ROLE_AI_DAILY?: string };
 
 const DAY = 86_400;
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
@@ -143,6 +151,25 @@ async function scrape(request: Request, env: Env): Promise<Response> {
   return json({ ok: true, title, text: page, source, fc, credits });
 }
 
+/** Skills named in a posting, by a small Workers AI model. Free allocation only: past ROLE_AI_DAILY real calls a day, or on any error, the answer is an empty list. */
+async function roleSkills(request: Request, env: Env): Promise<Response> {
+  const body = (await request.json().catch(() => null)) as { job?: unknown } | null;
+  const job = typeof body?.job === "string" ? body.job.trim().slice(0, 15_000) : "";
+  if (job.length < ROLE_MIN) return json({ ok: false, error: "Add the role text first." }, 400);
+  const key = await cacheKey("r", job);
+  const cached = (await env.CACHE.get(key, "json")) as { skills: string[] } | null;
+  if (cached) return json({ ok: true, skills: pickSkills(cached.skills, job), cached: true });
+  const cap = roleAiDailyCap(env.ROLE_AI_DAILY);
+  if (!env.AI || cap === 0) return json({ ok: true, skills: [], off: true });
+  const id = `roleai|${sgtDay(Date.now())}`;
+  const row = await env.DB.prepare("INSERT INTO limits (id, span, count) VALUES (?, ?, 1) ON CONFLICT(id) DO UPDATE SET count = count + 1 RETURNING count").bind(id, id.slice(7)).first<{ count: number }>();
+  if ((row?.count ?? 1) > cap) return json({ ok: true, skills: [], off: true });
+  let skills: string[] = [];
+  try { skills = pickSkills(await env.AI.run(ROLE_AI_MODEL, rolePrompt(job)), job); } catch { return json({ ok: true, skills: [] }); }
+  await env.CACHE.put(key, JSON.stringify({ skills }), { expirationTtl: 7 * DAY });
+  return json({ ok: true, skills });
+}
+
 async function limit(request: Request, env: Env): Promise<Response> {
   const body = (await request.json().catch(() => null)) as { bucket?: unknown; visitor?: unknown; max?: unknown; window?: unknown } | null;
   const bucket = /^[a-z-]{1,24}$/.test(String(body?.bucket)) ? String(body?.bucket) : "";
@@ -178,15 +205,53 @@ async function summary(env: Env): Promise<Response> {
   return json({ ok: true, allTime: all, byDay: days.results });
 }
 
+/** Public postings for a role from the two free feeds. */
+async function postings(role: string): Promise<DemandJob[]> {
+  const urls = feedUrls(role);
+  const [himalayas, jobicy] = await Promise.all([getJson(urls.himalayas), getJson(urls.jobicy)]);
+  return postingsFromFeeds(himalayas, jobicy);
+}
+
+/** Singapore postings for a role from MyCareersFuture: the title and the skills each employer tagged, plus the advertised pay. */
+async function sgPostings(role: string): Promise<ReturnType<typeof jobsFromMcf>> {
+  try {
+    const response = await fetch(MCF_URL, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json", "User-Agent": "Itsa10but-edge/1.0 (+https://ghernie.com/projects/itsa10but)" }, body: mcfBody(role), signal: AbortSignal.timeout(6000) });
+    return jobsFromMcf(response.ok ? await response.json() : null, role);
+  } catch { return { jobs: [], pay: undefined }; }
+}
+
+/** Refreshes the next role in turn, from the remote feeds and from MyCareersFuture. A sample under MIN_SAMPLE postings is too small, so the older row stays. A failed run changes nothing. */
+async function refreshDemand(env: Env): Promise<void> {
+  const role = roleToRefresh(Date.now());
+  const [jobs, sg] = await Promise.all([postings(role), sgPostings(role)]);
+  const table = cleanTable(await env.CACHE.get("demand:all", "json"));
+  const day = sgtDay(Date.now());
+  let changed = false;
+  if (jobs.length >= MIN_SAMPLE) { table.roles[role] = countDemand(role, jobs, day); changed = true; }
+  if (sg.jobs.length >= MIN_SAMPLE) { table.sg[role] = countDemand(role, sg.jobs, day, catalog, sg.pay); changed = true; }
+  if (changed) await env.CACHE.put("demand:all", JSON.stringify(table));
+}
+
+/** Once a day: one Firecrawl search on the site key for this week's AI news, kept with the day it was read. Fewer than two usable results change nothing, so the date never moves without a real check. */
+async function refreshSnapshot(env: Env): Promise<void> {
+  if (!env.FIRECRAWL_API_KEY) return;
+  const response = await fetch(FIRECRAWL + "/search", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.FIRECRAWL_API_KEY}` }, body: JSON.stringify({ query: "new AI model release OR AI research results announced", sources: ["news"], tbs: "qdr:w", limit: 8 }), signal: AbortSignal.timeout(20_000) });
+  const ai = response.ok ? aiPicks(await response.json(), 4) : [];
+  if (ai.length >= 2) await env.CACHE.put("snapshot:latest", JSON.stringify({ checked: new Date().toISOString(), ai }));
+}
+
 const worker = {
   async fetch(request: Request, env: Env): Promise<Response> {
     const path = new URL(request.url).pathname;
+    if (path === "/demand" && request.method === "GET") return same(request.headers.get("x-edge-secret") ?? "", env.EDGE_SECRET ?? "") ? json({ ok: true, ...cleanTable(await env.CACHE.get("demand:all", "json")) }) : json({ ok: false }, 401);
+    if (path === "/snapshot" && request.method === "GET") return same(request.headers.get("x-edge-secret") ?? "", env.EDGE_SECRET ?? "") ? json({ ok: true, snapshot: cleanSnapshot(await env.CACHE.get("snapshot:latest", "json")) }) : json({ ok: false }, 401);
     if (path === "/usage/summary" && request.method === "GET") return same(request.headers.get("x-admin-secret") ?? "", env.ADMIN_SECRET ?? "") ? summary(env) : json({ ok: false }, 401);
     if (request.method !== "POST") return json({ ok: false }, 405);
     if (!same(request.headers.get("x-edge-secret") ?? "", env.EDGE_SECRET ?? "")) return json({ ok: false }, 401);
     try {
       if (path === "/search") return await search(request, env);
       if (path === "/scrape") return await scrape(request, env);
+      if (path === "/role-skills") return await roleSkills(request, env);
       if (path === "/limit") return await limit(request, env);
       if (path === "/usage") return await usage(request, env);
     } catch { return json({ ok: false, error: "The edge could not finish that." }, 500); }
@@ -201,5 +266,6 @@ const clean = async (env: Env): Promise<void> => {
   await env.DB.prepare("DELETE FROM usage WHERE day < ?").bind(sgtDay(now - 90 * 86_400_000)).run();
 };
 
-const edge = { ...worker, scheduled: (_event: unknown, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }) => ctx.waitUntil(clean(env)) };
+// Two crons (wrangler.jsonc): the nightly clean-up, and the hourly demand refresh.
+const edge = { ...worker, scheduled: (event: { cron?: string }, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }) => ctx.waitUntil((event.cron === "30 18 * * *" ? Promise.all([clean(env), refreshSnapshot(env)]) : refreshDemand(env)).catch(() => undefined)) };
 export default edge;

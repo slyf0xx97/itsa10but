@@ -9,9 +9,9 @@
 .stage-row { --row-gap: clamp(4rem, 8vw, 7.5rem); position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; align-items: start; }
 @media (min-width: 1100px) {.stage-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--row-gap); row-gap: 1.5rem; }
 .stage-row.is-single { grid-template-columns: minmax(0, 1fr); }
-/* Stage 3 (the radar) is a narrow column and stays in view while Stage 4 (Level up) takes the rest of the row. */
-.stage-row.is-radar-learn { grid-template-columns: minmax(21rem, 26rem) minmax(0, 1fr); column-gap: 1.5rem; align-items: stretch; }
-.stage-row.is-radar-learn > #radar .stage-body { display: grid; align-content: stretch; }}
+/* Stage 3 (the radar) is the wider column, with the downloads and their previews stacked beside it. Stage 4 (Level up) is its own full-width row below. */
+.stage-row.is-radar-export { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); column-gap: 1.5rem; align-items: stretch; }
+.stage-row.is-radar-export > #radar .stage-body { display: grid; align-content: stretch; }}
 /* A stage is a clipped window onto its own full-section scene (scenes/bg-*.svg, 16:9). The scene is a sticky layer 100svh tall that stays in place while
    the stage scrolls past, so every part of the section is seen over a complete picture; a stage shorter than the screen just crops it. overflow: clip (not hidden)
    keeps position: sticky working. The panels on top are glass (tokens in theme.css): the main overlay is the stage body's child, nested cards are flat. */

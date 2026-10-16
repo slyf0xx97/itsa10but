@@ -151,3 +151,24 @@ Added for the Know yourself and Cybersecurity tabs of Level up (fetched 2026-10-
 | `htb-academy.png` | Hack The Box Academy | https://academy.hackthebox.com/images/apple-touch-icon.png |
 | `owasp.png` | OWASP | https://owasp.org/images/logos/favicon-owasp.svg, converted to PNG |
 | `csa-singapore.png` | Cyber Security Agency of Singapore | https://isomer-user-content.by.gov.sg/36/c91f8061-3b48-4613-912b-e56011f53857/csafavicon.svg, converted to PNG |
+
+Added for the "About company" row on the Role Scout result card, one per employer in lib/company-culture.ts (fetched 2026-10-16). Amazon (AWS), Microsoft and GovTech Singapore reuse `aws.png`, `microsoft.png` and `govtech.png` above.
+
+| File | Employer | Origin URL |
+| --- | --- | --- |
+| `company-google.png` | Google | https://www.google.com/images/branding/googleg/1x/googleg_standard_color_192dp.png |
+| `company-meta.webp` | Meta | https://about.meta.com/apple-touch-icon.png |
+| `company-grab.ico` | Grab | https://www.grab.com/favicon.ico (96 px, the only icon the site publishes) |
+| `company-dbs.ico` | DBS | https://www.dbs.com/favicon.ico (largest size inside is 64 px) |
+| `company-stripe.ico` | Stripe | https://stripe.com/favicon.ico (largest size inside is 48 px) |
+| `company-atlassian.png` | Atlassian | https://www.atlassian.com/apple-touch-icon.png |
+
+Added for the model button on each reader card, which shows the logo of the model that agent runs on (fetched 2026-10-16). A model from any other maker shows a letter instead.
+
+| File | Maker | Origin URL |
+| --- | --- | --- |
+| `model-anthropic.png` | Anthropic (Claude) | https://claude.ai/apple-touch-icon.png |
+| `model-deepseek.ico` | DeepSeek | https://www.deepseek.com/favicon.ico (225 px) |
+| `model-gemini.png` | Google (Gemini) | https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png |
+| `model-openai.webp` | OpenAI | https://cdn.oaistatic.com/assets/favicon-180x180-od45eci6.webp (openai.com refuses automated requests, so this is the icon from OpenAI's own static host) |
+| `company-netflix.ico` | Netflix (About company row) | https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.ico |

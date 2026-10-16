@@ -1,5 +1,6 @@
 import { splitPassages } from "./passages.ts";
 import { catalog, hasTerm, type SkillSeed } from "./preview-analysis.ts";
+import { foundWord } from "./catalog.ts";
 
 export type Chunk = { id: string; index: number; text: string };
 
@@ -63,7 +64,7 @@ export function retrieveForSkill(chunks: Chunk[], seed: Pick<SkillSeed, "name" |
     query: seed.terms,
     chunksConsidered: chunks.length,
     bestChunk: best?.chunk,
-    matchedTerms: best?.matched ?? [],
+    matchedTerms: best ? [...new Set(best.matched.map((term) => foundWord(best.chunk.text, term)))] : [],
     grounded: best ? verifyQuote(best.chunk.text, best.chunk.text) : false,
     score: best ? best.matched.length + Number(actionVerb.test(best.chunk.text)) : 0,
   };

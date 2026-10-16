@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
     return [
       // The old subdomain goes first: the first matching rule wins.
       { source: "/:path*", has: [{ type: "host", value: "itsa10but.ghernie.com" }], destination: `https://ghernie.com${BASE_PATH}/:path*`, basePath: false, permanent: true },
+      // The vercel.app address is not the home of this site. It has the same paths as ghernie.com, so the path carries over unchanged.
+      { source: "/:path*", has: [{ type: "host", value: "itsa10but.vercel.app" }], destination: "https://ghernie.com/:path*", basePath: false, permanent: true },
+      // Crawlers only look for these two files at the root of the domain, and this app owns that domain. A redirect is enough: they follow it.
+      { source: "/robots.txt", destination: `${BASE_PATH}/robots.txt`, basePath: false, permanent: false },
+      { source: "/sitemap.xml", destination: `${BASE_PATH}/sitemap.xml`, basePath: false, permanent: false },
       // The root is free for a portfolio later; until then it sends people here.
       { source: "/", destination: BASE_PATH, basePath: false, permanent: false },
     ];

@@ -1,23 +1,25 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { Scale, FileText } from "lucide-react";
 import { Popup } from "@/components/popup";
 import { LICENSE_TEXT } from "@/lib/license-text";
-import { LEGAL_CONTACT, LEGAL_SECTIONS } from "@/lib/legal-copy";
+import { LEGAL_CONTACT, legalSections } from "@/lib/legal-copy";
+import type { ChosenProvider } from "@/lib/provider-copy";
 
 const REPO = "https://github.com/slyf0xx97/itsa10but";
 const AUTHOR = "https://sg.linkedin.com/in/ghernie";
 
 /** The footer's two matching buttons, "Legal" and "MIT License", each with its own popup: copyright, the disclaimer, trademarks, other sources and your data in the first, the MIT text in the second. Focus returns to the button when a popup closes (Popup handles that). */
-export function LicensePopup() {
+export function LicensePopup({ provider, children }: { provider?: ChosenProvider; children?: ReactNode }) {
   const [open, setOpen] = useState<"legal" | "mit" | null>(null);
   const close = useCallback(() => setOpen(null), []);
   return <div className="ft-btns">
     <button type="button" className="ft-license" aria-haspopup="dialog" onClick={() => setOpen("legal")}><Scale size={18} aria-hidden="true" />Legal</button>
     <button type="button" className="ft-license" aria-haspopup="dialog" onClick={() => setOpen("mit")}><FileText size={18} aria-hidden="true" />MIT License</button>
+    {children}
     <Popup open={open === "legal"} onClose={close} title="Legal" icon={<Scale size={20} aria-hidden="true" />} wide>
       <div className="lic">
-        {LEGAL_SECTIONS.map((section) => <section className="lic-sec" key={section.id} aria-labelledby={"lic-" + section.id}>
+        {legalSections(provider).map((section) => <section className="lic-sec" key={section.id} aria-labelledby={"lic-" + section.id}>
           <h3 id={"lic-" + section.id}>{section.title}</h3>
           {section.text?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           {section.list && <ul>{section.list.map((item) => <li key={item}>{item}</li>)}</ul>}

@@ -49,3 +49,19 @@ test("only a 401 counts as a rejected key", () => {
   assert.equal(isAuthRejection({ status: 429 }), false);
   assert.equal(isAuthRejection(null), false);
 });
+
+const goodGemini = "AQ.Fake" + "TestKey0".repeat(4);
+
+test("a Gemini key is read from its own header and checked like the others", () => {
+  assert.deepEqual(readVisitorKeys(headers({ "x-gemini-key": " " + goodGemini + " " })), { ok: true, keys: { gemini: goodGemini } });
+  const bad = readVisitorKeys(headers({ "x-gemini-key": "bad key!" }));
+  assert.deepEqual(bad, { ok: false, error: "That Gemini key does not look right. Check it and paste it again." });
+});
+
+test("any two of the three model keys are refused, and a Gemini key is scrubbed from text", () => {
+  for (const pair of [["x-gemini-key", "x-anthropic-key"], ["x-gemini-key", "x-openrouter-key"]]) {
+    const result = readVisitorKeys(headers({ [pair[0]]: goodGemini, [pair[1]]: good }));
+    assert.deepEqual(result, { ok: false, error: "Send one model key at a time." });
+  }
+  assert.ok(!scrubKeys(`oops ${goodGemini} oops`, { gemini: goodGemini }).includes(goodGemini));
+});

@@ -12,7 +12,9 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint . --ignore-pattern .next",
-    "test": "node --experimental-strip-types --test \"lib/**/*.test.ts\""
+    "test": "node --experimental-strip-types --test \"lib/**/*.test.ts\"",
+    "demand": "node --experimental-strip-types scripts/build-role-demand.ts",
+    "eval": "node --experimental-strip-types scripts/run-eval.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0",

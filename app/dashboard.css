@@ -1,5 +1,5 @@
-/* Synthesis dashboard: one glass panel with a headline and four cards, one per reader. Each card is a summary only: the avatar with one big figure, exactly three rows,
-   a one-line takeaway and a full-width button that opens the full findings in a wide popup (.dp). From 700px of panel the four cards share their rows (a CSS subgrid),
+/* Synthesis dashboard: one glass panel with a headline and four cards, one per reader. Each card is a summary only: the avatar with one big figure, exactly three rows
+   and a full-width button that opens the full findings in a wide popup (.dp). From 700px of panel the four cards share their rows (a CSS subgrid),
    so the figures, the rows, the takeaways and the buttons line up across all four. Charts are plain CSS. Fills are custom properties on .dash so the card, panel and
    item backgrounds can be tuned in one place. Hover and focus lift a card and wake its avatar, bars and button; all of it is transform and opacity, and only when motion is welcome. */
 .dash { --dash-line: rgb(18 52 63 / 55%); --dash-card-bg: var(--glass-card); --dash-panel-bg: rgb(255 255 255 / 55%); --dash-item-bg: rgb(255 255 255 / 80%); --dash-card-line: rgb(18 52 63 / 22%); --dash-h: 0px; container: dash / inline-size; position: relative; display: grid; gap: .5rem; min-width: 0; padding: .5rem .8rem .8rem; border: 1.5px solid var(--glass-edge); border-radius: 18px; background: var(--glass-panel); backdrop-filter: var(--glass-blur-panel); -webkit-backdrop-filter: var(--glass-blur-panel); color: var(--ink); text-shadow: none; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); }
@@ -39,12 +39,17 @@
 .dash-sub b { font-size: 1.1rem; font-weight: 800; }
 .dash-empty { font-size: 1rem; color: var(--text-soft); }
 .dash-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; align-items: baseline; gap: .25rem .5rem; min-width: 0; padding: .35rem .7rem; border: 1.5px solid rgb(18 52 63 / 16%); border-radius: 12px; background: var(--dash-item-bg); }
-/* Row 3, the takeaway: a small label and the one thing it names, two lines at most. */
-.dash-footbox { display: flex; align-items: stretch; min-width: 0; }
-.dash-foot { display: flex; align-items: baseline; flex-wrap: wrap; gap: .1rem .55rem; width: 100%; min-width: 0; margin: 0; padding: .5rem .75rem; border: 1.5px dashed rgb(18 52 63 / 32%); border-radius: 12px; background: rgb(255 255 255 / 45%); font-size: 1rem; line-height: 1.3; }
-.dash-foot span { flex: none; font-weight: 700; color: var(--text-soft); }
-.dash-foot b { flex: 1 1 8rem; min-width: 0; font-weight: 800; color: var(--ink); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-/* Row 4, "See full findings": a pixel-game button the width of the card, in the reader's colour. The line about what it opens sits inside it, so the card needs no caption of its own.
+/* Role Scout's third row: "About company" and the company name (or the short reason it is missing), three lines at most. It has no bar. */
+/* The logo sits on the left at about the height of the two lines of text; "About company" and the name stack tightly beside it. Without a mark the text takes the whole row. */
+.dash-co { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .1rem .75rem; }
+.dash-co:not(:has(.dash-co-logo)) { grid-template-columns: minmax(0, 1fr); }
+.dash-co:not(:has(.dash-co-logo)) .dash-co-text { grid-column: 1; }
+.dash-co .dash-name { grid-column: 2; grid-row: 1; align-self: end; }
+.dash-co:not(:has(.dash-co-logo)) .dash-name { grid-column: 1; }
+.dash-co-logo { grid-column: 1; grid-row: 1 / span 2; display: grid; place-items: center; width: 3.1rem; height: 3.1rem; overflow: hidden; border: 1.5px solid var(--dash-line); border-radius: 10px; background: #fff; font-size: 1.4rem; font-weight: 800; color: var(--ink); }
+.dash-co-logo img { width: 100%; height: 100%; padding: 4px; object-fit: contain; }
+.dash-co-text { grid-column: 2; grid-row: 2; font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+/* Row 3, "See full findings": a pixel-game button the width of the card, in the reader's colour. The line about what it opens sits inside it, so the card needs no caption of its own.
    Ink border, hard shadow, 44px or more tall. Ink on the soft colour is 12:1 or better. */
 .dash-open { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "icon title arrow" "text text text"; align-items: center; gap: .35rem .7rem; box-sizing: border-box; width: 100%; margin: 0; padding: .6rem .75rem .7rem; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 12px; background: var(--hue); color: var(--ink); font: inherit; text-align: left; box-shadow: 0 4px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); cursor: pointer; }
 .dash-card.coach .dash-open { --btn-fg: var(--ink); }
@@ -74,9 +79,9 @@
 .dash-q.no, .dash-q.fail { color: #8f2515; }
 .dash-q.warn { color: #8a5a00; }
 .dash-val .dash-q { margin-right: .3rem; }
-/* Four rows shared across the cards: from 700px of panel. The card becomes a subgrid of four rows, so all four cards line up row by row (two by two, then four across). */
+/* Three rows shared across the cards: from 700px of panel. The card becomes a subgrid of three rows, so all four cards line up row by row (two by two, then four across). */
 @container stage (min-width: 700px) {.dash-grid { row-gap: 1rem; }
-.dash-card { display: grid; grid-template-rows: subgrid; grid-row: span 4; row-gap: .8rem; }}
+.dash-card { display: grid; grid-template-rows: subgrid; grid-row: span 3; row-gap: .8rem; }}
 /* Hover and focus: the card lifts, its avatar wakes up and bobs, the figure pops, the bars grow in again one after the other and the button's arrow slides while a light sweeps over it. */
 @media (prefers-reduced-motion: no-preference) {.dash-card { transition: transform .2s ease-out, box-shadow .2s ease-out; }
 .dash-card:hover, .dash-card:focus-within { transform: translateY(-5px); box-shadow: 0 16px 30px rgb(18 52 63 / 24%), 0 0 0 2.5px var(--bar), inset 0 1px 0 rgb(255 255 255 / 90%); }
@@ -263,6 +268,9 @@
 .sb-key { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
 .sb-sum { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin: 0; font-size: 1.0625rem; line-height: 1.35; }
 .sb-sum > span:last-child { flex: 1 1 12rem; min-width: 0; }
+.sb-market { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .5rem; margin: 0; font-size: 1rem; line-height: 1.4; color: var(--ink); }
+.sb-market-tag { padding: .05rem .5rem; border: 2px solid var(--teal-dark); border-radius: 999px; font-size: .875rem; font-weight: 700; }
+.sb-market small { flex: 1 1 100%; font-size: .9375rem; opacity: .85; }
 .sb-how { font-size: 1rem; }
 .sb-how summary { min-height: 44px; display: flex; align-items: center; }
 .sb-how .sk-parts { display: grid; gap: .5rem; }
@@ -423,3 +431,9 @@
 @media (max-width: 899px) {.dp-main[data-scroll] > .rv { grid-template-columns: minmax(0, 1fr); }}
 /* What the company does, one or two sentences under its name (web entries only). */
 .co-about { margin: 0 0 .6rem; color: var(--ink); font-size: 1rem; line-height: 1.45; }
+
+/* Presentation pass: the sample tag under the headline and a reference line on every bar. */
+.dash-sum { display: grid; gap: .45rem; justify-items: center; padding: .15rem .5rem .1rem; text-align: center; }
+.dash-sample { padding: .15rem .8rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--lime); color: var(--ink); font-size: 1rem; line-height: 1.3; }
+/* The line at 50% on every bar, so a bar can be read without the number. */
+.dash-track::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: rgb(18 52 63 / 65%); pointer-events: none; }

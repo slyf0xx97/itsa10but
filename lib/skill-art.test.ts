@@ -58,6 +58,7 @@ const ALLOWED_HOSTS = new Set([
   "www.python.org", "react.dev", "www.kernel.org", "www.typescriptlang.org", "www.docker.com", "kubernetes.io",
   "developer.mozilla.org", "www.postgresql.org", "aws.amazon.com", "github.com", "jestjs.io", "pandas.pydata.org",
   "scikit-learn.org", "pytorch.org", "ml-ops.org", "csrc.nist.gov", "www.nngroup.com", "developers.google.com", "www.plainlanguage.gov",
+  "support.microsoft.com", "dev.java", "airflow.apache.org", "seeing-theory.brown.edu", "agilemanifesto.org", "owasp.org",
 ]);
 const linked = [...catalog.map((s) => s.name), "TypeScript", "Docker", "Git", "Kubernetes"];
 
@@ -74,7 +75,7 @@ test("every catalogue skill and known product has an https link on the allowlist
 
 test("product skills are official, example tools and concepts are reference", () => {
   for (const name of ["Python", "React", "Linux", "TypeScript", "Docker", "Kubernetes"]) assert.equal(officialUrl(name)?.kind, "official", name);
-  for (const name of ["JavaScript", "SQL", "Cloud", "Git", "Testing", "Data analysis", "Machine learning", "Deep learning", "MLOps", "APIs", "Networking", "SIEM", "Incident response", "Dashboards", "Communication", "Reporting"]) {
+  for (const name of ["JavaScript", "SQL", "Cloud", "Git", "Testing", "Data analysis", "Machine learning", "Deep learning", "MLOps", "APIs", "Networking", "SIEM", "Incident response", "Dashboards", "Communication", "Reporting", "Excel", "Java", "Data engineering", "Statistics", "UX design", "Agile", "Security fundamentals"]) {
     assert.equal(officialUrl(name)?.kind, "reference", name);
   }
   assert.equal(officialUrl("Cloud")?.url, "https://aws.amazon.com/");

@@ -57,7 +57,7 @@ test("all four readers name the same mode in the same page state", () => {
 test("the missing-company message depends on the mode and invents nothing", () => {
   for (const mode of ["sample", "preview"] as const) {
     const native = companyMissing(mode);
-    assert.match(native.short, /Agent power/);
+    assert.match(native.short, /No data found: Please enable API boost/);
     assert.match(native.text, /Native scan/);
     assert.match(native.text, /Agent power/);
   }

@@ -6,7 +6,7 @@ Every module under `lib/` that backs the simulated agent engine and the Lodge fe
 
 `previewAnalysis(resumes, job)` is the keyless scoring engine. It returns `ats` too, from `atsCheck` over the supplied text with the role's skills as keywords. The keyless API routes and the MCP analyse tool carry it as well, and the Finder and Recruiter agent notes describe the weak-proof flags and the ATS-style score. It returns `company` when the job text names a known employer (see `lib/company-culture.ts`).
 
-It also exports `catalog` (the 18-skill seed list) and `hasTerm` (the word-boundary term matcher), so the RAG and simulated-engine modules reuse the same skill definitions.
+It also exports `catalog` (the 26-skill seed list) and `hasTerm` (the word-boundary term matcher), so the RAG and simulated-engine modules reuse the same skill definitions.
 
 ## lib/ats-check.ts
 

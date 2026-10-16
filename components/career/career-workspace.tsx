@@ -1,15 +1,22 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { FileText, LoaderCircle, Play, RotateCcw, Upload, X } from "lucide-react";
+import { FileText, Heart, LoaderCircle, Monitor, Play, RefreshCw, RotateCcw, Trash2, Upload } from "lucide-react";
 import type { AgentNote, Analysis, Resume } from "@/lib/analysis-types";
+import { DONATE_URL } from "@/lib/donate";
+import { RunError } from "@/components/career/run-error";
+import { ExportBar } from "@/components/career/export-bar";
 import { sampleAnalysis, sampleJob } from "@/lib/analysis-types";
 import { samplePaths } from "@/lib/sample-paths";
 import { readResumeFile } from "@/lib/read-resume";
 import { runSafetyCheck } from "@/lib/safety";
 import { runSimulatedEngine, READER_NAMES, type EngineEvent } from "@/lib/simulated-engine";
-import { liveRunNote, type RunMode } from "@/lib/mode-copy";
-import { ReaderSwitch, chosenModel, modelKeyHeaders, useModeStatus, type VisitorKeyState } from "@/components/career/reader-switch";
+import { readRoleSkills } from "@/lib/role-skills-client";
+import { turnstileHeaders, turnstileToken } from "@/lib/turnstile-client";
+import { type RunMode } from "@/lib/mode-copy";
+import { keyProvider } from "@/lib/openrouter-models";
+import type { ModelSettings } from "@/lib/agent-model";
+import { ReaderSwitch, chosenAgentModels, chosenModel, modelKeyHeaders, useModeStatus, type VisitorKeyState } from "@/components/career/reader-switch";
 import { recordMcpCallStart, recordMcpCallEnd, clearMcpCallLog } from "@/lib/mcp-tools";
 import dynamic from "next/dynamic";
 import { SafetyPanel } from "@/components/career/safety-panel";
@@ -53,7 +60,7 @@ const emptyAgents: AgentNote[] = [
 const heroPoints = [
   { icon: "abilities/read-role.svg", lead: "Add a role and your résumé.", text: <>Paste a <b>job posting</b> or a <b>LinkedIn link</b>, then add <b>one résumé file</b>.</> },
   { icon: "abilities/verify-quotes.svg", lead: "Multi-agent checker to analyse and improve your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps.</> },
-  { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>An <b>action plan</b>: a skills radar, then tips and free resources.</> },
+  { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>An <b>action plan</b>: a skills radar, then tips and free resources. Save it as a <b>PDF report</b> or as a <b>Markdown prompt</b> for your own AI.</> },
 ];
 
 // Typing in the role box, or each step of a sample run, re-renders this whole component. These big panels only need to redraw when their own props change, so they are memoised.
@@ -83,6 +90,9 @@ const STAGE_HINT: Record<Exclude<Stage, "idle">, string> = {
 };
 
 class LiveUnavailable extends Error {}
+/** An API boost run that stopped. The page shows the error callout and no result. */
+class LiveFailed extends Error {}
+const OPEN_KEYS = "itsa10but:open-keys";
 
 const isDemo = () => process.env.NODE_ENV === "development" && new URLSearchParams(window.location.search).get("demo") === "live";
 
@@ -92,9 +102,9 @@ async function* streamLive(items: Resume[], job: string, keys: VisitorKeyState, 
   if (isDemo()) { const { demoLive } = await import("@/lib/demo-live"); yield* demoLive(items, job); return; }
   const keyHeaders = modelKeyHeaders(keys);
   const response = await fetch(BASE_PATH + "/api/agents/stream", {
-    method: "POST", headers: { "Content-Type": "application/json", ...keyHeaders }, cache: "no-store", credentials: "omit", signal,
+    method: "POST", headers: { "Content-Type": "application/json", ...keyHeaders, ...turnstileHeaders(await turnstileToken()) }, cache: "no-store", credentials: "omit", signal,
     // The model pick is not a secret, so it travels in the body. The server checks it. Undefined (the recommended mix) is left out.
-    body: JSON.stringify({ resumes: items.map(({ id, name, text }) => ({ id, name, text })), job, model: chosenModel(keys) }),
+    body: JSON.stringify({ resumes: items.map(({ id, name, text }) => ({ id, name, text })), job, model: chosenModel(keys), agentModels: chosenAgentModels(keys) }),
   });
   if (!response.ok || !response.body) {
     const data = await response.json().catch(() => null) as { error?: unknown } | null;
@@ -137,9 +147,17 @@ export default function Home() {
   const [mode, setMode] = useState<RunMode>("rules");
   const [ranMode, setRanMode] = useState<RunMode>("rules");
   const [notice, setNotice] = useState("");
+  const [runError, setRunError] = useState("");
   const [usageRows, setUsageRows] = useState<UsageRow[]>([]);
   // Visitor API keys: React state only, never storage, cookies, URLs or the request body.
   const [keys, setKeys] = useState<VisitorKeyState>({ anthropic: "", firecrawl: "" });
+  // Who the visitor's own key belongs to, once they have entered one. The privacy and legal wording names that company and no other.
+  const keyOwner = keys.anthropic.trim() ? keyProvider(keys.anthropic.trim()) : undefined;
+  // What the gear button on each reader card needs: which provider's models to list, the pick for all four agents, the picks so far, and how to change one.
+  const modelSettings = useMemo<ModelSettings>(() => ({
+    provider: keyOwner, all: chosenModel(keys), picks: chosenAgentModels(keys) ?? {},
+    onPick: (agent, model) => setKeys((current) => { const next = { ...(current.agentModels ?? {}) }; if (model) next[agent] = model; else delete next[agent]; return { ...current, agentModels: next }; }),
+  }), [keys, keyOwner]);
   const modeStatus = useModeStatus();
   const safetyReport = useMemo(() => resumes.length ? runSafetyCheck(resumes, job.trim() || sampleJob) : null, [resumes, job]);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -248,7 +266,7 @@ export default function Home() {
     const run = ++runRef.current;
     const quick = reducedMotion();
     const stopped = () => run !== runRef.current;
-    setError(""); setNotice(""); setResumes([]); setJob(""); setInterest("");
+    setError(""); setNotice(""); setRunError(""); setResumes([]); setJob(""); setInterest("");
     setStage("role");
     document.getElementById("check")?.scrollIntoView({ behavior: quick ? "instant" : "smooth", block: "start" });
     await wait(quick ? 100 : 450); if (stopped()) return;
@@ -317,7 +335,7 @@ export default function Home() {
 
   /** Live mode only runs from the visitor's own button press, never from samples or tool calls. */
   async function analyse(items: Resume[], role: string, wantLive = false): Promise<Analysis> {
-    setError(""); setNotice(""); setUsageRows([]);
+    setError(""); setNotice(""); setRunError(""); setUsageRows([]);
     if (!items.length || !role.trim()) throw new Error("Add at least one résumé and a target job description.");
     const run = ++runRef.current;
     setResumes(items); setJob(role);
@@ -334,13 +352,21 @@ export default function Home() {
     scrollToResults();
     try {
       const outcome: { result?: Analysis; fellBack?: boolean } = {};
+      let lastShown = 0;
       const consume = async (source: AsyncIterable<EngineEvent>) => {
       for await (const event of source) {
         await runGate.wait(); // Pause holds the run here, between events
         if (run !== runRef.current) throw new Error("Analysis cancelled.");
         if (event.type === "error") throw new Error(event.error);
+        // A fast model sends its whole run in a second or two. Each step the readers show (the lanes under the cards, then each finished card) is held for a moment so the work can be followed.
+        if (wantLive && !outcome.fellBack && !reducedMotion() && (event.type === "activity" || event.type === "stage")) {
+          const wait = (event.type === "stage" ? 700 : 170) - (Date.now() - lastShown);
+          if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+          lastShown = Date.now();
+        }
         // After a server fallback the rest is the rules run, sent all at once; it is replayed at normal pace below instead.
         if (outcome.fellBack) continue;
+        if (event.type === "notice" && wantLive) throw new LiveFailed(event.message.replace(" Showing the native scan result instead.", ""));
         if (event.type === "notice") { setNotice(event.message); setRanMode("rules"); outcome.fellBack = true; setStageAgents(emptyAgents); setActivities(emptyActivity); setProcessStep(0); setActiveAgent(0); setUsageRows([]); }
         if (event.type === "handoff") {
           setHandoff(event.message); setPair((current) => ({ from: event.from, to: event.to, n: current.n + 1 }));
@@ -366,14 +392,20 @@ export default function Home() {
         try { await consume(streamLive(items, role, keys, abortRef.current!.signal)); }
         catch (cause) {
           if (run !== runRef.current) throw cause;
-          // Any live failure finishes with the rules engine and says so.
-          outcome.result = undefined;
-          setNotice(cause instanceof LiveUnavailable ? cause.message + " This is the native scan result instead." : "The agents did not finish. This is the native scan result instead.");
-          setRanMode("rules"); setMode("rules");
-          setStageAgents(emptyAgents); setActivities(emptyActivity); setProcessStep(0); setActiveAgent(0);
+          // An API boost run that stops is not replaced by the native scan. The page says why and offers the choices.
+          const why = cause instanceof LiveFailed || cause instanceof LiveUnavailable ? cause.message : "The agents did not finish.";
+          setRunError(why); setRanMode("live");
+          setAnalysis(sampleAnalysis); setHasResult(false);
+          setStageAgents(emptyAgents); setActivities(emptyActivity); setProcessStep(0); setActiveAgent(0); setUsageRows([]);
+          throw new LiveFailed(why);
         }
       }
-      if (!outcome.result) await consume(runSimulatedEngine(items, role, { stepDelayMs: 320, paceMs: reducedMotion() ? 1500 : undefined }));
+      if (!outcome.result) {
+        // Cloudflare AI reads the role text only (never the résumé) and may name skills the text rules don't know. Any failure gives [].
+        const extraSkills = await readRoleSkills(role, { token: await turnstileToken(), signal: abortRef.current!.signal });
+        if (run !== runRef.current) throw new Error("Analysis cancelled.");
+        await consume(runSimulatedEngine(items, role, { stepDelayMs: 320, paceMs: reducedMotion() ? 1500 : undefined, extraSkills }));
+      }
       const completed = outcome.result;
       if (!completed) throw new Error("The check ended before it had a result.");
       if (run === runRef.current) {
@@ -382,7 +414,7 @@ export default function Home() {
       }
       return completed;
     } catch (cause) {
-      if (run === runRef.current) setError(cause instanceof Error ? cause.message : "The check did not finish. Please try again.");
+      if (run === runRef.current && !(cause instanceof LiveFailed)) setError(cause instanceof Error ? cause.message : "The check did not finish. Please try again.");
       throw cause;
     } finally { if (run === runRef.current) { setBusy(false); setActiveAgent(-1); } }
   }
@@ -430,10 +462,10 @@ export default function Home() {
                 <section className="check-pane" aria-labelledby="pane-role">
                   <h3 className="step-title" id="pane-role"><span className="step-num">1</span> The role</h3>
                   <div className="cl-item ck-lead"><p className="cl-text"><strong className="cl-lead">Paste the job</strong>Copy the <span className="hl">whole posting</span> with its requirements, or paste a LinkedIn link.</p></div>
-                  <RoleInput value={job} onChange={setJob} typing={stage === "typing"} />
+                  <RoleInput value={job} onChange={setJob} typing={stage === "typing"} clearWhen={resumes.length} />
                 </section>
                 <section className="check-pane" aria-labelledby="pane-resume">
-                  <h3 className="step-title" id="pane-resume"><span className="step-num">2</span> Your résumé</h3>
+                  <div className="step-head"><h3 className="step-title" id="pane-resume"><span className="step-num">2</span> Your résumé</h3><PrivacyTip provider={keyOwner} /></div>
                   <div className="cl-item ck-lead"><p className="cl-text"><strong className="cl-lead">Drop one file</strong><span className="hl">PDF, TXT or MD</span>.</p></div>
                   <ResumeTips />
                   <input id="resume-files" ref={fileRef} type="file" accept=".txt,.md,.pdf" className="sr-only" onChange={(event) => void addFiles(event.target.files)} />
@@ -445,15 +477,15 @@ export default function Home() {
                       <p className="hint dz-hint"><b>PDFs need text you can select.</b> Scanned pages won&apos;t work.</p>
                       <div className="dz-actions">
                         <button type="button" className="btn primary" disabled={stage !== "idle"} onClick={() => fileRef.current?.click()}><Upload size={16} aria-hidden="true" /> Choose a file</button>
-                        <PrivacyTip />
                       </div>
                     </> :<ul className="dz-files" aria-label="Résumé added">{resumes.map((resume) => <li key={resume.id} className={"file-in" + (stage === "reading" ? " reading" : "")}>
                       <FileText size={18} aria-hidden="true" /><span className="dz-name" title={resume.name}>{resume.name}</span>
                       {stage === "reading" && <><span className="file-status">Reading file…</span><i className="file-bar" aria-hidden="true" /></>}
-                      <button type="button" className="btn quiet dz-btn" disabled={stage !== "idle"} onClick={() => fileRef.current?.click()}>Replace</button>
-                      <button type="button" className="btn quiet dz-btn" aria-label={"Remove " + resume.name} disabled={stage !== "idle"} onClick={() => setResumes([])}><X size={14} aria-hidden="true" /> Remove</button>
+                      <span className="dz-btns">
+                        <button type="button" className="btn quiet dz-btn dz-replace" disabled={stage !== "idle"} onClick={() => fileRef.current?.click()}><RefreshCw size={15} aria-hidden="true" /> Replace</button>
+                        <button type="button" className="btn quiet dz-btn dz-remove" aria-label={"Remove " + resume.name} title="Remove" disabled={stage !== "idle"} onClick={() => setResumes([])}><Trash2 size={16} aria-hidden="true" /></button>
+                      </span>
                     </li>)}</ul>}
-                    {resumes.length > 0 && <div className="dz-actions"><PrivacyTip /></div>}
                     <p className="dz-live" role="status" aria-live="polite">{dz.over ? "Drop your résumé to add it." : dropMsg}</p>
                   </div>
                   {resumes.length > 0 && stage !== "reading" && <div className="fade-in"><SafetyPanel report={safetyReport} /></div>}
@@ -479,14 +511,14 @@ export default function Home() {
             <div className="stage-body">
               <p className="sr-only" role="status" aria-live="polite">{busy ? handoff : ""}</p>
               {notice && <p className="notice mode-notice" role="status">{notice}</p>}
-              {shownMode === "live" && <p className="mode-note">{liveRunNote(hasResult ? analysis.run : undefined)}</p>}
-              <ReaderCardsPanel agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} model={chosenModel(keys)} usage={ranMode === "live" && (busy || hasResult) ? usageRows : undefined} handoff={busy ? pair : undefined} />
+              {runError && !busy && <RunError message={runError} onRetry={() => void analyse(resumes, job.trim() || sampleJob, true).catch(() => undefined)} onKeys={() => window.dispatchEvent(new Event(OPEN_KEYS))} onNative={() => { setRunError(""); setMode("rules"); void analyse(resumes, job.trim() || sampleJob, false).catch(() => undefined); }} />}
+              <ReaderCardsPanel agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} modelSettings={modelSettings} usage={ranMode === "live" && (busy || hasResult) ? usageRows : undefined} handoff={busy ? pair : undefined} />
               <SynthesisPanel analysis={analysis} hasResult={hasResult} busy={busy} madeUp={madeUp} flow={flow} />
             </div>
           </section>
         </div>
 
-        <div className={"stage-row is-radar-learn" + (hasResult && !busy ? " has-radar" : "")}>
+        <div className="stage-row is-radar-export">
           <section className="stage" id="radar" aria-labelledby="map-title">
             <StageHeader {...header(2)} titleId="map-title" />
             <div className="stage-body">
@@ -495,6 +527,10 @@ export default function Home() {
                 : <div className={"radar-section" + (hasResult ? " reveal" : "")}><RadarTitle />{hasResult ? <RadarPanelMemo skills={analysis.skills} /> : <RadarEmpty />}{!hasResult && <AgentCamp />}</div>}
             </div>
           </section>
+          <ExportBar analysis={analysis} resumes={resumes} job={job.trim() || sampleJob} sample={Boolean(madeUp)} ready={hasResult && !busy} />
+        </div>
+
+        <div className="stage-row is-single">
           {/* No stage banner: the Level up panel carries its own h2 with the full title. */}
           <section className="stage" id="level-up" aria-labelledby="level-up-title">
             <div className="stage-body"><LevelUpPanel /></div>
@@ -519,7 +555,8 @@ export default function Home() {
       <div className="ft-meta">
         {/* eslint-disable-next-line @next/next/no-img-element -- small static SVG, nothing to optimise */}
         <span className="ft-copy">© 2026 <a className="ft-author" href="https://sg.linkedin.com/in/ghernie" target="_blank" rel="noopener noreferrer"><img src={`${BASE_PATH}/assets/logos/linkedin-in.svg`} alt="" width="24" height="24" />Ghernie Encinas</a></span>
-        <LicensePopup />
+        <LicensePopup provider={keyOwner}>{DONATE_URL && <a className="ft-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer"><Heart size={16} aria-hidden="true" focusable="false" />Donate<span className="sr-only"> (opens Stripe in a new tab)</span></a>}</LicensePopup>
+        <p className="ft-web"><Monitor size={18} aria-hidden="true" focusable="false" /><span>Built for the best experience in web and desktop layouts</span></p>
       </div>
     </div></footer>
   </>;

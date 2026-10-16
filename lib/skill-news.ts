@@ -54,13 +54,16 @@ export const catalogSkill = (name: unknown): string | undefined =>
 
 // Some catalog terms are fine for reading a résumé but match everyday words in news ("react to", "the rest of", "present").
 // They are dropped for article matching, and a few skills get extra terms in their place.
-const NOISY = new Set(["react", "rest", "present", "report", "documentation", "writing", "network", "shell", "qa", "soc", "prediction", "exploratory", "incident", "triage"]);
+const NOISY = new Set(["react", "rest", "present", "report", "documentation", "writing", "network", "shell", "qa", "soc", "prediction", "exploratory", "incident", "triage", "sprint", "probability", "prototype", "usability", "vulnerability", "spreadsheet", "encryption", "firewall", "git", "java", "spark"]);
 const EXTRA: Record<string, string[]> = { React: ["reactjs", "react.js", "react native"], "Incident response": ["incident response"] };
+
+// Some catalog terms are résumé phrases ("served the model", "analysed * data"). They help read a résumé and mean nothing in a headline.
+const SENTENCE = /\*|\b(?:the|a)\b/;
 
 /** The catalog terms used to find articles for a skill. Empty for an unknown skill. */
 export function skillTerms(skill: string): string[] {
   const seed = catalog.find((item) => item.name === skill);
-  return seed ? [...seed.terms.filter((term) => !NOISY.has(term)), ...(EXTRA[skill] ?? [])] : [];
+  return seed ? [...seed.terms.filter((term) => !NOISY.has(term) && !SENTENCE.test(term)), ...(EXTRA[skill] ?? [])] : [];
 }
 
 /** How well an entry fits a skill: 2 for each term in the title, 1 for each term in the snippet. 0 means no match. */

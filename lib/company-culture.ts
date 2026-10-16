@@ -4,7 +4,7 @@ import type { CompanyCulture, CompanyValue } from "./analysis-types.ts";
  * A short, checked list of well-known employers and the values they publish.
  * Every entry was read from the company's own page on `checkedOn`. The value names are the company's own;
  * every meaning and expectation line is our wording, not copied text. Add a company only after reading its official page.
- * Companies without a page that lists values (Apple, Shopee/Sea, Cisco, Salesforce) were not added.
+ * Companies without a page that lists values (Apple, Shopee/Sea, Cisco, Salesforce) were not added. UOB was left out because its values page could not be read.
  */
 type Entry = {
   id: string;
@@ -189,6 +189,86 @@ export const COMPANIES: Entry[] = [
     ],
     expectations: ["Share information by default.", "Consider the customer’s view first.", "Start improvements yourself.", "Put the team before your own credit."],
     sources: [{ label: "Atlassian: Core values", url: "https://www.atlassian.com/company/values" }],
+    checkedOn: CHECKED,
+  },
+  {
+    id: "singtel",
+    name: "Singtel",
+    aliases: ["singtel", "singapore telecommunications"],
+    values: [
+      v("Cultivate a growth mindset", "Keep learning and treat setbacks as practice."),
+      v("Operate with integrity", "Act honestly and keep to the rules when no one checks."),
+      v("Make customers first", "Start from what the customer needs."),
+      v("Maximise teamwork", "Work with other teams to get a better result."),
+      v("Innovate with a challenger spirit", "Try new ways to do things instead of following habit."),
+      v("Take ownership", "Own your work and its results."),
+    ],
+    expectations: ["Show what you learnt from a project.", "Put the customer's need first.", "Work across teams.", "Own the result of your work."],
+    sources: [{ label: "Singtel Sustainability Report 2024: Sustainability approach", url: "https://cdn.aws.singtel.com/sustainabilityreport/SR2024/download/downloads/Singtel-Group-SR2024-Sustainability-Approach.pdf" }],
+    checkedOn: CHECKED,
+  },
+  {
+    id: "ncs",
+    name: "NCS",
+    aliases: ["ncs group"],
+    exact: ["NCS"],
+    values: [
+      v("We are curious", "Aspire to build the future together with clients."),
+      v("We pursue and celebrate", "Make extraordinary results happen and mark them."),
+      v("Respect and trust", "Build outcomes that work for both sides."),
+      v("We deliver on our commitments", "Keep promises to clients and to colleagues."),
+      v("We build team NCS", "Bring different strengths together into one team."),
+    ],
+    expectations: ["Show curiosity with a project you built.", "Keep your commitments to a team or client.", "Work with people who have different strengths."],
+    sources: [{ label: "NCS: About us", url: "https://www.ncs.co/en-sg/about-us/" }],
+    checkedOn: CHECKED,
+  },
+  {
+    id: "ocbc",
+    name: "OCBC",
+    aliases: ["ocbc", "oversea-chinese banking"],
+    values: [
+      v("Lasting value", "Build long-term value, balancing careful risk with bold moves."),
+      v("Integrity", "Do the right thing even when no one is watching."),
+      v("Forward-looking", "Stay curious and ahead of changing needs."),
+      v("Respect", "Treat everyone with empathy and humility."),
+      v("Responsibility", "Own your decisions and what follows from them."),
+    ],
+    expectations: ["Show you finish what you start.", "Explain a decision you owned.", "Show curiosity about new tools."],
+    sources: [{ label: "OCBC: Purpose, Values & Ambition", url: "https://www.ocbc.com/group/about-us/purpose-values-and-ambition.page" }],
+    checkedOn: CHECKED,
+  },
+  {
+    id: "stengg",
+    name: "ST Engineering",
+    aliases: ["st engineering", "singapore technologies engineering"],
+    values: [
+      v("Integrity", "Be honest, trustworthy and responsible."),
+      v("Value Creation", "Add value in everything you do."),
+      v("Courage", "Take small and large steps to improve things."),
+      v("Commitment", "Stay driven to reach shared goals."),
+      v("Compassion", "Care for people while you work toward success."),
+    ],
+    expectations: ["Show a project where you added value.", "Show you stuck to a goal.", "Show you spoke up to improve something."],
+    sources: [{ label: "ST Engineering: Corporate Purpose, Aspiration and Values", url: "https://www.stengg.com/en/about-us/corporate-purpose-aspiration-and-values/" }],
+    checkedOn: CHECKED,
+  },
+  {
+    id: "netflix",
+    name: "Netflix",
+    aliases: ["netflix"],
+    values: [
+      v("Selflessness", "Stay humble when searching for the best idea."),
+      v("Judgment", "Pick long-term fixes over short-term ones."),
+      v("Candor", "Give and take feedback willingly."),
+      v("Creativity", "Welcome new ideas."),
+      v("Courage", "Be open about what you don't know to find the truth."),
+      v("Inclusion", "Notice your own biases and work against them."),
+      v("Curiosity", "Learn fast and with enthusiasm."),
+      v("Resilience", "Adapt quickly when things change."),
+    ],
+    expectations: ["Show you took feedback and changed your work.", "Explain a long-term choice you made.", "Show how you adapted when plans changed."],
+    sources: [{ label: "Netflix Jobs: Culture", url: "https://jobs.netflix.com/culture" }],
     checkedOn: CHECKED,
   },
 ];

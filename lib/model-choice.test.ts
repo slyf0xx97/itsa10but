@@ -18,7 +18,8 @@ test("the site key never takes a model choice", () => {
 test("an Anthropic key accepts only the listed Claude models", () => {
   for (const option of ANTHROPIC_MODELS) assert.deepEqual(checkModelChoice(option.id, "anthropic"), { ok: true, model: option.id });
   for (const bad of ["openai/gpt-5.6-terra", "anthropic/claude-sonnet-5.5", "claude-sonnet-4-5", "claude-opus-5-5-extra", "CLAUDE-OPUS-5-5", "claude-opus-5-5\nx"]) assert.equal(checkModelChoice(bad, "anthropic").ok, false, bad);
-  assert.deepEqual(checkModelChoice(" claude-opus-5-5 ", "anthropic"), { ok: true, model: "claude-opus-5-5" }, "surrounding spaces are trimmed");
+  assert.deepEqual(checkModelChoice(" claude-haiku-5-5 ", "anthropic"), { ok: true, model: "claude-haiku-5-5" }, "surrounding spaces are trimmed");
+  assert.equal(checkModelChoice("claude-opus-5-5", "anthropic").ok, false, "Opus costs too much to offer");
 });
 
 test("an OpenRouter key accepts the listed models and a well-formed custom id", () => {
@@ -48,8 +49,8 @@ test("malformed ids are refused with fixed text that never repeats the input", (
 test("what the page sends follows the key's provider and never a stale pick", () => {
   assert.equal(modelToSend(undefined, "", "openrouter"), undefined);
   assert.equal(modelToSend(RECOMMENDED, "x/y", "anthropic"), undefined);
-  assert.equal(modelToSend("claude-opus-5-5", "", "anthropic"), "claude-opus-5-5");
-  assert.equal(modelToSend("claude-opus-5-5", "", "openrouter"), undefined, "an Anthropic id is not an OpenRouter option");
+  assert.equal(modelToSend("claude-haiku-5-5", "", "anthropic"), "claude-haiku-5-5");
+  assert.equal(modelToSend("claude-haiku-5-5", "", "openrouter"), undefined, "an Anthropic id is not an OpenRouter option");
   assert.equal(modelToSend("openai/gpt-5.6-terra", "", "anthropic"), undefined, "an OpenRouter pick is dropped after switching to an Anthropic key");
   assert.equal(modelToSend(CUSTOM, "  vendor/model-x  ", "openrouter"), "vendor/model-x");
   assert.equal(modelToSend(CUSTOM, "vendor/model-x", "anthropic"), undefined);
@@ -75,4 +76,72 @@ test("labels and the Claude check read both spellings", () => {
   assert.equal(isClaudeModel("anthropic/claude-opus-5.5"), true);
   assert.equal(isClaudeModel("openai/gpt-5.6-terra"), false);
   assert.equal(isClaudeModel("evil/claude-x"), false);
+});
+
+import { DEFAULT_MODELS, GEMINI_MODELS, modelOptions, recommendedOption } from "./model-choice.ts";
+
+test("no provider offers Opus, and Gemini offers only Lite models", () => {
+  for (const provider of ["anthropic", "openrouter", "gemini"] as const) {
+    for (const option of modelOptions(provider)) assert.doesNotMatch(option.id, /opus/i, option.id);
+  }
+  for (const option of GEMINI_MODELS) assert.match(option.id, /lite/, option.id);
+  for (const option of OPENROUTER_MODELS.filter((item) => item.id.startsWith("google/"))) assert.match(option.id, /lite/, option.id);
+});
+
+test("a Gemini key takes only the listed Lite models, never a typed id", () => {
+  for (const option of GEMINI_MODELS) assert.deepEqual(checkModelChoice(option.id, "gemini"), { ok: true, model: option.id });
+  for (const bad of ["gemini-3.8-flash", "gemini-pro-latest", "gemini-3.1-pro-preview", "google/gemini-3.1-flash-lite", "gpt-5"]) assert.equal(checkModelChoice(bad, "gemini").ok, false, bad);
+  assert.equal(modelToSend(CUSTOM, "gemini-3.8-flash", "gemini"), undefined);
+  assert.equal(modelToSend("claude-haiku-5-5", "", "gemini"), undefined, "a Claude pick is dropped after switching to a Gemini key");
+  assert.equal(modelToSend("gemini-3.5-flash-lite", "", "gemini"), "gemini-3.5-flash-lite");
+});
+
+test("each provider's default is a model it offers, passes the server check and has a recommended label", () => {
+  assert.equal(DEFAULT_MODELS.anthropic, undefined, "Anthropic keeps each agent's own Claude model");
+  for (const provider of ["openrouter", "gemini"] as const) {
+    const id = DEFAULT_MODELS[provider]!;
+    assert.ok(modelOptions(provider).some((option) => option.id === id), provider);
+    assert.deepEqual(checkModelChoice(id, provider), { ok: true, model: id });
+  }
+  assert.match(recommendedOption("openrouter").label, /DeepSeek/);
+  assert.match(recommendedOption("gemini").label, /Lite/);
+  assert.equal(recommendedOption("anthropic").label, "Recommended mix");
+});
+
+import { AGENT_NAMES, agentModelsToSend, checkAgentModels, effectiveModel } from "./model-choice.ts";
+
+test("per-agent picks are checked like the all-agents pick, key by key", () => {
+  assert.deepEqual(checkAgentModels(undefined, "gemini"), { ok: true, models: {} });
+  assert.deepEqual(checkAgentModels({ "Role Scout": "gemini-3.5-flash-lite", Recruiter: "recommended", "Action Planner": "" }, "gemini"), { ok: true, models: { "Role Scout": "gemini-3.5-flash-lite" } });
+  assert.deepEqual(checkAgentModels({ Recruiter: "deepseek/deepseek-v4.1-flash" }, "openrouter"), { ok: true, models: { Recruiter: "deepseek/deepseek-v4.1-flash" } });
+  assert.deepEqual(checkAgentModels({ Recruiter: "claude-haiku-5-5" }, "anthropic"), { ok: true, models: { Recruiter: "claude-haiku-5-5" } });
+});
+
+test("a bad agent name, a bad id, the wrong shape or the site key refuses the whole field with fixed text", () => {
+  const errors = new Set<string>();
+  for (const [value, provider] of [
+    [{ "Role Scout": "gemini-3.8-flash" }, "gemini"], [{ "Role Scout": "claude-opus-5-5" }, "anthropic"], [{ Intern: "claude-haiku-5-5" }, "anthropic"],
+    [["claude-haiku-5-5"], "anthropic"], ["claude-haiku-5-5", "anthropic"], [{ Recruiter: "claude-haiku-5-5" }, "site"], [{ Recruiter: 5 }, "anthropic"],
+  ] as const) {
+    const result = checkAgentModels(value, provider);
+    assert.equal(result.ok, false, JSON.stringify(value));
+    if (!result.ok) errors.add(result.error);
+  }
+  assert.equal(errors.size, 1, "one fixed message, so nothing the visitor typed is echoed");
+});
+
+test("the page sends only the picks the current provider can take", () => {
+  assert.equal(agentModelsToSend(undefined, "gemini"), undefined);
+  assert.equal(agentModelsToSend({ Recruiter: "claude-haiku-5-5" }, "gemini"), undefined, "a Claude pick is dropped after switching to a Gemini key");
+  assert.deepEqual(agentModelsToSend({ Recruiter: "gemini-3.5-flash-lite", "Role Scout": "claude-haiku-5-5" }, "gemini"), { Recruiter: "gemini-3.5-flash-lite" });
+});
+
+test("an agent's model is its own pick, then the all-agents pick, then the provider default, then the spec's model", () => {
+  const base = { specModel: "claude-sonnet-5-5" };
+  assert.equal(effectiveModel("Recruiter", { ...base, picks: { Recruiter: "claude-haiku-5-5" }, all: "x/y", provider: "openrouter" }), "claude-haiku-5-5");
+  assert.equal(effectiveModel("Recruiter", { ...base, all: "gemini-3.5-flash-lite", provider: "gemini" }), "gemini-3.5-flash-lite");
+  assert.equal(effectiveModel("Recruiter", { ...base, provider: "openrouter" }), "deepseek/deepseek-v4.1-flash");
+  assert.equal(effectiveModel("Recruiter", { ...base, provider: "anthropic" }), "claude-sonnet-5-5");
+  assert.equal(effectiveModel("Recruiter", base), "claude-sonnet-5-5");
+  assert.deepEqual([...AGENT_NAMES], ["Role Scout", "Experience Finder", "Recruiter", "Action Planner"]);
 });

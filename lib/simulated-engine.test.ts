@@ -133,3 +133,17 @@ test("the Role Scout checks for a known employer and returns its values only whe
   assert.equal(none.company, undefined);
   assert.ok(none.events.some((event) => event.type === "activity" && event.lane === "company-detect" && event.status === "done" && event.detail === "No known employer found"));
 });
+
+test("extra skills from the role read become rows with a literal role quote, and a name the posting lacks is dropped", async () => {
+  const text = "Data engineer. You will run Kafka streams and write Python. Kafka experience is required.";
+  const events = [];
+  for await (const event of runSimulatedEngine(resumes, text, { extraSkills: ["Kafka", "Pulsar"] })) events.push(event);
+  const done = events.find((event) => event.type === "complete");
+  assert.ok(done && done.type === "complete");
+  const skills = done.result.analysis.skills;
+  const kafka = skills.find((skill) => skill.name === "Kafka");
+  assert.ok(kafka, "Kafka is a row");
+  assert.match(kafka.roleQuote?.quote ?? "", /Kafka/);
+  assert.equal(kafka.evidence, 0, "the résumé never mentions it, so it scores 0 for proof");
+  assert.equal(skills.some((skill) => skill.name === "Pulsar"), false);
+});

@@ -4,6 +4,7 @@ import { FileText } from "lucide-react";
 import { Popup } from "@/components/popup";
 import { WordTip } from "@/components/career/word-tip";
 import { promptFor } from "@/lib/agent-prompts";
+import type { ModelSource } from "@/lib/agent-model";
 
 /** A Markdown file as a code-editor style view: line numbers, headings in teal, list dashes in coral. It only styles lines, nothing is parsed or run. */
 type LineKind = "code" | "h1" | "h2" | "li" | "blank" | "p";
@@ -29,8 +30,8 @@ export function MdView({ text, maxLines, label }: { text: string; maxLines?: num
  * The agent's prompt file as a peek: click the "role-scout.md" button for a short look at the top of the file, and open the whole file from there.
  * The text is built from the real spec (lib/agent-prompts.ts), so what you read is what the agent is given.
  */
-export function PromptPeek({ name, model }: { name: string; model?: string }) {
-  const prompt = promptFor(name, model);
+export function PromptPeek({ name, source }: { name: string; source?: ModelSource }) {
+  const prompt = promptFor(name, source);
   const [full, setFull] = useState(false);
   const closeFull = useCallback(() => setFull(false), []);
   if (!prompt) return null;

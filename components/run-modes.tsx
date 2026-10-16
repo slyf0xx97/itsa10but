@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { sentThroughKey, type ChosenProvider } from "@/lib/provider-copy";
 
 // Text in `**double stars**` is rendered in bold. Colour highlights are kept for a single phrase at most.
 export function hl(text: string): ReactNode {
@@ -15,9 +16,10 @@ export function Item({ icon, lead, text }: { icon: string; lead: ReactNode; text
 /**
  * The two ways to run, as a lead line and two tiles. Shared by "How it works" and the Agent power popup. Renders a fragment so the parent controls the layout.
  * `safety` adds the Safety tile; only the popup opened by the "?" next to the Agent power control passes it.
- * Keep the safety items in line with LEAVES_BROWSER and KEY_HANDLING in lib/mode-copy.ts.
+ * `provider` is the provider of the key the visitor entered, if any: the copy names who receives the text only once a key says which company that is.
+ * Keep the safety items in line with leavesBrowser (lib/provider-copy.ts) and KEY_HANDLING (lib/mode-copy.ts).
  */
-export function RunModes({ safety = false }: { safety?: boolean }) {
+export function RunModes({ safety = false, provider }: { safety?: boolean; provider?: ChosenProvider }) {
   return <>
     <div className="hiw-opening">
       <p className="hiw-lead">Two ways to run: a free scan in your browser or AI agents on your own key.</p>
@@ -32,7 +34,7 @@ export function RunModes({ safety = false }: { safety?: boolean }) {
           <span className="hiw-tag">Default</span>
         </div>
         <ul className="cl-list">
-          <Item icon="🔎" lead="Matches text to skills" text="Built-in word matching. No AI model is used." />
+          <Item icon="🔎" lead="Matches text to skills" text="Built-in word matching scores your résumé. A small Cloudflare AI model also reads the role text, never your résumé." />
           <Item icon="💻" lead="Runs in your browser tab" text="Your résumé is read and scored here and sent nowhere." />
           <Item icon="🆓" lead="No API key" text="There is nothing to sign up for." />
         </ul>
@@ -45,7 +47,7 @@ export function RunModes({ safety = false }: { safety?: boolean }) {
         </div>
         <ul className="cl-list">
           <Item icon="🧠" lead="Four agents read it" text="The recommended mix by default. You can pick the model. Every quote is checked against your text." />
-          <Item icon="☁️" lead="Sent through your key" text="Masked résumé text goes to Anthropic, or to OpenRouter and then the model's maker if you use an OpenRouter key." />
+          <Item icon="☁️" lead="Sent through your key" text={sentThroughKey(provider)} />
           <Item icon="🔑" lead="Your own key" text="Pick API boost in Agent power and enter it there. It is never stored. A Firecrawl key is optional and widens web search." />
         </ul>
       </article>
@@ -58,8 +60,8 @@ export function RunModes({ safety = false }: { safety?: boolean }) {
       </div>
       <ul className="cl-list">
         <Item icon="🔑" lead="Your key stays out of storage" text="It travels in a header for one request and is never stored or logged." />
-        <Item icon="1️⃣" lead="One model key at a time" text="Anthropic or OpenRouter, in a single field. The model you pick is checked on the server." />
-        <Item icon="🎭" lead="Contact details are masked" text="In API boost they are masked before the text leaves your browser. Names, employers and schools are not. In the native scan nothing leaves the tab." />
+        <Item icon="1️⃣" lead="One model key at a time" text="Anthropic, OpenRouter or Gemini, in a single field. The model you pick is checked on the server." />
+        <Item icon="🎭" lead="Contact details are masked" text="In API boost they are masked before the text leaves your browser. Names, employers and schools are not. In the native scan your résumé never leaves the tab." />
         <Item icon="⏱️" lead="Caps on every agent" text="Each agent has limits on tool calls and time. Web pages are read as data and never as instructions." />
         <Item icon="✅" lead="Quotes are checked" text="A quote that is not in your text scores 0." />
         <Item icon="🛟" lead="A failed run falls back" text="A refused, slow or failed run drops back to the native scan, with a notice." />

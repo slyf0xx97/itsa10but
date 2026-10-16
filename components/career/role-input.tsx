@@ -68,8 +68,11 @@ function Steps({ items }: { items: { scene: Scene; title: string; text: string }
   </li>)}</ol>;
 }
 
-export function RoleInput({ value, onChange, typing = false }: { value: string; onChange: (text: string) => void; typing?: boolean }) {
+export function RoleInput({ value, onChange, typing = false, clearWhen }: { value: string; onChange: (text: string) => void; typing?: boolean; clearWhen?: unknown }) {
   const [error, setError] = useState("");
+  // A wrong-file message ("That looks like a résumé...") goes away once the visitor puts the file where it belongs: when `clearWhen` changes, or the role text is edited.
+  const [seen, setSeen] = useState(clearWhen);
+  if (seen !== clearWhen) { setSeen(clearWhen); setError(""); }
   const [status, setStatus] = useState("");
   const [note, setNote] = useState("");
   const requestRef = useRef(0);
@@ -80,7 +83,7 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
   async function change(text: string) {
     onChange(text);
     const request = ++requestRef.current;
-    setNote("");
+    setNote(""); setError("");
     if (!extractLinkedinJobId(text)) { setStatus(""); return; }
     setStatus("Reading the LinkedIn posting…");
     try {

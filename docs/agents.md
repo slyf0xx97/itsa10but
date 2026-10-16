@@ -11,10 +11,10 @@ Besides the copy of the spec, each fact holds the card's own words:
 - `type`: the ribbon badge.
 - `tagline`: the "what it does" line, in three parts with the middle one highlighted.
 - `moves`: three rows, each with a pixel icon, a label of 2 to 4 words and a detail of 6 words or fewer. The names are the same in Native scan and API boost.
-- A short `label` per tool, shown only in the fold.
-- `resumeAccess`, `strongAt` and `cant`.
+- A short `label` per tool. The popup adds the plain line from the matching ability in `lib/agent-abilities.ts`.
+- `resumeAccess`, `sees` (read by the How it works tooltip) and the popup copy: `summary`, `looksAt` and `gives` (icon chips; `boost` marks API boost only), `does`, `cannot` and `goodToKnow`.
 
-The test keeps those lines to 12 words and tool labels to 2 to 5 words. It also checks that the `cant` line names the web or the résumé wherever the agent has no such tool. `hasWeb` and `readsResume` come from the tools, so no flag can drift. In the fold, the Tool calls and Time bars show each limit against the largest of the four agents, and the number beside the bar is the real limit.
+The test keeps the tagline to 12 words, the summary to 22, each list item to 16 and tool labels to 2 to 5 words. It also checks that the `cannot` list names the web or the résumé wherever the agent has no such tool, and that `boost` chips appear only on agents with a web tool. `hasWeb` and `readsResume` come from the tools, so no flag can drift. The popup puts the real limits in words under Good to know, with no bars.
 
 Native scan doesn't use any of this. It's the default and makes no model call.
 
@@ -22,10 +22,13 @@ Native scan doesn't use any of this. It's the default and makes no model call.
 
 A visitor with their own key can pick the model for all four agents. The pick is not a secret, so the page sends it in the request body as `model`. `app/api/agents/stream` checks it with `checkModelChoice` in `lib/model-choice.ts` before the limiter or any upstream call, and a bad id gets a 400 with fixed text:
 
-- Missing, empty or `recommended` means each spec's own model (the table below, with the env overrides).
+- Missing, empty or `recommended` means the provider's default (`DEFAULT_MODELS` in `lib/model-choice.ts`). An Anthropic key keeps each spec's own Claude model (the table below, with the env overrides). An OpenRouter key runs all four agents on `deepseek/deepseek-v4.1-flash`, and a Gemini key on `gemini-3.1-flash-lite`.
 - The site key (no visitor key) takes no pick. Any other value gets a 400.
-- An Anthropic key takes only `claude-haiku-5-5`, `claude-sonnet-5-5` or `claude-opus-5-5`.
+- An Anthropic key takes only `claude-haiku-5-5` or `claude-sonnet-5-5`. Opus is not offered because of its cost.
+- A Gemini key (`AIza...` or `AQ....`, sent in `x-gemini-key`) takes only the listed Lite models, `gemini-3.1-flash-lite` or `gemini-3.5-flash-lite`, and no typed id. `lib/gemini-client.ts` translates the runner's Anthropic-style messages to Google's `generateContent` API: tool calls keep their id and thought signature (Gemini 3 rejects a follow-up turn without it), the answer schema goes in `responseJsonSchema`, and a busy model (429, 503) is retried twice. A free Gemini key allows only a few requests a minute, far fewer than four agents make, so such a run falls back to the native scan with a notice.
 - An OpenRouter key takes the listed slugs or a custom id of the form `provider/model-name`. Letters, digits, dot, dash and underscore, plus a colon in the model part. The provider part is 40 characters at most, the model part 60, the whole id 100, no `..`.
+
+A visitor can also pick a model for one agent. The model button on each reader card (the logo of the model that agent runs on, left of "Strengths, limits & tools") opens a dropdown, and the page sends the picks in the body as `agentModels`, an object of agent name to model id. `checkAgentModels` in `lib/model-choice.ts` runs every id through the same `checkModelChoice` for the key's provider, and refuses the whole field, with fixed text, for an unknown agent name or one bad id. The site key takes none. An agent's model is its own pick, then the pick for all four, then the provider's default (`effectiveModel`), and `LiveDeps.agentModels` carries the picks to the runner, which also names every distinct model on the result. Each agent's `.md` file shows the model that will really run it and why (`lib/agent-prompts.ts`), and before a key is entered it lists what each kind of key starts on.
 
 The runner uses the pick for every request (`LiveDeps.model`). Tools, token limits, turns, time and output schemas stay the spec's own, so a slow or sloppy model trips the same fallback to the native scan, with a notice that says "the model". Wording on the page never names a vendor. The start event and `Analysis.run` carry `recommended mix` or the model the visitor picked, whether it is Claude and whether web search was on. The page shows them as "API boost, recommended mix" or "API boost, {model}" in the findings popups and in the note above the readers. The agent cards and popups print no model name per agent. The listed OpenRouter slugs were checked against its catalogue on 15 October 2026. Only the Claude models have been tested with these agents.
 

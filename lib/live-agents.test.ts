@@ -224,8 +224,8 @@ test("the deadline trips the fallback", async () => {
 });
 
 // A skill with no checked playbook, so the Planner is allowed one search for it.
-const oddJob = job + " Knowledge of Terraform modules is a plus.";
-const oddScout = { scout: () => final({ ...outputs.scout(), skills: [...outputs.scout().skills, { name: "Terraform", demand: 90, roleQuote: "Knowledge of Terraform modules is a plus", why: "Infra." }] }) };
+const oddJob = job + " Knowledge of Kafka modules is a plus.";
+const oddScout = { scout: () => final({ ...outputs.scout(), skills: [...outputs.scout().skills, { name: "Kafka", demand: 90, roleQuote: "Knowledge of Kafka modules is a plus", why: "Infra." }] }) };
 
 test("planner links: only https links from its own search survive; scrape is refused", async () => {
   const search = (async () => new Response(JSON.stringify({ data: { web: [{ title: "Docs", url: "https://docs.example.com/a", description: "d" }] } }))) as unknown as typeof fetch;
@@ -430,13 +430,13 @@ test("by default each agent keeps its own model and the start event says recomme
 
 test("a chosen model runs all four agents with their usual limits and is named on the result", async () => {
   const { client, requests } = fake();
-  const events = await run(client, { model: "claude-opus-5-5" });
-  assert.ok(requests.length >= 4 && requests.every((r) => r.model === "claude-opus-5-5"));
+  const events = await run(client, { model: "claude-haiku-5-5" });
+  assert.ok(requests.length >= 4 && requests.every((r) => r.model === "claude-haiku-5-5"));
   assert.equal(requests.find((r) => agentOf(r) === "scout")!.max_tokens, 3500);
   assert.equal(requests.find((r) => agentOf(r) === "planner")!.max_tokens, 2500);
   assert.ok(requests.every((r) => r.output_config.format.type === "json_schema"), "the output schema is still required");
   assert.equal(notice(events), undefined);
-  assert.deepEqual(complete(events).result.analysis.run, { model: "Opus 5.5", claude: true, web: false });
+  assert.deepEqual(complete(events).result.analysis.run, { model: "Haiku 5.5", claude: true, web: false });
   assert.equal(complete(events).result.analysis.skills[0].source, "API boost agents");
 });
 
@@ -557,4 +557,23 @@ test("the Finder is handed the passages picked for each skill, no passage twice,
   await run(client);
   const finderMessage = JSON.stringify(requests.find((req) => req.system.includes("You are the Experience Finder"))?.messages[0]);
   assert.match(finderMessage, /résumé passages|passageId/);
+});
+
+test("a pick for one agent wins for that agent, the others keep the pick for all four, and the result names every model", async () => {
+  const { client, requests } = fake();
+  const events = await run(client, { model: "claude-haiku-5-5", agentModels: { Recruiter: "claude-sonnet-5-5" } });
+  for (const request of requests) assert.equal(request.model, agentOf(request) === "recruiter" ? "claude-sonnet-5-5" : "claude-haiku-5-5", agentOf(request));
+  assert.deepEqual(complete(events).result.analysis.run, { model: "Haiku 5.5 and Sonnet 5.5", claude: true, web: false });
+});
+
+test("a pick for one agent alone leaves the other three on the spec's own model, and a non-Claude pick clears the Claude flag", async () => {
+  const { client, requests } = fake();
+  const events = await run(client, { agentModels: { "Action Planner": "deepseek/deepseek-v4.1-flash" } });
+  for (const request of requests) {
+    if (agentOf(request) === "planner") assert.equal(request.model, "deepseek/deepseek-v4.1-flash");
+    else assert.match(request.model, /^claude-/);
+  }
+  const info = complete(events).result.analysis.run!;
+  assert.equal(info.claude, false);
+  assert.match(info.model, /DeepSeek V4\.1 Flash/);
 });

@@ -1,0 +1,31 @@
+/* Take it with you (beside Stage 3): two cards, PDF then prompt, side by side on a wide panel and stacked on a narrow one. The PDF preview is the taller one; the prompt card fills the rest with three short steps.
+   The two cards are stacked, PDF first, and share one structure: a title with its button on one row (stacked below 520px), then a preview of the same height.
+   The button tooltips open downward so the stage's clipped edge never hides them. */
+#export { --stage-scene: url('/projects/itsa10but/assets/scenes/bg-lookout.svg'); }
+.ex-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.ex-card { display: flex; flex-direction: column; gap: .75rem; min-width: 0; padding: 1rem; border: 1px solid var(--glass-line); border-radius: 14px; background: var(--glass-card); color: var(--ink); }
+.ex-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .5rem .75rem; }
+.ex-head .btn { width: 15.5rem; max-width: 100%; justify-content: center; }
+@media (max-width: 519px) { .ex-head { grid-template-columns: minmax(0, 1fr); } .ex-head .ex-tip-host, .ex-head .btn { width: 100%; } }
+.ex-head h3 { margin: 0; font-family: var(--font-display); font-size: 1.15rem; }
+.ex-frame, .ex-md, .ex-empty { box-sizing: border-box; width: 100%; height: 24rem; border: 1px solid var(--glass-line); border-radius: 10px; background: #fff; }
+.ex-frame { display: block; }
+.ex-steps { flex: none; }
+.ex-view { position: relative; flex: 1 1 0; min-height: 14rem; }
+.ex-card:first-child .ex-view { min-height: 24rem; }
+.ex-view > .ex-frame, .ex-view > .ex-md, .ex-view > .ex-empty { position: absolute; inset: 0; height: 100%; }
+.ex-steps { display: grid; gap: .35rem; margin: 0; padding: 0 0 0 1.4rem; font-size: 1rem; line-height: 1.4; }
+@container stage (min-width: 34rem) { .ex-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: stretch; }
+.ex-head { grid-template-columns: minmax(0, 1fr); } .ex-head .btn { width: 100%; } }
+.ex-md { margin: 0; padding: .85rem; overflow: auto; color: #1f2430; font: 400 .9rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ex-md:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.ex-empty { display: grid; place-items: center; margin: 0; padding: 1rem; border-style: dashed; background: rgb(255 255 255 / 45%); text-align: center; font-size: 1rem; line-height: 1.45; }
+#export { display: flex; flex-direction: column; }
+#export .stage-body { display: flex; flex: 1 1 auto; flex-direction: column; }
+#export .ex-grid { flex: 1 1 auto; }
+.ex-status:empty { display: none; }
+.ex-status { margin: .6rem 0 0; font-weight: 700; color: var(--teal-dark); }
+.ex-tip-host { position: relative; display: inline-flex; }
+.ex-tip { position: absolute; right: 0; top: calc(100% + .4rem); z-index: 6; width: min(18rem, calc(100vw - 4rem)); padding: .6rem .75rem; border-radius: 10px; background: #fff; border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow); color: var(--ink); font-size: 1rem; line-height: 1.4; opacity: 0; visibility: hidden; pointer-events: none; }
+.ex-tip-host:hover .ex-tip, .ex-tip-host:focus-within .ex-tip { opacity: 1; visibility: visible; }
+.ex-head .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }

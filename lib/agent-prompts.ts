@@ -8,7 +8,9 @@ import { experienceFinder } from "./agents/experience-finder.ts";
 import { recruiter } from "./agents/recruiter.ts";
 import { roleScout } from "./agents/role-scout.ts";
 import { SHARED_PREAMBLE, TOOL_DEFINITIONS, type AgentSpec, type BaseOutput, type JsonSchema } from "./agents/shared.ts";
-import { modelLabel } from "./model-choice.ts";
+import type { ModelSource } from "./agent-model.ts";
+import { DEFAULT_MODELS, modelLabel } from "./model-choice.ts";
+import { PROVIDER_LABEL } from "./provider-copy.ts";
 import type { ReaderName } from "./simulated-engine.ts";
 
 const SEPARATOR = "\n\n---\n\n";
@@ -44,19 +46,28 @@ export function schemaLines(schema: JsonSchema, depth = 0): string[] {
 
 export type AgentPrompt = { name: ReaderName; file: string; markdown: string };
 
-/** The default is the model this agent's job needs (Role Scout reads short text and gets the fast one, the others get the careful one). A model picked with the visitor's own key replaces it for all four agents. */
-const modelLine = (spec: AnySpec, chosen?: string) => chosen
-  ? `Model: ${modelLabel(chosen)}, the one you picked. It runs all four agents in your API boost run.`
-  : `Model: ${modelLabel(spec.model)} by default, the best fit for this job. Add your own API key and pick a model, and this agent runs on that one instead.`;
+/**
+ * The file's "Model:" line says which model will really run this agent. With a key entered it names that model and why (picked for this agent, picked for all four, or the
+ * key's default). Before a key there is no model to name, so it lists what each kind of key starts on, and no provider comes first.
+ */
+function modelLine(spec: AnySpec, source?: ModelSource): string {
+  if (!source) {
+    return `Model: set by your key. An OpenRouter key starts on ${modelLabel(DEFAULT_MODELS.openrouter!)}, a Gemini key on ${modelLabel(DEFAULT_MODELS.gemini!)} and an Anthropic key on ${modelLabel(spec.model)}. Add a key, then use the gear on this card to pick another.`;
+  }
+  const label = modelLabel(source.model);
+  if (source.from === "agent") return `Model: ${label}, the one you picked for this agent. The other agents keep their own.`;
+  if (source.from === "all") return `Model: ${label}, the one you picked for all four agents.`;
+  return `Model: ${label}, the default for your ${PROVIDER_LABEL[source.provider]} key. Use the gear on this card to pick another.`;
+}
 
-function build(spec: AnySpec, chosen?: string): AgentPrompt {
+function build(spec: AnySpec, source?: ModelSource): AgentPrompt {
   const cut = spec.system.indexOf(SEPARATOR); // systemPrompt() puts the shared rules first, then this line, then the role
   const role = cut >= 0 ? spec.system.slice(cut + SEPARATOR.length) : spec.system;
   const seconds = Math.round(spec.limits.timeoutMs / 1000);
   const lines = [
     `# ${spec.name}`,
     "",
-    modelLine(spec, chosen),
+    modelLine(spec, source),
     `Tools: ${spec.tools.length ? spec.tools.join(", ") : "none"}`,
     `Limits: ${spec.limits.maxToolCalls} tool calls, ${spec.limits.maxTurns} turns, ${seconds} seconds`,
     "",
@@ -84,9 +95,11 @@ function build(spec: AnySpec, chosen?: string): AgentPrompt {
 
 export const AGENT_PROMPTS: AgentPrompt[] = SPECS.map((spec) => build(spec));
 
-/** The prompt file for one agent. Pass the model the visitor picked to show it in place of the default. */
-export const promptFor = (name: string, chosen?: string): AgentPrompt | undefined => {
-  if (!chosen) return AGENT_PROMPTS.find((prompt) => prompt.name === name);
+/** The prompt file for one agent. Pass the model source to name the model that will run it. */
+export const promptFor = (name: string, source?: ModelSource): AgentPrompt | undefined => {
   const spec = SPECS.find((candidate) => candidate.name === name);
-  return spec && build(spec, chosen);
+  return spec && build(spec, source);
 };
+
+/** The Claude model an agent's spec names: what an Anthropic key runs it on by default. */
+export const specModelOf = (name: string): string | undefined => SPECS.find((spec) => spec.name === name)?.model;

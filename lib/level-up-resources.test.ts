@@ -20,7 +20,7 @@ test("every group has a lead line and enough cards to fill several rows", () => 
     assert.ok(group.description.length > 20 && group.description.length < 200, group.title);
     assert.ok(group.resources.length >= 4, group.title);
   }
-  assert.ok(resources.length >= 90, "resource count");
+  assert.ok(resources.length >= 60, "resource count");
 });
 
 test("the ids from the first version are all still here, because ticks are stored by id", () => {
@@ -29,4 +29,14 @@ test("the ids from the first version are all still here, because ticks are store
     "reddit-cscareerquestions", "reddit-resumes", "reddit-learnprogramming", "reddit-cybersecurity", "reddit-asksingapore", "hacker-news", "roadmap-sh", "levels-fyi", "interviewing-io", "interview-warmup", "indeed-career-guide", "skillsfuture-credit"];
   const ids = new Set(resources.map((resource) => resource.id));
   for (const id of first) assert.ok(ids.has(id), id);
+});
+
+test("the Certifications tab opens with Credly and keeps only 10 to 12 well-known exams", () => {
+  const group = elevateGroups.find((g) => g.title === "Certifications");
+  assert.ok(group);
+  assert.equal(group.resources[0].id, "credly");
+  assert.equal(group.resources[0].url, "https://www.credly.com/");
+  const exams = group.resources.filter((r) => r.id.startsWith("cert-"));
+  assert.ok(exams.length >= 10 && exams.length <= 12, String(exams.length));
+  assert.equal(exams.length + 1, group.resources.length);
 });

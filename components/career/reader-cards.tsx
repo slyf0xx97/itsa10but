@@ -4,12 +4,19 @@ import { CardCoins, RunTotal } from "@/components/career/usage-strip";
 import type { UsageRow } from "@/lib/usage-coins";
 import { BASE_PATH } from "@/lib/base-path";
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import Image from "next/image";
+import { ChevronDown, Settings } from "lucide-react";
+import { AgentModelSettings } from "@/components/career/agent-model-settings";
 import { PromptPeek } from "@/components/career/prompt-peek";
+import { specModelOf } from "@/lib/agent-prompts";
+import { agentModelSource, type ModelSettings } from "@/lib/agent-model";
+import { modelLabel, type AgentName } from "@/lib/model-choice";
+import { modelMark } from "@/lib/model-logos";
 import { Popup } from "@/components/popup";
 import { PixelIcon } from "@/components/career/pixel-icons";
 import type { AgentNote } from "@/lib/analysis-types";
 import { abilitiesFor, AGENT_PROFILES, lanesFor, type Ability, type Mode } from "@/lib/agent-abilities";
-import { AGENT_FACTS, hasWeb, type AgentFact } from "@/lib/agent-facts";
+import { AGENT_FACTS, type AgentFact, type FlowItem } from "@/lib/agent-facts";
 import type { ActivityState, AgentActivity } from "@/lib/activity-state";
 import type { ReaderName } from "@/lib/simulated-engine";
 
@@ -24,10 +31,6 @@ export const readers: { kind: SpriteKind; name: ReaderName; desc: string; alt: s
   { kind: "recruiter", name: "Recruiter", desc: "Checks your résumé like hiring software (ATS) and lists the top fixes.", alt: "Coral pixel Recruiter checking a clipboard" },
   { kind: "coach", name: "Action Planner", desc: "Turns your biggest gap into one project you can show.", alt: "Yellow pixel Action Planner holding a checklist" },
 ];
-
-// The bars in the details popup show each agent's limit against the biggest limit of the four.
-const MAX_CALLS = Math.max(...AGENT_FACTS.map((fact) => fact.toolCalls));
-const MAX_SECONDS = Math.max(...AGENT_FACTS.map((fact) => fact.seconds));
 
 type State = "waiting" | "active" | "done";
 const stateOf = (index: number, active: number, completed: number): State => active === index ? "active" : completed > index ? "done" : "waiting";
@@ -69,16 +72,17 @@ function Elapsed() {
 const stateWord: Record<State, string> = { waiting: "Waiting", active: "Working", done: "Done" };
 
 /**
- * The four readers as plain cards in run order (avatar, name and a status chip, one "what it does" line, three moves with a label and one line each, and a "Strengths, limits & tools" button that opens a popup with the bars, access and tools; from lib/agent-facts.ts). The cards share row lines (a CSS subgrid), so the header, line, each move and the button line up across all four. Status is a dot, a short word and the avatar's motion, plus text for screen readers. The panel shows the reader that is working; once the run is over no panel is
+ * The four readers as plain cards in run order (avatar, name and a status chip, one "what it does" line, three moves with a label and one line each, and a "Strengths, limits & tools" button that opens a popup with a summary, what it looks at and gives back, what it does well and cannot do, its tools and good-to-know lines; from lib/agent-facts.ts). The cards share row lines (a CSS subgrid), so the header, line, each move and the button line up across all four. Status is a dot, a short word and the avatar's motion, plus text for screen readers. The panel shows the reader that is working; once the run is over no panel is
  * open until the visitor clicks a finished step (click it again to close). Under the steps and the panel an elbow connector starts:
  * one line down from each reader, joined by a bus line, then one arrow into the dashboard. activities is the latest state per
  * agent and lane (see applyActivity); mode picks which abilities to list until activity arrives. Both are optional.
  */
-export function ReaderCards({ agents, active, completed, activities, mode = "rules", model, usage, handoff }: { agents: AgentNote[]; active: number; completed: number; activities?: ActivityState; mode?: Mode; model?: string; /** API boost spend per agent. Leave out for a Native scan: there is nothing to count. */ usage?: UsageRow[]; /** The latest handoff. When `n` changes, a sheet of paper flies from the `from` agent's avatar to the `to` agent's. */ handoff?: { from: string; to: string; n: number } }) {
+export function ReaderCards({ agents, active, completed, activities, mode = "rules", modelSettings, usage, handoff }: { agents: AgentNote[]; active: number; completed: number; activities?: ActivityState; mode?: Mode; /** What lets a visitor pick a model per agent from the gear button on each card. Leave out to hide the button. */ modelSettings?: ModelSettings; /** API boost spend per agent. Leave out for a Native scan: there is nothing to count. */ usage?: UsageRow[]; /** The latest handoff. When `n` changes, a sheet of paper flies from the `from` agent's avatar to the `to` agent's. */ handoff?: { from: string; to: string; n: number } }) {
   // A pick only holds while the same reader is running (or while nothing runs: during is -1), so the panel follows the run again at the next handoff. index -1 means closed.
   const [picked, setPicked] = useState<{ index: number; during: number } | null>(null);
   const panelId = useId();
   const [details, setDetails] = useState<number | null>(null);
+  const [modelFor, setModelFor] = useState<number | null>(null);
   const stepsRef = useRef<HTMLOListElement>(null);
   const paperRef = useRef<HTMLSpanElement>(null);
   const handoffN = handoff?.n ?? 0, handoffFrom = handoff?.from, handoffTo = handoff?.to;
@@ -128,6 +132,9 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
         const fact = AGENT_FACTS[index];
         const itemEntry = activities?.[item.name];
         const itemMode: Mode = itemEntry?.mode ?? mode;
+        // The model this agent will run on and why. Before a key is entered there is none, and the button shows a plain settings icon.
+        const source = agentModelSource(item.name as AgentName, { provider: modelSettings?.provider, picks: modelSettings?.picks, all: modelSettings?.all, specModel: specModelOf(item.name) ?? "" });
+        const mark = source ? modelMark(source.model) : null;
         const body = <>
           <span className="rd-top">
             <span className="rd-ava"><PixelAgent kind={item.kind} /></span>
@@ -149,10 +156,17 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
           </ul>
           {/* The details open as a panel over the page (top layer), on hover, focus or click, so a card never changes height. The prompt file peeks the same way. */}
           <div className="rd-foot">
-          <button type="button" className="rd-more" aria-haspopup="dialog" onClick={() => setDetails(index)}>
-            <span>Strengths, limits &amp; tools</span><span aria-hidden="true">→</span>
-          </button>
-          <PromptPeek name={item.name} model={model} />
+          <div className="rd-more-row">
+            {modelSettings && <button type="button" className="rd-gear" aria-haspopup="dialog" data-picked={source?.from === "agent" ? "true" : undefined} title={source ? "Model: " + modelLabel(source.model) + ". Change it." : "Choose a model"}
+              aria-label={`Model settings for ${item.name}${source ? ", now " + modelLabel(source.model) : ""}`} onClick={() => setModelFor(index)}>
+              {mark ? ("file" in mark ? <Image className="rd-gear-logo" src={BASE_PATH + "/assets/logos/" + mark.file} width={24} height={24} alt="" unoptimized /> : <span className="rd-gear-letter" aria-hidden="true">{mark.letter}</span>) : <Settings size={18} aria-hidden="true" />}
+              <ChevronDown size={14} strokeWidth={3} aria-hidden="true" />
+            </button>}
+            <button type="button" className="rd-more" aria-haspopup="dialog" onClick={() => setDetails(index)}>
+              <span>Strengths, limits &amp; tools</span><span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <PromptPeek name={item.name} source={source} />
           </div>
           {usage && <CardCoins row={usage.find((row) => row.agent === item.name)} working={itemState === "active"} />}
         </li>;
@@ -161,8 +175,9 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
     <span className="rd-paper" ref={paperRef} aria-hidden="true"><PixelIcon name="report" size={22} /></span>
     </div>
     {details !== null && readers[details] && <Popup open onClose={() => setDetails(null)} title={readers[details].name + ": strengths, limits and tools"} icon={<PixelIcon name="report" size={22} />} wide>
-      <AgentDetails name={readers[details].name} fact={AGENT_FACTS[details]} mode={activities?.[readers[details].name]?.mode ?? mode} />
+      <AgentDetails kind={readers[details].kind} name={readers[details].name} fact={AGENT_FACTS[details]} mode={activities?.[readers[details].name]?.mode ?? mode} />
     </Popup>}
+    {modelFor !== null && modelSettings && readers[modelFor] && <AgentModelSettings name={readers[modelFor].name as AgentName} settings={modelSettings} onClose={() => setModelFor(null)} />}
     {usage && <RunTotal rows={usage} done={completed >= readers.length} />}
     {reader && profile && <div className={"rd-panel " + reader.kind} id={panelId} aria-live="polite" aria-atomic="false" aria-relevant="additions text">
       <h3>{reader.name}</h3>
@@ -196,51 +211,70 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
   </div>;
 }
 
-/** The hero-point pattern (icon, bold lead, one short line) from clarity.css. */
-const Point = ({ icon, lead, text }: { icon: string; lead: string; text: string }) => <div className="cl-item">
-  <span className="cl-icon" aria-hidden="true">{icon}</span>
-  <p className="cl-text"><strong className="cl-lead">{lead}</strong>{text}</p>
-</div>;
+const Pic = ({ file }: { file: string }) => <img className="rdp-ic" src={BASE_PATH + "/assets/icons/abilities/" + file} alt="" aria-hidden="true" width={28} height={28} />; // eslint-disable-line @next/next/no-img-element
 
-const Section = ({ title, tag, children }: { title: string; tag?: string; children: ReactNode }) => <section className="rdp-sec">
-  <h3 className="rdp-h">{title}{tag ? <span className="rdp-use">{tag}</span> : null}</h3>
+const Chip = ({ item }: { item: FlowItem }) => <li className="rdp-chip">
+  <span className="rdp-chip-ic"><Pic file={item.icon} /></span>
+  <span>{item.label}{item.boost && <b className="rdp-boost">API boost only</b>}</span>
+</li>;
+
+const Block = ({ id, title, tag, children }: { id: string; title: string; tag?: string; children: ReactNode }) => <section className="rdp-sec" aria-labelledby={id}>
+  <h3 className="rdp-h" id={id}>{title}{tag ? <span className="rdp-use">{tag}</span> : null}</h3>
   {children}
 </section>;
 
-/** Everything about one agent that the card face leaves out, laid out in the popup. The "in use" tag follows the mode that ran (or will run). */
-function AgentDetails({ name, fact, mode }: { name: ReaderName; fact: AgentFact; mode: Mode }) {
-  const web = hasWeb(fact), resume = fact.resumeAccess;
-  return <div className="rdp">
-    <div className="rdp-two">
-      <div className="rdp-box good"><Point icon="✓" lead="Strong at" text={fact.strongAt} /></div>
-      <div className="rdp-box bad"><Point icon="✕" lead="Can't do" text={fact.cant} /></div>
+/** What a reader is told about the API boost limits, in words. */
+const limitLine = (fact: AgentFact) => "In API boost it " + (fact.toolCalls ? `can make up to ${fact.toolCalls} tool ${fact.toolCalls === 1 ? "call" : "calls"}` : "makes no tool calls") + ` and has ${fact.seconds} seconds.`;
+
+/** Everything about one agent that the card face leaves out, laid out in the popup: summary, what it looks at and gives back, what it does well, what it cannot do, tools and good-to-know lines. The "in use" tag follows the mode that ran (or will run). */
+function AgentDetails({ kind, name, fact, mode }: { kind: SpriteKind; name: ReaderName; fact: AgentFact; mode: Mode }) {
+  const id = useId();
+  const abilities = AGENT_PROFILES[name].abilities;
+  return <div className={"rdp " + kind}>
+    <div className="rdp-top">
+      <span className="rd-ava"><PixelAgent kind={kind} /></span>
+      <p className="rdp-sum">{fact.summary}</p>
     </div>
-    <Section title="Limits">
-      <ul className="rdp-limits" aria-label={name + " limits"}>
-        <li><span className="rdp-k">Tool calls</span><span className="rd-meter" aria-hidden="true"><i style={{ "--v": fact.toolCalls / MAX_CALLS } as CSSProperties} /></span><span className="rdp-v">{fact.toolCalls ? "up to " + fact.toolCalls : "none"}</span></li>
-        <li><span className="rdp-k">Time</span><span className="rd-meter" aria-hidden="true"><i style={{ "--v": fact.seconds / MAX_SECONDS } as CSSProperties} /></span><span className="rdp-v">{fact.seconds} s max</span></li>
-        <li><span className="rdp-k">Access</span><span className="rdp-pips">
-          <span className={"rd-pip " + (web ? "yes" : "no")}>Web {web ? "yes" : "no"}</span>
-          <span className={"rd-pip " + (resume ? "yes" : "no")}>Résumé {resume ? "yes" : "no"}</span>
-        </span></li>
-      </ul>
-    </Section>
-    <Section title="Tools" tag={mode === "live" ? "in use" : undefined}>
-      {fact.tools.length === 0 ? <p className="rdp-plain">No tools. It reads only the text it gets.</p> : <ul className="rdp-tools" aria-label={name + " API boost tools"}>
-        {fact.tools.map((tool) => <li key={tool.name}>
-          <span className="rd-api" aria-hidden="true">API</span>
-          <span className="rdp-tool"><span className="rd-mono">{tool.name}{tool.cap ? <span className="rd-cap"> ×{tool.cap}</span> : null}</span><span>{tool.label}</span></span>
-        </li>)}
+    <Block id={id + "-flow"} title="What goes in and what comes out">
+      <div className="rdp-flow">
+        <div className="rdp-side">
+          <h4 className="rdp-sub">It looks at</h4>
+          <ul className="rdp-chips">{fact.looksAt.map((item) => <Chip key={item.label} item={item} />)}</ul>
+        </div>
+        <span className="rdp-arrow" aria-hidden="true">➜</span>
+        <div className="rdp-side">
+          <h4 className="rdp-sub">It gives back</h4>
+          <ul className="rdp-chips">{fact.gives.map((item) => <Chip key={item.label} item={item} />)}</ul>
+        </div>
+      </div>
+    </Block>
+    <Block id={id + "-does"} title="What it does well">
+      <ul className="rdp-cards good">{fact.does.map((text) => <li key={text}><span className="rdp-mark" aria-hidden="true">✓</span>{text}</li>)}</ul>
+    </Block>
+    <Block id={id + "-cant"} title="What it can't do">
+      <ul className="rdp-cards bad">{fact.cannot.map((text) => <li key={text}><span className="rdp-mark" aria-hidden="true">✕</span>{text}</li>)}</ul>
+    </Block>
+    <Block id={id + "-tools"} title="Tools it can use">
+      <h4 className="rdp-sub">API boost only{mode === "live" ? <span className="rdp-use">in use</span> : null}</h4>
+      {fact.tools.length === 0 ? <p className="rdp-plain">No extra tools. It works from the text it is given.</p> : <ul className="rdp-tools">
+        {fact.tools.map((tool) => {
+          const ability = abilities.find((item) => item.tool === tool.name);
+          return <li key={tool.name}>
+            <span className="rdp-chip-ic">{ability && <Pic file={ability.iconFile} />}</span>
+            <span><b>{tool.label}</b>{ability && <span className="rdp-line">{ability.description}</span>}</span>
+          </li>;
+        })}
       </ul>}
-    </Section>
-    <Section title="Native scan" tag={mode === "rules" ? "in use" : undefined}>
-      <ol className="rdp-steps" aria-label={name + " native scan steps"}>{abilitiesFor(name, "rules").map((ability) => <li key={ability.id}>{ability.label}</li>)}</ol>
-      <p className="rdp-plain">The same moves, done by built-in text matching. No API key needed.</p>
-    </Section>
-    <div className="rdp-two">
-      <div className="rdp-box"><h3 className="rdp-h">Sees</h3><p className="rdp-plain">{fact.sees}</p></div>
-      <div className="rdp-box"><h3 className="rdp-h">Returns</h3><p className="rdp-plain">{fact.returns}</p></div>
-    </div>
+      <h4 className="rdp-sub">Native scan, no API key{mode === "rules" ? <span className="rdp-use">in use</span> : null}</h4>
+      <ol className="rdp-tools">{abilitiesFor(name, "rules").map((ability) => <li key={ability.id}>
+        <span className="rdp-chip-ic"><Pic file={ability.iconFile} /></span>
+        <span><b>{ability.label}</b><span className="rdp-line">{ability.description}</span></span>
+      </li>)}</ol>
+      <p className="rdp-plain">Native scan matches words and rules. It uses no AI model.</p>
+    </Block>
+    <Block id={id + "-know"} title="Good to know">
+      <ul className="rdp-know">{[...fact.goodToKnow, limitLine(fact)].map((text) => <li key={text}>{text}</li>)}</ul>
+    </Block>
   </div>;
 }
 

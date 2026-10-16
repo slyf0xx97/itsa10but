@@ -8,7 +8,7 @@ import type { CompanyFinding, RoleScoutOutput } from "./agents/role-scout.ts";
 import { resolveModel, TOOL_DEFINITIONS, untrusted, type AgentSpec, type BaseOutput, type JsonSchema, type ToolName } from "./agents/shared.ts";
 import { logUsage, type Edge, type UsageLogRow } from "./edge-client.ts";
 import { createWebTools, type ToolResult } from "./firecrawl-tools.ts";
-import { RECOMMENDED_MIX, isClaudeModel, modelLabel } from "./model-choice.ts";
+import { RECOMMENDED_MIX, isClaudeModel, modelLabel, type AgentModels, type AgentName } from "./model-choice.ts";
 import { safeJobUrl } from "./job-types.ts";
 import { extractLinkedinJobId, guestPostingUrl, htmlToJobText } from "./linkedin-url.ts";
 import { detectCompany, showItTips } from "./company-culture.ts";
@@ -57,6 +57,8 @@ export type LiveDeps = {
   heartbeatMs?: number;
   /** A model the visitor chose for all four agents. Already validated by checkModelChoice. Leave out for each spec's own model. */
   model?: string;
+  /** A model the visitor chose for one agent, by agent name. Already validated by checkAgentModels. It wins over `model` for that agent. */
+  agentModels?: AgentModels;
   fetchImpl?: typeof fetch;
   env?: Record<string, string | undefined>;
   /** A LinkedIn job link the user gave. The link itself never reaches the model. */
@@ -183,6 +185,8 @@ type AgentContext = {
   tools: Partial<Record<ToolName, (input: unknown) => Promise<ToolResult> | ToolResult>>;
   /** The visitor's chosen model for every agent, or undefined for each spec's own. */
   model?: string;
+  /** The visitor's choice for single agents. */
+  agentModels?: AgentModels;
   usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number; cacheWriteTokens: number };
   /** How often a waiting model call reports progress, in ms. Tests pass a large number to keep their event lists short. */
   heartbeatMs?: number;
@@ -268,7 +272,7 @@ async function* runAgent<Input, Output extends BaseOutput>(spec: AgentSpec<Input
     const turnStart = Date.now();
     yield { ...modelLane, status: "start", progress: 0 };
     const response = yield* beat(callOnce(ctx, {
-      model: ctx.model ?? resolveModel(spec, ctx.env),
+      model: ctx.agentModels?.[spec.name as AgentName] ?? ctx.model ?? resolveModel(spec, ctx.env),
       max_tokens: spec.limits.maxOutputTokens,
       system: spec.system,
       messages,
@@ -418,8 +422,12 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
   const usage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
   const deadline = Date.now() + (deps.deadlineMs ?? 84_000);
   // What the results say about this run: the model the visitor picked (or "recommended mix", never a model name we chose), whether it is Claude, and whether web search was on.
-  const claude = deps.model ? isClaudeModel(deps.model) : true;
-  const modelName = deps.model ? modelLabel(deps.model) : RECOMMENDED_MIX;
+  // With a pick for single agents the run can use several models, so the label names each distinct one.
+  const modelFor = (spec: (typeof AGENT_SPECS)[number]) => deps.agentModels?.[spec.name as AgentName] ?? deps.model ?? resolveModel(spec, env);
+  const used = AGENT_SPECS.map(modelFor);
+  const claude = used.every(isClaudeModel);
+  const labels = [...new Set(used.map(modelLabel))];
+  const modelName = !deps.model && !deps.agentModels ? RECOMMENDED_MIX : labels.length === 1 ? labels[0] : labels.length <= 3 ? labels.join(" and ") : "mixed models";
   const web = Boolean(deps.firecrawlKey || deps.edge);
   // Counts only, one row per finished agent; sent to the edge log when the run ends, even when it falls back.
   const usageRows: UsageLogRow[] = [];
@@ -446,7 +454,7 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
 
     const scoutWeb = createWebTools({ apiKey: deps.firecrawlKey, allowScrape: true, fetchImpl, edge: deps.edge });
     const plannerWeb = createWebTools({ apiKey: deps.firecrawlKey, allowScrape: false, fetchImpl, edge: deps.edge });
-    const local = (extra: AgentContext["tools"]): AgentContext => ({ client: deps.client, env, deadline, signal: deps.signal, usage, tools: extra, model: deps.model, heartbeatMs: deps.heartbeatMs });
+    const local = (extra: AgentContext["tools"]): AgentContext => ({ client: deps.client, env, deadline, signal: deps.signal, usage, tools: extra, model: deps.model, agentModels: deps.agentModels, heartbeatMs: deps.heartbeatMs });
 
     const scoutCtx = local({
       read_linkedin_posting: async () => {
@@ -479,7 +487,7 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
     // The note types out a sentence at a time. Time and tokens are read first so this pacing is not counted as the agent's work.
     async function* present(index: number, note: string): AsyncGenerator<EngineEvent> {
       const reader = READERS[index];
-      const spent = { inputTokens: usage.inputTokens - mark.inputTokens, outputTokens: usage.outputTokens - mark.outputTokens, cacheReadTokens: usage.cacheReadTokens - mark.cacheReadTokens, cacheWriteTokens: usage.cacheWriteTokens - mark.cacheWriteTokens, ms: Date.now() - mark.at, model: deps.model ?? resolveModel(AGENT_SPECS[index], env), firecrawlCalls: webNow().calls - mark.web.calls, firecrawlCredits: webNow().credits - mark.web.credits, webFree: webNow().free - mark.web.free };
+      const spent = { inputTokens: usage.inputTokens - mark.inputTokens, outputTokens: usage.outputTokens - mark.outputTokens, cacheReadTokens: usage.cacheReadTokens - mark.cacheReadTokens, cacheWriteTokens: usage.cacheWriteTokens - mark.cacheWriteTokens, ms: Date.now() - mark.at, model: modelFor(AGENT_SPECS[index]), firecrawlCalls: webNow().calls - mark.web.calls, firecrawlCredits: webNow().credits - mark.web.credits, webFree: webNow().free - mark.web.free };
       usageRows.push({ agent: reader, model: spent.model, provider: deps.provider ?? "anthropic", inputTokens: spent.inputTokens, outputTokens: spent.outputTokens, ms: spent.ms, fallback: false });
       const pieces = (note.match(/[^.!?]+[.!?]*/g) ?? [note]).map((piece) => piece.trim()).filter(Boolean);
       for (const piece of pieces) { yield { type: "reasoning", agent: reader, text: piece, done: false, ...live }; await pause(pace); }

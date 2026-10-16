@@ -12,7 +12,7 @@
 .lu-bar span { display: block; height: 100%; border-radius: 999px; background: var(--lu-accent); }
 .lu-count { flex: none; color: var(--ink); font-size: 1rem; font-weight: 700; white-space: nowrap; }
 /* Tab row: neutral pills, the active one filled with the accent. The row scrolls sideways on phones; the page does not. */
-.lu-tabs { display: flex; gap: .5rem; margin: 0; padding: .25rem .1rem; overflow-x: auto; overscroll-behavior-x: contain; }
+.lu-tabs { display: flex; gap: .5rem; margin: 0; padding: .5rem .1rem .75rem; overflow-x: auto; overscroll-behavior-x: contain; }
 .lu-tab { flex: none; display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; margin: 0; padding: .4rem 1rem; border: 1.5px solid var(--lu-line); border-radius: 999px; background: var(--glass-card); color: var(--ink); font-family: inherit; font-size: 1rem; font-weight: 700; line-height: 1.15; white-space: nowrap; cursor: pointer; }
 .lu-tab:hover { border-color: var(--lu-accent); }
 .lu-tab[aria-selected="true"] { border-color: var(--lu-accent); background: var(--lu-accent); color: #fff; }
@@ -20,7 +20,7 @@
 .lu-tab-count { color: var(--text-soft, #2f4a56); font-size: .9rem; font-weight: 600; }
 .lu-tab[aria-selected="true"] .lu-tab-count { color: #fff; }
 /* One visible panel under the tabs. */
-.lu-group { margin-top: .6rem; padding: .9rem 1rem 1rem; }
+.lu-group { margin-top: 1rem; padding: .9rem 1rem 1rem; }
 .lu-group[hidden] { display: none; }
 .lu .lu-group { background: rgb(255 255 255 / 40%); }
 /* the cards inside are the glass cards; the group only frames them */
@@ -77,14 +77,3 @@
 @media (prefers-reduced-motion: no-preference) {.lu-fade[data-show="true"] span { animation: lu-bob 1.2s ease-in-out infinite; }
 @keyframes lu-bob { 50% { transform: translateY(-4px); } }}
 
-/* Side by side (1100px and up) with a filled radar: Stage 4 takes the height of Stage 3 and the card area fills what is left under the tabs.
-   The scroll area is out of flow, so the radar alone sets the row height and Level up never makes it taller. Without a radar the fixed 33rem stays. */
-@media (min-width: 1100px) {.stage-row.has-radar > #level-up { display: flex; flex-direction: column; }
-.stage-row.has-radar > #level-up > .stage-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
-.stage-row.has-radar .lu { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
-.stage-row.has-radar .lu-group:not([hidden]) { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
-.stage-row.has-radar .lu-more-wrap { flex: 1 1 auto; min-height: 14rem; }
-.stage-row.has-radar .lu-scroll { position: absolute; inset: 0; height: auto; }}
-@media (min-width: 1100px) {.stage-row.has-radar > #level-up > .stage-body { padding-bottom: .35rem; }
-.stage-row.has-radar > #level-up > .stage-body > .lu { padding-bottom: 2.15rem; }
-.stage-row.has-radar .lu-group:not([hidden]) { padding-bottom: .4rem; }}

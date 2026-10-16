@@ -83,7 +83,7 @@ main { position: relative; }
 /* Footer meta: the copyright with the author link and the legal button. */
 .site-footer .ft-meta { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; }
 .site-footer .ft-copy { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .1rem .5rem; min-width: 0; }
-.site-footer .ft-btns { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.site-footer .ft-btns { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
 .site-footer .ft-license { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2.75rem; padding: .25rem 1rem; border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
 .site-footer .ft-license:hover { background: var(--lime); }
 .site-footer .ft-license:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
@@ -99,3 +99,9 @@ main { position: relative; }
 
 /* Sections that are off screen (components/career/offscreen-pause.tsx) stop their looping animations. */
 .is-off, .is-off *, .is-off *::before, .is-off *::after { animation-play-state: paused !important; }
+
+.site-footer .ft-web { display: inline-flex; align-items: center; gap: .45rem; margin: 0; font-weight: 700; }
+.site-footer .ft-donate { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; padding: .2rem .9rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--coral-soft); color: var(--ink); font-weight: 800; text-decoration: none; }
+.site-footer .ft-donate:hover { background: var(--coral); }
+.site-footer .ft-donate:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+@media (max-width: 860px) { .site-footer .ft-btns { justify-content: flex-start; } }

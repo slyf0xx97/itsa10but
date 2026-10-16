@@ -3,9 +3,15 @@ import { openRouterModel } from "./openrouter-models.ts";
 /** US dollars per million tokens (input, output), from OpenRouter's public model list on 2026-10-16. Estimates only: the provider's bill is the real figure. */
 const PRICES: Record<string, readonly [number, number]> = {
   "anthropic/claude-haiku-5.5": [0.1, 0.5],
+  "deepseek/deepseek-v4.1-flash": [0.036, 0.684],
   "anthropic/claude-sonnet-5.5": [2, 10],
   "anthropic/claude-opus-5.5": [4, 20],
   "anthropic/claude-fable-5.1": [10, 50],
+  "google/gemini-3.1-flash-lite": [0.25, 1.5],
+  "google/gemini-3.5-flash-lite": [0.3, 2.5],
+  "google/gemini-3.8-flash": [0.825, 4.125],
+  "google/gemini-3.5-flash": [1.5, 9],
+  "google/gemini-pro-latest": [2, 10],
 };
 
 /**
@@ -13,7 +19,8 @@ const PRICES: Record<string, readonly [number, number]> = {
  * cost a tenth of the input price, and tokens written to it a quarter more (Anthropic's published cache rates), so a run that reuses its prompt costs less.
  */
 export function estimateCost(model: string | undefined, inputTokens: number, outputTokens: number, cacheReadTokens = 0, cacheWriteTokens = 0): number | null {
-  const price = model ? PRICES[openRouterModel(model)] : undefined;
+  // A Gemini id sent straight to Google ("gemini-3.1-flash-lite") costs what OpenRouter lists for "google/gemini-3.1-flash-lite".
+  const price = model ? PRICES[openRouterModel(model)] ?? PRICES["google/" + model.replace(/^google\//, "")] : undefined;
   if (!price) return null;
   const fresh = Math.max(0, inputTokens - cacheReadTokens - cacheWriteTokens);
   return ((fresh + cacheReadTokens * 0.1 + cacheWriteTokens * 1.25) * price[0] + outputTokens * price[1]) / 1_000_000;

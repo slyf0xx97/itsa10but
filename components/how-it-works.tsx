@@ -65,7 +65,7 @@ const stations: Station[] = [
   },
   {
     id: "native", n: "2b", title: "Native scan",
-    line: "Free. Rules and passage matching run in your browser.",
+    line: "Free. Your résumé is matched in your browser. No key needed.",
     chips: [
       { t: "Passage matching", tip: { title: "Passage matching (lib/passages.ts)", lines: [
         "Matching runs on your device. No model reads the passages.",
@@ -76,7 +76,8 @@ const stations: Station[] = [
     tipTitle: "Native scan (lib/simulated-engine.ts)",
     tip: [
       { t: "runSimulatedEngine runs the 4 agents in order, in your browser" },
-      { t: "No model call. Passage matching finds the passages each score rests on" },
+      { t: "No model reads your résumé. Passage matching finds the passages each score rests on" },
+      { t: "Cloudflare AI reads the role text only, to find skills the word list misses. A skill it names must appear word for word in the posting" },
       { t: "Evidence points: 20 named, 25 used in a project, 14 number, 16 outcome, 25 second passage. 100 at most" },
       { t: "Role priority: High when the posting says required or repeats a skill, Medium when it names it once" },
       { t: "No supporting passage earns 0" },
@@ -86,12 +87,12 @@ const stations: Station[] = [
   },
   {
     id: "boost", n: "2a", title: "API boost",
-    line: "Your key powers the agents. Web search is optional.",
+    line: "Your own key runs the agents. Web search is optional.",
     chips: [
       { t: "API key", logo: "openrouter", tip: { title: "Your API key", lines: [
-        "Paste an Anthropic key or an OpenRouter key in the Agent power panel.",
+        "Paste an Anthropic, OpenRouter or Gemini key in the Agent power panel.",
         "It travels in one request header for that run. It isn't stored or logged.",
-        "An OpenRouter key also lets you pick other models.",
+        "The panel shows a rough cost per run for the model you pick.",
       ] } },
       { t: "Firecrawl", logo: "firecrawl", tip: { title: "Firecrawl, optional", lines: [
         "Optional. Adds wider web search for Role Scout and Action Planner.",
@@ -101,7 +102,8 @@ const stations: Station[] = [
     tipTitle: "API boost (lib/live-agents.ts)",
     tip: [
       { t: "4 agents run in order, each with its own tools and limits" },
-      { t: "Model: the one you pick. Recommended mix by default" },
+      { t: "Model: the one you pick for all four agents, or one per agent from the gear on its card" },
+      { t: "Defaults: DeepSeek V4.1 Flash with an OpenRouter key, Gemini 3.1 Flash Lite with a Gemini key, and each agent's own Claude model with an Anthropic key" },
       { t: "RAG: passage matching picks the passages, and the Experience Finder model reads them to judge your proof" },
       { t: "Masked résumé text goes to the model. Role text shapes web searches" },
       { t: "A Next.js route streams the run, up to 120 s", logo: ["nextjs"] },
@@ -111,13 +113,14 @@ const stations: Station[] = [
   },
   {
     id: "result", n: "4", title: "Your action plan",
-    line: "Skills radar, tips and free resources.",
+    line: "A skills radar, tips, free resources and two downloads.",
     chips: [],
     tipTitle: "Action plan",
     tip: [
       { t: "A skills radar: each skill with how much the role asks for it and how many of 5 proof steps you pass, and the line from your résumé behind it" },
       { t: "An ATS-style check of your wording and format, with tips on what to fix first" },
       { t: "A verdict and up to 3 tips and tricks, plus links to free and open-source tools" },
+      { t: "A PDF report and a Markdown prompt you can paste into ChatGPT, Claude or Gemini. Both are built in your browser, with a preview of each" },
       { t: "Scores show proof in your text. They don't predict hiring" },
       { t: "The page says if it's a sample, and whether Native scan or API boost ran" },
       ...built("data", "plumbing"),
@@ -193,7 +196,9 @@ function StopBox({ s, as: Tag = "li" }: { s: Station; as?: "li" | "div" }) {
 /** The Cloudflare edge Worker, drawn as a cloud above the upload box. It is the site's own lookup helper, not a step in the route, so it floats in the sky beside the road. */
 const EDGE: Chip = { t: "What it does", tip: { title: "Cloudflare edge Worker", lines: [
   "A small Worker on edge.ghernie.com does the site's web lookups for its server. It reads Wikipedia and Wikidata first and opens company pages directly.",
-  "It keeps a one day cache and the shared run limits, which reset at midnight Singapore time. It logs token counts only and never sees your résumé.",
+  "Every hour it counts the skills named in public job postings for one role. Every night it asks Firecrawl for this week's AI headlines and stamps the date shown in the Sources card.",
+  "In native scan, Cloudflare AI reads the role text to find skills the word list misses. It never sees your résumé.",
+  "It keeps a one day cache and the shared run limits, which reset at midnight Singapore time. It logs token counts only.",
 ] } };
 function Cloud() {
   return <aside className="qm-cloud" aria-labelledby="qm-cloud-title" style={CLOUD_POS}>

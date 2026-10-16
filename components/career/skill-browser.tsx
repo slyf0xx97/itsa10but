@@ -1,9 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { Skill } from "@/lib/analysis-types";
 import { rankSkills } from "@/lib/dashboard-data";
 import { stateOf } from "@/lib/radar-tiers";
+import { demandLine, loadDemand } from "@/lib/demand-client";
+import type { DemandTable } from "@/lib/edge/demand";
 import { VERDICT_LABEL, proofOf, verdictOf, wantOf, whyLine } from "@/lib/skill-levels";
 import { Parts } from "@/components/career/skill-rows";
 import { Term } from "@/components/career/term";
@@ -23,8 +25,15 @@ function Quote({ tag, hit }: { tag: string; hit?: { label: string; quote: string
  * Role Scout shows how much the role asks and whether you have it. Experience Finder shows the proof, the quote flag and the score parts.
  * The list is a set of toggle buttons, so a keyboard user tabs to a skill and presses Enter. The first skill starts picked.
  */
-export function SkillBrowser({ skills, kind, children }: { skills: Skill[]; kind: "scout" | "finder"; children?: React.ReactNode }) {
+export function SkillBrowser({ skills, kind, roleTitle, children }: { skills: Skill[]; kind: "scout" | "finder"; roleTitle?: string; children?: React.ReactNode }) {
   const ranked = rankSkills(skills);
+  const [market, setMarket] = useState<DemandTable | null>(null);
+  useEffect(() => {
+    if (kind !== "scout") return;
+    let live = true;
+    void loadDemand().then((table) => { if (live) setMarket(table); });
+    return () => { live = false; };
+  }, [kind]);
   const [picked, setPicked] = useState<string | null>(null);
   const detailId = useId();
   const listId = useId();
@@ -69,6 +78,7 @@ export function SkillBrowser({ skills, kind, children }: { skills: Skill[]; kind
         <span className={"sk-verdict " + verdict}>{VERDICT_LABEL[verdict]}</span>
         <span>{scout ? <>The role asks for it at <b>{wantOf(current.demand).toLowerCase()}</b> priority.</> : whyLine(current.demand, current.evidence)}</span>
       </p>
+      {scout && roleTitle && demandLine(market, roleTitle, current.name) && <p className="sb-market"><span className="sb-market-tag">Market</span>{demandLine(market, roleTitle, current.name)}<small>Counts postings only. It doesn&apos;t change your scores.</small></p>}
       {!scout && <Quote tag="Résumé quote" hit={current.resumeQuote} />}
       <Quote tag="Role quote" hit={current.roleQuote} />
       {!scout && <details className="sk-how sb-how">

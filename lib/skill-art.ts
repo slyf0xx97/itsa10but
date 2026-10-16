@@ -53,6 +53,14 @@ const byName: Record<string, SkillArt> = {
   cloud: art(["amazonwebservices-original-wordmark.svg", "azure-original.svg", "googlecloud-original.svg"], "cloud"),
   communication: art([], "communication"),
   reporting: art([], "report"),
+  excel: art([], "data"),
+  git: art(["git-original.svg"], "api"),
+  java: art([], "api"),
+  "data engineering": art([], "data"),
+  statistics: art([], "data"),
+  "ux design": art([], "dashboard"),
+  agile: art([], "communication"),
+  "security fundamentals": art([], "siem"),
 };
 
 // Pasted live-mode names match only when they are literally the product.
@@ -97,6 +105,13 @@ const links: Record<string, SkillLink> = {
   dashboards: reference("https://www.nngroup.com/articles/dashboards-preattentive/"),
   communication: reference("https://developers.google.com/tech-writing"),
   reporting: reference("https://www.plainlanguage.gov/"),
+  excel: reference("https://support.microsoft.com/en-us/excel"),
+  java: reference("https://dev.java/learn/"),
+  "data engineering": reference("https://airflow.apache.org/docs/apache-airflow/stable/tutorial/index.html"),
+  statistics: reference("https://seeing-theory.brown.edu/"),
+  "ux design": reference("https://www.nngroup.com/articles/ux-research-cheat-sheet/"),
+  agile: reference("https://agilemanifesto.org/"),
+  "security fundamentals": reference("https://owasp.org/www-project-top-ten/"),
 };
 
 /** Link for a skill name, or null for anything outside the fixed list (including model-supplied names). */
