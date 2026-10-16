@@ -52,7 +52,7 @@ const emptyAgents: AgentNote[] = [
 const heroPoints = [
   { icon: "abilities/read-role.svg", lead: "Add a role and your résumé.", text: <>Paste a <b>job posting</b> or a <b>LinkedIn link</b>, then add <b>one résumé file</b>.</> },
   { icon: "abilities/verify-quotes.svg", lead: "Multi-agent checker to analyse and improve your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps.</> },
-  { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>A <b>skills radar</b> with the quote behind each score, then tips and free resources to close your gaps.</> },
+  { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>An <b>action plan</b> with a skills radar, then tips and free resources to close your gaps.</> },
 ];
 
 // Typing in the role box, or each step of a sample run, re-renders this whole component. These big panels only need to redraw when their own props change, so they are memoised.

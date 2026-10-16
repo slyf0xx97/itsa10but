@@ -78,8 +78,9 @@ export function SourcesCard() {
                     {site.inRefresh && <span className="word-tip-line"><em className="sgs-tag">In news feed</em></span>}
                   </WordTip>
                 </li>)}
-                {group.id === "learn" && <li><a className="sgs-more" href="#level-up" onClick={(event) => glideTo(event, "level-up")}>See more<span className="sr-only"> in Level up your résumé</span></a></li>}
-                {group.id !== "learn" && rest > 0 && <li><button type="button" className="sgs-more" aria-haspopup="dialog" onClick={() => setSites(true)}>+{rest} more<span className="sr-only"> in {group.title}</span></button></li>}
+                {group.id === "learn"
+                  ? <li className="sgs-pill"><a className="sgs-more" href="#level-up" onClick={(event) => glideTo(event, "level-up")}>See more<span className="sr-only"> in Level up your résumé</span></a></li>
+                  : <li className="sgs-pill"><button type="button" className="sgs-more" aria-haspopup="dialog" onClick={() => setSites(true)}>{rest > 0 ? `+${rest} more` : "See all"}<span className="sr-only"> in {group.title}</span></button></li>}
               </ul>
             </section>;
           })}
