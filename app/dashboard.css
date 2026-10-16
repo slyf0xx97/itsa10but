@@ -236,10 +236,10 @@
 .dp-main[data-reader="recruiter"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .dp-main[data-reader="planner"] { grid-template-columns: minmax(0, 1fr); }}
 /* Wide and tall enough: the body does not scroll. The columns share the height left under the steps and each scrolls inside if it must. */
-@media (min-width: 56rem) and (min-height: 32rem) {.pop-body:has(> .dp):not(:has([data-reader="planner"])) { display: flex; flex-direction: column; overflow: hidden; }
-.pop-body:not(:has([data-reader="planner"])) > .dp { flex: 1 1 auto; min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
-.dp-main:not([data-reader="planner"]) { grid-template-rows: minmax(0, 1fr); min-height: 0; }
-.dp-main:not([data-reader="planner"]) > .dp-sec { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }}
+@media (min-width: 56rem) and (min-height: 32rem) {.pop-body:has(> .dp):not(:has([data-reader="planner"], [data-scroll])) { display: flex; flex-direction: column; overflow: hidden; }
+.pop-body:not(:has([data-reader="planner"], [data-scroll])) > .dp { flex: 1 1 auto; min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
+.dp-main:not([data-reader="planner"], [data-scroll]) { grid-template-rows: minmax(0, 1fr); min-height: 0; }
+.dp-main:not([data-reader="planner"], [data-scroll]) > .dp-sec { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }}
 /* Skills and quotes (Role Scout, Experience Finder): a list of skills, then the picked skill's quotes. */
 .sb-list { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
 .sb-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .6rem; align-items: center; width: 100%; min-height: 44px; margin: 0; padding: .3rem .6rem; border: 1.5px solid rgb(18 52 63 / 22%); border-radius: 10px; background: var(--dash-item-bg); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
@@ -406,3 +406,17 @@
   @keyframes dg-doze { 0%, 100% { transform: rotate(13deg); } 50% { transform: rotate(19deg) translateY(1px); } }
   @keyframes dg-zzz { 0% { opacity: 0; transform: translateY(8px); } 25% { opacity: .75; } 100% { opacity: 0; transform: translateY(-16px); } }
 }
+
+/* Recruiter notes (native scan): a wide first block over the four check columns. The popup scrolls as a whole when this block is there. */
+.dp-main[data-scroll] > .rv { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: .8rem 1.25rem; }
+.rv h5 { margin: 0 0 .35rem; }
+.rv-fixes { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; counter-reset: rv; }
+.rv-fixes li { counter-increment: rv; display: grid; gap: .25rem; padding: .6rem .8rem .65rem 2.6rem; position: relative; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: #fff; font-size: 1rem; line-height: 1.4; }
+.rv-fixes li::before { content: counter(rv); position: absolute; left: .7rem; top: .6rem; display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--ink); color: #fff; font-size: .9rem; font-weight: 800; }
+.rv-fixes b { font-size: 1.05rem; }
+.rv-quote { display: block; padding: .3rem .6rem; border-left: 4px solid var(--hue-line, rgb(18 52 63 / 30%)); background: var(--yellow-soft, #fbf3c4); border-radius: 6px; }
+.rv-try { display: block; color: var(--ink); } .rv-try em { font-style: normal; font-weight: 800; }
+.rv-side { display: grid; align-content: start; gap: .8rem; }
+.rv-side ul { display: grid; gap: .35rem; margin: 0; padding-left: 1.1rem; font-size: 1rem; line-height: 1.4; }
+.rv-note { grid-column: 1 / -1; margin: 0; }
+@media (max-width: 899px) {.dp-main[data-scroll] > .rv { grid-template-columns: minmax(0, 1fr); }}

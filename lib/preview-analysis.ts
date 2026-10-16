@@ -1,6 +1,7 @@
 import { scoreEvidence } from "./evidence-scoring.ts";
 import type { Analysis, Resume, Skill, Quest } from "./analysis-types.ts";
 import { computeMatch } from "./scoring.ts";
+import { recruiterReview } from "./recruiter-review.ts";
 import { atsCheck } from "./ats-check.ts";
 import { detectCompany } from "./company-culture.ts";
 import { playbookFor, questFor, tipKind } from "./skill-playbooks.ts"; // skill-playbooks reads `catalog` only inside functions, so the import cycle is safe
@@ -78,6 +79,7 @@ export function previewAnalysis(resumes: Resume[], job: string): Analysis {
   const weakProof = selected.filter((item) => item.skill.demand - item.skill.evidence >= 20).length;
   const ats = atsCheck(allText, noCatalogMatch ? [] : selected.map((item) => item.skill.name));
   const topFix = ats.fixes[0];
+  const review = recruiterReview({ resumeText: allText, roleTitle, skills: selected.map((item) => item.skill), ats, bulletFor: (name) => questFor(name, "show")?.bullet });
   const company = detectCompany(job);
   return {
     title: roleTitle,
@@ -89,7 +91,7 @@ export function previewAnalysis(resumes: Resume[], job: string): Analysis {
     agents: [
       { role: "Role reader", note: noCatalogMatch ? "The posting names too few recognisable tools or skills to rank." : `The posting leans most on ${selected.slice(0, 3).map((item) => item.skill.name).join(", ")}.` },
       { role: "Advocate", note: noCatalogMatch ? "Add a project that names the tools you used, what you did and the result." : hasGap ? `${strength.skill.name} is your strongest proof. ${weakProof === 1 ? "One skill has" : `${weakProof} skills have`} thin or missing proof, and ${primary.skill.name} is the biggest gap.` : `${strength.skill.name} is your strongest proof. No skill is far behind what the role asks for.` },
-      { role: "Recruiter", note: `Screening check: ${ats.score} out of 100 for readiness. ${topFix ? `Top fix: ${topFix}` : "No fix stands out."}` },
+      { role: "Recruiter", note: `Screening check: ${ats.score} out of 100 for readiness. Top note: ${review.improvements[0].title}. ${topFix ?? review.improvements[0].why}` },
       { role: "Editor", note: noCatalogMatch ? "Start with one requirement from the posting and show proof for it." : hasGap ? `Make one ${primary.skill.name} example before rewriting the résumé.` : "Add a specific outcome and project link before adding more keywords." },
     ],
     quests,
@@ -97,6 +99,7 @@ export function previewAnalysis(resumes: Resume[], job: string): Analysis {
     matchPercent: matchScore.percent,
     matchFormula: matchScore.formula,
     ats,
+    review,
     ...(company ? { company } : {}),
   };
 }

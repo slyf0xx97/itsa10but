@@ -3,21 +3,28 @@ const JOB_ID = /^\d{6,15}$/;
 
 /** Returns the numeric job id when the whole input is one HTTP(S) LinkedIn job URL. */
 export function extractLinkedinJobId(input: string): string | null {
-  const value = input.trim();
-  if (!value || /\s/.test(value)) return null;
+  let value = input.trim();
+  if (!value) return null;
+  // A short paste with the link inside it ("Data Analyst at Acme https://www.linkedin.com/jobs/view/123…") still counts. A long paste is a description, not a link.
+  if (/\s/.test(value)) {
+    const found = /(?:https?:\/\/)?(?:[\w-]+\.)?linkedin\.com\/[^\s"'<>)]+/i.exec(value);
+    if (!found || value.length > 400 || value.length - found[0].length > 150) return null;
+    value = found[0];
+  }
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(value) && /^(?:[\w-]+\.)?linkedin\.com\//i.test(value)) value = "https://" + value;
 
   let url: URL;
   try { url = new URL(value); } catch { return null; }
   if ((url.protocol !== "https:" && url.protocol !== "http:") || !LINKEDIN_HOST.test(url.hostname) || url.username || url.password) return null;
 
-  const view = /^\/jobs\/view\/([^/]+)\/?$/i.exec(url.pathname);
+  const view = /^(?:\/comm)?\/jobs\/view\/([^/]+)\/?$/i.exec(url.pathname);
   if (view) {
     const id = /(?:^|[-_])(\d{6,15})$/.exec(view[1])?.[1];
     return id && JOB_ID.test(id) ? id : null;
   }
 
   const isCollection = /^\/jobs\/collections(?:\/|$)/i.test(url.pathname);
-  const isSearch = /^\/jobs\/search\/?$/i.test(url.pathname);
+  const isSearch = /^\/jobs\/search(?:-results)?\/?$/i.test(url.pathname);
   if (isCollection || isSearch) {
     const id = url.searchParams.get("currentJobId");
     return id && JOB_ID.test(id) ? id : null;

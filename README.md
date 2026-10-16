@@ -28,7 +28,7 @@ Itsa10but is a one-page career workspace for students and people moving into tec
 |--------|--------------|
 | 🔎 Role Scout | Lists the skills the role asks for |
 | 🧐 Experience Finder | Looks for proof of each skill in your résumé |
-| 📋 Recruiter | Checks ATS readiness (rule-of-thumb checks) and the employer's values |
+| 📋 Recruiter | Checks ATS readiness, then gives a quick-read review: what to fix first with the real line and a rewrite, what works and what a recruiter might ask |
 | 🗺️ Action Planner | Picks one small project and some free lessons |
 
 > 💡 Scores describe **proof on the page**, never your chance of getting hired. A quote that isn't found word for word in your résumé scores 0.
@@ -42,6 +42,7 @@ Itsa10but is a one-page career workspace for students and people moving into tec
 | Needs a key? | No | Yes (Anthropic or OpenRouter) |
 | Where it runs | In your browser | Claude agents on the server |
 | Web lookups | None | Role and company pages, learning links |
+| Passages | Matched by words in your browser | Matched by words, then read by a model (RAG) |
 | Cost | Free | Pay for your own tokens |
 | Default | ✅ | Opt in with the switch in the header |
 

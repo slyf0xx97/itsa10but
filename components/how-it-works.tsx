@@ -57,7 +57,7 @@ const stations: Station[] = [
       { t: "Emails, phone numbers, street or unit addresses and NRIC/FIN-style IDs are masked before any reader sees your text" },
       { t: "Names, employers and schools aren't masked" },
       { t: "Prompt-injection tricks are flagged and shown to you. The report is then dropped" },
-      { t: "Each résumé is split into passages, one per line or sentence. The best matches are found by word matching, with no embeddings" },
+      { t: "Each résumé is cut into short passages at lines, bullets and sentences. Each skill ranks its best-matching passages by word matching, with no embeddings" },
       { t: "All of this runs in both Native scan and API boost" },
       { t: "No database, so résumé text isn't stored" },
       ...built("app"),
@@ -65,12 +65,19 @@ const stations: Station[] = [
   },
   {
     id: "native", n: "2b", title: "Native scan",
-    line: "Free. Simple rules run in your browser.",
-    chips: [],
+    line: "Free. Rules and passage matching run in your browser.",
+    chips: [
+      { t: "Passage matching", tip: { title: "Passage matching (lib/passages.ts, lib/rag.ts)", lines: [
+        "This is plain retrieval, not RAG, because no language model answers from the passages.",
+        "Your résumé is cut into short passages. Each skill pulls its best-matching passages by word matching, with no embeddings and no server.",
+        "Every quote shown is one of those passages, and a quote not found word for word scores 0.",
+        "API boost builds on this: it hands retrieved passages to a model, which is RAG.",
+      ] } },
+    ],
     tipTitle: "Native scan (lib/simulated-engine.ts)",
     tip: [
       { t: "runSimulatedEngine runs the 4 agents in order, in your browser" },
-      { t: "No model call" },
+      { t: "No model call. Passage matching finds the passages each score rests on" },
       { t: "Evidence points: 20 named, 25 used in a project, 14 number, 16 outcome, 25 second passage. 100 at most" },
       { t: "Role priority: High when the posting says required or repeats a skill, Medium when it names it once" },
       { t: "No supporting passage earns 0" },
@@ -96,6 +103,7 @@ const stations: Station[] = [
     tip: [
       { t: "4 agents run in order, each with its own tools and limits" },
       { t: "Model: the one you pick. Recommended mix by default" },
+      { t: "RAG: passage matching picks the passages, and the Experience Finder model reads them to judge your proof" },
       { t: "Masked résumé text goes to the model. Role text shapes web searches" },
       { t: "A Next.js route streams the run, up to 120 s", logo: ["nextjs"] },
       { t: "A refusal, bad output, hit limit or timeout falls back to Native scan with a notice" },

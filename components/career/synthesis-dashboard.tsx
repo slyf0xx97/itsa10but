@@ -67,7 +67,7 @@ function SumCard({ kind, agent, id, popTitle, stat, rows, foot, reader, analysis
       <ArrowRight className="dash-open-arrow" size={22} strokeWidth={3} aria-hidden="true" focusable="false" />
     </button>
     <Popup open={open} onClose={close} title={popTitle} wide>
-      {open && <div className="dp"><FindingsIntro reader={reader} analysis={analysis} hasResult={hasResult && !sample} /><div className="dp-main" data-reader={reader}>{children}</div></div>}
+      {open && <div className="dp"><FindingsIntro reader={reader} analysis={analysis} hasResult={hasResult && !sample} /><div className="dp-main" data-reader={reader} data-scroll={reader === "recruiter" && analysis.review ? "" : undefined}>{children}</div></div>}
     </Popup>
   </section>;
 }
@@ -167,10 +167,34 @@ function AtsColumns({ ats }: { ats: Ats }) {
             <span className="dash-check-mark" aria-hidden="true">{STATUS[check.status].mark}</span>
             <span><span className="sr-only">{STATUS[check.status].word}: </span><b>{check.label}</b> <span className="ats-tag">{check.group}</span>{firstFix(check.tip) >= 0 && <span className="ats-do">Do {["1st", "2nd", "3rd"][firstFix(check.tip)]}</span>}{status !== "pass" && check.tip && <small>{check.tip}</small>}</span>
           </li>)}
-        </ul> : <p className="dash-empty">{status === "fail" ? "Nothing to fix." : status === "warn" ? "Nothing to check." : "No check passed."}</p>}
+        </ul> : <p className="dash-empty">{status === "fail" ? "No check failed." : status === "warn" ? "No check to review." : "No check passed."}</p>}
       </section>;
     })}
   </>;
+}
+
+/** Recruiter popup, first: what a recruiter notices in a quick read, what to fix first (each with the real line it is about and a way to write it), what already works and what they would ask. Rule-based, and the note under it says so. */
+function RecruiterNotes({ review }: { review: NonNullable<Analysis["review"]> }) {
+  const fixId = useId(), skimId = useId(), goodId = useId(), askId = useId();
+  return <section className="dp-sec rv" aria-label="Recruiter notes">
+    <div className="rv-main">
+      <h5 className="dp-h" id={fixId}>Fix first</h5>
+      <ol className="rv-fixes" aria-labelledby={fixId}>
+        {review.improvements.map((item) => <li key={item.title}>
+          <b>{item.title}</b>
+          <span>{item.why}</span>
+          {item.quote && <q className="rv-quote">{item.quote}</q>}
+          {item.example && <span className="rv-try"><em>Try:</em> {item.example}</span>}
+        </li>)}
+      </ol>
+    </div>
+    <div className="rv-side">
+      <section aria-labelledby={skimId}><h5 className="dp-h" id={skimId}>A recruiter notices</h5><ul>{review.skim.map((line) => <li key={line}>{line}</li>)}</ul></section>
+      <section aria-labelledby={goodId}><h5 className="dp-h" id={goodId}>What works</h5><ul>{review.strengths.map((line) => <li key={line}>{line}</li>)}</ul></section>
+      <section aria-labelledby={askId}><h5 className="dp-h" id={askId}>They might ask</h5><ul>{review.questions.map((line) => <li key={line}>{line}</li>)}</ul></section>
+    </div>
+    <p className="dash-ats-note rv-note">These notes come from fixed rules over your text. They are a quick read, not a real recruiter&apos;s view and not a hiring chance.</p>
+  </section>;
 }
 
 /** Recruiter popup: keywords found and missing as one more column, and the honest note as a line under the columns. */
@@ -402,7 +426,8 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, 
       <SumCard kind="recruiter" agent="Recruiter" popTitle="Fixes and checks from hiring software (ATS)" reader="recruiter" analysis={analysis} hasResult={hasResult} sample={sample}
         stat={data.ats ? <Stat value={data.ats.score} unit="/ 100" label={data.ats.verdict.word} /> : <Stat value="–" label="no check ran" />}
         rows={data.ats ? <AtsRows ats={data.ats} /> : <p className="dash-sub">No résumé check ran for this result.</p>}
-        foot={<Foot kicker="Fix first">{topFix ? topFix.key : data.ats ? "Nothing to fix" : "No check ran"}</Foot>}>
+        foot={<Foot kicker="Fix first">{analysis.review ? analysis.review.improvements[0].title : topFix ? topFix.key : data.ats ? "No check failed" : "No check ran"}</Foot>}>
+        {analysis.review && <RecruiterNotes review={analysis.review} />}
         {data.ats ? <>
           <AtsColumns ats={data.ats} />
           <AtsKeywords ats={data.ats} />

@@ -102,9 +102,11 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
     const start = event.currentTarget.selectionStart;
     const end = event.currentTarget.selectionEnd;
     const next = value.slice(0, start) + pasted + value.slice(end);
-    if (!extractLinkedinJobId(next)) return;
+    // A pasted link replaces whatever was in the box, the same as a dropped one.
+    const text = extractLinkedinJobId(pasted) ? pasted : next;
+    if (!extractLinkedinJobId(text)) return;
     event.preventDefault();
-    void change(next);
+    void change(text);
   }
 
   async function load(file: File, message = "") {

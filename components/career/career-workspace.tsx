@@ -484,7 +484,7 @@ export default function Home() {
           </section>
         </div>
 
-        <div className="stage-row is-radar-learn">
+        <div className={"stage-row is-radar-learn" + (hasResult && !busy ? " has-radar" : "")}>
           <section className="stage" id="radar" aria-labelledby="map-title">
             <StageHeader {...header(2)} titleId="map-title" />
             <div className="stage-body">

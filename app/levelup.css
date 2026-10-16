@@ -4,7 +4,7 @@
 /* Heading row: the teal stage pill and the full title (display font) on the left, the progress on the right. They stack when the panel is narrow. */
 .lu-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.25rem; margin: 0 0 .75rem; }
 .lu-heading { display: flex; flex: 1 1 100%; flex-wrap: wrap; align-items: center; gap: .3rem .65rem; min-width: 0; }
-.lu-title { margin: 0; color: var(--ink); font-size: clamp(1.05rem, 2vw, 1.4rem); font-weight: 800; line-height: 1.2; }
+.lu-title { margin: 0; font-family: var(--font-body); letter-spacing: 0; color: var(--ink); font-size: clamp(1.05rem, 2vw, 1.4rem); font-weight: 800; line-height: 1.2; }
 .lu-group { position: relative; }
 /* One slim progress bar. */
 .lu-progress { display: flex; flex: 0 1 18rem; align-items: center; gap: .8rem; min-width: 12rem; }
@@ -76,3 +76,12 @@
 .lu-fade span { padding: .2rem .9rem; border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font-size: 1rem; font-weight: 800; box-shadow: 0 2px 0 rgb(18 52 63 / 25%); }
 @media (prefers-reduced-motion: no-preference) {.lu-fade[data-show="true"] span { animation: lu-bob 1.2s ease-in-out infinite; }
 @keyframes lu-bob { 50% { transform: translateY(-4px); } }}
+
+/* Side by side (1100px and up) with a filled radar: Stage 4 takes the height of Stage 3 and the card area fills what is left under the tabs.
+   The scroll area is out of flow, so the radar alone sets the row height and Level up never makes it taller. Without a radar the fixed 33rem stays. */
+@media (min-width: 1100px) {.stage-row.has-radar > #level-up { display: flex; flex-direction: column; }
+.stage-row.has-radar > #level-up > .stage-body { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+.stage-row.has-radar .lu { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+.stage-row.has-radar .lu-group:not([hidden]) { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+.stage-row.has-radar .lu-more-wrap { flex: 1 1 auto; min-height: 14rem; }
+.stage-row.has-radar .lu-scroll { position: absolute; inset: 0; height: auto; }}

@@ -78,6 +78,11 @@ const LOGO_OF: Record<string, keyof typeof LOGO> = {
   "imda-tesa": "imda", sctp: "sf", "ai-fundamentals": "aisg", "skills-framework": "sf", "jobs-skills-portal": "jsp", "govtech-developer": "gtech",
   "reddit-machinelearning": "reddit", gdg: "gdg", "engineers-sg": "engsg", "tech-interview-handbook": "tih",
   "yt-cs50": "yt", "yt-freecodecamp": "yt", "yt-fireship": "yt", "yt-3blue1brown": "yt", "yt-statquest": "yt", "yt-neetcode": "yt", "yt-bytebytego": "yt", "yt-karpathy": "yt", "yt-networkchuck": "yt", "yt-messer": "yt",
+  "cert-aws-cloud-practitioner": "aws", "cert-aws-ai-practitioner": "aws", "cert-aws-solutions-architect": "aws", "cert-aws-developer": "aws", "cert-aws-ml-engineer": "aws", "cert-aws-security": "aws",
+  "cert-az-104": "ms", "cert-ai-900": "ms", "cert-dp-900": "ms", "cert-pl-300": "ms", "cert-sc-900": "ms",
+  "cert-gcp-digital-leader": "gdev", "cert-gcp-engineer": "gdev", "cert-kcna": "lf", "cert-cka": "lf", "cert-lfcs": "lf", "cert-cncf": "lf",
+  "cert-google-cyber": "grow", "cert-google-data": "grow", "cert-google-it": "grow", "cert-google-ux": "grow", "cert-google-pm": "grow",
+  "cert-ibm-data-science": "cour", "cert-ml-specialization": "dlai",
 };
 
 /** The brand logo (or, without one, the group icon) in a white tile at the top-left of a card. The logo hides itself if its file is missing. */

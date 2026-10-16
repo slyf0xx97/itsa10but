@@ -41,3 +41,10 @@ test("extracts and decodes fields from guest HTML", () => {
   });
   assert.equal(htmlToJobText("<html>login wall</html>").description, "");
 });
+
+test("a short paste with the link inside, or a link without https, still counts", () => {
+  assert.equal(extractLinkedinJobId("Data Analyst at Acme https://www.linkedin.com/jobs/view/4455908179/?trk=share"), "4455908179");
+  assert.equal(extractLinkedinJobId("www.linkedin.com/jobs/view/data-analyst-4455908179"), "4455908179");
+  assert.equal(extractLinkedinJobId("https://www.linkedin.com/comm/jobs/view/4455908179"), "4455908179");
+  assert.equal(extractLinkedinJobId("https://www.linkedin.com/jobs/search-results/?currentJobId=4455908179"), "4455908179");
+});

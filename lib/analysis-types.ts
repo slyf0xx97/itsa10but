@@ -1,5 +1,6 @@
 import type { SkillBreakdown } from "./scoring.ts";
 import { previewAnalysis } from "./preview-analysis.ts";
+import type { RecruiterReview } from "./recruiter-review.ts";
 
 export type Resume = { id: string; name: string; text: string };
 export type EvidenceQuote = { label: string; quote: string; matched: string[] };
@@ -55,6 +56,8 @@ export type Analysis = {
   matchPercent: number;
   matchFormula: string;
   ats?: AtsReport;
+  /** Native scan only: the Recruiter quick-read notes, always with at least three things to improve. */
+  review?: RecruiterReview;
   /** Absent when the posting names no known employer (native scan) or the Role Scout found nothing credible (live). */
   company?: CompanyCulture;
   /** Set by the API boost runner only. */
