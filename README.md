@@ -21,26 +21,44 @@ The idea and the design system were conceived by Ghernie Encinas, who has a stro
 
 ## 🎯 Problem
 
-Students and people changing careers get résumé feedback that is hard to act on. A score or a checklist rarely says which line of the résumé earned it, which skill the job posting actually asks for, or what to do next. Automated screening (ATS) is a black box, and most résumé tools run on one fixed AI model that you can't inspect, change or pay for yourself.
+Many people in tech, and in roles next to it, know their résumé could be better and don't know where to start. The feedback they find is either generic ("add more numbers") or a score with no reason behind it, so they can't tell which line earned it or what to change. The free material they need does exist, but it's spread across hundreds of sites, and nobody has sorted it around the skill they're missing. Tools that rewrite the whole résumé with one fixed AI model add another problem. The result reads well, and it isn't really yours.
 
 ## 💡 Solution
 
-itsa10but compares one résumé with one real job posting and shows its working. It lists the skills the role asks for, finds the line in your résumé that proves each one, and scores that proof. A skill with no matching line scores 0. The page then turns the biggest gaps into practical tips and free resources, and lets you take the result away as a report.
+itsa10but starts from one belief: your résumé is personal, so only you know how to edit it. A résumé is worth more when you write it yourself and review where it could improve with your own eyes. So the app shows you where to look and leaves the writing to you.
 
-You can run it with no key at all, or bring your own key for an AI model of your choice.
+You add a real job posting and your résumé. Four AI agents compare them and show the quote behind every skill score, and a skill with no matching line scores 0. Then itsa10but does the part that usually takes hours. It gathers open-source tools, free courses, practice sites, news feeds and market figures, sorts them in one place and ties them to the gaps in your own result, so every missing skill comes with somewhere to start. A skills radar, a Level up library and a company page replace twenty open tabs.
+
+If you want a second opinion from an AI, you can download a Markdown prompt for any GenAI or LLM, built from your own findings. The choice stays with you, including which model reviews your résumé.
 
 ## ✨ Key features
 
-- 🕸️ Skill radar with a literal quote behind every score, and a Have or Gap mark per skill
-- 🔎 Four readers in order: Role Scout, Experience Finder, Recruiter and Action Planner
-- 📋 An ATS-style check with a quick review: what to fix first with the real line and a rewrite, what works, and what a recruiter might ask
-- 🧰 Tips and free, open-source resources for each gap, with a tabbed Level up library
-- 🏢 About company: the employer's published values and how to show you fit, for 14 employers
-- 🇸🇬 Singapore market figures, AI headlines and tech news, each dated and linked to its source
-- 📄 PDF report and Markdown prompt, built in your browser, with a preview of each
-- 🔑 Native scan with no key, or API boost with your own Anthropic, OpenRouter or Gemini key
-- 🧪 Sample résumés for eight role paths, labelled as samples
-- 🔌 An MCP endpoint so other AI tools can call the job search and the analysis
+Review your résumé
+
+- 🕸️ A skills radar shows how much the role asks for each skill and how many of five proof steps your résumé passes, with the literal quote behind the score.
+- 🔎 Four agents work in order: Role Scout, Experience Finder, Recruiter and Action Planner.
+- 📋 An ATS-style check gives a quick review: what to fix first with the real line and a rewrite, what works and what a recruiter might ask.
+
+Find what to learn next
+
+- 🧰 The Level up library holds 116 free and open-source resources in 12 groups, covering cloud and AI, cybersecurity, coding practice, certifications, interviews and more, with ticks to track your progress.
+- 🎯 Every gap on your radar has a Learn button that opens the matching resource. Each tip comes with a small project to build, a résumé line to adapt and links that were opened and checked.
+- 📰 The Sources card puts job boards, 18 tech and AI news feeds and learning sites side by side, each with its logo.
+- 🏢 About company shows the published values of 14 employers, such as Singtel, NCS, DBS and Google, and how to show you fit.
+
+See the market
+
+- 🇸🇬 Singapore hiring figures, the skills named in recent postings on MyCareersFuture and AI headlines refreshed nightly through Firecrawl. Each one is dated and links to its source.
+
+Take it with you
+
+- 📄 A PDF report and a Markdown prompt for any GenAI, both built in your browser, with a preview of each.
+
+Stay in control
+
+- 🔑 The native scan needs no key. API boost uses your own Anthropic, OpenRouter or Gemini key, and you pick the model for all four agents or for each one.
+- 🧪 Sample résumés for eight role paths let you try it first, and each is labelled as a sample.
+- 🔌 An MCP endpoint lets other AI tools call the job search and the analysis.
 
 ## 🧭 How it works
 
@@ -67,6 +85,21 @@ Scores describe proof on the page, never your chance of getting hired.
 ## 🤖 AI integration
 
 The AI is a set of four agents with separate jobs, not one prompt wrapped in a page. Each agent has its own instructions, tools, output schema and limits, and the app checks what it returns.
+
+What I built for this, and where it lives:
+
+| Piece | What it does | Code |
+|-------|--------------|------|
+| 🧠 Multi-agent runner | Runs the four agents in order, each with its own prompt, tools, output schema, limits and time budget, and streams progress to the page | `lib/live-agents.ts`, `lib/agents/` |
+| 📚 RAG | Cuts the résumé into passages, ranks the best passages for each skill by word matching, and hands only those to the model. There are no embeddings and no vector database | `lib/rag.ts` |
+| ✅ Quote verification | Checks every quote a model returns against the résumé text. A quote that isn't found word for word scores 0 | `lib/rag.ts` |
+| 🔌 MCP server | A hand-written JSON-RPC handler over Streamable HTTP at `/api/mcp`, with the same tool descriptions registered in the browser through WebMCP | `lib/mcp-server.ts`, `lib/mcp-tools.ts` |
+| 🔀 Model adapters | Anthropic through its SDK, OpenRouter through chat completions with thinking turned off and the fastest host requested, and Gemini through a translator to its own API | `lib/anthropic-client.ts`, `lib/openrouter-chat-client.ts`, `lib/gemini-client.ts` |
+| 🛡️ Safety layer | Masks contact details, flags prompt injection, scrubs visitor keys from every streamed line and enforces per-visitor and daily limits | `lib/safety.ts`, `lib/visitor-keys.ts`, `lib/rate-limit.ts` |
+| 🧰 Native scan | The same four readers on rules and word matching, running in the browser with no key | `lib/simulated-engine.ts` |
+| 📏 Eval harness | Scores the native scan on 43 hand-written résumé and role pairs and lists every miss | `lib/eval/`, `npm run eval` |
+| 📄 Report builders | A hand-written PDF writer and the Markdown prompt builder, both running in the browser | `lib/report-pdf.ts`, `lib/report-md.ts` |
+
 
 - Retrieval: your résumé is cut into short passages, and each skill ranks its best-matching passages by word matching. The Experience Finder reads those passages instead of the whole file.
 - Quote verification: every quote a model returns is checked against your text by the app. A quote that isn't found word for word scores 0.
@@ -101,27 +134,41 @@ sequenceDiagram
 
 ## 🧩 External tools and datasets
 
+Tools and services:
+
+| Tool | How itsa10but uses it |
+|------|----------------------|
+| 🤖 Anthropic | Claude models through the Anthropic SDK, on the visitor's own key |
+| 🔀 OpenRouter | Any model through one key. DeepSeek V4.1 Flash is the default, and Claude models also run through it |
+| ✨ Google Gemini | Gemini Flash Lite models on a Gemini key, through the app's own adapter |
+| 🔥 Firecrawl | Web search and page reading for Role Scout and Action Planner, company research, and the nightly AI headlines |
+| ☁️ Cloudflare Workers | The edge Worker at `edge.ghernie.com`: web lookups, a 24-hour cache, run limits, a counts-only usage log and the scheduled jobs |
+| 🗄️ Cloudflare KV and D1 | KV holds the cache, the market-demand table and the headline snapshot. D1 holds the daily counters and the usage log |
+| 🧠 Cloudflare Workers AI | A small model reads the role text, never the résumé, to find skills the word list misses |
+| 🚦 Cloudflare Turnstile and Web Analytics | A bot check on the spend routes, and cookie-less visit counts |
+| 🔌 MCP | Model Context Protocol, so other AI tools can call the job search and the analysis |
+| ▲ Vercel | Hosting, with the short address `/itsa10but` rewritten to the app |
+| 💳 Stripe | A Payment Link behind the footer's Donate button |
+| 📄 pdf.js | Reads PDF résumés in the browser |
+| ⚛️ Next.js, React and TypeScript | The site and its API routes |
+
+Datasets and sources:
+
 | What | Where from |
 |------|-----------|
-| Hosting | Vercel |
-| Edge Worker | Cloudflare Workers with KV, D1 and Workers AI |
-| Models | Anthropic, OpenRouter and Gemini, on the visitor's own key |
-| Web search | Firecrawl, optional |
-| Résumé parsing | pdf.js in the browser |
 | Jobs | Himalayas, Jobicy, Arbeitnow, Remotive and public LinkedIn job pages |
 | Singapore figures | IMDA, MOM, PwC, Indeed (via The Business Times) and The Straits Times. Each figure links to its source |
 | Market demand | Skills named in recent postings on free remote feeds, and the skills Singapore employers tagged on MyCareersFuture |
 | AI headlines | Firecrawl search, refreshed nightly |
-| Tech news | Public RSS and Atom feeds, no key and no model |
+| Tech news | 18 public RSS and Atom feeds, no key and no model |
 | Employer values | The employers' own pages, each linked from the result |
-| Donations | A Stripe Payment Link in the footer |
+| Learning resources | 116 free and open-source links, each opened and checked |
 | Logos | [Devicon](https://github.com/devicons/devicon) (MIT) and the owners' marks. Origins are in `public/assets/logos/SOURCES.md` |
 | Fonts | Pixelify Sans and Atkinson Hyperlegible, both under the SIL Open Font License |
 | Pixel art | Original to this project |
 
-The edge Worker at `edge.ghernie.com` does the site's web lookups and a few scheduled jobs:
+The edge Worker reads Wikipedia and Wikidata first and falls back to Firecrawl for company pages. Its scheduled jobs run like this:
 
-- It reads Wikipedia and Wikidata first and falls back to Firecrawl for company pages. It caches answers for 24 hours, caps Firecrawl use per day and keeps a counts-only usage log.
 - Every hour it refreshes the market-demand table for one role.
 - Every night it asks Firecrawl for the week's AI headlines and stamps the date shown in the Sources card. The hourly run catches up if a night is missed.
 
