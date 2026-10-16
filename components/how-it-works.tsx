@@ -186,10 +186,9 @@ function ChipItem({ chip }: { chip: Chip }) {
 
 /** The star beside "API boost": what sets the site apart. The tip is the one place the page says so. */
 function USP() {
-  return <span className="qm-usp"><Tip title="Our unique selling point" word={<Star size={16} fill="currentColor" aria-label="Unique selling point" />} tip={[
-    { t: "itsa10but's unique selling point." },
-    { t: "Most résumé scanners don't let you choose which AI model reviews your résumé. Here you do, for all four agents or for each one, so you have fuller control over who reads your résumé and what it costs." },
-  ]} /></span>;
+  return <span className="qm-usp"><WordTip bare title="Our unique selling point" word={<Star size={18} fill="currentColor" aria-label="Unique selling point" />}>
+    <span className="word-tip-line qm-tipline"><span>Most résumé scanners don&apos;t let you choose which AI model reviews your résumé. Here you do, for all four agents or for each one, so you have fuller control over who reads your résumé and what it costs.</span></span>
+  </WordTip></span>;
 }
 
 function StopBox({ s, as: Tag = "li" }: { s: Station; as?: "li" | "div" }) {

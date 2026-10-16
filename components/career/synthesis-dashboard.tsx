@@ -223,7 +223,7 @@ function EvidenceRows({ rows, label }: { rows: Data["evidence"]; label: string }
 /** Role Scout rows: the skills the role asks for most, each with how much it wants it (High, Medium or Low) as one to three segments. */
 const SEGMENTS: Record<Want, number> = { High: 3, Medium: 2, Low: 1 };
 /** `mark` is the company's logo file. Without one the row shows the name alone, larger. */
-function PriorityRows({ skills, company, mark }: { skills: Skill[]; company: string; mark?: { file: string } }) {
+function PriorityRows({ skills, company, mark, missing = false }: { skills: Skill[]; company: string; mark?: { file: string }; missing?: boolean }) {
   return <ul className="dash-rows" aria-label="The skills the role asks for most, highest first, and the company">
     {rankSkills(skills).slice(0, ROWS - 1).map((skill) => {
       const want = wantOf(skill.demand);
@@ -236,7 +236,7 @@ function PriorityRows({ skills, company, mark }: { skills: Skill[]; company: str
     <li className="dash-row dash-co">
       <span className="dash-name">About company</span>
       {mark && <span className="dash-co-logo" aria-hidden="true"><Image src={BASE_PATH + "/assets/logos/" + mark.file} width={64} height={64} alt="" unoptimized /></span>}
-      <span className="dash-co-text">{company}</span>
+      {missing ? <span className="dash-co-pill">{company}</span> : <span className="dash-co-text">{company}</span>}
     </li>
   </ul>;
 }
@@ -422,7 +422,7 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, 
     <div className="dash-grid">
       <SumCard kind="scout" agent="Role Scout" popTitle="What the role asks for" reader="scout" analysis={analysis} hasResult={hasResult} sample={sample}
         stat={<Stat value={data.demand.length} unit={data.demand.length === 1 ? "skill" : "skills"} label="the role asks for" />}
-        rows={data.demand.length ? <PriorityRows skills={analysis.skills} company={data.company ? data.company.name : analysis.mode === "live" ? "No employer found" : "No data found: Please enable API boost"} mark={companyMark(data.company?.name)} /> : <Empty>No skills to chart yet.</Empty>}>
+        rows={data.demand.length ? <PriorityRows skills={analysis.skills} company={data.company ? data.company.name : analysis.mode === "live" ? "No employer found" : "No data found: Please enable API boost"} mark={companyMark(data.company?.name)} missing={!data.company} /> : <Empty>No skills to chart yet.</Empty>}>
         <SkillBrowser kind="scout" skills={analysis.skills} roleTitle={analysis.title} />
         <MarketNote roleTitle={analysis.title} />
         <PopSection title="About the company" desc="Values, what it expects and how to show you fit."><CompanyBody company={data.company} mode={analysis.mode} /></PopSection>

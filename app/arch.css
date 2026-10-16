@@ -220,6 +220,8 @@
 @keyframes qm-drift { to { translate: 0 -.3em; } }}
 @container qm (min-width: 72rem) {.qm-cloud { position: absolute; left: var(--kx); top: var(--ky); width: var(--kw); max-width: none; margin: 0; font-size: clamp(.75rem, 1.05cqw, 1.1rem); }}
 
-/* The star beside API boost: a small gold badge that opens the unique-selling-point tip. */
-.qm-usp { display: inline-flex; margin-left: .3rem; color: #c98a00; }
-.qm-usp .word-tip-btn { color: #c98a00; display: inline-flex; align-items: center; justify-content: center; min-width: 1.75rem; min-height: 1.75rem; }
+/* The star beside API boost: a gold star with a soft glow that opens the unique-selling-point tip. The glow breathes only when motion is allowed. */
+.qm-usp { display: inline-flex; margin-left: .3rem; color: #e0a100; }
+.qm-usp .word-tip-btn { color: #e0a100; display: inline-flex; align-items: center; justify-content: center; min-width: 1.75rem; min-height: 1.75rem; }
+.qm-usp svg { filter: drop-shadow(0 0 3px #ffd54a) drop-shadow(0 0 8px rgb(255 200 40 / 70%)); }
+@media (prefers-reduced-motion: no-preference) { .qm-usp svg { animation: qm-glow 2.4s ease-in-out infinite; } @keyframes qm-glow { 50% { filter: drop-shadow(0 0 5px #ffe27a) drop-shadow(0 0 14px rgb(255 200 40 / 95%)); } } }
