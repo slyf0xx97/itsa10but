@@ -464,10 +464,11 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
 
     // The handoff goes out before the agent runs, so its card turns active when the work starts. The stage follows when it is done.
     const started = Date.now();
-    let mark = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, at: started };
+    const webNow = () => ({ calls: scoutWeb.stats.calls + plannerWeb.stats.calls, credits: scoutWeb.stats.credits + plannerWeb.stats.credits, free: scoutWeb.stats.free + plannerWeb.stats.free });
+    let mark = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, at: started, web: webNow() };
     function* handoff(index: number, from: ReaderName | "Orchestrator"): Generator<EngineEvent> {
       const reader = READERS[index];
-      mark = { ...usage, at: Date.now() };
+      mark = { ...usage, at: Date.now(), web: webNow() };
       yield { type: "handoff", from, to: reader, message: `${from} hands the material to ${reader}.`, ...live };
     }
     const pace = deps.paceMs ?? 0;
@@ -475,7 +476,7 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
     // The note types out a sentence at a time. Time and tokens are read first so this pacing is not counted as the agent's work.
     async function* present(index: number, note: string): AsyncGenerator<EngineEvent> {
       const reader = READERS[index];
-      const spent = { inputTokens: usage.inputTokens - mark.inputTokens, outputTokens: usage.outputTokens - mark.outputTokens, cacheReadTokens: usage.cacheReadTokens - mark.cacheReadTokens, cacheWriteTokens: usage.cacheWriteTokens - mark.cacheWriteTokens, ms: Date.now() - mark.at, model: deps.model ?? resolveModel(AGENT_SPECS[index], env) };
+      const spent = { inputTokens: usage.inputTokens - mark.inputTokens, outputTokens: usage.outputTokens - mark.outputTokens, cacheReadTokens: usage.cacheReadTokens - mark.cacheReadTokens, cacheWriteTokens: usage.cacheWriteTokens - mark.cacheWriteTokens, ms: Date.now() - mark.at, model: deps.model ?? resolveModel(AGENT_SPECS[index], env), firecrawlCalls: webNow().calls - mark.web.calls, firecrawlCredits: webNow().credits - mark.web.credits, webFree: webNow().free - mark.web.free };
       usageRows.push({ agent: reader, model: spent.model, provider: deps.provider ?? "anthropic", inputTokens: spent.inputTokens, outputTokens: spent.outputTokens, ms: spent.ms, fallback: false });
       const pieces = (note.match(/[^.!?]+[.!?]*/g) ?? [note]).map((piece) => piece.trim()).filter(Boolean);
       for (const piece of pieces) { yield { type: "reasoning", agent: reader, text: piece, done: false, ...live }; await pause(pace); }
@@ -602,13 +603,13 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
       const evidence = finderEvidence[i].evidence;
       const reason: PlannerGap["reason"] = failedQuote.has(skill.name) ? "quote did not check out" : evidence === 0 ? "no proof found" : "named but not shown in work";
       return { skill: skill.name, demand: skill.demand, evidence, reason };
-    }).filter((gap) => gap.demand > 0).sort((a, b) => b.demand * (100 - b.evidence) - a.demand * (100 - a.evidence)).slice(0, 5);
+    }).filter((gap) => gap.demand > 0).sort((a, b) => b.demand * (100 - b.evidence) - a.demand * (100 - a.evidence)).slice(0, 6);
     yield* handoff(3, "Recruiter");
     // Skills with a checked playbook already get checked lesson links from the runner, so the Planner only searches when a gap has none.
     const plannerSearches = web && gaps.some((gap) => !playbookFor(gap.skill));
     const plannerCtx = local(plannerSearches ? { firecrawl_search: (input) => plannerWeb.search((input as { query?: unknown } | null)?.query) } : {});
     const rawPlanner = yield* runAgent(plannerSpec, { roleTitle: scout.title, gaps }, plannerCtx);
-    const quests = rawPlanner.quests.slice(0, 3).map((quest) => {
+    const quests = rawPlanner.quests.slice(0, 6).map((quest) => {
       const url = safeJobUrl(quest.link?.url);
       return {
         title: cut(quest.title, 80), task: cut(quest.task, 300), proof: cut(quest.proof, 160), skill: cut(quest.skill, 40),

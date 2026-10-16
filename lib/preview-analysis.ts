@@ -4,7 +4,7 @@ import { computeMatch } from "./scoring.ts";
 import { recruiterReview } from "./recruiter-review.ts";
 import { atsCheck } from "./ats-check.ts";
 import { detectCompany } from "./company-culture.ts";
-import { playbookFor, questFor, tipKind } from "./skill-playbooks.ts"; // skill-playbooks reads `catalog` only inside functions, so the import cycle is safe
+import { generalTips, playbookFor, questFor, tipKind } from "./skill-playbooks.ts"; // skill-playbooks reads `catalog` only inside functions, so the import cycle is safe
 
 export type SkillSeed = { name: string; terms: string[]; tip: string; proof: string };
 export const catalog: SkillSeed[] = [
@@ -60,21 +60,14 @@ export function previewAnalysis(resumes: Resume[], job: string): Analysis {
   const hasGap = meaningfulGaps.length > 0;
   // A tip comes from the skill's playbook, in the kind that fits what the résumé lacks (build it, show it, or put a number on it).
   const tipFor = ({ seed, skill }: { seed: SkillSeed; skill: Skill }): Quest => questFor(seed.name, tipKind(skill)) ?? { title: `Show ${seed.name} in a project`, task: seed.tip, proof: seed.proof, skill: seed.name };
-  const quests: Quest[] = meaningfulGaps.slice(0, 3).map(tipFor);
-  // Fewer than three gaps: the skills with the least proof get the next tips.
+  // Up to four tips from the gaps, then the skills with the least proof, then practical general tips so there are never fewer than four.
+  const quests: Quest[] = meaningfulGaps.slice(0, 4).map(tipFor);
   for (const item of [...selected].sort((a, b) => a.skill.evidence - b.skill.evidence)) {
-    if (quests.length >= 3) break;
+    if (quests.length >= 5) break;
     if (quests.some((quest) => quest.skill === item.seed.name) || !playbookFor(item.seed.name)) continue;
     quests.push(tipFor(item));
   }
-  while (quests.length < 3) {
-    const next = quests.length;
-    quests.push(next === 0
-      ? { title: "Pick one relevant example", task: "Choose a project or work example that matches a main part of the role.", proof: "Project notes with an outcome", skill: primary.seed.name }
-      : next === 1
-        ? { title: "Write down what you did", task: "Describe the steps, tools and result of that example in plain language.", proof: "Short project write-up", skill: primary.seed.name }
-        : { title: "Put it in your résumé", task: "Add one specific bullet pointing to the example and its result.", proof: "Revised résumé bullet", skill: primary.seed.name });
-  }
+  for (const tip of generalTips(roleTitle, primary.seed.name)) if (quests.length < 4) quests.push(tip);
   const matchScore = computeMatch(selected.map((item) => item.skill));
   const weakProof = selected.filter((item) => item.skill.demand - item.skill.evidence >= 20).length;
   const ats = atsCheck(allText, noCatalogMatch ? [] : selected.map((item) => item.skill.name));

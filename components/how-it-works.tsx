@@ -67,11 +67,10 @@ const stations: Station[] = [
     id: "native", n: "2b", title: "Native scan",
     line: "Free. Rules and passage matching run in your browser.",
     chips: [
-      { t: "Passage matching", tip: { title: "Passage matching (lib/passages.ts, lib/rag.ts)", lines: [
-        "This is plain retrieval, not RAG, because no language model answers from the passages.",
+      { t: "Passage matching", tip: { title: "Passage matching (lib/passages.ts)", lines: [
+        "Matching runs on your device. No model reads the passages.",
         "Your résumé is cut into short passages. Each skill pulls its best-matching passages by word matching, with no embeddings and no server.",
         "Every quote shown is one of those passages, and a quote not found word for word scores 0.",
-        "API boost builds on this: it hands retrieved passages to a model, which is RAG.",
       ] } },
     ],
     tipTitle: "Native scan (lib/simulated-engine.ts)",

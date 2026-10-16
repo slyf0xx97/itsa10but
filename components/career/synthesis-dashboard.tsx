@@ -318,7 +318,7 @@ function PlannerCard({ quests, rows, verdict, skillNames, analysis, hasResult, s
   const row = openAt === null ? undefined : rows.find((item) => item.index === openAt);
   const names = [...skillNames, ...quests.flatMap((item) => [item.skill, item.title])];
   const list = rows.length ? <ol className="pl-list" aria-label="Tips and tricks, in order">
-    {rows.map((item) => <li className="pl-item" key={item.index}>
+    {rows.slice(0, ROWS).map((item) => <li className="pl-item" key={item.index}>
       <button type="button" className="pl-open" aria-haspopup="dialog" onClick={() => setOpenAt(item.index)}>
         <span className="pl-num" aria-hidden="true">{item.index + 1}</span>
         <span className="pl-title"><span>{item.title}</span></span>

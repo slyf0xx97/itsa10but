@@ -49,7 +49,7 @@ export async function* demoLive(items: Resume[], job: string): AsyncGenerator<En
     yield { ...second, status: "done", progress: 100, detail: `${Math.round(half / 1000)}s` };
     for (const piece of step.note.match(/[^.!?]+[.!?]*/g) ?? [step.note]) { yield { type: "reasoning", agent: step.agent, text: piece.trim(), done: false, ...live }; await wait(220); }
     yield { type: "reasoning", agent: step.agent, text: "", done: true, ...live };
-    yield { type: "stage", index, agent: { role: step.agent, note: step.note }, usage: { inputTokens: step.inTok, outputTokens: step.outTok, ms: step.ms, model: step.model }, ...live };
+    yield { type: "stage", index, agent: { role: step.agent, note: step.note }, usage: { inputTokens: step.inTok, outputTokens: step.outTok, ms: step.ms, model: step.model, ...(step.agent === "Role Scout" ? { firecrawlCalls: 2, firecrawlCredits: 3, webFree: 1 } : step.agent === "Action Planner" ? { firecrawlCalls: 1, firecrawlCredits: 2 } : {}) }, ...live };
     for (const fact of step.facts) {
       const lane = { type: "activity" as const, agent: step.agent, lane: fact.lane, label: fact.label, ...live };
       yield { ...lane, status: "start", progress: 0 };

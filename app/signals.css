@@ -28,9 +28,9 @@
 .sgs-group a, .sgs-group .sgs-logo { display: grid; place-items: center; width: 3.4rem; height: 3.4rem; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: #fff; transition: transform .12s, background-color .12s; }
 .sgs-group .sgs-logo { box-sizing: border-box; cursor: pointer; font: inherit; }
 .sgs-group a:hover, .sgs-group .sgs-logo:hover { transform: translateY(-2px); }
-.sgs-group a.sgs-more { display: inline-flex; align-items: center; justify-content: center; place-items: initial; width: auto; height: auto; min-height: 3.4rem; padding: .35rem 1.1rem; box-sizing: border-box; border-radius: 999px; border-style: dashed; text-decoration: none; }
+.sgs-group a.sgs-more { display: inline-flex; align-items: center; justify-content: center; width: auto; height: auto; min-height: 3.4rem; padding: .35rem 1.1rem; box-sizing: border-box; border-radius: 999px; border-style: dashed; text-decoration: none; }
 .rt-sites .sgs-jump { margin-top: .6rem; text-decoration: none; }
-.sgs-more { display: inline-flex; align-items: center; min-height: 2.5rem; padding: 0 .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .98rem; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; }
+.sgs-more { display: inline-flex; align-items: center; min-height: 3.4rem; padding: 0 .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .98rem; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; }
 .sgs-group img { display: block; width: 2.55rem; height: 2.55rem; border-radius: 50%; object-fit: contain; background: #fff; }
 .sgs-more { border-style: dashed; color: var(--water-deep); }
 .sgs-group a:hover, .sgs-group .sgs-logo:hover, .sgs-more:hover { background: var(--sky-soft); }

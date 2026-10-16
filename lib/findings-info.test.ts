@@ -25,7 +25,7 @@ test("steps report the sample counts", () => {
   assert.match(scout[0], /6 skills/);
   const finder = readerSteps("finder", sampleAnalysis).join(" ");
   assert.match(finder, /The other 1 had no match and score 0/);
-  assert.match(readerSteps("planner", sampleAnalysis).join(" "), /Picked 3 tips/);
+  assert.match(readerSteps("planner", sampleAnalysis).join(" "), /Picked [4-6] tips/);
 });
 
 test("steps do not break on an empty analysis", () => {

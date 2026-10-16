@@ -66,7 +66,7 @@ test("the sample shows both strengths and gaps, including no MLOps proof", () =>
   assert.ok(sampleAnalysis.skills.some((skill) => skill.evidence >= 70), "a strength");
   assert.equal(by("MLOps")?.evidence, 0);
   assert.ok(sampleAnalysis.skills.filter((skill) => skill.demand - skill.evidence >= 20).length >= 3, "at least three gaps");
-  assert.equal(sampleAnalysis.quests.length, 3);
+  assert.ok(sampleAnalysis.quests.length >= 4 && sampleAnalysis.quests.length <= 6, "four to six tips");
 });
 
 test("the sample analysis matches what Play sample produces in the native scan", async () => {

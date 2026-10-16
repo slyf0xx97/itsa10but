@@ -18,17 +18,17 @@ test("rank the skills: highest ask first, ties keep input order, input untouched
   assert.deepEqual(rankSkills([]), []);
 });
 
-test("planner rows: max three, skill matched case-insensitively, plain-word why, neutral line when no skill matches", () => {
-  const many: Quest[] = ["B", "a", "x", "C"].map((skill) => ({ title: "Do " + skill, task: "", proof: "", skill }));
+test("planner rows: up to six, skill matched case-insensitively, plain-word why, neutral line when no skill matches", () => {
+  const many: Quest[] = ["B", "a", "x", "C", "D", "E", "F"].map((skill) => ({ title: "Do " + skill, task: "", proof: "", skill }));
   const rows = plannerRows(skills, many);
-  assert.equal(rows.length, 3);
+  assert.equal(rows.length, 6);
   assert.deepEqual([rows[0].index, rows[0].title, rows[0].want, rows[0].proof], [0, "Do B", "High", "None"]);
   assert.equal(rows[0].why, "Asked for a lot. Your résumé shows nothing yet.");
   assert.deepEqual([rows[1].want, rows[1].proof], ["Medium", "Strong"]);
   assert.deepEqual([rows[2].want, rows[2].proof], ["None", "None"]);
   assert.equal(rows[2].why, "A tip that gives you something to show for x.");
   assert.deepEqual(plannerRows([], []), []);
-  assert.equal(dashboardData({ skills, quests: many, matchPercent: 50 } as never).planner.length, 3);
+  assert.equal(dashboardData({ skills, quests: many, matchPercent: 50 } as never).planner.length, 6);
 });
 
 test("weak proofs: missing quote or thin evidence, weakest first, reason shortened", () => {

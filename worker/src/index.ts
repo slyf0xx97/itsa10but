@@ -69,10 +69,12 @@ async function search(request: Request, env: Env): Promise<Response> {
   // when a key is available; with none, the native hits stand alone. Everything is cached, so a repeat lookup costs no credits.
   let results: SearchHit[] = [];
   let source = "native";
+  let fc = 0, credits = 0; // Firecrawl calls this answer really cost, and the credits it reported
   const name = companyFromQuery(q);
   const native = name ? await companyHits(name, getJson) : [];
   if (needsWeb(Boolean(name), native.length)) {
     const data = (await firecrawl(env, "/search", { query: q, limit }, request.headers.get("x-firecrawl-key"))) as { data?: unknown } | null;
+    if (data) { fc = 1; credits = Number((data as { creditsUsed?: unknown }).creditsUsed) || 0; }
     const rows = Array.isArray(data?.data) ? data.data : (data?.data as { web?: unknown } | undefined)?.web;
     type Row = { title?: unknown; url?: unknown; description?: unknown; snippet?: unknown };
     const web = (Array.isArray(rows) ? (rows as Row[]) : []).flatMap((row) => {
@@ -85,7 +87,7 @@ async function search(request: Request, env: Env): Promise<Response> {
     source = web.length ? (kept.length ? "native+firecrawl" : "firecrawl") : "native";
   } else results = native.slice(0, limit);
   if (results.length) await env.CACHE.put(key, JSON.stringify({ results, source }), { expirationTtl: DAY });
-  return json({ ok: true, results, source });
+  return json({ ok: true, results, source, fc, credits });
 }
 
 /** Fetches one https page, following up to three redirects and re-checking every hop; reads at most 1.5 MB. */
@@ -124,15 +126,17 @@ async function scrape(request: Request, env: Env): Promise<Response> {
   const html = await fetchPage(url);
   let page = html ? htmlToText(html, 2500) : "";
   let source = "direct";
+  let fc = 0, credits = 0;
   let title = html ? text(/<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1], 200) : "";
   if (page.length < 300) {
     const data = (await firecrawl(env, "/scrape", { url, formats: ["markdown"], onlyMainContent: true, timeout: 7000 }, request.headers.get("x-firecrawl-key"))) as { data?: { markdown?: unknown; metadata?: { title?: unknown } } } | null;
+    if (data) { fc = 1; credits = Number((data.data?.metadata as { creditsUsed?: unknown } | undefined)?.creditsUsed) || 0; }
     const markdown = typeof data?.data?.markdown === "string" ? data.data.markdown.slice(0, 2500) : "";
     if (markdown.length > page.length) { page = markdown; source = "firecrawl"; title = text(data?.data?.metadata?.title, 200) || title; }
   }
   if (!page) return json({ ok: false, error: "The page had no readable text." }, 404);
   await env.CACHE.put(key, JSON.stringify({ title, text: page, source }), { expirationTtl: DAY });
-  return json({ ok: true, title, text: page, source });
+  return json({ ok: true, title, text: page, source, fc, credits });
 }
 
 async function limit(request: Request, env: Env): Promise<Response> {

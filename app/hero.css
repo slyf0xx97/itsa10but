@@ -64,9 +64,12 @@
    Motion is transform and opacity only, split over four layers so none fight:
    slot = swapping places in pairs (up and down), .agent = slow vertical slide, .ha-hop = the occasional wave and the hover hop, .pixel-sprite = the bob (ui.css).
    Sizes live in custom properties so the swap distance (--ha-step) always equals one slot plus one gap. */
-.ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; --ha-pad: 1.5rem; --ha-text: calc(var(--ha-pad) + min(36rem, calc(100% - 8.6rem))); left: calc(var(--ha-text) + (100% - var(--ha-text) - var(--ha-size)) / 2); bottom: 1rem; width: var(--ha-size); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
+.ha { display: none; --ha-size: 4rem; --ha-gap: 1.1rem; --ha-step: calc(var(--ha-size) + var(--ha-gap)); position: absolute; top: 1rem; --ha-pad: 1.5rem; --ha-w: var(--ha-size); --ha-text: calc(var(--ha-pad) + min(36rem, calc(100% - var(--ha-w) - 4.6rem))); left: calc(var(--ha-text) + (100% - var(--ha-text) - var(--ha-w)) / 2); bottom: 1rem; width: var(--ha-w); flex-direction: column; align-items: center; justify-content: center; gap: var(--ha-gap); pointer-events: none; }
 @container hero-plate (min-width: 38rem) {.ha { display: flex; }
 .hero h1, .hero .hero-lede { max-width: min(36rem, calc(100% - 5.6rem)); }}
+/* A wide plate has room to spare at the right, so the readers grow and stand two by two. Each column still trades its pair up and down (the step is one slot plus one gap). */
+@container hero-plate (min-width: 50rem) {.ha { --ha-size: 7rem; --ha-gap: 1.2rem; --ha-w: calc(var(--ha-size) * 2 + var(--ha-gap)); display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, var(--ha-size)); grid-template-columns: repeat(2, var(--ha-size)); align-content: center; justify-content: center; }
+.hero h1, .hero .hero-lede { max-width: min(36rem, calc(100% - 16.8rem)); }}
 .ha-slot { position: relative; flex: none; width: var(--ha-size); height: var(--ha-size); pointer-events: auto; }
 .ha-slot:hover { z-index: 2; }
 .ha .agent { width: 100%; height: 100%; }

@@ -322,9 +322,9 @@
    copy, then the resources as site cards (a logo tile, the title, what it is and where it lives). The three-across layout starts at 50rem of popup, so on a wide screen the whole
    plan shows without scrolling. */
 .pl-one { display: grid; gap: .8rem; min-width: 0; }
-.pl-sec { display: grid; gap: .6rem; min-width: 0; }
+.pl-sec { display: grid; gap: 1rem; min-width: 0; padding-top: .35rem; }
 .pl-lead { margin: 0; color: var(--ink); font-size: 1.1rem; font-weight: 700; line-height: 1.35; }
-.pl-plan { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; min-width: 0; }
+.pl-plan { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; }
 @container dcard (min-width: 50rem) {.pl-plan { grid-template-columns: repeat(3, minmax(0, 1fr)); }}
 .tip-card { display: grid; align-content: start; gap: .7rem; min-width: 0; padding: .9rem 1rem 1rem; border: 2px solid var(--ink); border-radius: 16px; background: #fff; box-shadow: 0 3px 0 rgb(31 36 48 / 30%); }
 .tip-card.is-compact { gap: .55rem; padding: .75rem .8rem .85rem; }
@@ -393,6 +393,7 @@
 .dg-scene.sleep .dg-prop::before { content: "z Z"; position: absolute; left: calc(38% + var(--dg-size) * .8); bottom: calc(var(--dg-size) * .7); font-family: var(--font-display); font-size: 1.3rem; line-height: 1; letter-spacing: .1em; color: var(--ink); opacity: .6; white-space: nowrap; }
 @media (prefers-reduced-motion: no-preference) {
   .dg-scene.walk .dg-who { animation: dg-pace 9s linear infinite; }
+  .dg-scene.walk.recruiter .dg-who { animation-duration: 12s; animation-delay: -5s; }
   .dg-scene.look .dg-who { animation: dg-wander 15s linear infinite; }
   .dg-scene.look .dg-prop::before { animation: dg-wander-bubble 15s linear infinite; }
   .dg-scene.sit .dg-who { animation: dg-wait 2.4s steps(2) infinite; }

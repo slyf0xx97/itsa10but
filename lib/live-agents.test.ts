@@ -241,7 +241,7 @@ test("planner links: only https links from its own search survive; scrape is ref
   });
   const done = complete(await run(client, { firecrawlKey: "fc", fetchImpl: search }, oddJob));
   assert.deepEqual(done.result.analysis.sources.map((s) => s.url), ["https://docs.example.com/a"]);
-  assert.equal(done.result.analysis.quests.length, 3, "capped at three quests");
+  assert.equal(done.result.analysis.quests.length, 4, "up to six quests are kept");
   const plannerCalls = requests.filter((r) => agentOf(r) === "planner");
   const scrapeReply = (plannerCalls[2].messages[4].content as Block[])[0];
   assert.equal(scrapeReply.is_error, true, "a planner has no scrape tool");

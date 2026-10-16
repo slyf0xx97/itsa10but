@@ -1,7 +1,7 @@
 import { estimateCost } from "./model-prices.ts";
 
 /** One agent's spend in a live run: counts and time only. */
-export type UsageRow = { agent: string; inputTokens: number; outputTokens: number; ms: number; model?: string; cacheReadTokens?: number; cacheWriteTokens?: number };
+export type UsageRow = { agent: string; inputTokens: number; outputTokens: number; ms: number; model?: string; cacheReadTokens?: number; cacheWriteTokens?: number; firecrawlCalls?: number; firecrawlCredits?: number; webFree?: number };
 
 /** The estimated cost of one agent, counting what it reused from the cache at the lower rate. */
 export const rowCost = (row: UsageRow): number | null => estimateCost(row.model, row.inputTokens, row.outputTokens, row.cacheReadTokens, row.cacheWriteTokens);
@@ -31,13 +31,24 @@ export function shortCost(dollars: number | null): string {
   return dollars < 0.01 ? "under $0.01" : "about $" + dollars.toFixed(2);
 }
 
-export function totalOf(rows: UsageRow[]): { inputTokens: number; outputTokens: number; cachedTokens: number; ms: number; cost: number | null } {
+export function totalOf(rows: UsageRow[]): { inputTokens: number; outputTokens: number; cachedTokens: number; ms: number; cost: number | null; firecrawlCalls: number; firecrawlCredits: number; webFree: number } {
   const costs = rows.map((row) => rowCost(row));
   return {
     inputTokens: rows.reduce((sum, row) => sum + row.inputTokens, 0),
     outputTokens: rows.reduce((sum, row) => sum + row.outputTokens, 0),
     cachedTokens: rows.reduce((sum, row) => sum + (row.cacheReadTokens ?? 0), 0),
     ms: rows.reduce((sum, row) => sum + row.ms, 0),
+    firecrawlCalls: rows.reduce((sum, row) => sum + (row.firecrawlCalls ?? 0), 0),
+    firecrawlCredits: rows.reduce((sum, row) => sum + (row.firecrawlCredits ?? 0), 0),
+    webFree: rows.reduce((sum, row) => sum + (row.webFree ?? 0), 0),
     cost: rows.length === 0 || costs.some((cost) => cost === null) ? null : costs.reduce<number>((sum, cost) => sum + (cost ?? 0), 0),
   };
+}
+
+/** "2 Firecrawl calls, 3 credits", or "3 free lookups" when the cache or native readers answered, or null when this agent used no web tool. Credits show only when Firecrawl reported them. */
+export function shortFirecrawl(row: { firecrawlCalls?: number; firecrawlCredits?: number; webFree?: number }): string | null {
+  const calls = row.firecrawlCalls ?? 0, credits = row.firecrawlCredits ?? 0, free = row.webFree ?? 0;
+  const paid = calls > 0 ? `${calls} Firecrawl ${calls === 1 ? "call" : "calls"}${credits > 0 ? `, ${Math.round(credits * 10) / 10} ${credits === 1 ? "credit" : "credits"}` : ""}` : "";
+  const cheap = free > 0 ? `${free} free ${free === 1 ? "lookup" : "lookups"}` : "";
+  return paid && cheap ? `${paid}, ${cheap}` : paid || cheap || null;
 }

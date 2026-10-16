@@ -24,7 +24,16 @@ test("the total adds every agent and has no cost if any model has no price", () 
     { agent: "Role Scout", inputTokens: 1_000_000, outputTokens: 0, ms: 1000, model: "claude-sonnet-5-5" },
     { agent: "Recruiter", inputTokens: 0, outputTokens: 100_000, ms: 2000, model: "claude-sonnet-5-5" },
   ];
-  assert.deepEqual(totalOf(rows), { inputTokens: 1_000_000, outputTokens: 100_000, cachedTokens: 0, ms: 3000, cost: 3 });
+  assert.deepEqual(totalOf(rows), { inputTokens: 1_000_000, outputTokens: 100_000, cachedTokens: 0, ms: 3000, cost: 3, firecrawlCalls: 0, firecrawlCredits: 0, webFree: 0 });
   assert.equal(totalOf([...rows, { agent: "Planner", inputTokens: 1, outputTokens: 1, ms: 1, model: "other/model" }]).cost, null);
   assert.equal(totalOf([]).cost, null);
+});
+
+test("Firecrawl use reads short, and shows credits only when Firecrawl reported them", async () => {
+  const { shortFirecrawl } = await import("./usage-coins.ts");
+  assert.equal(shortFirecrawl({}), null);
+  assert.equal(shortFirecrawl({ firecrawlCalls: 2, firecrawlCredits: 3 }), "2 Firecrawl calls, 3 credits");
+  assert.equal(shortFirecrawl({ firecrawlCalls: 1 }), "1 Firecrawl call");
+  assert.equal(shortFirecrawl({ webFree: 2 }), "2 free lookups");
+  assert.equal(shortFirecrawl({ firecrawlCalls: 1, firecrawlCredits: 1, webFree: 1 }), "1 Firecrawl call, 1 credit, 1 free lookup");
 });

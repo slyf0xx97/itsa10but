@@ -15,6 +15,8 @@ export type WebTools = {
   scrape(url: unknown): Promise<ToolResult>;
   /** Links this agent's own searches returned. */
   seen: Set<string>;
+  /** What this tool set used: Firecrawl calls really made, the credits Firecrawl said they cost (only when it says), and lookups answered free from the cache or the native readers. */
+  stats: { calls: number; credits: number; free: number };
 };
 
 /** What the agents are given from one page. About 600 tokens: enough for a values page, and cheap to carry through every later turn. */
@@ -25,6 +27,7 @@ const text = (value: unknown, max: number) => (typeof value === "string" ? value
 /** With `edge`, lookups go through the Worker (native Wikipedia and direct page reads first, Firecrawl as its fallback, all cached). Without it they call Firecrawl directly. */
 export function createWebTools(options: { apiKey?: string; allowScrape: boolean; fetchImpl?: typeof fetch; timeoutMs?: number; edge?: Edge }): WebTools {
   const seen = new Set<string>();
+  const stats = { calls: 0, credits: 0, free: 0 };
   const doFetch = options.fetchImpl ?? fetch;
   const post = async (path: string, body: unknown): Promise<{ ok: true; json: unknown } | { ok: false; error: string }> => {
     if (!options.apiKey) return { ok: false, error: "Web lookup is not available." };
@@ -37,14 +40,25 @@ export function createWebTools(options: { apiKey?: string; allowScrape: boolean;
         cache: "no-store",
       });
       if (!response.ok) return { ok: false, error: `Web lookup failed (${response.status}).` };
-      return { ok: true, json: await response.json() };
+      stats.calls += 1;
+      const json = await response.json();
+      const credits = Number((json as { creditsUsed?: unknown; data?: { metadata?: { creditsUsed?: unknown } } } | null)?.creditsUsed ?? (json as { data?: { metadata?: { creditsUsed?: unknown } } } | null)?.data?.metadata?.creditsUsed);
+      if (Number.isFinite(credits) && credits > 0) stats.credits += credits;
+      return { ok: true, json };
     } catch {
       return { ok: false, error: "Web lookup failed." };
     }
   };
 
+  /** The Worker says how many Firecrawl calls an answer cost: 0 when it came from the cache or the native readers. */
+  const fromEdge = (answer: { fc?: unknown; credits?: unknown } | null) => {
+    const calls = Number(answer?.fc) || 0, credits = Number(answer?.credits) || 0;
+    if (calls > 0) { stats.calls += calls; stats.credits += credits; } else stats.free += 1;
+  };
+
   return {
     seen,
+    stats,
     async search(query, extra) {
       const q = text(query, 200);
       if (q.length < 3 || /https?:\/\//i.test(q)) return { ok: false, error: "Use a short plain search query." };
@@ -52,7 +66,8 @@ export function createWebTools(options: { apiKey?: string; allowScrape: boolean;
       const hosts = (extra?.includeDomains ?? []).filter((host) => /^[a-z0-9.-]{3,100}$/.test(host)).slice(0, 12);
       const tbs = /^qdr:[hdwmy]$/.test(extra?.tbs ?? "") ? extra?.tbs : undefined;
       if (options.edge) {
-        const answer = await edgeCall<{ ok?: boolean; results?: { title?: unknown; url?: unknown; snippet?: unknown }[] }>(options.edge, "/search", { q, limit }, { firecrawlKey: options.apiKey });
+        const answer = await edgeCall<{ ok?: boolean; fc?: number; credits?: number; results?: { title?: unknown; url?: unknown; snippet?: unknown }[] }>(options.edge, "/search", { q, limit }, { firecrawlKey: options.apiKey });
+        fromEdge(answer);
         if (!answer?.ok) return { ok: false, error: "Web lookup failed." };
         const results = (answer.results ?? []).flatMap((row) => {
           const url = safeJobUrl(row?.url);
@@ -78,7 +93,8 @@ export function createWebTools(options: { apiKey?: string; allowScrape: boolean;
       const url = safeJobUrl(input);
       if (!url || !seen.has(url)) return { ok: false, error: "Only a link from your own search results can be opened." };
       if (options.edge) {
-        const answer = await edgeCall<{ ok?: boolean; title?: unknown; text?: unknown }>(options.edge, "/scrape", { url }, { firecrawlKey: options.apiKey, timeoutMs: 15000 });
+        const answer = await edgeCall<{ ok?: boolean; fc?: number; credits?: number; title?: unknown; text?: unknown }>(options.edge, "/scrape", { url }, { firecrawlKey: options.apiKey, timeoutMs: 15000 });
+        fromEdge(answer);
         const body = typeof answer?.text === "string" ? answer.text.slice(0, MAX_PAGE_CHARS) : "";
         return answer?.ok && body ? { ok: true, data: { url, title: text(answer.title, 200), text: body } } : { ok: false, error: "The page had no readable text." };
       }

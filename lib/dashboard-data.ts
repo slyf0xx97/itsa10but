@@ -27,7 +27,7 @@ export function coverage(skills: Skill[]) {
 }
 
 /** Tips the planner card shows, and the ticks store keeps. */
-export const PLANNER_MAX = 3;
+export const PLANNER_MAX = 6;
 
 export type PlannerRow = { index: number; title: string; skill: string; want: Want | "None"; proof: Proof; why: string };
 

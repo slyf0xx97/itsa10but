@@ -247,3 +247,17 @@ export function enrichQuest(quest: Quest): Quest {
   if (!book) return quest;
   return { ...quest, steps: quest.steps ?? [...book.build.steps], bullet: quest.bullet ?? book.build.bullet, links: quest.links ?? book.links, kind: quest.kind ?? "build" };
 }
+
+/**
+ * Practical tips that help for almost any tech role, used by the native scan when the gaps alone give fewer than four tips.
+ * Each one is an hour or two of work on a laptop with free tools, and none needs hardware or a lab.
+ */
+export function generalTips(roleTitle: string, skill: string): Quest[] {
+  const role = roleTitle.trim().slice(0, 60) || "this role";
+  return [
+    { title: "Put your best project on GitHub", task: "Add a README that says what it does, how to run it and shows one screenshot. Link it at the top of your résumé.", proof: "A GitHub link in your résumé header", skill, kind: "show", bullet: "Built [what] with [tool] that [did what]. Code and demo: [link].", links: [link("Guide", "Make a README", "https://www.makeareadme.com/")] },
+    { title: "Rewrite your top three bullets", task: `Start each with a verb, name the tool and end with a number. Use the posting's own words for the skills it asks for.`, proof: "Three revised bullets", skill, kind: "measure", bullet: "[Verb] [what] with [tool], [result with a number]." },
+    { title: `Save five ${role} postings`, task: `Save five postings for ${role}, list the skills that appear in three or more, and add the ones you have to your skills line.`, proof: "A short list of what employers ask for", skill, kind: "show", links: [link("Tool", "LinkedIn Jobs", "https://www.linkedin.com/jobs/")] },
+    { title: "Ask one person in the field for 15 minutes", task: `Message one person who works as ${role} or a close role. Ask what a first project should show and what they look for in a résumé.`, proof: "One page of notes on what they look for", skill, kind: "show" },
+  ];
+}

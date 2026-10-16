@@ -118,7 +118,7 @@ The tips come from `showItTips`, a rules table in `lib/company-culture.ts`, and 
   - Treat a report with no valid check as a fallback.
 - Never pass the Recruiter any Finder output, and never pass the Planner résumé text.
 - Check the Scout's `company` findings with `checkCompany` (see Company culture above) and set `Analysis.company` itself.
-- Keep at most eight skills and three tips, and cut skill names and notes to a sensible length.
+- Keep at most eight skills and six tips, and cut skill names and notes to a sensible length.
 - Let `firecrawl_scrape` open only links that agent's own search returned. `read_linkedin_posting` takes no input and reads only the link the user gave.
 - Keep only https links, checked with `safeJobUrl` from `lib/job-types.ts`. Drop the rest.
 - Read each agent's final text with `parseAgentJson` in `lib/live-agents.ts`. It accepts a fenced or wrapped JSON object, turns whole-number strings into integers and drops keys the schema doesn't name. A reply that still doesn't fit gets one repair turn that asks for the JSON again. A second bad reply is a fallback.

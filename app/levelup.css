@@ -85,3 +85,6 @@
 .stage-row.has-radar .lu-group:not([hidden]) { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
 .stage-row.has-radar .lu-more-wrap { flex: 1 1 auto; min-height: 14rem; }
 .stage-row.has-radar .lu-scroll { position: absolute; inset: 0; height: auto; }}
+@media (min-width: 1100px) {.stage-row.has-radar > #level-up > .stage-body { padding-bottom: .35rem; }
+.stage-row.has-radar > #level-up > .stage-body > .lu { padding-bottom: .5rem; }
+.stage-row.has-radar .lu-group:not([hidden]) { padding-bottom: .4rem; }}

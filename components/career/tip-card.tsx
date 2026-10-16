@@ -53,10 +53,10 @@ function ResumeLine({ text }: { text: string }) {
 /**
  * One tip, laid out to be read top to bottom without hunting: a kind label and the title, why it comes up, three short steps, what you will have at the end,
  * a résumé line to adapt, and the resources as site cards. A tip from API boost for a skill with no playbook has no steps, so it shows its own task instead.
- * `compact` is the three-across layout in the full plan: the same parts with less padding and shorter resource cards.
+ * `compact` is the three-across layout in the full plan: one sentence instead of the steps, two resources and less padding, so six tips stay quick to read.
  */
 export function TipCard({ quest, number, why, compact = false }: { quest: Quest; number?: number; why?: string; compact?: boolean }) {
-  const links = compact ? (quest.links ?? []).slice(0, 3) : (quest.links ?? []);
+  const links = compact ? (quest.links ?? []).slice(0, 2) : (quest.links ?? []);
   return <article className={"tip-card" + (compact ? " is-compact" : "")} data-kind={quest.kind ?? "build"}>
     <header className="tip-head">
       {number !== undefined && <span className="tip-num" aria-hidden="true">{number}</span>}
@@ -66,7 +66,7 @@ export function TipCard({ quest, number, why, compact = false }: { quest: Quest;
       </div>
     </header>
     {why && <p className="tip-why">{why}</p>}
-    {quest.steps?.length
+    {quest.steps?.length && !compact
       ? <ol className="tip-steps" aria-label="Three steps">{quest.steps.map((step) => <li key={step}><span>{step}</span></li>)}</ol>
       : <p className="tip-task">{quest.task}</p>}
     <p className="tip-have"><b>You will have:</b> {quest.proof}</p>

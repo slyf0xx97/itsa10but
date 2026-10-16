@@ -1,5 +1,5 @@
 import { PixelCoin } from "@/components/career/pixel-icons";
-import { COIN_SLOTS, coinHalves, rowCost, shortCost, shortSeconds, shortTokens, totalOf, type UsageRow } from "@/lib/usage-coins";
+import { COIN_SLOTS, coinHalves, rowCost, shortCost, shortFirecrawl, shortSeconds, shortTokens, totalOf, type UsageRow } from "@/lib/usage-coins";
 
 /** The coins for one spend: full coins, one half coin if the count is odd, then empty slots. Decorative; the text beside it carries the numbers. */
 function CoinRow({ tokens, big = false }: { tokens: number; big?: boolean }) {
@@ -20,7 +20,7 @@ export function CardCoins({ row, working }: { row: UsageRow | undefined; working
   return <div className={"rd-coins" + (row ? " done" : "")}>
     <CoinRow tokens={tokens} />
     {row
-      ? <p className="rd-coin-text"><span>{shortTokens(row.inputTokens)} in · {shortTokens(row.outputTokens)} out</span><span>{shortSeconds(row.ms)} · {shortCost(rowCost(row))}</span></p>
+      ? <p className="rd-coin-text"><span>{shortTokens(row.inputTokens)} in · {shortTokens(row.outputTokens)} out</span><span>{shortSeconds(row.ms)} · {shortCost(rowCost(row))}</span>{shortFirecrawl(row) && <span>{shortFirecrawl(row)}</span>}</p>
       : <p className="rd-coin-text"><span>{working ? "Spending…" : "Not run yet"}</span></p>}
   </div>;
 }
@@ -34,6 +34,7 @@ export function RunTotal({ rows, done }: { rows: UsageRow[]; done: boolean }) {
     <p className="rd-total-text">
       <b>{done ? "This run used" : "So far this run has used"}</b>
       <span>{shortTokens(total.inputTokens)} tokens in{total.cachedTokens > 0 ? ` (${shortTokens(total.cachedTokens)} reused from cache)` : ""} · {shortTokens(total.outputTokens)} out · {shortSeconds(total.ms)} · {shortCost(total.cost)}</span>
+      {shortFirecrawl(total) && <span>Web lookups: {shortFirecrawl(total)}</span>}
     </p>
     <p className="rd-total-note">Cost is an estimate from OpenRouter’s listed prices. Your provider’s bill is the real figure.</p>
   </div>;
