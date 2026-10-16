@@ -37,3 +37,8 @@ test("a stored snapshot keeps each pick's text and date when it is read back", (
   assert.equal(doc?.ai[0].text, "What it does.");
   assert.equal(doc?.ai[0].published, "2 days ago");
 });
+
+test("a link cut off by the snippet length leaves no URL behind", () => {
+  const [pick] = aiPicks({ data: { news: [{ title: "T", snippet: "Launches at an [introductory price](https://blog.example/pricing and more text that was cut", url: "https://x.example/n" }] } });
+  assert.ok(!/https?:|\(/.test(pick.text), pick.text);
+});

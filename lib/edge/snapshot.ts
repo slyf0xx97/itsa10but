@@ -4,7 +4,7 @@ export type SnapshotDoc = { checked: string; ai: AiPick[] };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** Plain text from a search snippet: Markdown headings, links, footnote marks and emphasis removed, whitespace folded, and cut at a word with an ellipsis when it runs past `max`. */
-const plain = (value: unknown) => (typeof value === "string" ? value.replace(/\[\d+\]\([^)]*\)/g, "").replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/\[\d+\]/g, "").replace(/^#+\s*/gm, "").replace(/[*_`]{1,3}/g, "").replace(/\s+/g, " ").trim() : "");
+const plain = (value: unknown) => (typeof value === "string" ? value.replace(/\[\d+\]\([^)]*\)/g, "").replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/\[\d+\]/g, "").replace(/\(?https?:\/\/\S*/g, "").replace(/^#+\s*/gm, "").replace(/[*_`]{1,3}/g, "").replace(/\s+/g, " ").trim() : "");
 const clip = (value: unknown, max: number) => {
   const text = plain(value);
   if (text.length <= max) return text;
