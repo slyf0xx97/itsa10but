@@ -240,6 +240,12 @@ async function refreshSnapshot(env: Env): Promise<void> {
   if (ai.length >= 2) await env.CACHE.put("snapshot:latest", JSON.stringify({ checked: new Date().toISOString(), ai }));
 }
 
+/** The hourly run also catches up: when the stored check is missing or more than 20 hours old (a missed night, or a first deploy), it runs the refresh now. */
+async function ensureSnapshot(env: Env): Promise<void> {
+  const stored = cleanSnapshot(await env.CACHE.get("snapshot:latest", "json"));
+  if (!stored || Date.now() - Date.parse(stored.checked) > 20 * 3_600_000) await refreshSnapshot(env);
+}
+
 const worker = {
   async fetch(request: Request, env: Env): Promise<Response> {
     const path = new URL(request.url).pathname;
@@ -267,5 +273,5 @@ const clean = async (env: Env): Promise<void> => {
 };
 
 // Two crons (wrangler.jsonc): the nightly clean-up, and the hourly demand refresh.
-const edge = { ...worker, scheduled: (event: { cron?: string }, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }) => ctx.waitUntil((event.cron === "30 18 * * *" ? Promise.all([clean(env), refreshSnapshot(env)]) : refreshDemand(env)).catch(() => undefined)) };
+const edge = { ...worker, scheduled: (event: { cron?: string }, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }) => ctx.waitUntil((event.cron === "30 18 * * *" ? Promise.all([clean(env), refreshSnapshot(env)]) : Promise.all([refreshDemand(env), ensureSnapshot(env)])).catch(() => undefined)) };
 export default edge;

@@ -16,6 +16,7 @@ main { position: relative; }
 .brand { flex: none; display: inline-flex; align-items: center; gap: .6rem; min-height: 2.75rem; color: var(--ink); text-decoration: none; font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; line-height: 1; white-space: nowrap; }
 .brand:hover { color: var(--ink); }
 .brand b { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border: 2px solid var(--ink); border-radius: 8px; background: var(--orange); color: var(--ink); font-size: .95rem; box-shadow: 0 2px 0 rgb(185 101 26 / 70%); }
+.brand-icon { flex: none; width: 2.75rem; height: 2.75rem; border-radius: 12px; }
 .brand em { color: var(--link); font-style: normal; }
 /* "How it works" is a small pill beside the logo, not a tab: same pixel border, smaller, filled orange while its section is in view. Labels use the reading font (Atkinson Hyperlegible), not the pixel one. */
 .how-link { position: relative; display: inline-flex; align-items: center; flex: none; gap: 7px; min-height: 36px; padding: 0 12px 0 9px; border: 2px solid var(--ink); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }

@@ -41,14 +41,13 @@
 .dash-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; align-items: baseline; gap: .25rem .5rem; min-width: 0; padding: .35rem .7rem; border: 1.5px solid rgb(18 52 63 / 16%); border-radius: 12px; background: var(--dash-item-bg); }
 /* Role Scout's third row: "About company" and the company name (or the short reason it is missing), three lines at most. It has no bar. */
 /* The logo sits on the left at about the height of the two lines of text; "About company" and the name stack tightly beside it. Without a mark the text takes the whole row. */
-.dash-co { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .1rem .75rem; }
-.dash-co:not(:has(.dash-co-logo)) { grid-template-columns: minmax(0, 1fr); }
-.dash-co:not(:has(.dash-co-logo)) .dash-co-text { grid-column: 1; }
-.dash-co .dash-name { grid-column: 2; grid-row: 1; align-self: end; }
-.dash-co:not(:has(.dash-co-logo)) .dash-name { grid-column: 1; }
-.dash-co-logo { grid-column: 1; grid-row: 1 / span 2; display: grid; place-items: center; width: 3.1rem; height: 3.1rem; overflow: hidden; border: 1.5px solid var(--dash-line); border-radius: 10px; background: #fff; font-size: 1.4rem; font-weight: 800; color: var(--ink); }
-.dash-co-logo img { width: 100%; height: 100%; padding: 4px; object-fit: contain; }
-.dash-co-text { grid-column: 2; grid-row: 2; font-size: 1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+/* About company: the label and the name stacked on the left, the logo on the right. With no logo the name fills the row at a larger size. */
+.dash-co { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .1rem .9rem; }
+.dash-co .dash-name { grid-column: 1; grid-row: 1; align-self: end; }
+.dash-co-text { grid-column: 1; grid-row: 2; font-size: 1.3rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+.dash-co:has(.dash-co-logo) .dash-co-text { font-size: 1.1rem; }
+.dash-co-logo { grid-column: 2; grid-row: 1 / span 2; display: grid; place-items: center; width: 3.6rem; height: 3.6rem; overflow: hidden; border: 1.5px solid var(--dash-line); border-radius: 12px; background: #fff; }
+.dash-co-logo img { width: 100%; height: 100%; padding: 5px; object-fit: contain; }
 /* Row 3, "See full findings": a pixel-game button the width of the card, in the reader's colour. The line about what it opens sits inside it, so the card needs no caption of its own.
    Ink border, hard shadow, 44px or more tall. Ink on the soft colour is 12:1 or better. */
 .dash-open { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "icon title arrow" "text text text"; align-items: center; gap: .35rem .7rem; box-sizing: border-box; width: 100%; margin: 0; padding: .6rem .75rem .7rem; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 12px; background: var(--hue); color: var(--ink); font: inherit; text-align: left; box-shadow: 0 4px 0 rgb(31 36 48 / 70%), inset 0 2px 0 rgb(255 255 255 / 65%); cursor: pointer; }

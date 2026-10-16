@@ -8,18 +8,18 @@ type Row = { icon: string; lead: string; text: ReactNode };
 
 // Every line here is a fact also stated in AGENTS.md or the How it works lanes; keep them in step.
 const stays: Row[] = [
-  { icon: "🖥️", lead: "Native scan keeps your résumé in this tab", text: "It reads and scores your résumé here and sends it nowhere." },
+  { icon: "🖥️", lead: "Stays in your browser tab", text: "The native scan reads and scores your résumé here and sends it nowhere." },
   { icon: "🧹", lead: "Your résumé is not saved", text: "It stays out of analytics, logs, URLs and browser storage." },
-  { icon: "✅", lead: "Level up ticks", text: "Saved in this browser only." },
+  { icon: "✅", lead: "Level up ticks stay on your device", text: "They are saved in this browser only." },
 ];
 /** The "leaves" list. The API boost row names the company behind the visitor's key, or the choices when no key is entered yet. */
 const leavesFor = (provider: ChosenProvider): Row[] => [
-  { icon: "☁️", lead: "Role text goes to Cloudflare AI", text: "In native scan, to find skills the word list misses. Never your résumé." },
+  { icon: "☁️", lead: "Role text goes to Cloudflare AI", text: "In the native scan, a small model reads it to find skills the word list misses, but never your résumé." },
   { icon: "✉️", ...privacyRow(provider) },
-  { icon: "⚠️", lead: "Not masked", text: "Names, employers and schools go as written." },
-  { icon: "🔍", lead: "Role text shapes web searches", text: "The two web agents never see your résumé." },
-  { icon: "🔑", lead: "Keys last one request", text: "Your key travels in a request header and is never stored or logged." },
-  { icon: "🚦", lead: "Runs have caps", text: "Each agent has limits on tool calls and time. A refused or slow run falls back to the native scan." },
+  { icon: "⚠️", lead: "Names are not masked", text: "In API boost, names, employers and schools go to your model as written." },
+  { icon: "🔍", lead: "Role text shapes web searches", text: "The two web agents see the role text, never your résumé." },
+  { icon: "🔑", lead: "Keys are not stored", text: "Your key travels in a request header for one request and is never stored or logged." },
+  { icon: "🚦", lead: "Every agent has limits", text: "Each agent has caps on tool calls and time. A refused or slow run falls back to the native scan." },
 ];
 
 function Group({ title, rows }: { title: string; rows: Row[] }) {

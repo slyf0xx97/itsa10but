@@ -34,9 +34,9 @@ export function RunModes({ safety = false, provider }: { safety?: boolean; provi
           <span className="hiw-tag">Default</span>
         </div>
         <ul className="cl-list">
-          <Item icon="🔎" lead="Matches text to skills" text="Built-in word matching scores your résumé. A small Cloudflare AI model also reads the role text, never your résumé." />
-          <Item icon="💻" lead="Runs in your browser tab" text="Your résumé is read and scored here and sent nowhere." />
-          <Item icon="🆓" lead="No API key" text="There is nothing to sign up for." />
+          <Item icon="🔎" lead="Matches text to skills" text="Word matching scores your résumé in your browser. A small Cloudflare AI model also reads the role text, but never your résumé." />
+          <Item icon="💻" lead="Stays in your browser tab" text="Your résumé is read and scored here and sent nowhere." />
+          <Item icon="🆓" lead="Needs no key" text="There is nothing to sign up for." />
         </ul>
       </article>
       <article className="hiw-tile" data-tile="claude">
@@ -46,9 +46,9 @@ export function RunModes({ safety = false, provider }: { safety?: boolean; provi
           <span className="hiw-tag">Optional</span>
         </div>
         <ul className="cl-list">
-          <Item icon="🧠" lead="Four agents read it" text="The recommended mix by default. You can pick the model. Every quote is checked against your text." />
+          <Item icon="🧠" lead="Four agents read it" text="You choose the model, for all four agents or for each one. Every quote is checked against your text." />
           <Item icon="☁️" lead="Sent through your key" text={sentThroughKey(provider)} />
-          <Item icon="🔑" lead="Your own key" text="Pick API boost in Agent power and enter it there. It is never stored. A Firecrawl key is optional and widens web search." />
+          <Item icon="🔑" lead="Uses your own key" text="Enter it in Agent power. It is never stored. A Firecrawl key is optional and widens web search." />
         </ul>
       </article>
     </div>
@@ -59,10 +59,10 @@ export function RunModes({ safety = false, provider }: { safety?: boolean; provi
         <h3>Safety</h3>
       </div>
       <ul className="cl-list">
-        <Item icon="🔑" lead="Your key stays out of storage" text="It travels in a header for one request and is never stored or logged." />
-        <Item icon="1️⃣" lead="One model key at a time" text="Anthropic, OpenRouter or Gemini, in a single field. The model you pick is checked on the server." />
-        <Item icon="🎭" lead="Contact details are masked" text="In API boost they are masked before the text leaves your browser. Names, employers and schools are not. In the native scan your résumé never leaves the tab." />
-        <Item icon="⏱️" lead="Caps on every agent" text="Each agent has limits on tool calls and time. Web pages are read as data and never as instructions." />
+        <Item icon="🔑" lead="Keys are not stored" text="Your key travels in a header for one request and is never stored or logged." />
+        <Item icon="1️⃣" lead="One model key at a time" text="Anthropic, OpenRouter or Gemini, in a single field. The server checks the model you pick." />
+        <Item icon="🎭" lead="Contact details are masked" text="In API boost, emails, phone numbers and addresses are masked before the text leaves your browser. Names, employers and schools are not. In the native scan your résumé never leaves the tab." />
+        <Item icon="⏱️" lead="Every agent has limits" text="Each agent has caps on tool calls and time, and web pages are read as data, never as instructions." />
         <Item icon="✅" lead="Quotes are checked" text="A quote that is not in your text scores 0." />
         <Item icon="🛟" lead="A failed run falls back" text="A refused, slow or failed run drops back to the native scan, with a notice." />
       </ul>

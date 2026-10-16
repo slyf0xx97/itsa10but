@@ -222,8 +222,8 @@ function EvidenceRows({ rows, label }: { rows: Data["evidence"]; label: string }
 
 /** Role Scout rows: the skills the role asks for most, each with how much it wants it (High, Medium or Low) as one to three segments. */
 const SEGMENTS: Record<Want, number> = { High: 3, Medium: 2, Low: 1 };
-/** `mark` is the company's logo file, or its first letter when the company is known but has no file, or nothing when no company was found. */
-function PriorityRows({ skills, company, mark }: { skills: Skill[]; company: string; mark?: { file: string } | { letter: string } }) {
+/** `mark` is the company's logo file. Without one the row shows the name alone, larger. */
+function PriorityRows({ skills, company, mark }: { skills: Skill[]; company: string; mark?: { file: string } }) {
   return <ul className="dash-rows" aria-label="The skills the role asks for most, highest first, and the company">
     {rankSkills(skills).slice(0, ROWS - 1).map((skill) => {
       const want = wantOf(skill.demand);
@@ -235,17 +235,16 @@ function PriorityRows({ skills, company, mark }: { skills: Skill[]; company: str
     })}
     <li className="dash-row dash-co">
       <span className="dash-name">About company</span>
-      {mark && <span className="dash-co-logo" aria-hidden="true">{"file" in mark ? <Image src={BASE_PATH + "/assets/logos/" + mark.file} width={64} height={64} alt="" unoptimized /> : mark.letter}</span>}
+      {mark && <span className="dash-co-logo" aria-hidden="true"><Image src={BASE_PATH + "/assets/logos/" + mark.file} width={64} height={64} alt="" unoptimized /></span>}
       <span className="dash-co-text">{company}</span>
     </li>
   </ul>;
 }
 
-/** The mark beside "About company": the local logo for a built-in employer, a letter for any other named employer, nothing before one is found. */
-function companyMark(name: string | undefined): { file: string } | { letter: string } | undefined {
-  if (!name) return undefined;
-  const file = companyLogoFile(name);
-  return file ? { file } : { letter: name.trim().charAt(0).toUpperCase() };
+/** The logo beside "About company": the local file for an employer that has one, otherwise nothing. */
+function companyMark(name: string | undefined): { file: string } | undefined {
+  const file = name ? companyLogoFile(name) : null;
+  return file ? { file } : undefined;
 }
 
 const safeUrl = (url: string) => /^https?:\/\//i.test(url);

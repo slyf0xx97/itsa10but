@@ -3,7 +3,14 @@ export type AiPick = { kind: "Model" | "Research" | "Finding"; title: string; te
 export type SnapshotDoc = { checked: string; ai: AiPick[] };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const clip = (value: unknown, max: number) => (typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "");
+/** Plain text from a search snippet: Markdown headings, links, footnote marks and emphasis removed, whitespace folded, and cut at a word with an ellipsis when it runs past `max`. */
+const plain = (value: unknown) => (typeof value === "string" ? value.replace(/\[\d+\]\([^)]*\)/g, "").replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/\[\d+\]/g, "").replace(/^#+\s*/gm, "").replace(/[*_`]{1,3}/g, "").replace(/\s+/g, " ").trim() : "");
+const clip = (value: unknown, max: number) => {
+  const text = plain(value);
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  return cut.slice(0, Math.max(cut.lastIndexOf(" "), max - 30)).replace(/[\s,;:.-]+$/, "") + "…";
+};
 
 /** "16 Oct 2026" for an ISO timestamp, in Singapore time. Empty for anything that is not a date. */
 export function sgDate(iso: unknown): string {
@@ -15,6 +22,9 @@ export function sgDate(iso: unknown): string {
 
 const kindOf = (title: string): AiPick["kind"] => (/\b(releases?|launch\w*|unveils?|model|gpt|gemini|claude|llama)\b/i.test(title) ? "Model" : /\b(research|paper|proofs?|maths?|math)\b/i.test(title) ? "Research" : "Finding");
 
+/** Some snippets open with the headline again. It is already shown above the text, so it is dropped from the front. */
+const dropTitle = (text: string, title: string, max: number) => clip(text.toLowerCase().startsWith(title.toLowerCase()) ? text.slice(title.length).replace(/^[\s:.-]+/, "") : text, max);
+
 /** News results from a Firecrawl search to at most `max` picks. Only https links with a title count; the text is the source's own snippet, not a summary of ours. */
 export function aiPicks(json: unknown, max = 4): AiPick[] {
   const news = (json as { data?: { news?: unknown } } | null)?.data?.news;
@@ -25,7 +35,7 @@ export function aiPicks(json: unknown, max = 4): AiPick[] {
     let host = "";
     try { const u = new URL(String(r.url)); if (u.protocol === "https:") host = u.hostname.replace(/^www\./, ""); } catch { /* skip */ }
     if (!title || !host || out.some((p) => p.url === r.url)) continue;
-    out.push({ kind: kindOf(title), title, text: clip(r.snippet, 220), publisher: host, published: clip(r.date, 30), url: String(r.url) });
+    out.push({ kind: kindOf(title), title, text: dropTitle(clip(r.snippet, 600), title, 200), publisher: host, published: clip(r.date, 30), url: String(r.url) });
     if (out.length === max) break;
   }
   return out;

@@ -24,3 +24,10 @@ test("a stored snapshot without a real date is rejected", () => {
   assert.equal(cleanSnapshot({ checked: "x", ai: [] }), null);
   assert.equal(cleanSnapshot({ checked: "2026-10-15T18:30:00Z", ai: [] })?.checked, "2026-10-15T18:30:00Z");
 });
+
+test("a Markdown snippet becomes plain text without the repeated headline", () => {
+  const raw = "# Big model: Built for hard problems The model launches [today](https://x.example/a) at an [introductory price](https://x.example/p) [1](https://x.example/1) and **runs** on `chips`. " + "More words ".repeat(40);
+  const [pick] = aiPicks({ data: { news: [{ title: "Big model: Built for hard problems", snippet: raw, url: "https://x.example/n" }] } });
+  assert.ok(pick.text.startsWith("The model launches today at an introductory price and runs on chips."));
+  assert.ok(!/[#*`\[\]()]/.test(pick.text) && pick.text.length <= 201 && pick.text.endsWith("…"));
+});

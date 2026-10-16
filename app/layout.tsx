@@ -24,10 +24,6 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   openGraph: { type: "website", url: BASE_PATH, siteName: "itsa10but", title: TITLE, description: DESCRIPTION, locale: "en_SG", alternateLocale: ["en_US"] },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
-  icons: {
-    icon: `${BASE_PATH}/favicon.svg`,
-    shortcut: `${BASE_PATH}/favicon.svg`,
-  },
 };
 
 export const viewport: Viewport = { themeColor: "#d9f0fb", width: "device-width", initialScale: 1 };
@@ -45,7 +41,7 @@ export default function RootLayout({
           "@context": "https://schema.org", "@type": "WebApplication", name: "itsa10but", url: `https://ghernie.com${BASE_PATH}`, description: DESCRIPTION,
           applicationCategory: "EducationalApplication", operatingSystem: "Any, in a web browser", browserRequirements: "Needs JavaScript", inLanguage: "en",
           audience: { "@type": "Audience", audienceType: "Students and people moving into tech" }, isAccessibleForFree: true,
-          author: { "@type": "Person", name: "Ghernie Encinas", url: "https://sg.linkedin.com/in/ghernie" },
+          author: { "@type": "Person", name: "Ghernie Encinas", url: "https://sg.linkedin.com/in/ghernie", description: "Conceived the idea and the design system for itsa10but, with a strong interest in UI design and creativity." },
           featureList: ["Compares a résumé with a tech job posting", "Shows the quote in the résumé behind every skill score", "ATS-style résumé check", "Skills radar with free resources to close each gap", "PDF report and a Markdown prompt to download", "Works without an account or an API key"], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
         }).replace(/</g, "\\u003c") }} />
         {children}

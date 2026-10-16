@@ -1,6 +1,7 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { FileText, Heart, LoaderCircle, Monitor, Play, RefreshCw, RotateCcw, Trash2, Upload } from "lucide-react";
 import type { AgentNote, Analysis, Resume } from "@/lib/analysis-types";
 import { DONATE_URL } from "@/lib/donate";
@@ -423,7 +424,7 @@ export default function Home() {
   return <>
     <a className="skip-link" href="#check">Skip to the check</a>
     <header className="site-header"><div className="wrap">
-      <HeaderTabs><a className="brand" href="#top" aria-label="itsa10but home"><b>10</b><span>itsa10but<em>?</em></span></a></HeaderTabs>
+      <HeaderTabs><a className="brand" href="#top" aria-label="itsa10but home"><Image className="brand-icon" src={`${BASE_PATH}/icon`} width={44} height={44} alt="" unoptimized priority /><span>itsa10but<em>?</em></span></a></HeaderTabs>
       <ReaderSwitchMemo mode={mode} onMode={setMode} keys={keys} onKeys={setKeys} status={modeStatus} disabled={busy} />
     </div></header>
 
@@ -551,6 +552,7 @@ export default function Home() {
       <div className="ft-text">
         <p>itsa10but is independent. LinkedIn and the listed employers don&apos;t endorse or sponsor it, and their names and logos belong to their owners. Job listings come from outside feeds, so check the original posting before you apply.</p>
         <p>The four agent characters are original, fictional illustrations made for this project. They don&apos;t depict any real person, company, brand or character.</p>
+        <p>The idea and the design system were conceived by Ghernie Encinas, who has a strong interest in UI design and creativity.</p>
       </div>
       <div className="ft-meta">
         {/* eslint-disable-next-line @next/next/no-img-element -- small static SVG, nothing to optimise */}

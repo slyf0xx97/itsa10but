@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/itsa10but",
+      "destination": "/projects/itsa10but"
+    },
+    {
+      "source": "/itsa10but/:path*",
+      "destination": "/projects/itsa10but/:path*"
+    }
+  ]
+}

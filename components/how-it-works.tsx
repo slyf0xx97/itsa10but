@@ -3,7 +3,7 @@
 import { BASE_PATH } from "@/lib/base-path";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
-import { Pause, Play, RotateCcw, ShieldCheck, Zap } from "lucide-react";
+import { Pause, Play, RotateCcw, ShieldCheck, Star, Zap } from "lucide-react";
 import { WordTip } from "@/components/career/word-tip";
 import { Skyline, TrailArt, TrailLive, type Which } from "@/components/trail-art";
 import { AGENT_FACTS, hasWeb } from "@/lib/agent-facts";
@@ -170,9 +170,9 @@ function Tip({ title, word, tip }: { title: string; word: ReactNode; tip: Point[
   </WordTip>;
 }
 
-function Card({ n, title, line, tip, className, children }: { n: string; title: string; line: string; tip?: { title: string; points: Point[] }; className?: string; children?: ReactNode }) {
+function Card({ n, title, line, tip, badge, className, children }: { n: string; title: string; line: string; tip?: { title: string; points: Point[] }; badge?: ReactNode; className?: string; children?: ReactNode }) {
   return <div className={className ? `qm-box ${className}` : "qm-box"}>
-    <div className="qm-head"><span className="qm-num" aria-hidden="true">{n}</span>{tip ? <Tip title={tip.title} word={title} tip={tip.points} /> : <strong className="qm-title">{title}</strong>}</div>
+    <div className="qm-head"><span className="qm-num" aria-hidden="true">{n}</span>{tip ? <Tip title={tip.title} word={title} tip={tip.points} /> : <strong className="qm-title">{title}</strong>}{badge}</div>
     <p className="qm-line">{line}</p>
     {children}
   </div>;
@@ -184,9 +184,17 @@ function ChipItem({ chip }: { chip: Chip }) {
   return <li className="qm-chip">{chip.tip ? <Tip title={chip.tip.title} word={face} tip={chip.tip.lines.map((t) => ({ t }))} /> : face}</li>;
 }
 
+/** The star beside "API boost": what sets the site apart. The tip is the one place the page says so. */
+function USP() {
+  return <span className="qm-usp"><Tip title="Our unique selling point" word={<Star size={16} fill="currentColor" aria-label="Unique selling point" />} tip={[
+    { t: "itsa10but's unique selling point." },
+    { t: "Most résumé scanners don't let you choose which AI model reviews your résumé. Here you do, for all four agents or for each one, so you have fuller control over who reads your résumé and what it costs." },
+  ]} /></span>;
+}
+
 function StopBox({ s, as: Tag = "li" }: { s: Station; as?: "li" | "div" }) {
   return <Tag className="qm-stop" data-stop={s.id} data-side={SIDE[s.id]} style={POS(s.id)}>
-    <Card n={s.n} title={s.title} line={s.line} tip={{ title: s.tipTitle, points: s.tip }}>
+    <Card n={s.n} title={s.title} line={s.line} tip={{ title: s.tipTitle, points: s.tip }} badge={s.id === "boost" ? <USP /> : undefined}>
       {s.chips.length > 0 && <ul className="qm-chips" aria-label="Tools used">{s.chips.map((chip) => <ChipItem key={chip.t} chip={chip} />)}</ul>}
       {s.id === "camp" && <p className="qm-safe"><ShieldCheck aria-hidden="true" focusable="false" /> Personal details masked</p>}
     </Card>
