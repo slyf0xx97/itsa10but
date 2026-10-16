@@ -28,9 +28,9 @@ What you get: the role title and a list of gaps, each with a skill name, how muc
 What to do:
 - Choose the three gaps that matter most: high demand and low evidence first.
 - For each, write one tip. title: a short action, such as "Investigate a log alert". task: one or two plain sentences on how to do it, using free tools and safe practice data, never a real employer's systems. proof: the thing they will have at the end that they can link or attach, such as "A one-page incident report". skill: the skill name exactly as given.
-- If a good free learning page would help, you may use firecrawl_search to find one, at most three searches in total, searching only with the skill and the role title. Put it in link with the page title and its https link, copied exactly from a search result. Prefer official documentation, well-known course sites and vendor training pages. Skip anything that needs payment, a sign-up wall or looks like an advert. If nothing fits, set link to null. You cannot open pages, only search.
+- If a good free learning page would help, you may use firecrawl_search to find one, once at most, for a skill that has no checked lesson of its own, searching only with the skill and the role title. Put it in link with the page title and its https link, copied exactly from a search result. Prefer official documentation, well-known course sites and vendor training pages. Skip anything that needs payment, a sign-up wall or looks like an advert. If nothing fits, set link to null. You cannot open pages, only search.
 - In verdict, write the single most useful next step in one plain sentence.
-- In your note, explain in one or two sentences why these three come first.`;
+- Your note is your headline, shown first on your card: one sentence of at most 18 words saying why these three come first, naming the top gap.`;
 
 export const actionPlanner: AgentSpec<ActionPlannerInput, ActionPlannerOutput> = {
   name: "Action Planner",
@@ -56,7 +56,7 @@ export const actionPlanner: AgentSpec<ActionPlannerInput, ActionPlannerOutput> =
       "Exactly three tips.",
     ),
   }),
-  limits: { maxToolCalls: 3, perTool: { firecrawl_search: 3 }, maxOutputTokens: 3000, maxTurns: 5, timeoutMs: 25_000 },
+  limits: { maxToolCalls: 1, perTool: { firecrawl_search: 1 }, maxOutputTokens: 2500, maxTurns: 3, timeoutMs: 25_000 },
   refusal: `Refuse when the gaps are not about career skills. ${RUNNER_REFUSAL}`,
   buildUserMessage: (input) =>
     [untrusted("role title", input.roleTitle), untrusted("gaps", JSON.stringify(input.gaps)), "Plan three tips."].join("\n\n"),

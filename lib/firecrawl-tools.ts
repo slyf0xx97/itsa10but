@@ -17,7 +17,8 @@ export type WebTools = {
   seen: Set<string>;
 };
 
-export const MAX_PAGE_CHARS = 6000;
+/** What the agents are given from one page. About 600 tokens: enough for a values page, and cheap to carry through every later turn. */
+export const MAX_PAGE_CHARS = 2500;
 const API = "https://api.firecrawl.dev/v2";
 const text = (value: unknown, max: number) => (typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "");
 
@@ -47,7 +48,7 @@ export function createWebTools(options: { apiKey?: string; allowScrape: boolean;
     async search(query, extra) {
       const q = text(query, 200);
       if (q.length < 3 || /https?:\/\//i.test(q)) return { ok: false, error: "Use a short plain search query." };
-      const limit = Math.min(20, Math.max(1, Math.trunc(extra?.limit ?? 5) || 5));
+      const limit = Math.min(20, Math.max(1, Math.trunc(extra?.limit ?? 4) || 4));
       const hosts = (extra?.includeDomains ?? []).filter((host) => /^[a-z0-9.-]{3,100}$/.test(host)).slice(0, 12);
       const tbs = /^qdr:[hdwmy]$/.test(extra?.tbs ?? "") ? extra?.tbs : undefined;
       if (options.edge) {
@@ -55,7 +56,7 @@ export function createWebTools(options: { apiKey?: string; allowScrape: boolean;
         if (!answer?.ok) return { ok: false, error: "Web lookup failed." };
         const results = (answer.results ?? []).flatMap((row) => {
           const url = safeJobUrl(row?.url);
-          return url ? [{ title: text(row.title, 200), url, snippet: text(row.snippet, 300) }] : [];
+          return url ? [{ title: text(row.title, 120), url, snippet: text(row.snippet, 160) }] : [];
         }).slice(0, limit);
         for (const result of results) seen.add(result.url);
         return { ok: true, data: { results } };
@@ -67,7 +68,7 @@ export function createWebTools(options: { apiKey?: string; allowScrape: boolean;
       type Row = { title?: unknown; url?: unknown; description?: unknown; snippet?: unknown };
       const results = (Array.isArray(rows) ? (rows as Row[]) : []).flatMap((row) => {
         const url = safeJobUrl(row?.url);
-        return url ? [{ title: text(row.title, 200), url, snippet: text(row.description ?? row.snippet, 300) }] : [];
+        return url ? [{ title: text(row.title, 120), url, snippet: text(row.description ?? row.snippet, 160) }] : [];
       }).slice(0, limit);
       for (const result of results) seen.add(result.url);
       return { ok: true, data: { results } };

@@ -45,10 +45,10 @@ Every system prompt starts with `SHARED_PREAMBLE` from `lib/agents/shared.ts`:
 
 | Agent | Model (env override) | Tools | Sees | Returns |
 | --- | --- | --- | --- | --- |
-| Role Scout | `claude-haiku-5-5` (`AGENT_MODEL_ROLE_SCOUT`) | `read_linkedin_posting`, `firecrawl_search`, `firecrawl_scrape` | Masked role text | Title, 3 to 8 skills with demand and a literal role quote, an optional market note with an https link, optional `company` findings (see below) |
-| Experience Finder | `claude-sonnet-5-5` (`AGENT_MODEL_EXPERIENCE_FINDER`) | `search_resume_passages` | Scout's skills and note | Evidence score, literal résumé quote and passage id per skill, weak-proof flags and the "but" line |
-| Recruiter | `claude-sonnet-5-5` (`AGENT_MODEL_RECRUITER`) | None | The role's skill names and the whole masked résumé text. It doesn't see the Finder's evidence or notes | An ATS-style report: checks with fixed ids, keyword lists and the top three fixes |
-| Action Planner | `claude-sonnet-5-5` (`AGENT_MODEL_ACTION_PLANNER`) | `firecrawl_search` | Role title and gaps (skill, demand, evidence, fixed reason label) | Verdict and three tips (the output field is still called `quests`), each with an optional https learning link. No time estimate. |
+| Role Scout | `claude-haiku-5-5` (`AGENT_MODEL_ROLE_SCOUT`) | `read_linkedin_posting`, `firecrawl_search`, `firecrawl_scrape` | Masked role text | Title, 3 to 8 skills with demand and a literal role quote, optional `company` findings (see below). The web is used only for the company. |
+| Experience Finder | `claude-sonnet-5-5` (`AGENT_MODEL_EXPERIENCE_FINDER`) | `search_resume_passages` (one search at most) | Scout's skills and note, plus the résumé passages the runner picked for each skill (`prePassages`) | Evidence score and literal résumé quote per skill, weak-proof flags and the "but" line |
+| Recruiter | `claude-sonnet-5-5` (`AGENT_MODEL_RECRUITER`) | None | The role's skill names and the whole masked résumé text. It doesn't see the Finder's evidence or notes | An ATS-style report: checks with fixed ids and the top three fixes. The runner adds the score and keyword lists. |
+| Action Planner | `claude-sonnet-5-5` (`AGENT_MODEL_ACTION_PLANNER`) | `firecrawl_search` (one search, offered only when a gap skill has no playbook) | Role title and gaps (skill, demand, evidence, fixed reason label) | Verdict and three tips (the output field is still called `quests`), each with an optional https learning link. No time estimate. |
 
 The two agents that touch the web never see the résumé. The two that read the résumé have no network tool.
 
@@ -64,7 +64,7 @@ It's a rule of thumb and not a specific employer's system. Its score says how re
 
 The Planner gets numbers and fixed labels built by the runner, so no résumé text can reach a search query. `lib/agents/specs.test.ts` checks these grants.
 
-Role Scout's skill quotes must come from the submitted role text or the LinkedIn posting. What it learns on the web goes only into the market note and the company findings, never into a skill, score or quote.
+Role Scout's skill quotes must come from the submitted role text or the LinkedIn posting. What it learns on the web goes only into the company findings, never into a skill, score or quote.
 
 ### Company culture
 
@@ -77,7 +77,7 @@ The runner checks the findings in `checkCompany` in `lib/live-agents.ts`:
 
 - The company must be named in the role text or LinkedIn posting.
 - Every source must be an https link (`safeJobUrl`) that the Scout's own search returned. Others are dropped.
-- Lengths and counts are capped: 16 values, 4 expectations, 3 reputation lines and 6 sources, with meanings cut to 14 words.
+- Lengths and counts are capped: 8 values, 4 expectations, 3 reputation lines and 6 sources, with meanings cut to 14 words.
 - `reputation` is dropped when no source survives, and with no source there is no company at all.
 - If the built-in list knows the company, its checked values win and the origin stays `built-in`. The web only adds reputation lines and their sources.
 
@@ -87,10 +87,10 @@ The tips come from `showItTips`, a rules table in `lib/company-culture.ts`, and 
 
 | Agent | Tool calls (per tool) | Max output tokens | Turns | Time |
 | --- | --- | --- | --- | --- |
-| Role Scout | 7 (LinkedIn 1, search 3, scrape 3) | 5,000 | 8 | 40 s |
-| Experience Finder | 16 | 6,000 | 10 | 45 s |
+| Role Scout | 4 (LinkedIn 1, search 2, scrape 1) | 3,500 | 5 | 40 s |
+| Experience Finder | 1 (search 1) | 4,000 | 3 | 45 s |
 | Recruiter | 0 | 4,000 | 2 | 35 s |
-| Action Planner | 3 (search 3) | 3,000 | 5 | 25 s |
+| Action Planner | 1 (search 1) | 2,500 | 3 | 25 s |
 
 ## From outputs to `Analysis`
 
@@ -101,7 +101,7 @@ The tips come from `showItTips`, a rules table in `lib/company-culture.ts`, and 
 - `but`: the Finder.
 - `ats` (score, checks, keyword lists, fixes, note): the Recruiter.
 - `verdict` and `quests` (the page calls them tips and tricks): the Planner. A tip has a title, a task, a proof and a skill, and no time estimate.
-- `sources`: the market note and the tip links.
+- `sources`: the tip links.
 - `company`: the runner's checked version of the Scout's findings, or the built-in entry.
 - `confidence`, `matchPercent` and `matchFormula`: the runner.
 
@@ -124,3 +124,12 @@ The tips come from `showItTips`, a rules table in `lib/company-culture.ts`, and 
 - Read each agent's final text with `parseAgentJson` in `lib/live-agents.ts`. It accepts a fenced or wrapped JSON object, turns whole-number strings into integers and drops keys the schema doesn't name. A reply that still doesn't fit gets one repair turn that asks for the JSON again. A second bad reply is a fallback.
 - Let a Recruiter that fails for any reason except a refusal fall back on its own. The native `atsCheck` stands in for it and the report note says so. The other three agents keep their results.
 - Treat `status: "refused"`, a `refusal` stop reason, a broken schema after the repair turn, a tripped limit or a timeout as a fallback to the rules engine, with a notice.
+
+## Cost and caching
+
+A typical run measured on 16 Oct 2026 used about 41k tokens in and 6k out. After the changes below it uses about 32k in and 5.7k out, and costs about 30% less.
+
+- **Passages first.** The runner picks up to three résumé passages per skill (`prePassages` in `lib/live-agents.ts`) and puts them in the Finder's message, so the Finder answers in one or two turns instead of searching skill by skill. Quotes are still checked against every chunk of the résumé.
+- **Smaller web results.** A page is cut to 2,500 characters (`MAX_PAGE_CHARS`, in the app and the Worker), and a search returns four results with 160-character snippets. The Scout gets two searches and one page, the Planner one search.
+- **One headline.** Each agent's `note` is one sentence of at most 18 words, and the runner cuts it at 220 characters.
+- **Prompt caching** (`withCacheMarks` in `lib/anthropic-client.ts`). On a Claude model, the system prompt and the newest message carry a cache mark, so the next turn reads what came before at a tenth of the input price (writes cost a quarter more). An agent with no tools answers in one turn and gets no marks. `inputTokens` on the cards is the whole prompt, and the run total says how much was reused from the cache. The cost estimate in `lib/model-prices.ts` uses those rates.

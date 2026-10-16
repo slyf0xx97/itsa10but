@@ -29,7 +29,7 @@ test("the answer format lists every field with its type, and nested fields are i
   assert.ok(lines.some((line) => line.startsWith("- title (text)")));
   assert.ok(lines.some((line) => line.startsWith("- skills (list of objects)")));
   assert.ok(lines.some((line) => line.startsWith("  - roleQuote (text)")));
-  assert.ok(lines.some((line) => line.startsWith("- marketNote (object or null)")));
+  assert.ok(lines.some((line) => line.startsWith("- company (object or null)")));
 });
 
 test("no file holds a key or secret", () => {

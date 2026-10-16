@@ -8,12 +8,13 @@
  * Lookups are cached in KV. Request bodies, page text, keys and visitor addresses are never logged or stored in D1.
  */
 import { companyFromQuery, companyHits, type SearchHit } from "../../lib/edge/company.ts";
+import { firecrawlBudgetId, firecrawlDailyCap, needsWeb } from "../../lib/edge/budget.ts";
 import { cacheKey, htmlToText, publicHttpsUrl, sgtDay, sgtHour } from "../../lib/edge/html.ts";
 
 type Kv = { get(key: string, type: "json"): Promise<unknown>; put(key: string, value: string, options?: { expirationTtl: number }): Promise<void> };
 type Stmt = { bind(...values: unknown[]): Stmt; run(): Promise<unknown>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> };
 type Db = { prepare(sql: string): Stmt };
-type Env = { CACHE: Kv; DB: Db; EDGE_SECRET: string; ADMIN_SECRET?: string; FIRECRAWL_API_KEY?: string };
+type Env = { CACHE: Kv; DB: Db; EDGE_SECRET: string; ADMIN_SECRET?: string; FIRECRAWL_API_KEY?: string; FIRECRAWL_DAILY?: string };
 
 const DAY = 86_400;
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
@@ -34,8 +35,21 @@ async function getJson(url: string): Promise<unknown | null> {
   } catch { return null; }
 }
 
-async function firecrawl(path: string, body: unknown, key: string | undefined): Promise<unknown | null> {
+/**
+ * Calls Firecrawl. A visitor's own key (the x-firecrawl-key header) is used freely, on their credits. The site's own key is limited to
+ * FIRECRAWL_DAILY calls a day, counted in D1; past that, or with no key, this returns null and the caller keeps its free results.
+ */
+async function firecrawl(env: Env, path: string, body: unknown, visitorKey: string | null): Promise<unknown | null> {
+  const own = visitorKey?.trim();
+  const key = own || env.FIRECRAWL_API_KEY;
   if (!key) return null;
+  if (!own) {
+    const cap = firecrawlDailyCap(env.FIRECRAWL_DAILY);
+    if (cap === 0) return null;
+    const id = firecrawlBudgetId(Date.now());
+    const row = await env.DB.prepare("INSERT INTO limits (id, span, count) VALUES (?, ?, 1) ON CONFLICT(id) DO UPDATE SET count = count + 1 RETURNING count").bind(id, id.slice(10)).first<{ count: number }>();
+    if ((row?.count ?? 1) > cap) return null;
+  }
   try {
     const response = await fetch(FIRECRAWL + path, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` }, body: JSON.stringify(body), signal: AbortSignal.timeout(8000) });
     return response.ok ? await response.json() : null;
@@ -46,7 +60,7 @@ async function search(request: Request, env: Env): Promise<Response> {
   const body = (await request.json().catch(() => null)) as { q?: unknown; limit?: unknown } | null;
   const q = text(body?.q, 200);
   if (q.length < 3 || /https?:\/\//i.test(q)) return json({ ok: false, error: "Use a short plain search query." }, 400);
-  const limit = Math.min(20, Math.max(1, Math.trunc(Number(body?.limit)) || 5));
+  const limit = Math.min(20, Math.max(1, Math.trunc(Number(body?.limit)) || 4));
   const key = await cacheKey("s", `${q}|${limit}`);
   const cached = (await env.CACHE.get(key, "json")) as { results: SearchHit[]; source: string } | null;
   if (cached) return json({ ok: true, ...cached, cached: true });
@@ -57,14 +71,13 @@ async function search(request: Request, env: Env): Promise<Response> {
   let source = "native";
   const name = companyFromQuery(q);
   const native = name ? await companyHits(name, getJson) : [];
-  const fcKey = request.headers.get("x-firecrawl-key")?.trim() || env.FIRECRAWL_API_KEY;
-  if (fcKey || !native.length) {
-    const data = (await firecrawl("/search", { query: q, limit }, fcKey)) as { data?: unknown } | null;
+  if (needsWeb(Boolean(name), native.length)) {
+    const data = (await firecrawl(env, "/search", { query: q, limit }, request.headers.get("x-firecrawl-key"))) as { data?: unknown } | null;
     const rows = Array.isArray(data?.data) ? data.data : (data?.data as { web?: unknown } | undefined)?.web;
     type Row = { title?: unknown; url?: unknown; description?: unknown; snippet?: unknown };
     const web = (Array.isArray(rows) ? (rows as Row[]) : []).flatMap((row) => {
       const url = publicHttpsUrl(row?.url);
-      return url ? [{ title: text(row.title, 200), url, snippet: text(row.description ?? row.snippet, 300) }] : [];
+      return url ? [{ title: text(row.title, 120), url, snippet: text(row.description ?? row.snippet, 160) }] : [];
     });
     // The guessed /careers and /about pages are dropped once real search results exist.
     const kept = web.length ? native.filter((hit) => !/ (careers|about) page$/.test(hit.title)) : native;
@@ -109,12 +122,12 @@ async function scrape(request: Request, env: Env): Promise<Response> {
   if (cached) return json({ ok: true, ...cached, cached: true });
 
   const html = await fetchPage(url);
-  let page = html ? htmlToText(html, 6000) : "";
+  let page = html ? htmlToText(html, 2500) : "";
   let source = "direct";
   let title = html ? text(/<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1], 200) : "";
   if (page.length < 300) {
-    const data = (await firecrawl("/scrape", { url, formats: ["markdown"], onlyMainContent: true, timeout: 7000 }, request.headers.get("x-firecrawl-key")?.trim() || env.FIRECRAWL_API_KEY)) as { data?: { markdown?: unknown; metadata?: { title?: unknown } } } | null;
-    const markdown = typeof data?.data?.markdown === "string" ? data.data.markdown.slice(0, 6000) : "";
+    const data = (await firecrawl(env, "/scrape", { url, formats: ["markdown"], onlyMainContent: true, timeout: 7000 }, request.headers.get("x-firecrawl-key"))) as { data?: { markdown?: unknown; metadata?: { title?: unknown } } } | null;
+    const markdown = typeof data?.data?.markdown === "string" ? data.data.markdown.slice(0, 2500) : "";
     if (markdown.length > page.length) { page = markdown; source = "firecrawl"; title = text(data?.data?.metadata?.title, 200) || title; }
   }
   if (!page) return json({ ok: false, error: "The page had no readable text." }, 404);

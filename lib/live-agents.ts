@@ -13,6 +13,7 @@ import { safeJobUrl } from "./job-types.ts";
 import { extractLinkedinJobId, guestPostingUrl, htmlToJobText } from "./linkedin-url.ts";
 import { detectCompany, showItTips } from "./company-culture.ts";
 import { hasTerm } from "./preview-analysis.ts";
+import { playbookFor } from "./skill-playbooks.ts";
 import { chunkResume, verifyQuote, type Chunk } from "./rag.ts";
 import { runSafetyCheck } from "./safety.ts";
 import { computeMatch } from "./scoring.ts";
@@ -31,18 +32,27 @@ export type LiveRequest = {
   tools?: { name: string; description: string; input_schema: unknown }[];
   tool_choice?: { type: "none" };
   output_config: { format: { type: "json_schema"; schema: unknown } };
+  /** False for an agent that answers in one turn: it never reuses its prompt, so caching would only cost the write premium. Default true. */
+  cache?: boolean;
 };
-export type LiveResponse = { stop_reason: string | null; content: Block[]; usage?: { input_tokens?: number; output_tokens?: number } };
+/** `input_tokens` counts only the part of the prompt that was not served from cache; the cache fields hold the rest. */
+export type LiveResponse = { stop_reason: string | null; content: Block[]; usage?: { input_tokens?: number; output_tokens?: number; cache_read_input_tokens?: number; cache_creation_input_tokens?: number } };
 export type LiveClient = { create(request: LiveRequest, signal?: AbortSignal): Promise<LiveResponse> };
 
 export type LiveDeps = {
   client: LiveClient;
-  /** Without a Firecrawl key the web tools are not offered to the agents at all, and the start event says web search is off. */
+  /** With neither this key nor the edge Worker, the web tools are not offered to the agents at all, and the start event says web search is off. */
   firecrawlKey?: string;
   /** The edge Worker: web lookups work without a Firecrawl key, and usage rows are logged to it. */
   edge?: Edge;
   /** "openrouter" or "anthropic", for the usage log. */
   provider?: string;
+  /** Pause between the small steps a card shows (each checked fact, each sentence of the note), in ms. The route sets it; tests leave it at 0. */
+  paceMs?: number;
+  /** Receives background work (the usage log) so the host can wait for it after the response ends. */
+  track?: (task: Promise<unknown>) => void;
+  /** How often a waiting model call reports progress, in ms (default 1000). */
+  heartbeatMs?: number;
   /** A model the visitor chose for all four agents. Already validated by checkModelChoice. Leave out for each spec's own model. */
   model?: string;
   fetchImpl?: typeof fetch;
@@ -171,8 +181,29 @@ type AgentContext = {
   tools: Partial<Record<ToolName, (input: unknown) => Promise<ToolResult> | ToolResult>>;
   /** The visitor's chosen model for every agent, or undefined for each spec's own. */
   model?: string;
-  usage: { inputTokens: number; outputTokens: number };
+  usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number; cacheWriteTokens: number };
+  /** How often a waiting model call reports progress, in ms. Tests pass a large number to keep their event lists short. */
+  heartbeatMs?: number;
 };
+
+/**
+ * Awaits `work` and yields a tick event every `ms` while it is pending, so a long model call is never silent on the card.
+ * A rejection is rethrown after the loop; nothing is swallowed.
+ */
+async function* beat<T>(work: Promise<T>, ms: number, tick: (elapsedMs: number) => EngineEvent): AsyncGenerator<EngineEvent, T> {
+  const settled = work.then((value) => ({ value }), (error: unknown) => ({ error }));
+  const startedAt = Date.now();
+  for (;;) {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const outcome = await Promise.race([settled, new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), ms); })]);
+    clearTimeout(timer);
+    if (outcome) {
+      if ("error" in outcome) throw outcome.error;
+      return outcome.value;
+    }
+    yield tick(Date.now() - startedAt);
+  }
+}
 
 async function callOnce(ctx: AgentContext, request: LiveRequest, budgetMs: number): Promise<LiveResponse> {
   const controller = new AbortController();
@@ -230,7 +261,11 @@ async function* runAgent<Input, Output extends BaseOutput>(spec: AgentSpec<Input
     const remaining = agentDeadline - Date.now();
     if (remaining <= 0) throw new LiveFallback("timeout");
     const lastTurn = turn === spec.limits.maxTurns - 1 + (repaired ? 1 : 0) || totalCalls >= spec.limits.maxToolCalls;
-    const response = await callOnce(ctx, {
+    // The wait for the model is a lane of its own: it starts, ticks about once a second and ends with the seconds it took.
+    const modelLane = { type: "activity" as const, agent: spec.name, lane: "model", label: turn === 0 ? "Reading the material" : "Thinking it over", ...live };
+    const turnStart = Date.now();
+    yield { ...modelLane, status: "start", progress: 0 };
+    const response = yield* beat(callOnce(ctx, {
       model: ctx.model ?? resolveModel(spec, ctx.env),
       max_tokens: spec.limits.maxOutputTokens,
       system: spec.system,
@@ -239,9 +274,15 @@ async function* runAgent<Input, Output extends BaseOutput>(spec: AgentSpec<Input
       ...(offered.length ? { tools: offered.map((name) => ({ name, description: TOOL_DEFINITIONS[name].description, input_schema: TOOL_DEFINITIONS[name].input_schema })) } : {}),
       ...(lastTurn && offered.length ? { tool_choice: { type: "none" as const } } : {}),
       output_config: { format: { type: "json_schema", schema: spec.outputSchema } },
-    }, remaining);
-    ctx.usage.inputTokens += response.usage?.input_tokens ?? 0;
+      cache: offered.length > 0,
+    }, remaining), ctx.heartbeatMs ?? 1000, (elapsed) => ({ ...modelLane, status: "progress", progress: Math.round(95 * (1 - Math.exp(-elapsed / 12_000))) }));
+    yield { ...modelLane, status: "done", progress: 100, detail: `${Math.max(1, Math.round((Date.now() - turnStart) / 1000))}s` };
+    // inputTokens is the whole prompt (fresh, cached and newly cached), so the card shows what the model really read; the cache parts are kept for pricing.
+    const read = response.usage?.cache_read_input_tokens ?? 0, wrote = response.usage?.cache_creation_input_tokens ?? 0;
+    ctx.usage.inputTokens += (response.usage?.input_tokens ?? 0) + read + wrote;
     ctx.usage.outputTokens += response.usage?.output_tokens ?? 0;
+    ctx.usage.cacheReadTokens += read;
+    ctx.usage.cacheWriteTokens += wrote;
 
     if (response.stop_reason === "refusal") throw new LiveFallback("refusal");
     if (response.stop_reason === "max_tokens") throw new LiveFallback("limit");
@@ -303,6 +344,23 @@ function searchPassages(chunks: ResumeChunk[], query: unknown): ToolResult {
   return { ok: true, data: { passages: ranked.map(({ chunk }) => ({ passageId: chunk.id, resume: chunk.resume, text: chunk.text })) } };
 }
 
+/**
+ * The passages most likely to matter for each skill, picked here so the Finder can usually answer in one turn instead of searching skill by skill.
+ * Up to three per skill, no passage twice, at most 14 in all, each cut to 420 characters. The quote check still runs against every chunk of the résumé.
+ */
+export function prePassages(chunks: ResumeChunk[], skills: { name: string }[], perSkill = 3, max = 14): { passageId: string; text: string }[] {
+  const picked = new Map<string, string>();
+  for (const skill of skills) {
+    const found = searchPassages(chunks, skill.name);
+    if (!found.ok) continue;
+    for (const passage of (found.data as { passages: { passageId: string; text: string }[] }).passages.slice(0, perSkill)) {
+      if (picked.size >= max) return [...picked].map(([passageId, text]) => ({ passageId, text }));
+      if (!picked.has(passage.passageId)) picked.set(passage.passageId, passage.text.slice(0, 420));
+    }
+  }
+  return [...picked].map(([passageId, text]) => ({ passageId, text }));
+}
+
 /* ---- Company culture ---- */
 
 /**
@@ -354,7 +412,7 @@ const READERS = ["Role Scout", "Experience Finder", "Recruiter", "Action Planner
 export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveDeps): AsyncGenerator<EngineEvent> {
   const env = deps.env ?? process.env;
   const fetchImpl = deps.fetchImpl ?? fetch;
-  const usage = { inputTokens: 0, outputTokens: 0 };
+  const usage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
   const deadline = Date.now() + (deps.deadlineMs ?? 84_000);
   // What the results say about this run: the model the visitor picked (or "recommended mix", never a model name we chose), whether it is Claude, and whether web search was on.
   const claude = deps.model ? isClaudeModel(deps.model) : true;
@@ -385,7 +443,7 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
 
     const scoutWeb = createWebTools({ apiKey: deps.firecrawlKey, allowScrape: true, fetchImpl, edge: deps.edge });
     const plannerWeb = createWebTools({ apiKey: deps.firecrawlKey, allowScrape: false, fetchImpl, edge: deps.edge });
-    const local = (extra: AgentContext["tools"]): AgentContext => ({ client: deps.client, env, deadline, signal: deps.signal, usage, tools: extra, model: deps.model });
+    const local = (extra: AgentContext["tools"]): AgentContext => ({ client: deps.client, env, deadline, signal: deps.signal, usage, tools: extra, model: deps.model, heartbeatMs: deps.heartbeatMs });
 
     const scoutCtx = local({
       read_linkedin_posting: async () => {
@@ -403,23 +461,35 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
     });
     const finderCtx = local({ search_resume_passages: (input) => searchPassages(chunks, (input as { query?: unknown } | null)?.query) });
     const recruiterCtx = local({});
-    const plannerCtx = local(web ? { firecrawl_search: (input) => plannerWeb.search((input as { query?: unknown } | null)?.query) } : {});
 
     // The handoff goes out before the agent runs, so its card turns active when the work starts. The stage follows when it is done.
     const started = Date.now();
-    let mark = { inputTokens: 0, outputTokens: 0, at: started };
+    let mark = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, at: started };
     function* handoff(index: number, from: ReaderName | "Orchestrator"): Generator<EngineEvent> {
       const reader = READERS[index];
-      mark = { inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, at: Date.now() };
+      mark = { ...usage, at: Date.now() };
       yield { type: "handoff", from, to: reader, message: `${from} hands the material to ${reader}.`, ...live };
     }
-    function* present(index: number, note: string): Generator<EngineEvent> {
+    const pace = deps.paceMs ?? 0;
+    const pause = (ms: number) => (ms > 0 ? new Promise<void>((resolve) => setTimeout(resolve, ms)) : Promise.resolve());
+    // The note types out a sentence at a time. Time and tokens are read first so this pacing is not counted as the agent's work.
+    async function* present(index: number, note: string): AsyncGenerator<EngineEvent> {
       const reader = READERS[index];
-      if (note) yield { type: "reasoning", agent: reader, text: note, done: false, ...live };
-      yield { type: "reasoning", agent: reader, text: "", done: true, ...live };
-      const spent = { inputTokens: usage.inputTokens - mark.inputTokens, outputTokens: usage.outputTokens - mark.outputTokens, ms: Date.now() - mark.at, model: deps.model ?? resolveModel(AGENT_SPECS[index], env) };
+      const spent = { inputTokens: usage.inputTokens - mark.inputTokens, outputTokens: usage.outputTokens - mark.outputTokens, cacheReadTokens: usage.cacheReadTokens - mark.cacheReadTokens, cacheWriteTokens: usage.cacheWriteTokens - mark.cacheWriteTokens, ms: Date.now() - mark.at, model: deps.model ?? resolveModel(AGENT_SPECS[index], env) };
       usageRows.push({ agent: reader, model: spent.model, provider: deps.provider ?? "anthropic", inputTokens: spent.inputTokens, outputTokens: spent.outputTokens, ms: spent.ms, fallback: false });
+      const pieces = (note.match(/[^.!?]+[.!?]*/g) ?? [note]).map((piece) => piece.trim()).filter(Boolean);
+      for (const piece of pieces) { yield { type: "reasoning", agent: reader, text: piece, done: false, ...live }; await pause(pace); }
+      yield { type: "reasoning", agent: reader, text: "", done: true, ...live };
       yield { type: "stage", index, agent: { role: reader, note }, usage: spent, ...live };
+    }
+    // What the runner itself checked, shown as short lanes on the card. Counts only, from numbers already in hand: no extra model call.
+    async function* facts(index: number, lines: { lane: string; label: string; detail: string }[]): AsyncGenerator<EngineEvent> {
+      for (const line of lines) {
+        const base = { type: "activity" as const, agent: READERS[index], lane: line.lane, label: line.label, ...live };
+        yield { ...base, status: "start", progress: 0 };
+        await pause(pace);
+        yield { ...base, status: "done", progress: 100, detail: line.detail };
+      }
     }
     const tooManyBad = (checked: number, bad: number) => checked > 0 && bad * 2 > checked;
 
@@ -448,22 +518,24 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
     }).slice(0, 8);
     if (tooManyBad(roleQuotes, roleQuotesBad)) throw new LiveFallback("unverifiable");
     if (!scoutSkills.some((item) => item.demand > 0)) throw new LiveFallback("bad-output");
-    const marketUrl = safeJobUrl(rawScout.marketNote?.sourceUrl);
     const scout: RoleScoutOutput = {
       ...rawScout,
-      note: cut(rawScout.note, 500),
+      note: cut(rawScout.note, 220),
       title: cut(rawScout.title, 80) || "Your target role",
       skills: scoutSkills,
-      // A market note must cite a page this agent's own search returned.
-      marketNote: rawScout.marketNote && marketUrl && scoutWeb.seen.has(marketUrl) ? { text: cut(rawScout.marketNote.text, 400), sourceTitle: cut(rawScout.marketNote.sourceTitle, 200) || marketUrl, sourceUrl: marketUrl } : null,
     };
     // The Scout's company findings stay here: no other agent is given company text.
     const company = checkCompany(rawScout.company, [roleSource(), postingCache?.company ?? ""].join(" "), scoutWeb.seen);
     yield* present(0, scout.note);
+    yield* facts(0, [
+      ...(roleQuotes ? [{ lane: "verify", label: "Role quotes", detail: `${roleQuotes - roleQuotesBad} of ${roleQuotes} found word for word` }] : []),
+      { lane: "skills", label: "Skills found", detail: `${scout.skills.length} skills, ${scout.skills.filter((skill) => skill.demand >= 70).length} the role clearly asks for` },
+      ...(company ? [{ lane: "company", label: "Company", detail: company.name }] : []),
+    ]);
 
     /* 2. Experience Finder */
     yield* handoff(1, "Role Scout");
-    const rawFinder = yield* runAgent(finderSpec, { roleTitle: scout.title, skills: scout.skills.map(({ name, demand, roleQuote }) => ({ name, demand, roleQuote })), scoutNote: scout.note }, finderCtx);
+    const rawFinder = yield* runAgent(finderSpec, { roleTitle: scout.title, skills: scout.skills.map(({ name, demand, roleQuote }) => ({ name, demand, roleQuote })), scoutNote: scout.note, passages: prePassages(chunks, scout.skills) }, finderCtx);
     let resumeQuotes = 0;
     let resumeQuotesBad = 0;
     const failedQuote = new Set<string>();
@@ -487,9 +559,13 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
       if (own.evidence === 0) return [{ skill: skill.name, kind: "no proof found" as const, why: failedQuote.has(skill.name) ? own.detail : cut(flagged?.why, 240) || own.detail }];
       return flagged ? [{ skill: skill.name, kind: flagged.kind, why: cut(flagged.why, 240) }] : [];
     });
-    const finder: ExperienceFinderOutput = { ...rawFinder, note: cut(rawFinder.note, 500), evidence: finderEvidence, weakProofs, but: cut(rawFinder.but, 300) };
+    const finder: ExperienceFinderOutput = { ...rawFinder, note: cut(rawFinder.note, 220), evidence: finderEvidence, weakProofs, but: cut(rawFinder.but, 300) };
     if (!finder.but) throw new LiveFallback("bad-output");
     yield* present(1, finder.note);
+    yield* facts(1, [
+      { lane: "verify", label: "Résumé quotes", detail: resumeQuotes ? `${resumeQuotes - resumeQuotesBad} of ${resumeQuotes} found word for word` : "none to check" },
+      { lane: "weak", label: "Weak proof", detail: `${weakProofs.length} skill${weakProofs.length === 1 ? "" : "s"} flagged` },
+    ]);
 
     /* 3. Recruiter: a cold read of the whole masked résumé. It gets the role's skill names and no Finder output. The runner checks the report. */
     const resumeText = safety.maskedResumes.map((resume) => resume.text).join("\n\n");
@@ -510,12 +586,16 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
       // Keyword lists come from the text itself, not from the model.
       const coverage = keywordCoverage(resumeText, roleSkillNames);
       const fixes = rawRecruiter.fixes.map((fix) => cut(fix, 240)).filter(Boolean).slice(0, 3);
-      recruiter = { ...rawRecruiter, note: cut(rawRecruiter.note, 500), score: atsScore(checks), checks, keywordsFound: coverage.found, keywordsMissing: coverage.missing, fixes: fixes.length ? fixes : topFixes(checks) };
+      recruiter = { ...rawRecruiter, note: cut(rawRecruiter.note, 220), score: atsScore(checks), checks, keywordsFound: coverage.found, keywordsMissing: coverage.missing, fixes: fixes.length ? fixes : topFixes(checks) };
     } else {
       const native = atsCheck(resumeText, roleSkillNames);
       recruiter = { status: "ok", refusalReason: "", note: "The model's check did not come through, so this is the native ATS-style check, a rule of thumb with no model call.", score: native.score, checks: native.checks, keywordsFound: native.keywordsFound, keywordsMissing: native.keywordsMissing, fixes: native.fixes };
     }
     yield* present(2, recruiter.note);
+    yield* facts(2, [
+      { lane: "ats", label: "ATS checks", detail: `${recruiter.checks.filter((check) => check.status === "pass").length} pass, ${recruiter.checks.filter((check) => check.status === "warn").length} warn, ${recruiter.checks.filter((check) => check.status === "fail").length} fail` },
+      { lane: "keywords", label: "Keywords", detail: `${recruiter.keywordsFound.length} of ${recruiter.keywordsFound.length + recruiter.keywordsMissing.length} in your résumé` },
+    ]);
 
     /* 4. Action Planner: numbers and fixed labels only, no résumé text */
     const gaps: PlannerGap[] = scout.skills.map((skill, i) => {
@@ -524,6 +604,9 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
       return { skill: skill.name, demand: skill.demand, evidence, reason };
     }).filter((gap) => gap.demand > 0).sort((a, b) => b.demand * (100 - b.evidence) - a.demand * (100 - a.evidence)).slice(0, 5);
     yield* handoff(3, "Recruiter");
+    // Skills with a checked playbook already get checked lesson links from the runner, so the Planner only searches when a gap has none.
+    const plannerSearches = web && gaps.some((gap) => !playbookFor(gap.skill));
+    const plannerCtx = local(plannerSearches ? { firecrawl_search: (input) => plannerWeb.search((input as { query?: unknown } | null)?.query) } : {});
     const rawPlanner = yield* runAgent(plannerSpec, { roleTitle: scout.title, gaps }, plannerCtx);
     const quests = rawPlanner.quests.slice(0, 3).map((quest) => {
       const url = safeJobUrl(quest.link?.url);
@@ -534,28 +617,32 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
       };
     }).filter((quest) => quest.title && quest.task);
     if (!quests.length) throw new LiveFallback("bad-output");
-    const planner: ActionPlannerOutput = { ...rawPlanner, note: cut(rawPlanner.note, 500), verdict: cut(rawPlanner.verdict, 240), quests };
+    const planner: ActionPlannerOutput = { ...rawPlanner, note: cut(rawPlanner.note, 220), verdict: cut(rawPlanner.verdict, 240), quests };
     if (!planner.verdict) throw new LiveFallback("bad-output");
     yield* present(3, planner.note);
+    yield* facts(3, [
+      ...(gaps[0] ? [{ lane: "gap", label: "Biggest gap", detail: gaps[0].skill }] : []),
+      { lane: "tips", label: "Tips", detail: `${quests.length} tip${quests.length === 1 ? "" : "s"}, ${quests.filter((quest) => quest.link).length} with a link` },
+    ]);
     yield { type: "handoff", from: "Action Planner", to: "Orchestrator", message: "Action Planner returns the findings to the table for the final verdict.", ...live };
 
     /* Assemble */
     const final = scout.skills.map((skill, i) => ({ name: skill.name, demand: skill.demand, evidence: finderEvidence[i].evidence }));
     const match = computeMatch(final);
     const analysis: Analysis = analysisShapeFromOutputs(scout, finder, recruiter, planner, { matchPercent: match.percent, matchFormula: match.formula, confidence: `API boost agents · every quote checked against your text` });
-    analysis.skills = analysis.skills.map((skill, i) => ({ ...skill, source: "API boost agents", evidence: final[i].evidence, scoreReason: scout.skills[i].demand === 0 ? scout.skills[i].why : weakProofs.find((item) => item.skill === skill.name)?.why || skill.scoreReason }));
+    analysis.skills = analysis.skills.map((skill, i) => ({ ...skill, source: "API boost agents", evidence: final[i].evidence, scoreReason: scout.skills[i].demand === 0 ? scout.skills[i].why || "The role does not ask for this skill." : weakProofs.find((item) => item.skill === skill.name)?.why || skill.scoreReason }));
     if (company) analysis.company = company;
     analysis.run = { model: modelName, claude, web };
     const seenLinks = new Set<string>();
     analysis.sources = analysis.sources.filter((source) => { const url = safeJobUrl(source.url); if (!url || seenLinks.has(url)) return false; seenLinks.add(url); return true; });
 
     const result: EngineResult = { analysis, usage: { ...usage, ms: Date.now() - started }, safety: { piiFound: safety.piiFound, injectionFlags: safety.injectionFlags } };
-    logUsage(deps.edge, deps.runId ?? "run", usageRows);
+    deps.track?.(logUsage(deps.edge, deps.runId ?? "run", usageRows));
     yield { type: "complete", result, ...live };
   } catch (error) {
     if (deps.signal?.aborted) return;
     const reason: FallbackReason = error instanceof LiveFallback ? error.reason : "api-error";
-    logUsage(deps.edge, deps.runId ?? "run", usageRows.length ? usageRows.map((row) => ({ ...row, fallback: true })) : [{ agent: "run", provider: deps.provider ?? "anthropic", inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, ms: 0, fallback: true }]);
+    deps.track?.(logUsage(deps.edge, deps.runId ?? "run", usageRows.length ? usageRows.map((row) => ({ ...row, fallback: true })) : [{ agent: "run", provider: deps.provider ?? "anthropic", inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, ms: 0, fallback: true }]));
     yield { type: "notice", kind: "fallback", message: fallbackMessage(reason), simulated: false, mode: "live" };
     // The rules engine masks and runs on the original input; its events say simulated: true.
     for await (const event of runSimulatedEngine(resumes, job)) {

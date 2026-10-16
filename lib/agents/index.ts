@@ -33,7 +33,7 @@ export function analysisShapeFromOutputs(
       name: roleSkill.name,
       demand: roleSkill.demand,
       evidence: found?.evidence ?? 0,
-      detail: found?.detail ?? roleSkill.why,
+      detail: found?.detail ?? roleSkill.why ?? "",
       source: "API boost agents",
       roleQuote: roleSkill.roleQuote ? { label: "Submitted role", quote: roleSkill.roleQuote, matched: [] } : undefined,
       resumeQuote: found?.resumeQuote ? { label: "Your résumé", quote: found.resumeQuote, matched: [] } : undefined,
@@ -42,7 +42,6 @@ export function analysisShapeFromOutputs(
   });
   const agents: AgentNote[] = [scout, finder, recruiterOutput, plan].map((output, index) => ({ role: AGENT_SPECS[index].name, note: output.note }));
   const sources: MarketSource[] = [
-    ...(scout.marketNote ? [{ title: scout.marketNote.sourceTitle, url: scout.marketNote.sourceUrl }] : []),
     ...plan.quests.flatMap((quest) => (quest.link ? [quest.link] : [])),
   ];
   const checks: AtsCheck[] = recruiterOutput.checks.flatMap((item) => {

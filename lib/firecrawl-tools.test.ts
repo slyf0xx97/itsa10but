@@ -37,7 +37,7 @@ test("search passes a valid host list, recency filter and result count, and drop
   await tools.search("singapore tech hiring", { tbs: "evil", limit: 99 });
   assert.deepEqual(calls[1].body, { query: "singapore tech hiring", limit: 20 });
   await tools.search("singapore tech hiring");
-  assert.equal(calls[2].body.limit, 5);
+  assert.equal(calls[2].body.limit, 4);
 });
 
 test("a scout may scrape only a link its own search returned", async () => {

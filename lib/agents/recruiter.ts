@@ -1,5 +1,5 @@
 import { ATS_CHECK_IDS } from "../ats-check.ts";
-import { arrayOf, baseProperties, int, objectFor, str, systemPrompt, untrusted, RUNNER_REFUSAL, type AgentSpec, type BaseOutput } from "./shared.ts";
+import { arrayOf, baseProperties, objectFor, str, systemPrompt, untrusted, RUNNER_REFUSAL, type AgentSpec, type BaseOutput } from "./shared.ts";
 
 export type RecruiterInput = {
   /** The role's skill names only. No Finder evidence, no quotes, no notes. */
@@ -17,7 +17,7 @@ export type RecruiterCheck = {
   tip: string;
 };
 
-/** AtsReport-shaped. The runner recomputes the score, the keyword lists, the group and the report note; it does not trust the model for them. */
+/** AtsReport-shaped. The model is not asked for the score or the keyword lists: the runner works them out from the checks and the text. */
 export type RecruiterOutput = BaseOutput & {
   score: number;
   checks: RecruiterCheck[];
@@ -34,7 +34,7 @@ What you get: the skill names the role asks for, and the whole masked résumé t
 What to do:
 - Return exactly one check for each of these ids, once each: ${ATS_CHECK_IDS.join(", ")}.
 - Mark each check "pass", "warn" or "fail", and give a short label and a tip. The tip is one plain sentence: what is fine, or the specific fix.
-- keywords: do the role's skill names appear in the résumé word for word? List the ones you found in keywordsFound and the ones you could not find in keywordsMissing, using the names exactly as given.
+- keywords: do the role's skill names appear in the résumé word for word? Say which ones are missing in the tip.
 - numbers: are there figures that show size or results, such as counts, percentages or time saved?
 - verbs: do bullets start with action verbs such as built, led or wrote, rather than "responsible for" or "helped with"?
 - contact: is there a way to reach the candidate? The markers [masked-email] and [masked-phone] count as present.
@@ -46,9 +46,8 @@ What to do:
 - length: is the résumé a sensible length, roughly one or two pages?
 - In fixes, list the three most useful changes, most important first, each one plain sentence.
 - Do not copy lines from the résumé into your answer. Describe what to change instead.
-- Put a score of 0 to 100 in score. It is only a rough guide. The runner works out the real score from your checks.
 - Scores describe how ready the résumé is, never a chance of being hired or of getting an interview. Never judge the person, and never mention age, gender, nationality, health or anything else unrelated to the document.
-- In your note, tell the candidate in one or two sentences how the résumé reads to a recruiter seeing it for the first time.`;
+- Your note is your headline, shown first on your card: one sentence of at most 18 words on how the résumé reads to a recruiter seeing it for the first time, with the one fix that matters most.`;
 
 export const recruiter: AgentSpec<RecruiterInput, RecruiterOutput> = {
   name: "Recruiter",
@@ -58,9 +57,9 @@ export const recruiter: AgentSpec<RecruiterInput, RecruiterOutput> = {
   system: systemPrompt(role),
   tools: [],
   wholeResume: true,
-  outputSchema: objectFor<RecruiterOutput>({
+  // The model answers without score or keyword lists (the runner adds them), so the schema is built for the smaller shape and typed as the full one.
+  outputSchema: objectFor<Omit<RecruiterOutput, "score" | "keywordsFound" | "keywordsMissing">>({
     ...baseProperties,
-    score: int("0 to 100. A rough guide; the runner recomputes it from the checks."),
     checks: arrayOf(
       objectFor<RecruiterCheck>({
         id: { type: "string", enum: ATS_CHECK_IDS, description: "One of the fixed check ids, each used once." },
@@ -70,10 +69,8 @@ export const recruiter: AgentSpec<RecruiterInput, RecruiterOutput> = {
       }),
       "One check per id.",
     ),
-    keywordsFound: arrayOf(str("A role skill name found in the résumé, exactly as given."), "Role skills found word for word."),
-    keywordsMissing: arrayOf(str("A role skill name not found in the résumé, exactly as given."), "Role skills not found."),
     fixes: arrayOf(str("One plain sentence."), "The three most useful fixes, most important first."),
-  }),
+  }) as unknown as AgentSpec<RecruiterInput, RecruiterOutput>["outputSchema"],
   limits: { maxToolCalls: 0, perTool: {}, maxOutputTokens: 4000, maxTurns: 2, timeoutMs: 35_000 },
   refusal: `Refuse when the text is not a résumé at all. ${RUNNER_REFUSAL}`,
   buildUserMessage: (input) =>

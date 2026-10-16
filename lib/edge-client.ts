@@ -32,9 +32,9 @@ export async function edgeCall<T = unknown>(edge: Edge, path: string, body: unkn
 
 export type UsageLogRow = { agent: string; model?: string; provider: string; inputTokens: number; outputTokens: number; ms: number; fallback: boolean };
 
-/** Fire and forget: the usage log must never slow or break a run. Counts and timings only. */
-export function logUsage(edge: Edge | undefined, runId: string, rows: UsageLogRow[]): void {
-  if (edge && rows.length) void edgeCall(edge, "/usage", { runId, rows }, { timeoutMs: 4000 });
+/** The usage log must never slow or break a run, so callers do not wait for it; the promise is returned so a serverless host can keep the function alive until it lands. Counts and timings only. */
+export function logUsage(edge: Edge | undefined, runId: string, rows: UsageLogRow[]): Promise<unknown> {
+  return edge && rows.length ? edgeCall(edge, "/usage", { runId, rows }, { timeoutMs: 4000 }) : Promise.resolve();
 }
 
 /** Takes one slot from the shared counters. Returns null when the edge can't be reached, so the caller falls back to its in-memory limiter. */

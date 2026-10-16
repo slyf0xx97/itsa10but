@@ -75,7 +75,7 @@ test("the Recruiter reads cold: its message has the skill names and the masked r
   const message = recruiter.buildUserMessage({ skillNames: ["SIEM", "Python"], resumeText: "Built a Python log parser [masked-email]" });
   assert.ok(message.includes('"SIEM"') && message.includes("Built a Python log parser [masked-email]"));
   assert.ok(!/evidence|resumeQuote|passageId|finder/i.test(message));
-  assert.deepEqual(Object.keys(recruiter.outputSchema.properties).sort(), ["checks", "fixes", "keywordsFound", "keywordsMissing", "note", "refusalReason", "score", "status"]);
+  assert.deepEqual(Object.keys(recruiter.outputSchema.properties).sort(), ["checks", "fixes", "note", "refusalReason", "status"]);
   const ids = (recruiter.outputSchema.properties.checks as unknown as { items: { properties: { id: { enum: string[] } } } }).items.properties.id.enum;
   assert.deepEqual([...ids].sort(), [...ATS_CHECK_IDS].sort());
 });
@@ -84,11 +84,11 @@ test("the Finder also flags weak proof and writes the but line", () => {
   assert.deepEqual(Object.keys(experienceFinder.outputSchema.properties).sort(), ["but", "evidence", "note", "refusalReason", "status", "weakProofs"]);
 });
 
-test("the Role Scout also researches the employer: 7 calls, a company field, still no résumé tool", () => {
-  assert.equal(roleScout.limits.maxToolCalls, 7);
-  assert.deepEqual(roleScout.limits.perTool, { read_linkedin_posting: 1, firecrawl_search: 3, firecrawl_scrape: 3 });
+test("the Role Scout also researches the employer: 4 calls, a company field, still no résumé tool", () => {
+  assert.equal(roleScout.limits.maxToolCalls, 4);
+  assert.deepEqual(roleScout.limits.perTool, { read_linkedin_posting: 1, firecrawl_search: 2, firecrawl_scrape: 1 });
   assert.ok(roleScout.limits.maxToolCalls >= Object.values(roleScout.limits.perTool).reduce((a, b) => a + (b ?? 0), 0) - 1);
-  assert.deepEqual(Object.keys(roleScout.outputSchema.properties).sort(), ["company", "marketNote", "note", "refusalReason", "skills", "status", "title"]);
+  assert.deepEqual(Object.keys(roleScout.outputSchema.properties).sort(), ["company", "note", "refusalReason", "skills", "status", "title"]);
   const company = (roleScout.outputSchema.properties.company as unknown as { anyOf: { properties?: Record<string, unknown> }[] }).anyOf[0].properties!;
   assert.deepEqual(Object.keys(company).sort(), ["expectations", "name", "reputation", "sources", "values"]);
   assert.ok(roleScout.system.includes("company to null"));

@@ -14,7 +14,7 @@ const toolUse = (name: string, input: unknown, id = "t1"): LiveResponse => ({ st
 const base = { status: "ok", refusalReason: "" };
 
 const outputs = {
-  scout: () => ({ ...base, note: "SOC work is mostly triage and writing.", title: "Junior SOC Analyst", marketNote: null, company: null, skills: [
+  scout: () => ({ ...base, note: "SOC work is mostly triage and writing.", title: "Junior SOC Analyst", company: null, skills: [
     { name: "Python", demand: 70, roleQuote: "Use Python and Linux to triage incidents", why: "Scripting." },
     { name: "Reporting", demand: 60, roleQuote: "write clear reports for the team", why: "Writing." },
   ] }),
@@ -223,10 +223,15 @@ test("the deadline trips the fallback", async () => {
   assert.equal(complete(events).simulated, true);
 });
 
+// A skill with no checked playbook, so the Planner is allowed one search for it.
+const oddJob = job + " Knowledge of Terraform modules is a plus.";
+const oddScout = { scout: () => final({ ...outputs.scout(), skills: [...outputs.scout().skills, { name: "Terraform", demand: 90, roleQuote: "Knowledge of Terraform modules is a plus", why: "Infra." }] }) };
+
 test("planner links: only https links from its own search survive; scrape is refused", async () => {
   const search = (async () => new Response(JSON.stringify({ data: { web: [{ title: "Docs", url: "https://docs.example.com/a", description: "d" }] } }))) as unknown as typeof fetch;
   const quest = (link: unknown, skill: string) => ({ title: "Do " + skill, task: "Do it.", proof: "A page", skill, link });
   const { client, requests } = fake({
+    ...oddScout,
     planner: (_a, _r, call) => call === 1 ? toolUse("firecrawl_search", { query: "reporting course" }) : call === 2 ? toolUse("firecrawl_scrape", { url: "https://docs.example.com/a" }) : final({ ...outputs.planner(), quests: [
       quest({ title: "Docs", url: "https://docs.example.com/a" }, "Reporting"),
       quest({ title: "Evil", url: "javascript:alert(1)" }, "Reporting"),
@@ -234,7 +239,7 @@ test("planner links: only https links from its own search survive; scrape is ref
       quest({ title: "Unseen", url: "https://elsewhere.example/" }, "Reporting"),
     ] }),
   });
-  const done = complete(await run(client, { firecrawlKey: "fc", fetchImpl: search }));
+  const done = complete(await run(client, { firecrawlKey: "fc", fetchImpl: search }, oddJob));
   assert.deepEqual(done.result.analysis.sources.map((s) => s.url), ["https://docs.example.com/a"]);
   assert.equal(done.result.analysis.quests.length, 3, "capped at three quests");
   const plannerCalls = requests.filter((r) => agentOf(r) === "planner");
@@ -274,12 +279,42 @@ test("an oversize or malformed request is rejected before any model call", () =>
   assert.equal(validateLiveBody({ resumes, job }).ok, true);
 });
 
+// The lanes the runner adds itself: the wait for the model and the facts it checked after each agent.
+const RUNNER_LANES = new Set(["model", "verify", "skills", "company", "weak", "ats", "keywords", "gap", "tips"]);
+const allActivity = (events: EngineEvent[]) => events.filter((e): e is Extract<EngineEvent, { type: "activity" }> => e.type === "activity");
+const toolActivity = (events: EngineEvent[]) => allActivity(events).filter((e) => !RUNNER_LANES.has(e.lane));
+
+test("every agent shows a model lane that starts and ends, and the runner's checked facts follow its stage", async () => {
+  const { client } = fake();
+  const events = await run(client);
+  const activity = allActivity(events);
+  for (const agent of ["Role Scout", "Experience Finder", "Recruiter", "Action Planner"]) {
+    const lane = activity.filter((e) => e.agent === agent && e.lane === "model").map((e) => e.status);
+    assert.deepEqual([lane[0], lane[lane.length - 1]], ["start", "done"], agent);
+  }
+  const at = (type: string, agent?: string) => events.findIndex((e) => e.type === type && (!agent || ("agent" in e && (e.agent as { role?: string } | string) === agent || ("agent" in e && (e.agent as { role?: string }).role === agent))));
+  const factsAfterStage = activity.filter((e) => e.lane === "verify" && e.agent === "Experience Finder");
+  assert.ok(factsAfterStage.length === 2 && events.indexOf(factsAfterStage[0]) > at("stage", "Experience Finder"));
+  assert.match(factsAfterStage[1].detail ?? "", /^\d+ of \d+ found word for word$/);
+  assert.ok(activity.some((e) => e.lane === "ats" && e.status === "done" && /pass.*warn.*fail/.test(e.detail ?? "")));
+});
+
+test("a slow model call ticks progress while it waits and rethrows a failure", async () => {
+  const slow: LiveClient = { create: async (req, signal) => { await new Promise((resolve) => setTimeout(resolve, 200)); return fake().client.create(req, signal); } };
+  const events = await run(slow, { heartbeatMs: 20 });
+  const ticks = allActivity(events).filter((e) => e.agent === "Role Scout" && e.lane === "model" && e.status === "progress");
+  assert.ok(ticks.length >= 2);
+  assert.ok(ticks.every((e) => (e.progress ?? -1) >= 0 && (e.progress ?? 100) <= 95));
+  const failing: LiveClient = { create: async () => { await new Promise((resolve) => setTimeout(resolve, 60)); throw new Error("boom"); } };
+  assert.ok(notice(await run(failing, { heartbeatMs: 20 })), "a rejected call still falls back with a notice");
+});
+
 test("real tool calls show up as live activity with counts only and no résumé text", async () => {
   const { client } = fake({
     finder: (_a, _req, call) => call === 1 ? toolUse("search_resume_passages", { query: "Built a Python log parser that flags failed logins" }) : final(outputs.finder()),
   });
   const events = await run(client);
-  const activity = events.filter((e): e is Extract<EngineEvent, { type: "activity" }> => e.type === "activity");
+  const activity = toolActivity(events);
   assert.deepEqual(activity.map((e) => `${e.agent}:${e.lane}:${e.status}`), [
     "Experience Finder:search_resume_passages:start",
     "Experience Finder:search_resume_passages:done",
@@ -302,13 +337,13 @@ test("web tool activity shows a short search phrase and only the host of a page;
     finder: (_a, _r, call) => call === 1 ? toolUse("firecrawl_search", { query: "not allowed" }) : final(outputs.finder()),
   });
   const events = await run(client, { firecrawlKey: "fc", fetchImpl: search });
-  const activity = events.filter((e): e is Extract<EngineEvent, { type: "activity" }> => e.type === "activity");
+  const activity = toolActivity(events);
   const start = (lane: string) => activity.find((e) => e.lane === lane && e.status === "start");
   assert.ok((start("firecrawl_search")?.detail ?? "").length <= 51);
   assert.ok(start("firecrawl_search")?.detail?.endsWith('…"'));
   assert.equal(start("firecrawl_scrape")?.detail, "docs.example.com");
   assert.ok(!JSON.stringify(activity).includes("token=secret"));
-  assert.ok(!activity.some((e) => e.agent === "Experience Finder"), "a tool outside the grant never ran");
+  assert.ok(!activity.some((e) => e.agent === "Experience Finder" && e.lane === "firecrawl_search"), "a tool outside the grant never ran");
 });
 
 /* ---- Company culture ---- */
@@ -397,8 +432,8 @@ test("a chosen model runs all four agents with their usual limits and is named o
   const { client, requests } = fake();
   const events = await run(client, { model: "claude-opus-5-5" });
   assert.ok(requests.length >= 4 && requests.every((r) => r.model === "claude-opus-5-5"));
-  assert.equal(requests.find((r) => agentOf(r) === "scout")!.max_tokens, 5000);
-  assert.equal(requests.find((r) => agentOf(r) === "planner")!.max_tokens, 3000);
+  assert.equal(requests.find((r) => agentOf(r) === "scout")!.max_tokens, 3500);
+  assert.equal(requests.find((r) => agentOf(r) === "planner")!.max_tokens, 2500);
   assert.ok(requests.every((r) => r.output_config.format.type === "json_schema"), "the output schema is still required");
   assert.equal(notice(events), undefined);
   assert.deepEqual(complete(events).result.analysis.run, { model: "Opus 5.5", claude: true, web: false });
@@ -446,12 +481,15 @@ test("a model that calls a web tool anyway gets a refusal, not a request to Fire
   assert.equal(reply.is_error, true);
 });
 
-test("with a Firecrawl key the web tools are offered as before and web is on", async () => {
-  const { client, requests } = fake();
-  const events = await run(client, { firecrawlKey: "fc" });
+test("with a Firecrawl key the Scout gets both web tools, and the Planner only one search, and only when a gap has no playbook", async () => {
+  const { client, requests } = fake(oddScout);
+  const events = await run(client, { firecrawlKey: "fc" }, oddJob);
   assert.equal(startEvent(events).web, true);
   assert.deepEqual(webNames(requests.find((r) => agentOf(r) === "scout")!), ["firecrawl_search", "firecrawl_scrape"]);
   assert.deepEqual(webNames(requests.find((r) => agentOf(r) === "planner")!), ["firecrawl_search"]);
+  const plain = fake();
+  await run(plain.client, { firecrawlKey: "fc" });
+  assert.deepEqual(webNames(plain.requests.find((r) => agentOf(r) === "planner")!), [], "every gap has a checked playbook, so no search is offered");
   assert.doesNotMatch(requests.find((r) => agentOf(r) === "scout")!.messages[0].content as string, /Web search is switched off/);
   assert.equal(complete(events).result.analysis.run?.web, true);
 });
@@ -501,4 +539,22 @@ test("a Recruiter that fails does not cost the run: the native ATS-style check s
   assert.match(analysis.agents[2].note, /native ATS-style check/);
   const refused = fake({ recruiter: () => ({ stop_reason: "refusal", content: [] }) });
   assert.match(notice(await run(refused.client))?.message ?? "", /declined/);
+});
+
+test("the Finder is handed the passages picked for each skill, no passage twice, and a made-up quote still scores 0", async () => {
+  const { prePassages } = await import("./live-agents.ts");
+  const chunks = [
+    { id: "r0-c0", text: "Built a Python log parser that flags failed logins.", resume: "cv" },
+    { id: "r0-c1", text: "Wrote SQL reports for the weekly review.", resume: "cv" },
+    { id: "r0-c2", text: "Volunteered at a school fair.", resume: "cv" },
+  ] as unknown as Parameters<typeof prePassages>[0];
+  const found = prePassages(chunks, [{ name: "Python" }, { name: "SQL" }, { name: "Python scripting" }]);
+  assert.deepEqual(found.map((item) => item.passageId), ["r0-c0", "r0-c1"]);
+  assert.ok(found.every((item) => item.text.length <= 420));
+  assert.deepEqual(prePassages(chunks, [{ name: "zzz" }]), []);
+  assert.equal(prePassages(chunks, [{ name: "Python" }, { name: "SQL" }], 3, 1).length, 1);
+  const { client, requests } = fake();
+  await run(client);
+  const finderMessage = JSON.stringify(requests.find((req) => req.system.includes("You are the Experience Finder"))?.messages[0]);
+  assert.match(finderMessage, /résumé passages|passageId/);
 });
