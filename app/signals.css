@@ -20,8 +20,8 @@
 .sgs-actions .sgs-open:focus-visible, .sgs-actions .sgs-book:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 @container (max-width: 21rem) {.sgs-actions { grid-template-columns: minmax(0, 1fr); }}
 /* The five groups of sites, each with its title, a count and up to seven round logos (the name and what it covers are the hover text, the rest are in the popup). */
-.sgs-groups { display: grid; gap: .55rem; min-width: 0; }
-.sgs-group { display: grid; gap: .3rem; min-width: 0; padding: .45rem .55rem .55rem; border: 1.5px solid rgb(31 36 48 / 16%); border-radius: 12px; background: rgb(255 255 255 / 70%); }
+.sgs-groups { flex: 1 1 auto; grid-auto-rows: 1fr; display: grid; gap: .55rem; min-width: 0; }
+.sgs-group { align-content: center; display: grid; gap: .3rem; min-width: 0; padding: .45rem .55rem .55rem; border: 1.5px solid rgb(31 36 48 / 16%); border-radius: 12px; background: rgb(255 255 255 / 70%); }
 .sgs-group h3 { display: flex; align-items: center; gap: .4rem; margin: 0; color: var(--ink); font-size: 1.02rem; font-weight: 800; line-height: 1.2; }
 .sgs-group h3 small { margin-left: auto; padding: 0 .5rem; border-radius: 999px; background: var(--sky-soft); color: var(--ink); font-size: .9rem; font-weight: 800; }
 .sgs-group ul { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
@@ -89,9 +89,9 @@
 .sgs-tag { justify-self: start; margin-top: .15rem; padding: 0 .45rem; border: 1.5px solid var(--leaf-deep); border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-style: normal; font-weight: 800; line-height: 1.35; }
 /* Role picker: glass finish for the pieces that still carried the older parchment look. */
 /* Label row of the role box: the label and its tip on the left, a small LinkedIn note on the right. */
-.role-input .rl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .8rem; margin-bottom: .4rem; }
+.role-input .rl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .4rem; margin-bottom: .4rem; }
 .role-input .rl-head label { margin: 0; }
-.role-input .rl-li { display: inline-flex; align-items: center; gap: .45rem; padding: .1rem .6rem .1rem .4rem; border: 1.5px solid var(--glass-edge); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.role-input .rl-li { display: inline-flex; align-items: center; gap: .25rem; padding: .1rem .4rem .1rem .25rem; border: 1.5px solid var(--glass-edge); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: .74rem; margin-left: auto; font-weight: 700; white-space: nowrap; }
 .role-input .rl-li .li-mark { flex: none; }
 .role-input label.with-tip { color: var(--ink); font-size: 1.1rem; font-weight: 800; }
 .role-input .role-field { display: flex; flex: 1 1 auto; flex-direction: column; }

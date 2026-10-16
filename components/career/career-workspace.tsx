@@ -490,7 +490,7 @@ export default function Home() {
             <div className="stage-body">
               {busy
                 ? <div className="cl-item"><span className="cl-icon" aria-hidden="true">⏳</span><p className="cl-text"><strong className="cl-lead">The radar draws when the readers finish</strong></p></div>
-                : <div className={"radar-section" + (hasResult ? " reveal" : "")}><RadarTitle />{hasResult ? <RadarPanelMemo skills={analysis.skills} /> : <RadarEmpty />}<AgentCamp /></div>}
+                : <div className={"radar-section" + (hasResult ? " reveal" : "")}><RadarTitle />{hasResult ? <RadarPanelMemo skills={analysis.skills} /> : <RadarEmpty />}{!hasResult && <AgentCamp />}</div>}
             </div>
           </section>
           {/* No stage banner: the Level up panel carries its own h2 with the full title. */}

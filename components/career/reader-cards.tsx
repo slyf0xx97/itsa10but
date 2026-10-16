@@ -5,7 +5,7 @@ import type { UsageRow } from "@/lib/usage-coins";
 import { BASE_PATH } from "@/lib/base-path";
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { PromptPeek } from "@/components/career/prompt-peek";
-import { WordTip } from "@/components/career/word-tip";
+import { Popup } from "@/components/popup";
 import { PixelIcon } from "@/components/career/pixel-icons";
 import type { AgentNote } from "@/lib/analysis-types";
 import { abilitiesFor, AGENT_PROFILES, lanesFor, type Ability, type Mode } from "@/lib/agent-abilities";
@@ -78,6 +78,7 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
   // A pick only holds while the same reader is running (or while nothing runs: during is -1), so the panel follows the run again at the next handoff. index -1 means closed.
   const [picked, setPicked] = useState<{ index: number; during: number } | null>(null);
   const panelId = useId();
+  const [details, setDetails] = useState<number | null>(null);
   const stepsRef = useRef<HTMLOListElement>(null);
   const paperRef = useRef<HTMLSpanElement>(null);
   const handoffN = handoff?.n ?? 0, handoffFrom = handoff?.from, handoffTo = handoff?.to;
@@ -148,10 +149,9 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
           </ul>
           {/* The details open as a panel over the page (top layer), on hover, focus or click, so a card never changes height. The prompt file peeks the same way. */}
           <div className="rd-foot">
-          <WordTip panel wide clickOnly buttonClass="rd-more" tone="water" title={item.name + ": strengths, limits and tools"} label={item.name + ": strengths, limits and tools"}
-            word={<><span>Strengths, limits &amp; tools</span><span aria-hidden="true">→</span></>}>
-            <AgentDetails name={item.name} fact={fact} mode={itemMode} />
-          </WordTip>
+          <button type="button" className="rd-more" aria-haspopup="dialog" onClick={() => setDetails(index)}>
+            <span>Strengths, limits &amp; tools</span><span aria-hidden="true">→</span>
+          </button>
           <PromptPeek name={item.name} model={model} />
           </div>
           {usage && <CardCoins row={usage.find((row) => row.agent === item.name)} working={itemState === "active"} />}
@@ -160,6 +160,9 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
     </ol>
     <span className="rd-paper" ref={paperRef} aria-hidden="true"><PixelIcon name="report" size={22} /></span>
     </div>
+    {details !== null && readers[details] && <Popup open onClose={() => setDetails(null)} title={readers[details].name + ": strengths, limits and tools"} icon={<PixelIcon name="report" size={22} />} wide>
+      <AgentDetails name={readers[details].name} fact={AGENT_FACTS[details]} mode={activities?.[readers[details].name]?.mode ?? mode} />
+    </Popup>}
     {usage && <RunTotal rows={usage} done={completed >= readers.length} />}
     {reader && profile && <div className={"rd-panel " + reader.kind} id={panelId} aria-live="polite" aria-atomic="false" aria-relevant="additions text">
       <h3>{reader.name}</h3>
@@ -212,11 +215,6 @@ function AgentDetails({ name, fact, mode }: { name: ReaderName; fact: AgentFact;
       <div className="rdp-box good"><Point icon="✓" lead="Strong at" text={fact.strongAt} /></div>
       <div className="rdp-box bad"><Point icon="✕" lead="Can't do" text={fact.cant} /></div>
     </div>
-    <Section title="Moves">
-      <ul className="rdp-moves" aria-label={name + " moves"}>
-        {fact.moves.map((move) => <li key={move.label}><b>{move.label}</b> {move.detail}</li>)}
-      </ul>
-    </Section>
     <Section title="Limits">
       <ul className="rdp-limits" aria-label={name + " limits"}>
         <li><span className="rdp-k">Tool calls</span><span className="rd-meter" aria-hidden="true"><i style={{ "--v": fact.toolCalls / MAX_CALLS } as CSSProperties} /></span><span className="rdp-v">{fact.toolCalls ? "up to " + fact.toolCalls : "none"}</span></li>

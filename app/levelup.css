@@ -68,7 +68,7 @@
 @keyframes lu-flash { 50% { transform: scale(1.025); } }}
 /* Two rows of cards show at a time (the description, then about two rows). The rest scrolls inside with the scrollbar hidden, and a fade with a bouncing "More below" pill shows there is more. */
 .lu-more-wrap { position: relative; }
-.lu-scroll { max-height: 33rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.lu-scroll { height: 33rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .lu-scroll::-webkit-scrollbar { display: none; }
 .lu-scroll:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 12px; }
 .lu-fade { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: center; height: 5rem; padding-bottom: .3rem; background: linear-gradient(to top, rgb(226 243 252 / 96%) 15%, rgb(226 243 252 / 0%)); opacity: 0; pointer-events: none; transition: opacity .2s; }

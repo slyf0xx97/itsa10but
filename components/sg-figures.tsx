@@ -110,7 +110,7 @@ export function SgFigures() {
 
     <section className="sgf-sec" aria-labelledby="sgf-sites">
       <h3 id="sgf-sites">Official sites and news</h3>
-      {figureGroups.map((group) => <div key={group.id} className="rt-sites">
+      <div className="rt sgs-pop">{figureGroups.map((group) => <section key={group.id} className="rt-sites" aria-label={group.title}>
         <h4 className="rt-title"><PixelIcon name={group.icon} size={18} />{group.title}</h4>
         <ul className="rt-grid">{group.sites.map((site) => <li key={site.name}>
           <a href={site.href} target="_blank" rel="noopener noreferrer">
@@ -120,7 +120,7 @@ export function SgFigures() {
             <span className="sr-only">(opens in a new tab)</span>
           </a>
         </li>)}</ul>
-      </div>)}
+      </section>)}</div>
     </section>
   </div>;
 }

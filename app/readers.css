@@ -116,7 +116,8 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 .rdp-moves { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; font-size: 1rem; line-height: 1.4; }
 .rdp-moves li { padding-left: .9rem; border-left: 4px solid var(--hue-line, rgb(18 52 63 / 30%)); }
 @media (min-width: 1000px) {.rdp { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; align-items: start; }
-.rdp > .rdp-two { grid-column: 1 / -1; }}
+.rdp > .rdp-two { grid-column: 1 / -1; }
+.rdp-two:last-child { grid-column: 1 / -1; }}
 @media (max-width: 560px) {.rdp-two { grid-template-columns: minmax(0, 1fr); }}
 @media (max-width: 480px) {.rdp-limits li { grid-template-columns: 5.6rem minmax(0, 1fr) 5.4rem; gap: .6rem; }}
 .rd-panel { position: relative; display: grid; gap: .7rem; min-width: 0; padding: 1rem; border: 1.5px solid var(--glass-edge); border-radius: 18px; background: rgb(255 255 255 / 82%); backdrop-filter: var(--glass-blur-panel); -webkit-backdrop-filter: var(--glass-blur-panel); color: var(--ink); text-shadow: none; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); overflow-wrap: anywhere; }
