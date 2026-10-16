@@ -1,8 +1,8 @@
 /* Modal popup (components/popup.tsx). Native <dialog>: the page behind keeps its height; the panel scrolls inside.
-   Sizes: a plain popup is up to 60rem wide, a wide one (findings, tips, sources, run modes) up to 1100px, both 94vw at most, and up to 90% of the screen tall.
+   Sizes: a plain popup is up to 60rem wide, a wide one (findings, tips, sources, run modes) up to 1480px, both 96vw at most, and up to 90% of the screen tall.
    On a phone the popup is a near full-width sheet with a small margin. Body text is 17px; the findings parts set their own larger type under .pop (dashboard.css, readers.css). */
 .pop { padding: 0; border: 0; background: transparent; color: var(--ink); width: min(60rem, 94vw); max-width: none; max-height: 90vh; max-height: 90dvh; margin: auto; overflow: visible; }
-.pop.pop-wide { width: min(1100px, 94vw); }
+.pop.pop-wide { width: min(1480px, 96vw); }
 .pop::backdrop { background: rgb(14 43 36 / 55%); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
 .pop-card { display: flex; flex-direction: column; max-height: 90vh; max-height: 90dvh; border: 1.5px solid var(--glass-edge); border-radius: 22px; background: rgb(255 255 255 / 97%); box-shadow: 0 24px 60px rgb(10 40 60 / 35%); overflow: hidden; }
 .pop-head { display: flex; align-items: center; gap: 1rem; padding: .55rem 1.25rem; border-bottom: 1.5px solid rgb(31 36 48 / 14%); background: var(--sky-soft); }

@@ -1,3 +1,4 @@
+import { splitPassages } from "./passages.ts";
 import { catalog, hasTerm, type SkillSeed } from "./preview-analysis.ts";
 
 export type Chunk = { id: string; index: number; text: string };
@@ -19,10 +20,7 @@ const actionVerb = /\b(built|created|developed|deployed|analysed|analyzed|implem
  * sentence, matching the grain the UI shows as a quote.
  */
 export function chunkResume(text: string): Chunk[] {
-  return text
-    .split(/\r?\n|(?<=[.!?])\s+/)
-    .map((part) => part.trim())
-    .filter(Boolean)
+  return splitPassages(text)
     .map((chunkText, index) => ({ id: `chunk-${index}`, index, text: chunkText }));
 }
 

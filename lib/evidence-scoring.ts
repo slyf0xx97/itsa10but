@@ -1,5 +1,6 @@
 import type { EvidenceQuote, Resume } from "./analysis-types.ts";
 import { sumParts, type ScorePart, type SkillBreakdown } from "./scoring.ts";
+import { splitPassages } from "./passages.ts";
 import { wantOf } from "./skill-levels.ts";
 
 const action = /\b(built|created|developed|deployed|analysed|analyzed|implemented|configured|investigated|automated|documented|led|delivered)\b/i;
@@ -9,8 +10,7 @@ const contains = (text: string, term: string) => new RegExp(`(?:^|[^a-z0-9])${te
 
 /** Every awarded rule has an exact supporting passage. Duplicate passages never add points. */
 export function scoreEvidence(name: string, terms: string[], resumes: Resume[], job: string) {
-  const passages = (text: string, label: string): EvidenceQuote[] => text.split(/\r?\n|(?<=[.!?])\s+/)
-    .map(quote => quote.trim()).filter(Boolean)
+  const passages = (text: string, label: string): EvidenceQuote[] => splitPassages(text)
     .map(quote => ({ label, quote, matched: terms.filter(term => contains(quote, term)) }))
     .filter(line => line.matched.length > 0);
   const roleLines = passages(job, "Target role");

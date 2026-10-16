@@ -15,7 +15,7 @@ export async function readResumeFile(file: File): Promise<string> {
   for (let pageNumber = 1; pageNumber <= Math.min(document.numPages, 20); pageNumber++) {
     const page = await document.getPage(pageNumber);
     const content = await page.getTextContent();
-    pages.push(content.items.map((item) => "str" in item ? item.str : "").join(" "));
+    pages.push(content.items.map((item) => "str" in item ? item.str + (item.hasEOL ? "\n" : " ") : "").join(""));
   }
   const text = pages.join("\n").trim();
   await loadingTask.destroy();
