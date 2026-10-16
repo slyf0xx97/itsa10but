@@ -17,7 +17,7 @@ It is a one-page career workspace for students and people moving into tech. You 
 
 🌐 Live site: https://ghernie.com/itsa10but
 
-The idea and the design system were conceived by Ghernie Encinas, who has a strong interest in UI design and creativity. The project is finished and open to improvements.
+The idea, a play on the ["She's a 10 but" meme](https://knowyourmeme.com/memes/shes-a-10-but-hes-a-10-but), and the design system were conceived by [Ghernie Encinas](https://sg.linkedin.com/in/ghernie), who has a strong interest in UI design, creativity, AI, cybersecurity, machine learning and service. The project is finished and open to improvements.
 
 ## 🎯 Problem
 

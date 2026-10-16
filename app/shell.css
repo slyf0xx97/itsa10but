@@ -106,3 +106,5 @@ main { position: relative; }
 .site-footer .ft-donate:hover { background: var(--coral); }
 .site-footer .ft-donate:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 @media (max-width: 860px) { .site-footer .ft-btns { justify-content: flex-start; } }
+.site-footer .ft-text a { color: var(--water-deep); font-weight: 700; text-underline-offset: 3px; }
+.site-footer .ft-text a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 4px; }

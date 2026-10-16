@@ -41,7 +41,7 @@ export default function RootLayout({
           "@context": "https://schema.org", "@type": "WebApplication", name: "itsa10but", url: SITE_URL, description: DESCRIPTION,
           applicationCategory: "EducationalApplication", operatingSystem: "Any, in a web browser", browserRequirements: "Needs JavaScript", inLanguage: "en",
           audience: { "@type": "Audience", audienceType: "Students and people moving into tech" }, isAccessibleForFree: true,
-          author: { "@type": "Person", name: "Ghernie Encinas", url: "https://sg.linkedin.com/in/ghernie", description: "Conceived the idea and the design system for itsa10but, with a strong interest in UI design and creativity." },
+          author: { "@type": "Person", name: "Ghernie Encinas", url: "https://sg.linkedin.com/in/ghernie", description: "Conceived the idea and the design system for itsa10but, with a strong interest in UI design, creativity, AI, cybersecurity, machine learning and service." },
           featureList: ["Compares a résumé with a tech job posting", "Shows the quote in the résumé behind every skill score", "ATS-style résumé check", "Skills radar with free resources to close each gap", "PDF report and a Markdown prompt to download", "Works without an account or an API key"], offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
         }).replace(/</g, "\\u003c") }} />
         {children}

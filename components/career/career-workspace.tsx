@@ -552,7 +552,7 @@ export default function Home() {
       <div className="ft-text">
         <p>itsa10but is independent. LinkedIn and the listed employers don&apos;t endorse or sponsor it, and their names and logos belong to their owners. Job listings come from outside feeds, so check the original posting before you apply.</p>
         <p>The four agent characters are original, fictional illustrations made for this project. They don&apos;t depict any real person, company, brand or character.</p>
-        <p>The idea and the design system were conceived by Ghernie Encinas, who has a strong interest in UI design and creativity.</p>
+        <p>The idea, a play on the <a href="https://knowyourmeme.com/memes/shes-a-10-but-hes-a-10-but" target="_blank" rel="noopener noreferrer">“She’s a 10 but” meme</a>, and the design system were conceived by <a href="https://sg.linkedin.com/in/ghernie" target="_blank" rel="noopener noreferrer">Ghernie Encinas</a>, who has a strong interest in UI design, creativity, AI, cybersecurity, machine learning and service.</p>
       </div>
       <div className="ft-meta">
         {/* eslint-disable-next-line @next/next/no-img-element -- small static SVG, nothing to optimise */}
