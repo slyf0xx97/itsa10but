@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "next-env.d.ts",
+    // Wrangler's temporary bundles.
+    "worker/.wrangler/**",
   ]),
 ]);
 

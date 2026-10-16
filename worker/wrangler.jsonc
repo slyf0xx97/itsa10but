@@ -1,0 +1,11 @@
+{
+  // itsa10but edge: called server-to-server by the Vercel app. IDs below are filled in by `wrangler d1 create` / `wrangler kv namespace create`.
+  "name": "itsa10but-edge",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [{ "pattern": "edge.ghernie.com", "custom_domain": true }],
+  "kv_namespaces": [{ "binding": "CACHE", "id": "edd6a90313424b0bb659ce225404d8cc" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "itsa10but-edge", "database_id": "7c8c526e-1f06-4767-a8c6-b6547701577e" }]
+}

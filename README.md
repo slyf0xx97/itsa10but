@@ -41,7 +41,7 @@ You choose in the header with the "Agent power" switch. Every result is labelled
 | --- | --- | --- |
 | Needs a key | No. | Yes, your own Anthropic or OpenRouter key, or the site's key when the deployment turns it on. |
 | Where it runs | In your browser. | On the server, through Claude agents. |
-| How it reads | Retrieval and text rules. No model call. | Four Claude agents, with web search through Firecrawl if you add a Firecrawl key. |
+| How it reads | Retrieval and text rules. No model call. | Four Claude agents. Web lookups go through the edge Worker (Wikipedia and direct page reads first), and through Firecrawl when a key is set. |
 | If something breaks | Not applicable. | The run falls back to Native scan and says so. |
 
 Native scan is the default. Models other than Claude haven't been tested with the agents. The runner checks every quote an agent returns against your text, and a quote that isn't a literal match scores 0.
@@ -54,6 +54,7 @@ Native scan is the default. Models other than Claude haven't been tested with th
 - In API boost, the masked résumé goes to Anthropic, or to OpenRouter and on to the company behind the model you picked. Names, employers and schools aren't masked, so they go too. The role text shapes the web searches.
 - Your keys live in React state for the tab. They travel in request headers for one run, and the server never stores, logs or echoes them.
 - Résumé text, role text and keys stay out of logs and URLs.
+- The edge Worker sees search queries and page links the agents ask for, such as a company name. It never receives résumé text. Its database keeps token counts and timings per agent, plus run counters, and no text, keys or IP addresses.
 
 ## How it's built
 
@@ -78,13 +79,16 @@ To try API boost, create `.env.local` and set these. Every `.env*` file is gitig
 
 - `LIVE_AGENTS_ENABLED=true` turns the site key on. Any other value keeps it off.
 - `ANTHROPIC_API_KEY` is the site's model key. It's read on the server only.
-- `FIRECRAWL_API_KEY` is optional and lets the agents search the web.
+- `FIRECRAWL_API_KEY` is optional. It lets the agents search the open web when the edge Worker isn't set.
+- `EDGE_URL` and `EDGE_SECRET` are optional and point the server at the edge Worker in `worker/`. With them, web lookups work without a Firecrawl key, repeat lookups come from a 24-hour cache, the run limits are shared across instances (the daily cap resets at midnight Singapore time) and each run's token counts are logged. Locally, `EDGE_URL` can be `http://127.0.0.1:8787`.
 - `AGENT_MODEL_ROLE_SCOUT`, `AGENT_MODEL_EXPERIENCE_FINDER`, `AGENT_MODEL_RECRUITER` and `AGENT_MODEL_ACTION_PLANNER` are optional model overrides.
 - `LIVE_AGENTS_PER_VISITOR` is optional and defaults to 3 runs an hour on the site key.
 - `LIVE_AGENTS_DAILY_CAP` is optional and defaults to 50 runs a day on the site key.
 - `LIVE_OWN_KEY_PER_VISITOR` is optional and defaults to 10 runs an hour on a visitor's own key.
 
 Before you switch the site key on in production, add a Vercel Firewall rate-limit rule on `/api/agents/stream` and a spend limit on the Anthropic and Firecrawl keys.
+
+The edge Worker (`worker/`) runs on Cloudflare. Create a KV namespace and a D1 database, put their IDs in `worker/wrangler.jsonc`, then run `npx wrangler d1 execute itsa10but-edge --remote --file worker/schema.sql`. Set `EDGE_SECRET`, `ADMIN_SECRET` and (optionally) `FIRECRAWL_API_KEY` with `npx wrangler secret put`, and deploy with `npx wrangler deploy` from `worker/`. Totals by day and model are at `GET /usage/summary` with the `x-admin-secret` header.
 
 Checks:
 

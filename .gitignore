@@ -50,3 +50,7 @@ tsconfig.tsbuildinfo
 /references/
 /CLAUDE.md
 /AGENTS.md
+
+# Cloudflare edge Worker: local secrets and wrangler state
+.dev.vars
+.wrangler/

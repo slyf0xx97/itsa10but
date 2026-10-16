@@ -3,6 +3,8 @@
  * is a backstop behind the Vercel Firewall rule and the key spend limits, not a
  * replacement for them (upgrade path: Upstash).
  */
+import { edgeLimit, type Edge } from "./edge-client.ts";
+
 export type LimiterOptions = { perVisitorMax: number; perVisitorWindowMs: number; dailyCap: number; now?: () => number };
 export type LimitResult = { ok: true } | { ok: false; reason: "visitor" | "daily" };
 
@@ -76,3 +78,23 @@ let shared: ReturnType<typeof limiterFromEnv> | undefined;
 export const sharedLimiter = () => (shared ??= limiterFromEnv(process.env));
 let sharedOwn: ReturnType<typeof ownKeyLimiterFromEnv> | undefined;
 export const sharedOwnKeyLimiter = () => (sharedOwn ??= ownKeyLimiterFromEnv(process.env));
+
+/**
+ * Takes one run slot. With the edge Worker the counters are shared across every Vercel instance and the daily cap rolls over at
+ * midnight in Singapore. If the edge can't be reached, this instance's in-memory limiter decides instead.
+ */
+export async function takeRun(options: { edge?: Edge; ownKey: boolean; visitor: string; env: Env; fallback: { take(visitor: string): LimitResult } }): Promise<LimitResult> {
+  const { edge, ownKey, visitor, env } = options;
+  if (edge) {
+    if (ownKey) {
+      const hour = await edgeLimit(edge, "own", visitor, intFrom(env.LIVE_OWN_KEY_PER_VISITOR, 10), "hour");
+      if (hour) return hour.ok ? { ok: true } : { ok: false, reason: "visitor" };
+    } else {
+      const day = await edgeLimit(edge, "site-day", visitor, intFrom(env.LIVE_AGENTS_DAILY_CAP, 50), "day");
+      if (day && !day.ok) return { ok: false, reason: "daily" };
+      const hour = day ? await edgeLimit(edge, "site", visitor, intFrom(env.LIVE_AGENTS_PER_VISITOR, 3), "hour") : null;
+      if (day && hour) return hour.ok ? { ok: true } : { ok: false, reason: "visitor" };
+    }
+  }
+  return options.fallback.take(visitor);
+}
