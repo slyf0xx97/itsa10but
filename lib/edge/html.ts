@@ -15,17 +15,24 @@ export function publicHttpsUrl(value: unknown): string | null {
   return url.toString();
 }
 
+/** A line that is mostly code or JSON (settings pasted into the page), not prose: long, with many quotes, braces and colons. */
+const isDataBlob = (line: string) => line.length > 80 && (line.match(/["{}[\]:\\]/g)?.length ?? 0) / line.length > 0.12;
+
 /** Readable text from a page: scripts, styles and tags dropped, block tags become line breaks, entities decoded, capped. */
 export function htmlToText(html: string, max = 6000): string {
   const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1] ?? "";
-  const body = html
+  // The page's own main content when it has one, so menus, banners and footers stay out.
+  const main = /<(main|article)\b[\s\S]*?<\/\1>/i.exec(html)?.[0];
+  const body = (main && main.length > 400 ? main : html)
     .replace(/<(script|style|noscript|svg|nav|footer|form|iframe|head)\b[\s\S]*?<\/\1>/gi, " ")
     .replace(/<!--[\s\S]*?-->/g, " ")
     .replace(BLOCK, "\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/&(?:amp|lt|gt|quot|apos|nbsp|#39);/g, (entity) => ENTITIES[entity] ?? " ")
+    .replace(/&#(x[0-9a-f]+|\d+);/gi, (_match, code: string) => { const point = code[0].toLowerCase() === "x" ? parseInt(code.slice(1), 16) : parseInt(code, 10); return point > 31 && point < 0x10ffff ? String.fromCodePoint(point) : " "; })
     .replace(/[ \t\f\v]+/g, " ")
     .replace(/ ?\n ?/g, "\n")
+    .split("\n").filter((line) => !isDataBlob(line)).join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
   const head = title.replace(/\s+/g, " ").trim();

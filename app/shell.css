@@ -96,3 +96,6 @@ main { position: relative; }
 .lic-text { max-height: 40vh; margin: 0; padding: .8rem .9rem; overflow: auto; border: 1.5px solid var(--glass-edge); border-radius: 12px; background: var(--sky-soft); color: var(--ink); font: .9rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
 .lic-text:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .lic-note a { color: var(--water-deep); font-weight: 700; }
+
+/* Sections that are off screen (components/career/offscreen-pause.tsx) stop their looping animations. */
+.is-off, .is-off *, .is-off *::before, .is-off *::after { animation-play-state: paused !important; }

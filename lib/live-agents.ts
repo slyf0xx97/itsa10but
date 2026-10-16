@@ -12,8 +12,10 @@ import { RECOMMENDED_MIX, isClaudeModel, modelLabel } from "./model-choice.ts";
 import { safeJobUrl } from "./job-types.ts";
 import { extractLinkedinJobId, guestPostingUrl, htmlToJobText } from "./linkedin-url.ts";
 import { detectCompany, showItTips } from "./company-culture.ts";
+import { gatherCompany, guessCompanyName, intelData, type CompanyIntel } from "./company-intel.ts";
 import { hasTerm } from "./preview-analysis.ts";
-import { playbookFor } from "./skill-playbooks.ts";
+import { playbookFor, questFor } from "./skill-playbooks.ts";
+import { recruiterReview } from "./recruiter-review.ts";
 import { chunkResume, verifyQuote, type Chunk } from "./rag.ts";
 import { runSafetyCheck } from "./safety.ts";
 import { computeMatch } from "./scoring.ts";
@@ -368,7 +370,7 @@ export function prePassages(chunks: ResumeChunk[], skills: { name: string }[], p
  * link from the Scout's own search, and lengths and counts are capped. A built-in entry (checked list) wins over web values; the web
  * only adds reputation lines to it. Nothing credible means no company.
  */
-export function checkCompany(raw: CompanyFinding | null, roleText: string, seen: Set<string>): CompanyCulture | undefined {
+export function checkCompany(raw: CompanyFinding | null, roleText: string, seen: Set<string>, about?: string): CompanyCulture | undefined {
   const name = cut(raw?.name, 60);
   const token = name.match(/[\p{L}\p{N}]{3,}/u)?.[0];
   const named = Boolean(token && hasTerm(roleText, token));
@@ -400,8 +402,9 @@ export function checkCompany(raw: CompanyFinding | null, roleText: string, seen:
     return [{ name: valueName, meaning }];
   }).slice(0, 16);
   const expectations = raw.expectations.map((line) => cut(line, 120)).filter(Boolean).slice(0, 4);
-  if (!values.length && !expectations.length) return undefined;
-  return { name, values, expectations, ...(reputation.length ? { reputation } : {}), showIt: showItTips(values), sources, origin: "web", note: "Found on the web this run; check the sources." };
+  // Found the company and its pages but no stated values: show what the runner found (what it does, who says what), not nothing.
+  if (!values.length && !expectations.length && !about && !reputation.length) return undefined;
+  return { name, ...(about ? { about } : {}), values, expectations, ...(reputation.length ? { reputation } : {}), showIt: showItTips(values), sources, origin: "web", note: "Found on the web this run; check the sources." };
 }
 
 /* ---- The pipeline ---- */
@@ -497,7 +500,16 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
     /* 1. Role Scout */
     const [scoutSpec, finderSpec, recruiterSpec, plannerSpec] = AGENT_SPECS;
     yield* handoff(0, "Orchestrator");
-    const rawScout = yield* runAgent(scoutSpec, { roleText: safety.maskedJob, hasLinkedinLink }, scoutCtx);
+    // The runner researches the employer itself, so the company part does not depend on a small model choosing to search.
+    let intel: CompanyIntel | undefined;
+    const employer = web ? (detectCompany(safety.maskedJob)?.name ?? guessCompanyName(safety.maskedJob)) : undefined;
+    if (employer) {
+      const lane = { type: "activity" as const, agent: READERS[0], lane: "firecrawl_search", label: laneLabel("Role Scout", "firecrawl_search"), ...live };
+      yield { ...lane, status: "start", progress: 0, detail: employer.slice(0, 40) };
+      intel = await gatherCompany(employer, scoutWeb).catch(() => undefined);
+      yield { ...lane, status: "done", progress: 100, detail: intel ? `${intel.pages.length} page${intel.pages.length === 1 ? "" : "s"} read` : "No result" };
+    }
+    const rawScout = yield* runAgent(scoutSpec, { roleText: safety.maskedJob, hasLinkedinLink, ...(intel ? { companyWeb: intelData(intel) } : {}) }, scoutCtx);
     const seenSkills = new Set<string>();
     let roleQuotes = 0;
     let roleQuotesBad = 0;
@@ -526,7 +538,13 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
       skills: scoutSkills,
     };
     // The Scout's company findings stay here: no other agent is given company text.
-    const company = checkCompany(rawScout.company, [roleSource(), postingCache?.company ?? ""].join(" "), scoutWeb.seen);
+    const roleWords = [roleSource(), postingCache?.company ?? ""].join(" ");
+    let company = checkCompany(rawScout.company, roleWords, scoutWeb.seen, intel?.about);
+    // The model found nothing it could cite, but the runner did: show the company with what it found.
+    if (!company && intel && (intel.about || intel.pages.length) && hasTerm(roleWords, intel.name.match(/[\p{L}\p{N}]{3,}/u)?.[0] ?? "")) {
+      company = { name: intel.name, ...(intel.about ? { about: intel.about } : {}), values: [], expectations: [], showIt: ["Read the company's own about page and echo its words in your summary line.", "Pick one thing the company does and say how your project relates to it."], sources: intel.sources.slice(0, 6), origin: "web", note: "Found on the web this run, without a published list of values. Check the sources." };
+    }
+    if (company?.origin === "web" && !company.about && intel?.about) company = { ...company, about: intel.about };
     yield* present(0, scout.note);
     yield* facts(0, [
       ...(roleQuotes ? [{ lane: "verify", label: "Role quotes", detail: `${roleQuotes - roleQuotesBad} of ${roleQuotes} found word for word` }] : []),
@@ -633,6 +651,8 @@ export async function* runLiveAgents(resumes: Resume[], job: string, deps: LiveD
     const analysis: Analysis = analysisShapeFromOutputs(scout, finder, recruiter, planner, { matchPercent: match.percent, matchFormula: match.formula, confidence: `API boost agents · every quote checked against your text` });
     analysis.skills = analysis.skills.map((skill, i) => ({ ...skill, source: "API boost agents", evidence: final[i].evidence, scoreReason: scout.skills[i].demand === 0 ? scout.skills[i].why || "The role does not ask for this skill." : weakProofs.find((item) => item.skill === skill.name)?.why || skill.scoreReason }));
     if (company) analysis.company = company;
+    // The same rule-based quick read as the native scan, over the live skills and checks, so the Recruiter always has concrete things to fix.
+    if (analysis.ats) analysis.review = recruiterReview({ resumeText, roleTitle: scout.title, skills: analysis.skills, ats: analysis.ats, bulletFor: (name) => questFor(name, "show")?.bullet });
     analysis.run = { model: modelName, claude, web };
     const seenLinks = new Set<string>();
     analysis.sources = analysis.sources.filter((source) => { const url = safeJobUrl(source.url); if (!url || seenLinks.has(url)) return false; seenLinks.add(url); return true; });

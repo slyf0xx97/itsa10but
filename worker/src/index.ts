@@ -91,12 +91,13 @@ async function search(request: Request, env: Env): Promise<Response> {
 }
 
 /** Fetches one https page, following up to three redirects and re-checking every hop; reads at most 1.5 MB. */
-async function fetchPage(start: string): Promise<string | null> {
+async function fetchPage(start: string): Promise<string | null | 404> {
   let url: string | null = start;
   for (let hop = 0; hop <= 3 && url; hop++) {
     let response: Response;
     try { response = await fetch(url, { redirect: "manual", headers: { "User-Agent": "Itsa10but-edge/1.0 (+https://ghernie.com/projects/itsa10but)", Accept: "text/html,text/plain" }, signal: AbortSignal.timeout(8000) }); } catch { return null; }
     if (response.status >= 300 && response.status < 400) { url = publicHttpsUrl(new URL(response.headers.get("location") ?? "", url).toString()); continue; }
+    if (response.status === 404 || response.status === 410) return 404;
     if (!response.ok || !/^(text\/html|text\/plain|application\/xhtml)/i.test(response.headers.get("content-type") ?? "") || !response.body) return null;
     const reader = response.body.getReader();
     const chunks: Uint8Array[] = [];
@@ -123,7 +124,10 @@ async function scrape(request: Request, env: Env): Promise<Response> {
   const cached = (await env.CACHE.get(key, "json")) as { title: string; text: string; source: string } | null;
   if (cached) return json({ ok: true, ...cached, cached: true });
 
-  const html = await fetchPage(url);
+  const fetched = await fetchPage(url);
+  // A page that is gone costs nothing more: no Firecrawl call on a 404.
+  if (fetched === 404) return json({ ok: false, error: "That page does not exist." }, 404);
+  const html = fetched;
   let page = html ? htmlToText(html, 2500) : "";
   let source = "direct";
   let fc = 0, credits = 0;

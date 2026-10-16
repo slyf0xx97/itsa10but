@@ -80,7 +80,7 @@ export function SourcesCard() {
                 </li>)}
                 {group.id === "learn"
                   ? <li className="sgs-pill"><a className="sgs-more" href="#level-up" onClick={(event) => glideTo(event, "level-up")}>See more<span className="sr-only"> in Level up your résumé</span></a></li>
-                  : <li className="sgs-pill"><button type="button" className="sgs-more" aria-haspopup="dialog" onClick={() => setSites(true)}>{rest > 0 ? `+${rest} more` : "See all"}<span className="sr-only"> in {group.title}</span></button></li>}
+                  : rest > 0 && <li className="sgs-pill"><button type="button" className="sgs-more" aria-haspopup="dialog" onClick={() => setSites(true)}>{`+${rest}`}<span className="sr-only"> more in {group.title}</span></button></li>}
               </ul>
             </section>;
           })}

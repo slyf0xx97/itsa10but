@@ -16,6 +16,7 @@ import { SafetyPanel } from "@/components/career/safety-panel";
 import { RoleInput } from "@/components/career/role-input";
 import { SampleMenu } from "@/components/career/sample-picker";
 import { AgentCamp } from "@/components/career/agent-scene";
+import { useOffscreenPause } from "@/components/career/offscreen-pause";
 import { HeroAgents } from "@/components/career/hero-agents";
 import { RunControls } from "@/components/career/run-controls";
 import { createPauseGate } from "@/lib/pause-gate";
@@ -52,7 +53,7 @@ const emptyAgents: AgentNote[] = [
 const heroPoints = [
   { icon: "abilities/read-role.svg", lead: "Add a role and your résumé.", text: <>Paste a <b>job posting</b> or a <b>LinkedIn link</b>, then add <b>one résumé file</b>.</> },
   { icon: "abilities/verify-quotes.svg", lead: "Multi-agent checker to analyse and improve your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps.</> },
-  { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>An <b>action plan</b> with a skills radar, then tips and free resources to close your gaps.</> },
+  { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>An <b>action plan</b>: a skills radar, then tips and free resources.</> },
 ];
 
 // Typing in the role box, or each step of a sample run, re-renders this whole component. These big panels only need to redraw when their own props change, so they are memoised.
@@ -113,6 +114,7 @@ async function* streamLive(items: Resume[], job: string, keys: VisitorKeyState, 
 }
 
 export default function Home() {
+  useOffscreenPause();
   const abortRef = useRef<AbortController | null>(null);
   const scrollTimer = useRef(0);
   const [handoff, setHandoff] = useState("");

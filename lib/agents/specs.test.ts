@@ -86,7 +86,7 @@ test("the Finder also flags weak proof and writes the but line", () => {
 
 test("the Role Scout also researches the employer: 4 calls, a company field, still no résumé tool", () => {
   assert.equal(roleScout.limits.maxToolCalls, 4);
-  assert.deepEqual(roleScout.limits.perTool, { read_linkedin_posting: 1, firecrawl_search: 2, firecrawl_scrape: 1 });
+  assert.deepEqual(roleScout.limits.perTool, { read_linkedin_posting: 1, firecrawl_search: 1, firecrawl_scrape: 1 });
   assert.ok(roleScout.limits.maxToolCalls >= Object.values(roleScout.limits.perTool).reduce((a, b) => a + (b ?? 0), 0) - 1);
   assert.deepEqual(Object.keys(roleScout.outputSchema.properties).sort(), ["company", "note", "refusalReason", "skills", "status", "title"]);
   const company = (roleScout.outputSchema.properties.company as unknown as { anyOf: { properties?: Record<string, unknown> }[] }).anyOf[0].properties!;

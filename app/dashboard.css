@@ -421,3 +421,5 @@
 .rv-side ul { display: grid; gap: .35rem; margin: 0; padding-left: 1.1rem; font-size: 1rem; line-height: 1.4; }
 .rv-note { grid-column: 1 / -1; margin: 0; }
 @media (max-width: 899px) {.dp-main[data-scroll] > .rv { grid-template-columns: minmax(0, 1fr); }}
+/* What the company does, one or two sentences under its name (web entries only). */
+.co-about { margin: 0 0 .6rem; color: var(--ink); font-size: 1rem; line-height: 1.45; }

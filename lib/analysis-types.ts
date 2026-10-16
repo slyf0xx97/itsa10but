@@ -26,6 +26,8 @@ export type CompanyValue = { name: string; meaning: string };
 /** What an employer publishes about how it works. Built-in entries come from a checked list; web entries are found by the Role Scout in a live run. */
 export type CompanyCulture = {
   name: string;
+  /** What the company does, in one or two sentences from its Wikipedia summary. Web entries only. */
+  about?: string;
   /** Up to 16. */
   values: CompanyValue[];
   /** Up to 4 short lines: what the company says it expects from people, in our wording. */

@@ -48,7 +48,7 @@ export const AGENT_FACTS: AgentFact[] = [
     ],
     tools: [
       { name: "read_linkedin_posting", cap: 1, label: "Read the LinkedIn post" },
-      { name: "firecrawl_search", cap: 2, label: "Search the web" },
+      { name: "firecrawl_search", cap: 1, label: "Search the web" },
       { name: "firecrawl_scrape", cap: 1, label: "Open a found page" },
     ],
     resumeAccess: false,

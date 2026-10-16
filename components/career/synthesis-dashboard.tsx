@@ -253,6 +253,7 @@ function CompanyBody({ company, mode }: { company: Company | null; mode: Analysi
       <p className="co-name">{company.name}</p>
       <span className="co-origin">{company.originLabel}</span>
     </div>
+    {company.about && <p className="co-about">{company.about}</p>}
     <div className="co-cols">
       {company.chips.shown.length > 0 && <section aria-labelledby="co-values-title">
         <h5 className="ats-h" id="co-values-title">Values &amp; principles</h5>

@@ -184,11 +184,11 @@
 .role-input .rl-file:disabled { opacity: .55; cursor: not-allowed; }
 
 /* Sources card, main view: every group is one row that never wraps. The logos share one size that shrinks with the card (--c, from the card width through cqw)
-   so seven of them and the pill always fit, and the pill at the end takes whatever room is left. A group with fewer logos ends in a longer pill. */
+   so seven of them and the small "+N" pill always fit. */
 .sgs-group { --c: clamp(2.2rem, calc((100cqw - 10.5rem) / 7), 4.6rem); }
 .sgs-group ul { flex-wrap: nowrap; align-items: center; gap: .4rem; }
 .sgs-group li { flex: none; }
-.sgs-group li.sgs-pill { flex: 1 1 5rem; min-width: 0; }
+.sgs-group li.sgs-pill { flex: none; }
 .sgs-group a, .sgs-group .sgs-logo { width: var(--c); height: var(--c); }
 .sgs-group img { width: calc(var(--c) * .74); height: calc(var(--c) * .74); }
-.sgs-group .sgs-pill > .sgs-more { width: 100%; height: var(--c); min-height: 0; padding: 0 .5rem; justify-content: center; box-sizing: border-box; }
+.sgs-group .sgs-pill > .sgs-more { width: auto; min-width: calc(var(--c) * .8); height: calc(var(--c) * .7); min-height: 0; padding: 0 .6rem; justify-content: center; box-sizing: border-box; font-size: .88rem; }

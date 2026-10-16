@@ -117,6 +117,7 @@ export function companyView(company?: CompanyCulture) {
   if (!company) return null;
   return {
     name: company.name,
+    about: company.about,
     chips: chipList(company.values.map((v) => v.name), MAX_VALUE_CHIPS),
     values: company.values,
     expectations: company.expectations.slice(0, 4),
