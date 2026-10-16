@@ -35,7 +35,7 @@ export const legalSections = (provider?: ChosenProvider): LegalSection[] => [
     id: "sources",
     title: "Content from other sources",
     list: [
-      "Singapore figures come from the sources named beside each one, checked 15 Oct 2026. They are dated snapshots and not forecasts.",
+      "Singapore figures come from the sources named beside each one. They are dated snapshots and not forecasts.",
       "News headlines and snippets belong to their publishers. They are read from public feeds and link back to the original.",
       "Job listings come from public feeds (Himalayas, Jobicy, Arbeitnow and Remotive) and from MyCareersFuture, Singapore's government job portal. They belong to the employers who posted them. Check the original posting before you apply.",
       "Pay ranges and skill shares are counts from those postings. They aren't offers, and a skill tagged on a posting isn't a requirement.",
