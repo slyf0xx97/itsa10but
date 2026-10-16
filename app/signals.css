@@ -182,3 +182,9 @@
 .role-input .rl-file:hover:not(:disabled) { background: var(--lime); }
 .role-input .rl-file:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .role-input .rl-file:disabled { opacity: .55; cursor: not-allowed; }
+
+/* A wide Sources card (big screens): the logos grow and spread across each row so the groups don't leave a blank half. */
+@container (min-width: 36rem) {.sgs-group a, .sgs-group .sgs-logo { width: 4.4rem; height: 4.4rem; }
+.sgs-group img { width: 3.3rem; height: 3.3rem; }
+.sgs-group a.sgs-more, .sgs-more { min-height: 4.4rem; }
+.sgs-group ul { justify-content: space-between; gap: .6rem; }}

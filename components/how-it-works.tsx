@@ -111,7 +111,7 @@ const stations: Station[] = [
   },
   {
     id: "result", n: "4", title: "Your action plan",
-    line: "Skills radar, tips and links to free tools.",
+    line: "Skills radar, tips and free resources.",
     chips: [],
     tipTitle: "Action plan",
     tip: [
@@ -135,7 +135,7 @@ const stack: Chip[] = [
 ];
 
 // The four agents each get their own row and their own tooltip. Tools and limits come from lib/agent-facts.ts, which a test checks against the real agent specs.
-const JOB = ["Ranks skills the role wants", "Finds proof in your résumé", "Checks it like hiring software", "Turns gaps into three tips"];
+const JOB = ["Ranks skills the role wants", "Finds proof in your résumé", "Checks it like hiring software", "Turns gaps into practical tips"];
 const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 function agentTip(i: number): Point[] {
   const fact = AGENT_FACTS[i];

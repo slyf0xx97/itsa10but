@@ -88,6 +88,7 @@
 @keyframes hx-sun { from { opacity: .6; transform: scale(.97); } to { opacity: 1; transform: scale(1.03); } }
 .qm-stop[data-stop="native"] .qm-head .word-tip-btn, .qm-stop[data-stop="boost"] .qm-head .word-tip-btn { font-size: 1.2em; }
 .qm-stop[data-stop="native"] .qm-chip, .qm-stop[data-stop="boost"] .qm-chip { font-size: .9em; }
+.qm-stop[data-stop="native"] .qm-chip { font-size: .78em; }
 /* The station name is the tooltip trigger: the shared WordTip, a bold title with a dotted underline and an "i" badge so it reads as something to tap. */
 .qm-head .word-tip { display: inline-block; flex: 0 1 auto; min-width: 0; white-space: normal; }
 .qm-head .word-tip-btn { display: inline-flex; align-items: center; min-height: 1.75rem; padding: 0 .1em; border-bottom: 0; text-decoration: underline dotted 2px; text-underline-offset: .22em; color: var(--ink); font-family: var(--font-body); font-size: 1.05em; font-weight: 700; line-height: 1.2; text-align: left; }
