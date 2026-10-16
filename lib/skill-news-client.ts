@@ -22,7 +22,7 @@ async function send(skills: string[]): Promise<Map<string, SkillNewsResult>> {
   const stop = setTimeout(() => controller.abort(), TIMEOUT_MS);
   let response: Response;
   try {
-    response = await fetch(BASE_PATH + "/api/skill-news", { method: "POST", cache: "no-store", signal: controller.signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ skills }) });
+    response = await fetch(BASE_PATH + "/api/skill-news?" + [...skills].sort().map((skill) => "s=" + encodeURIComponent(skill)).join("&"), { signal: controller.signal });
   } catch {
     throw new Error(FAILED);
   } finally {

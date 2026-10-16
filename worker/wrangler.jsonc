@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
+  "triggers": { "crons": ["30 18 * * *"] },
   "preview_urls": false,
   "routes": [{ "pattern": "edge.ghernie.com", "custom_domain": true }],
   "kv_namespaces": [{ "binding": "CACHE", "id": "edd6a90313424b0bb659ce225404d8cc" }],

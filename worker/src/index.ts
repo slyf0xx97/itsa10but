@@ -186,4 +186,12 @@ const worker = {
   },
 };
 
-export default worker;
+/** Nightly (see "triggers" in wrangler.jsonc): drop counters older than 3 days and usage rows older than 90 days. Day and hour spans both start with the SGT date, so a string compare works. */
+const clean = async (env: Env): Promise<void> => {
+  const now = Date.now();
+  await env.DB.prepare("DELETE FROM limits WHERE span < ?").bind(sgtDay(now - 3 * 86_400_000)).run();
+  await env.DB.prepare("DELETE FROM usage WHERE day < ?").bind(sgtDay(now - 90 * 86_400_000)).run();
+};
+
+const edge = { ...worker, scheduled: (_event: unknown, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }) => ctx.waitUntil(clean(env)) };
+export default edge;
