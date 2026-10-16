@@ -12,8 +12,30 @@ export type SkillArt = {
 
 const art = (logos: string[], icon: PixelIconName): SkillArt => ({ logos, icon });
 
+/** Rules for a skill name that is not in the catalogue (a live run names its own skills): the first one whose words appear picks a drawn icon. Nothing falls back to a star. */
+const ICON_RULES: [words: string[], icon: PixelIconName][] = [
+  [["sql", "database", "data ", "analytics", "excel", "spreadsheet", "tableau", "power bi", "etl", "pipeline"], "data"],
+  [["dashboard", "visuali", "metrics", "kpi"], "dashboard"],
+  [["machine learning", "deep learning", "ai ", " ai", "model", "nlp", "llm", "statistic"], "ml"],
+  [["cloud", "aws", "azure", "gcp", "devops", "docker", "kubernetes", "infrastructure", "deploy"], "cloud"],
+  [["network", "tcp", "dns", "firewall"], "network"],
+  [["siem", "security", "soc ", "threat", "monitor", "splunk"], "siem"],
+  [["incident", "response", "forensic", "risk"], "incident"],
+  [["test", "qa", "quality"], "testing"],
+  [["report", "writing", "documentation", "document"], "report"],
+  [["communicat", "stakeholder", "present", "collaborat", "team", "leadership", "customer", "client"], "communication"],
+  [["api", "python", "java", "script", "code", "coding", "programming", "software", "engineering", "react", "node", "git", "backend", "frontend"], "api"],
+  [["research", "problem", "analy"], "search"],
+];
+
+/** A drawn icon for any skill name; "compass" when no rule fits. */
+export function iconFor(name: string): PixelIconName {
+  const text = ` ${name.trim().toLowerCase()} `;
+  return ICON_RULES.find(([words]) => words.some((word) => text.includes(word)))?.[1] ?? "compass";
+}
+
 const byName: Record<string, SkillArt> = {
-  python: art(["python-original.svg"], "fallback"),
+  python: art(["python-original.svg"], "api"),
   javascript: art(["javascript-original.svg"], "api"),
   react: art(["react-original.svg"], "api"),
   apis: art([], "api"),
@@ -87,7 +109,7 @@ export function officialUrl(name: string): SkillLink | null {
 export function skillArt(name: string, exists: (file: string) => boolean = () => true): SkillArt {
   const key = name.trim().toLowerCase();
   const inCatalogue = catalog.some((skill) => skill.name.toLowerCase() === key);
-  const found = (inCatalogue && byName[key]) || (products[key] ? art([products[key]], "fallback") : art([], "fallback"));
+  const found = (inCatalogue && byName[key]) || (products[key] ? art([products[key]], iconFor(key)) : art([], iconFor(key)));
   // All or nothing: a partial logo set would misstate the example.
   return { ...found, logos: found.logos.every(exists) ? found.logos : [] };
 }

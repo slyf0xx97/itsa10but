@@ -54,3 +54,5 @@ tsconfig.tsbuildinfo
 # Cloudflare edge Worker: local secrets and wrangler state
 .dev.vars
 .wrangler/
+.next-dev.log
+.playwright-mcp/

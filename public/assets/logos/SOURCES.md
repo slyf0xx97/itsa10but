@@ -20,6 +20,7 @@ Added for the "How it works" map, to mark the technology each station really use
 | `anthropic.png` | Anthropic (Claude agents in API boost; no longer shown on the map, which only lists tech the app is built with) | https://cdn.prod.website-files.com/67ce28cfec624e2b733f8a52/67d31dd7aa394792257596c5_webclip.png (the apple-touch-icon that https://www.anthropic.com/ links) |
 | `openrouter.png` | OpenRouter (alternate key route) | https://openrouter.ai/apple-touch-icon.png |
 | `firecrawl.png` | Firecrawl (web search for Role Scout and Action Planner) | https://www.firecrawl.dev/apple-touch-icon.png |
+| `cloudflare.png` | Cloudflare (the edge Worker that does web lookups, caching and shared limits) | https://www.cloudflare.com/favicon.ico (a PNG file) |
 | `pdfjs.svg` | pdf.js (reads PDF résumés in the browser) | https://mozilla.github.io/pdf.js/images/logo.svg |
 | `nextjs.ico` | Next.js (the app and its API routes) | https://nextjs.org/favicon.ico |
 | `vercel.png` | Vercel (the host) | https://assets.vercel.com/image/upload/q_auto/front/favicon/vercel/180x180.png (linked from https://vercel.com/) |

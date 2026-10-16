@@ -126,13 +126,12 @@ const limitMessage = (reason: string) => (reason === "daily" ? "Today's live new
 
 /**
  * One refresh, shared by POST /api/signals and the MCP tool. Order: the native feed reader (no key,
- * short cache, per-visitor limit), then the Firecrawl search when a key exists (the visitor's own, else the site's only
- * when LIVE_AGENTS_ENABLED=true). Firecrawl results are added to the native ones. Bodies carry no key and no error text from the web.
+ * short cache, per-visitor limit), then a Firecrawl search only when the visitor supplied their own key. Firecrawl results are added to the native ones. Bodies carry no key and no error text from the web.
  */
 export async function refreshNews(input: RefreshInput): Promise<RefreshOutput> {
-  const { keys, env, visitor } = input;
-  const siteKey = env.LIVE_AGENTS_ENABLED?.trim() === "true" ? env.FIRECRAWL_API_KEY?.trim() || undefined : undefined;
-  const apiKey = keys.firecrawl ?? siteKey;
+  const { keys, visitor } = input;
+  // The site's own Firecrawl key is never used for news: only a visitor's own key can add a Firecrawl search.
+  const apiKey = keys.firecrawl;
   if (!apiKey && !input.native) return { status: 403, body: { needsKey: true, error: "Add a Firecrawl key in Agent power to fetch live news." } };
 
   const limits = input.limits ?? (sharedLimits ??= { own: makeOwn(), site: makeSite(), native: makeNative() });

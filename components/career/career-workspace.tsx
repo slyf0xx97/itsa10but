@@ -11,17 +11,17 @@ import { runSimulatedEngine, READER_NAMES, type EngineEvent } from "@/lib/simula
 import { liveRunNote, type RunMode } from "@/lib/mode-copy";
 import { ReaderSwitch, chosenModel, modelKeyHeaders, useModeStatus, type VisitorKeyState } from "@/components/career/reader-switch";
 import { recordMcpCallStart, recordMcpCallEnd, clearMcpCallLog } from "@/lib/mcp-tools";
-import { LevelUpChecklist } from "@/components/level-up";
-import { HowItWorks } from "@/components/how-it-works";
+import dynamic from "next/dynamic";
 import { SafetyPanel } from "@/components/career/safety-panel";
 import { RoleInput } from "@/components/career/role-input";
 import { SampleMenu } from "@/components/career/sample-picker";
+import { AgentCamp } from "@/components/career/agent-scene";
 import { HeroAgents } from "@/components/career/hero-agents";
 import { RunControls } from "@/components/career/run-controls";
 import { createPauseGate } from "@/lib/pause-gate";
 import { ReaderCards } from "@/components/career/reader-cards";
 import { applyActivity, emptyActivity, type ActivityState } from "@/lib/activity-state";
-import { RadarPanel, RadarTitle } from "@/components/career/skill-grid";
+import { RadarEmpty, RadarPanel, RadarTitle } from "@/components/career/skill-grid";
 import { STAGES } from "@/lib/journey";
 import { StageHeader } from "@/components/stage-banner";
 import { SourcesCard } from "@/components/sg-signals";
@@ -32,7 +32,7 @@ import { Term } from "@/components/career/term";
 import { LicensePopup } from "@/components/license-popup";
 import { PrivacyTip } from "@/components/career/privacy-tip";
 import { ResumeTips } from "@/components/career/resume-tips";
-import { UsagePanel, type UsageRow } from "@/components/career/usage-panel";
+import type { UsageRow } from "@/lib/usage-coins";
 import { useDropZone } from "@/components/career/use-drop-zone";
 import { pickResumeFile, type DropPayload } from "@/lib/drop-payload";
 
@@ -56,8 +56,11 @@ const heroPoints = [
 ];
 
 // Typing in the role box, or each step of a sample run, re-renders this whole component. These big panels only need to redraw when their own props change, so they are memoised.
-const HowItWorksPanel = memo(HowItWorks);
-const LevelUpPanel = memo(LevelUpChecklist);
+// Both sit below the fold, so their code loads in a separate chunk after the first screen is ready (they are still rendered on the server).
+const LevelUpPanel = dynamic(() => import("@/components/level-up").then((m) => m.LevelUpChecklist));
+const HowItWorksPanel = dynamic(() => import("@/components/how-it-works").then((m) => m.HowItWorks));
+const HeroAgentsMemo = memo(HeroAgents);
+const ReaderSwitchMemo = memo(ReaderSwitch);
 const SourcesPanel = memo(SourcesCard);
 const ReaderCardsPanel = memo(ReaderCards);
 const SynthesisPanel = memo(SynthesisDashboard);
@@ -80,11 +83,15 @@ const STAGE_HINT: Record<Exclude<Stage, "idle">, string> = {
 
 class LiveUnavailable extends Error {}
 
+const isDemo = () => process.env.NODE_ENV === "development" && new URLSearchParams(window.location.search).get("demo") === "live";
+
 /** Reads /api/agents/stream as NDJSON. A refusal (400/429/503) carries a plain {error, fallback:"rules"} body. Visitor keys travel in headers only, never the body or URL. */
-async function* streamLive(items: Resume[], job: string, keys: VisitorKeyState): AsyncGenerator<EngineEvent> {
+async function* streamLive(items: Resume[], job: string, keys: VisitorKeyState, signal: AbortSignal): AsyncGenerator<EngineEvent> {
+  // Development only: ?demo=live plays a scripted API boost run so the live screens can be checked without a model call.
+  if (isDemo()) { const { demoLive } = await import("@/lib/demo-live"); yield* demoLive(items, job); return; }
   const keyHeaders = modelKeyHeaders(keys);
   const response = await fetch(BASE_PATH + "/api/agents/stream", {
-    method: "POST", headers: { "Content-Type": "application/json", ...keyHeaders }, cache: "no-store", credentials: "omit",
+    method: "POST", headers: { "Content-Type": "application/json", ...keyHeaders }, cache: "no-store", credentials: "omit", signal,
     // The model pick is not a secret, so it travels in the body. The server checks it. Undefined (the recommended mix) is left out.
     body: JSON.stringify({ resumes: items.map(({ id, name, text }) => ({ id, name, text })), job, model: chosenModel(keys) }),
   });
@@ -106,7 +113,10 @@ async function* streamLive(items: Resume[], job: string, keys: VisitorKeyState):
 }
 
 export default function Home() {
+  const abortRef = useRef<AbortController | null>(null);
+  const scrollTimer = useRef(0);
   const [handoff, setHandoff] = useState("");
+  const [pair, setPair] = useState<{ from: string; to: string; n: number }>({ from: "Orchestrator", to: "Role Scout", n: 0 });
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [job, setJob] = useState("");
   const [analysis, setAnalysis] = useState<Analysis>(sampleAnalysis);
@@ -202,8 +212,31 @@ export default function Home() {
     return () => lifecycle.abort();
   }, []);
 
+  /**
+   * Brings the run into view: the avatars at the top of the cards and the live panel under them, so the whole process shows. When both can't fit, the panel wins.
+   * The panel appears a moment after a run starts, so this looks for it a few times before falling back to the start of the stage.
+   */
   function scrollToResults() {
-    window.setTimeout(() => document.getElementById("readers")?.scrollIntoView({ behavior: reducedMotion() ? "instant" : "smooth", block: "start" }), 80);
+    const behavior = reducedMotion() ? "instant" : "smooth";
+    const run = runRef.current;
+    window.clearTimeout(scrollTimer.current);
+    const go = (tries: number) => {
+      if (run !== runRef.current) return; // Start over or a newer run: leave the page where it is
+      const panel = document.querySelector<HTMLElement>(".rd-panel");
+      const cards = document.querySelector<HTMLElement>(".rd-flight");
+      if (!panel || !cards) {
+        if (tries < 8) scrollTimer.current = window.setTimeout(() => go(tries + 1), 150);
+        else document.getElementById("readers")?.scrollIntoView({ behavior, block: "start" });
+        return;
+      }
+      const headerRoom = (document.querySelector(".site-header")?.getBoundingClientRect().bottom ?? 0) + 16;
+      const cardsTop = cards.getBoundingClientRect().top + window.scrollY - headerRoom;
+      // The journey bar is fixed to the bottom of the screen, so the panel must end above it.
+      const barHeight = document.querySelector(".jbar")?.getBoundingClientRect().height ?? 108;
+      const panelBottom = panel.getBoundingClientRect().bottom + window.scrollY - window.innerHeight + barHeight + 16;
+      window.scrollTo({ top: Math.max(0, cardsTop, panelBottom), behavior });
+    };
+    scrollTimer.current = window.setTimeout(() => go(0), 80);
   }
 
   /** Sample run-through: scroll, pick, type the role, add the résumé, then start. Any newer run or Start over (runRef) stops it. */
@@ -249,6 +282,8 @@ export default function Home() {
 
   function startOver() {
     runRef.current++;
+    abortRef.current?.abort();
+    window.clearTimeout(scrollTimer.current);
     runGate.resume(); setPaused(false); setSampleBusy(false);
     setHandoff(""); clearMcpCallLog();
     setResumes([]); setJob(""); setAnalysis(sampleAnalysis);
@@ -284,12 +319,15 @@ export default function Home() {
     if (!items.length || !role.trim()) throw new Error("Add at least one résumé and a target job description.");
     const run = ++runRef.current;
     setResumes(items); setJob(role);
-    setHandoff("Safety check done. The readers are up next.");
+    setHandoff("Safety check done. The readers are up next."); setPair((current) => ({ from: "Orchestrator", to: "Role Scout", n: current.n + 1 }));
     setHasResult(false);
     setAnalysis(sampleAnalysis);
     setStageAgents(emptyAgents); setActivities(emptyActivity);
     setProcessStep(0); setActiveAgent(0);
     setRanMode(wantLive ? "live" : "rules");
+    // A newer run or Start over cancels the one before it, including the request to the server, so a cancelled run stops spending tokens.
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
     setBusy(true);
     scrollToResults();
     try {
@@ -303,7 +341,7 @@ export default function Home() {
         if (outcome.fellBack) continue;
         if (event.type === "notice") { setNotice(event.message); setRanMode("rules"); outcome.fellBack = true; setStageAgents(emptyAgents); setActivities(emptyActivity); setProcessStep(0); setActiveAgent(0); setUsageRows([]); }
         if (event.type === "handoff") {
-          setHandoff(event.message);
+          setHandoff(event.message); setPair((current) => ({ from: event.from, to: event.to, n: current.n + 1 }));
           setActiveAgent(READER_NAMES.indexOf(event.to as typeof READER_NAMES[number]));
         }
         if (event.type === "reasoning" && event.text) {
@@ -323,7 +361,7 @@ export default function Home() {
       }
       };
       if (wantLive) {
-        try { await consume(streamLive(items, role, keys)); }
+        try { await consume(streamLive(items, role, keys, abortRef.current!.signal)); }
         catch (cause) {
           if (run !== runRef.current) throw cause;
           // Any live failure finishes with the rules engine and says so.
@@ -352,7 +390,7 @@ export default function Home() {
     <a className="skip-link" href="#check">Skip to the check</a>
     <header className="site-header"><div className="wrap">
       <HeaderTabs><a className="brand" href="#top" aria-label="itsa10but home"><b>10</b><span>itsa10but<em>?</em></span></a></HeaderTabs>
-      <ReaderSwitch mode={mode} onMode={setMode} keys={keys} onKeys={setKeys} status={modeStatus} disabled={busy} />
+      <ReaderSwitchMemo mode={mode} onMode={setMode} keys={keys} onKeys={setKeys} status={modeStatus} disabled={busy} />
     </div></header>
 
     <main id="top">
@@ -360,13 +398,13 @@ export default function Home() {
         <div className="wrap-wide hero-grid">
           <div className="hero-text">
             <h1 id="hero-title">Your résumé is a <span className="hero-ten">10</span>!<br /><mark>But…</mark> it’s a…<span className="hero-q">?</span></h1>
-            <p className="hero-lede"><Term id="itsa10but" /> is a free and open-source résumé enhancer tool that uses multi-agentic AI to analyse your résumé against a real job and <span className="nowrap"><Term id="how-it-helps" />.</span><br />Made for tech and tech-adjacent roles.</p>
+            <p className="hero-lede"><Term id="itsa10but" /> is a free and open-source résumé reviewer tool that uses multi-agentic AI to analyse your résumé against a real job and <span className="nowrap"><Term id="how-it-helps" />.</span><br />Made for tech and tech-adjacent roles.</p>
             <div className="start-row">
               {!sampleRunning && <a className="btn primary start" href="#check"><Play size={16} aria-hidden="true" /> Press start</a>}
               <RunControls active={sampleRunning} paused={paused} onToggle={togglePause} onReset={startOver} />
               <SampleMenu onPick={(id) => void runExample(id)} disabled={locked} activeId={interest} />
             </div>
-            <HeroAgents />
+            <HeroAgentsMemo />
           </div>
           <div className="hero-card">
             <ol className="hero-points">
@@ -419,11 +457,11 @@ export default function Home() {
                   {resumes.length > 0 && stage !== "reading" && <div className="fade-in"><SafetyPanel report={safetyReport} /></div>}
                 </section>
                 <aside className="check-guide" aria-label="Reader's guide">
-                  <SourcesPanel firecrawlKey={keys.firecrawl} />
+                  <SourcesPanel />
                 </aside>
               </div>
               <div className="actions">
-                <button type="button" className="btn primary" aria-busy={locked} disabled={locked || !resumes.length} onClick={() => void analyse(resumes, job.trim() || sampleJob, mode === "live").catch(() => undefined)}>{locked ? <><LoaderCircle className="spin" size={16} aria-hidden="true" /> {busy ? "Reading…" : "Getting ready…"}</> : <><Play size={16} aria-hidden="true" /> {hasResult ? "Play again" : "Start the check"}</>}</button>
+                <button type="button" className="btn primary" aria-busy={locked} disabled={locked || !resumes.length} onClick={() => void analyse(resumes, job.trim() || sampleJob, mode === "live" || isDemo()).catch(() => undefined)}>{locked ? <><LoaderCircle className="spin" size={16} aria-hidden="true" /> {busy ? "Reading…" : "Getting ready…"}</> : <><Play size={16} aria-hidden="true" /> {hasResult ? "Play again" : "Start the check"}</>}</button>
                 <button type="button" className="btn quiet" onClick={startOver}><RotateCcw size={15} aria-hidden="true" /> Start over</button>
                 <span className="act-hint" role="status">{stage !== "idle" ? STAGE_HINT[stage] : job.trim() ? "Role ready." : resumes.length ? "No role pasted, so the sample AI / Machine Learning Engineer role is used." : "Add a role and a résumé, or play a sample at the top."}</span>
               </div>
@@ -437,28 +475,24 @@ export default function Home() {
           <section className={"stage" + (busy || hasResult ? " run-live" : "")} id="readers" aria-labelledby="readers-title">
             <StageHeader {...header(1)} titleId="readers-title" />
             <div className="stage-body">
-              <p className="progress rs-progress" role="status" aria-live="polite">{busy ? handoff : ""}</p>
+              <p className="sr-only" role="status" aria-live="polite">{busy ? handoff : ""}</p>
               {notice && <p className="notice mode-notice" role="status">{notice}</p>}
-              {ranMode === "live" && usageRows.length > 0 && <UsagePanel rows={usageRows} done={hasResult} />}
               {shownMode === "live" && <p className="mode-note">{liveRunNote(hasResult ? analysis.run : undefined)}</p>}
-              <ReaderCardsPanel agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} model={chosenModel(keys)} />
+              <ReaderCardsPanel agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} model={chosenModel(keys)} usage={ranMode === "live" && (busy || hasResult) ? usageRows : undefined} handoff={busy ? pair : undefined} />
               <SynthesisPanel analysis={analysis} hasResult={hasResult} busy={busy} madeUp={madeUp} flow={flow} />
             </div>
           </section>
         </div>
 
-        <div className="stage-row is-single">
+        <div className="stage-row is-radar-learn">
           <section className="stage" id="radar" aria-labelledby="map-title">
             <StageHeader {...header(2)} titleId="map-title" />
             <div className="stage-body">
               {busy
                 ? <div className="cl-item"><span className="cl-icon" aria-hidden="true">⏳</span><p className="cl-text"><strong className="cl-lead">The radar draws when the readers finish</strong></p></div>
-                : <div className={"radar-section" + (hasResult ? " reveal" : "")}><RadarTitle /><RadarPanelMemo skills={analysis.skills} matchPercent={analysis.matchPercent} /></div>}
+                : <div className={"radar-section" + (hasResult ? " reveal" : "")}><RadarTitle />{hasResult ? <RadarPanelMemo skills={analysis.skills} /> : <RadarEmpty />}<AgentCamp /></div>}
             </div>
           </section>
-        </div>
-
-        <div className="stage-row is-single">
           {/* No stage banner: the Level up panel carries its own h2 with the full title. */}
           <section className="stage" id="level-up" aria-labelledby="level-up-title">
             <div className="stage-body"><LevelUpPanel /></div>

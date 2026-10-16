@@ -7,7 +7,7 @@ import { LOGO_CAPTION, officialUrl, skillArt } from "./skill-art.ts";
 const onDisk = (file: string) => existsSync(new URL(`../public/tool-logos/${file}`, import.meta.url));
 
 test("Python returns the python logo", () => {
-  assert.deepEqual(skillArt("Python"), { logos: ["python-original.svg"], icon: "fallback" });
+  assert.deepEqual(skillArt("Python"), { logos: ["python-original.svg"], icon: "api" });
 });
 
 test("SQL shows postgresql as an example and Cloud shows three logos", () => {
@@ -33,8 +33,8 @@ test("lookup is case-insensitive", () => {
   assert.deepEqual(skillArt("  pYtHoN "), skillArt("Python"));
 });
 
-test("unknown names get the fallback icon", () => {
-  assert.deepEqual(skillArt("Underwater basket weaving"), { logos: [], icon: "fallback" });
+test("unknown names get a neutral compass", () => {
+  assert.deepEqual(skillArt("Underwater basket weaving"), { logos: [], icon: "compass" });
 });
 
 test("literal product names match, near misses do not", () => {
@@ -88,4 +88,13 @@ test("unknown, near-miss and prototype names get no link; lookup ignores case", 
 
 test("constants", () => {
   assert.equal(LOGO_CAPTION, "Logos show common example tools. They don't mean you've used them.");
+});
+
+test("no skill is ever drawn as the old star: names outside the catalogue get an icon that fits, or a compass", async () => {
+  const { iconFor, skillArt } = await import("./skill-art.ts");
+  assert.equal(iconFor("SQL queries"), "data");
+  assert.equal(iconFor("Stakeholder management"), "communication");
+  assert.equal(iconFor("Cloud infrastructure"), "cloud");
+  assert.equal(iconFor("Basket weaving"), "compass");
+  for (const name of ["Python", "Terraform", "Basket weaving", "Incident triage", "Docker", "React"]) assert.notEqual(skillArt(name).icon, "fallback", name);
 });

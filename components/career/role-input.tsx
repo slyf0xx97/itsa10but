@@ -139,7 +139,7 @@ export function RoleInput({ value, onChange, typing = false }: { value: string; 
     <div className={"role-field" + (zone.over ? " is-over" : "")} {...zone.props}>
       <div className="rl-head">
         <label htmlFor="job-description" className="with-tip">Job description <Tip label="What should I paste?">Copy the whole posting, including the title, company and requirements. More text gives the Role Scout more to work with. A public LinkedIn job link works too: Itsa10but has no link to your LinkedIn account, so it only reads the public posting. You can also drop a PDF, TXT or MD file on the box.</Tip></label>
-        <span className="rl-li"><LinkedInMark size={22} /><span>LinkedIn links work</span></span>
+        <span className="rl-li"><LinkedInMark size={22} /><span>LinkedIn Jobs links work too</span></span>
       </div>
       <div className={"ta-wrap" + (typing ? " typing" : "")}>
         <textarea id="job-description" value={value} readOnly={typing} onChange={(event) => void change(event.target.value)} onPaste={paste} placeholder="Paste a LinkedIn job link or the posting text…" />

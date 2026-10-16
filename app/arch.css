@@ -1,7 +1,6 @@
 /* How it works: the adventure map, and the choice tiles that the header switch popup reuses (RunModes). Ink text on glass, one teal accent, neutral outlined chips.
    Text uses the scannable kit in clarity.css. See docs/design-system.md. */
 .hiw { min-width: 0; }
-
 /* Opening lead and the shared card look used by RunModes (popup only): inner glass, a thin teal top edge (the one accent). */
 .hiw-opening { display: grid; gap: .15rem; min-width: 0; }
 .hiw-lead { margin: 0; color: var(--ink); font-size: clamp(1.2rem, 2.2vw, 1.55rem); font-weight: 800; line-height: 1.25; }
@@ -14,12 +13,10 @@
 .hiw-tag { padding: .05rem .7rem .1rem; border: 1px solid rgb(31 36 48 / 45%); border-radius: 999px; background: transparent; color: var(--ink); font-size: .9rem; font-weight: 700; line-height: 1.4; white-space: nowrap; }
 .hiw-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1.1rem; }
 .hiw-safety .cl-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: .9rem 1.4rem; }
-
 /* The section is only the map: no banner and no panel around it. The map fills the stage and the stage frame is its border. */
 .stage#how-it-works { background: none; }
 .stage#how-it-works::before { display: none; }
 .stage#how-it-works > .stage-body { padding: 0; }
-
 /* The adventure map. A board holds a landscape svg (still), a second svg for everything that travels (only mounted when motion is allowed), the title sign and the ordered list of stations.
    Under 72rem of board width it is a rail: one card per row, the road running down the left side with right-angle elbows, sizes in rem. From 72rem it is one wide painted map (1200 by 536 units,
    --qm-ratio) and the cards are placed by percent: peaks carry their card above the road, valleys below. A card is a short bold title, one plain line and the tech chips, on translucent glass.
@@ -34,7 +31,6 @@
 .qm-stops { position: relative; z-index: 2; margin: 0; padding: 0 0 .6rem; list-style: none; }
 .qm-stop { box-sizing: border-box; padding: 0 .5rem 0 5rem; margin-bottom: .55rem; }
 .qm-group { margin: 0; padding: 0; }
-
 /* Map controls: Play or Pause, Reset and the bridge switch, under the title sign (in the flow on the rail, pinned under the sign on the wide map; CONTROLS in lib/trail-geometry.ts).
    The bridge is a two-position switch (see below). */
 .qm-controls { position: relative; z-index: 3; display: grid; gap: .45rem; width: fit-content; max-width: calc(100% - 1.6rem); margin: 0 .8rem .7rem; }
@@ -53,13 +49,13 @@
 .qm-side input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .qm-side:has(input:checked) { border-bottom-color: var(--ink); font-weight: 800; }
 .qm-deck { position: relative; order: 2; flex: none; box-sizing: border-box; width: 62px; height: 30px; border: 2px solid var(--ink); border-radius: 8px; background: repeating-linear-gradient(90deg, #c98b4b 0 9px, #a9722f 9px 11px); box-shadow: 0 2px 0 rgb(31 36 48 / 35%); cursor: pointer; }
-.qm-deck::before { content: ""; position: absolute; inset: -9px -4px; } /* 44px tall hit area */
+.qm-deck::before { content: ""; position: absolute; inset: -9px -4px; }
+/* 44px tall hit area */
 .qm-knob { position: absolute; top: 2px; left: 2px; box-sizing: border-box; width: var(--knob); height: var(--knob); border: 2px solid var(--ink); border-radius: 6px; background: #e8912d; box-shadow: 0 1px 0 rgb(31 36 48 / 40%), inset 0 2px 0 rgb(255 255 255 / 35%); }
 .qm-bridge[data-route="boost"] .qm-knob { background: #3bb4d6; transform: translateX(var(--travel)); }
 .qm-switch:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 8px; }
-@media (prefers-reduced-motion: no-preference) { .qm-knob { transition: transform .18s ease, background-color .18s ease; } }
+@media (prefers-reduced-motion: no-preference) {.qm-knob { transition: transform .18s ease, background-color .18s ease; }}
 .qm-ctl:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-
 /* The title: a hanging wooden sign in the top left corner of the map. It is the section's h2. */
 .qm-sign { border: 2px solid var(--ink); border-radius: 8px; background: linear-gradient(180deg, #9c6024, #84501e); color: #fff8e6; text-shadow: 0 2px 0 rgb(31 36 48 / 55%); box-shadow: 0 3px 0 rgb(31 36 48 / 35%), inset 0 2px 0 rgb(255 255 255 / 25%); }
 .qm-sign { position: relative; z-index: 3; width: fit-content; margin: 1rem 0 .8rem .8rem; padding: .3em .75em .35em; font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; line-height: 1.1; }
@@ -68,40 +64,30 @@
 .qm-sign::after { right: 18%; }
 /* The fork has no sign any more. The empty marker only keeps the rail's spacing and the fork's anchor (measureRail). */
 .qm-forksign { height: 1.5rem; margin: 0 0 .55rem; }
-
 /* The card: translucent paper with a soft blur where the browser can and a thin ink edge. Ink text on this tint stays far above AA, even over the darkest scenery. */
 .qm-box { width: fit-content; max-width: 100%; padding: .4em .65em .55em; border: 1.5px solid rgb(31 36 48 / 70%); border-radius: 12px; background: rgb(255 252 240 / 80%); color: var(--ink); font-family: var(--font-body); font-size: .9375rem; line-height: 1.3; box-shadow: 0 2px 10px rgb(31 36 48 / 16%); overflow-wrap: anywhere; }
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .qm-box { -webkit-backdrop-filter: blur(6px) saturate(1.2); backdrop-filter: blur(6px) saturate(1.2); }
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .qm-box { background: rgb(255 252 240 / 95%); }
-}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {.qm-box { -webkit-backdrop-filter: blur(6px) saturate(1.2); backdrop-filter: blur(6px) saturate(1.2); }}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {.qm-box { background: rgb(255 252 240 / 95%); }}
 .qm-head { display: flex; align-items: center; gap: .1rem .45em; }
 .qm-num { display: grid; place-items: center; min-width: 1.7em; height: 1.7em; padding: 0 .3em; border-radius: 999px; background: var(--teal-dark); color: #fff; font-family: var(--font-display); font-size: .85em; line-height: 1; }
 .qm-line { margin: .05em 0 0; color: var(--ink); font-size: 1em; line-height: 1.3; }
-
 /* The two roads are the main event: wider cards, a step larger type, and a coloured top edge and number badge that match their road markers (orange for Native scan, blue for API boost). */
 .qm-stop[data-stop="native"] .qm-box, .qm-stop[data-stop="boost"] .qm-box { padding: .5em .8em .65em; border-top-width: 6px; font-size: 1.0625rem; }
 .qm-stop[data-stop="native"] .qm-box { border-top-color: #e8912d; }
 .qm-stop[data-stop="boost"] .qm-box { border-top-color: #3bb4d6; margin-bottom: .9rem; }
 .qm-stop[data-stop="native"] .qm-num { background: #e8912d; color: var(--ink); }
 .qm-stop[data-stop="boost"] .qm-num { background: #3bb4d6; color: var(--ink); }
-
 /* API boost sits under the sun: its card is lit from above. A warm gold edge and halo, a pale wash of light that fans down from the top edge, and a slow pulse of the halo.
    The text keeps ink on a near-white card, so contrast stays far above AA. The pulse only runs when motion is welcome. */
 .qm-stop[data-stop="boost"] .qm-box { position: relative; border-color: #c98a12; border-top-color: #3bb4d6; background: radial-gradient(ellipse 90% 70% at 50% -12%, rgb(255 244 150 / 85%), rgb(255 252 240 / 0%) 70%), rgb(255 252 240 / 88%); box-shadow: 0 0 0 3px rgb(255 226 122 / 95%), 0 0 30px 8px rgb(255 212 80 / 80%), 0 0 70px 16px rgb(255 200 70 / 40%); }
 .qm-stop[data-stop="boost"] .qm-box::before { content: ""; position: absolute; inset: -34px; z-index: -1; border-radius: 44px; background: radial-gradient(closest-side, rgb(255 232 130 / 85%), rgb(255 226 122 / 0%)); pointer-events: none; }
 .qm-stop[data-stop="boost"] .qm-box::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-conic-gradient(from 195deg at 50% -35%, rgb(255 244 160 / 38%) 0 7deg, transparent 7deg 16deg); -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%); mask-image: linear-gradient(180deg, #000, transparent 85%); pointer-events: none; }
 .qm-stop[data-stop="boost"] .qm-box > * { position: relative; z-index: 1; }
-@media (prefers-reduced-motion: no-preference) {
-  .qm-stop[data-stop="boost"] .qm-box::before { animation: hx-sun 4.5s ease-in-out infinite alternate; }
-  .qm-map[data-run="off"] .qm-stop[data-stop="boost"] .qm-box::before { animation-play-state: paused; }
-}
+@media (prefers-reduced-motion: no-preference) {.qm-stop[data-stop="boost"] .qm-box::before { animation: hx-sun 4.5s ease-in-out infinite alternate; }
+.qm-map[data-run="off"] .qm-stop[data-stop="boost"] .qm-box::before { animation-play-state: paused; }}
 @keyframes hx-sun { from { opacity: .6; transform: scale(.97); } to { opacity: 1; transform: scale(1.03); } }
 .qm-stop[data-stop="native"] .qm-head .word-tip-btn, .qm-stop[data-stop="boost"] .qm-head .word-tip-btn { font-size: 1.2em; }
 .qm-stop[data-stop="native"] .qm-chip, .qm-stop[data-stop="boost"] .qm-chip { font-size: .9em; }
-
 /* The station name is the tooltip trigger: the shared WordTip, a bold title with a dotted underline and an "i" badge so it reads as something to tap. */
 .qm-head .word-tip { display: inline-block; flex: 0 1 auto; min-width: 0; white-space: normal; }
 .qm-head .word-tip-btn { display: inline-flex; align-items: center; min-height: 1.75rem; padding: 0 .1em; border-bottom: 0; text-decoration: underline dotted 2px; text-underline-offset: .22em; color: var(--ink); font-family: var(--font-body); font-size: 1.05em; font-weight: 700; line-height: 1.2; text-align: left; }
@@ -114,7 +100,6 @@
 .qm-dot, .qm-logos { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-width: 1.1rem; height: 1.25rem; }
 .qm-dot::before { content: ""; width: .4rem; height: .4rem; border-radius: 1px; background: var(--teal-dark); }
 .qm-logos img { width: 1.1rem; height: 1.1rem; border: 1px solid rgb(31 36 48 / 25%); border-radius: 4px; background: #fff; object-fit: contain; }
-
 /* The tech chips: a logo (decorative, the name is in the words) and the name. The readers' chips carry their sprite instead. */
 .qm-chips { display: flex; flex-wrap: wrap; gap: .25em .25em; margin: .4em 0 0; padding: 0; list-style: none; }
 .qm-chip { display: inline-flex; align-items: center; gap: .3em; min-height: 1.6em; padding: .08em .45em .08em .32em; border: 1px solid rgb(31 36 48 / 35%); border-radius: 999px; background: rgb(255 255 255 / 85%); color: var(--ink); font-size: .84em; font-weight: 700; line-height: 1.2; }
@@ -137,12 +122,11 @@
 /* Hover and focus: a card or an agent row steps up, its shadow grows and a thin teal ring brightens the edge. The lift only runs when motion is allowed. */
 .qm-box:hover, .qm-box:focus-within, .qm-agent:hover, .qm-agent:focus-within { box-shadow: 0 10px 24px rgb(31 36 48 / 28%), 0 0 0 2px rgb(22 122 102 / 65%); }
 .qm-chip:hover, .qm-chip:focus-within { box-shadow: 0 3px 8px rgb(31 36 48 / 28%), 0 0 0 1.5px rgb(22 122 102 / 70%); }
-@media (prefers-reduced-motion: no-preference) {
-  .qm-box, .qm-agent, .qm-chip { transition: transform 160ms ease, box-shadow 160ms ease; }
-  .qm-box:hover, .qm-box:focus-within, .qm-agent:hover, .qm-agent:focus-within { transform: translateY(-3px); }
-  .qm-box.is-agents:hover, .qm-box.is-agents:focus-within { transform: none; } /* the rows lift instead */
-  .qm-chip:hover, .qm-chip:focus-within { transform: scale(1.06); }
-}
+@media (prefers-reduced-motion: no-preference) {.qm-box, .qm-agent, .qm-chip { transition: transform 160ms ease, box-shadow 160ms ease; }
+.qm-box:hover, .qm-box:focus-within, .qm-agent:hover, .qm-agent:focus-within { transform: translateY(-3px); }
+.qm-box.is-agents:hover, .qm-box.is-agents:focus-within { transform: none; }
+/* the rows lift instead */
+.qm-chip:hover, .qm-chip:focus-within { transform: scale(1.06); }}
 /* The label over the agents: API boost is what lights them up (see the electric line in trail-art.tsx). */
 .qm-power { display: flex; align-items: center; gap: .3em; width: fit-content; margin: 0 0 .4rem; padding: .12em .65em .12em .5em; border: 1.5px solid rgb(31 36 48 / 70%); border-radius: 999px; background: #fff3a8; color: var(--ink); font-family: var(--font-body); font-size: .86rem; font-weight: 700; line-height: 1.25; box-shadow: 0 2px 6px rgb(31 36 48 / 16%); }
 .qm-power svg { flex: none; width: 1.05em; height: 1.05em; color: #b9651a; fill: #ffd84d; }
@@ -150,7 +134,6 @@
 .qm-safe { display: flex; align-items: center; gap: .35em; width: fit-content; margin: .45em 0 0; padding: .1em .6em .1em .4em; border: 1.5px solid var(--leaf-deep); border-radius: 999px; background: #e5f3e9; color: var(--ink); font-size: .9em; font-weight: 700; line-height: 1.25; }
 .qm-safe svg { flex: none; width: 1.15em; height: 1.15em; color: var(--leaf-deep); }
 .qm-sprite { flex: none; width: 1.7em; height: 1.7em; margin: -.2em 0 -.2em -.2em; background: url("/projects/itsa10but/assets/agents/pixel-team-v2.png") no-repeat; background-size: 200% 200%; background-position: calc(var(--sx) * 100%) calc(var(--sy) * 100%); image-rendering: pixelated; }
-
 /* The "Built with" cave: a rock face with a dark opening and a torch, outside the road. On the wide map it sits at the bottom right (CAVE in lib/trail-geometry.ts);
    in the rail it closes the list. The rock is CSS only: stone-coloured layers under a jagged outline, snow on top, a dark arch for the mouth. */
 .qm-cave { position: relative; z-index: 2; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end; min-height: 15rem; max-width: 26rem; margin: .3rem .5rem 1rem 5rem; padding: 3.2em 1.5em 0; font-family: var(--font-body); font-size: .9375rem; line-height: 1.3; }
@@ -172,50 +155,44 @@
 .qm-torch::before { content: ""; position: absolute; left: 50%; top: 0; width: 6em; height: 6em; translate: -50% -22%; border-radius: 50%; background: radial-gradient(circle, rgb(255 190 80 / 60%) 0, rgb(255 160 50 / 22%) 38%, transparent 68%); }
 .qm-torch svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; }
 .qm-flame { transform-box: fill-box; transform-origin: 50% 100%; }
-
-@container qm (min-width: 72rem) {
-  .qm-map { aspect-ratio: var(--qm-ratio); background: none; }
-  .qm-skyline, .qm-svg-rail { display: none; }
-  .qm-svg-wide { display: block; width: 100%; height: 100%; }
-  .qm-sign { position: absolute; left: 1%; top: 2.4%; margin: 0; padding-inline: .7em; font-size: clamp(1.1rem, 2cqw, 2rem); }
-  .qm-sign::before, .qm-sign::after { height: 3cqw; }
-  .qm-controls { position: absolute; left: calc(12 * 100cqw / 1200); top: calc(70 * 100cqw / 1200); width: calc(340 * 100cqw / 1200); max-width: none; margin: 0; }
-  .qm-ctl, .qm-side { font-size: clamp(.8125rem, 1.1cqw, 1rem); }
-  .qm-ctl { min-height: clamp(2rem, 2.6cqw, 2.5rem); padding-inline: .6rem; }
-  .qm-bridge { width: fit-content; box-sizing: border-box; padding-inline: .5rem; }
-  .qm-stops { position: absolute; inset: 0; padding: 0; }
-  .qm-stop { position: absolute; left: var(--x); top: var(--y); }
-  .qm-stop { width: 0; height: 0; margin: 0; padding: 0; }
-  /* the card is --w board units wide (CARD in lib/trail-geometry.ts), and the type grows with the board, so a big screen keeps the same look */
-  .qm-box { position: absolute; left: 0; top: 0; width: calc(var(--w) * 100cqw / 1200); max-width: none; translate: -50% 0; font-size: clamp(.8125rem, 1.15cqw, 1.2rem); }
-  .qm-stop[data-side="above"] .qm-box { translate: -50% -100%; }
-  .qm-stop[data-stop="native"] .qm-box, .qm-stop[data-stop="boost"] .qm-box { font-size: clamp(.875rem, 1.3cqw, 1.3rem); }
-  .qm-power { position: absolute; left: 0; top: calc(-111 * 100cqw / 1200); width: calc(196 * 100cqw / 1200); margin: 0; translate: -50% 0; justify-content: center; white-space: nowrap; padding-inline: .4em; font-size: clamp(.72rem, 1cqw, 1.05rem); }
-  .qm-cave { position: absolute; left: var(--cx); top: var(--cy); width: var(--cw); max-width: none; height: var(--ch); min-height: 0; margin: 0; padding: 3.1em 2.2em 0; font-size: clamp(.8125rem, 1.15cqw, 1.2rem); }
-  .qm-chips.is-cave { grid-template-columns: minmax(0, 1fr); }
-  .qm-agent .word-tip-icon { display: none; } /* the wide card has no room for the badge, the hover ring and pointer cursor show the row is live */
-  .qm-agent .word-tip-btn { gap: .4em; padding-inline: .3em; }
-  .qm-forksign { display: none; }
-}
-
+@container qm (min-width: 72rem) {.qm-map { aspect-ratio: var(--qm-ratio); background: none; }
+.qm-skyline, .qm-svg-rail { display: none; }
+.qm-svg-wide { display: block; width: 100%; height: 100%; }
+.qm-sign { position: absolute; left: 1%; top: 2.4%; margin: 0; padding-inline: .7em; font-size: clamp(1.1rem, 2cqw, 2rem); }
+.qm-sign::before, .qm-sign::after { height: 3cqw; }
+.qm-controls { position: absolute; left: calc(12 * 100cqw / 1200); top: calc(70 * 100cqw / 1200); width: calc(340 * 100cqw / 1200); max-width: none; margin: 0; }
+.qm-ctl, .qm-side { font-size: clamp(.8125rem, 1.1cqw, 1rem); }
+.qm-ctl { min-height: clamp(2rem, 2.6cqw, 2.5rem); padding-inline: .6rem; }
+.qm-bridge { width: fit-content; box-sizing: border-box; padding-inline: .5rem; }
+.qm-stops { position: absolute; inset: 0; padding: 0; }
+.qm-stop { position: absolute; left: var(--x); top: var(--y); }
+.qm-stop { width: 0; height: 0; margin: 0; padding: 0; }
+/* the card is --w board units wide (CARD in lib/trail-geometry.ts), and the type grows with the board, so a big screen keeps the same look */
+.qm-box { position: absolute; left: 0; top: 0; width: calc(var(--w) * 100cqw / 1200); max-width: none; translate: -50% 0; font-size: clamp(.8125rem, 1.15cqw, 1.2rem); }
+.qm-stop[data-side="above"] .qm-box { translate: -50% -100%; }
+.qm-stop[data-stop="native"] .qm-box, .qm-stop[data-stop="boost"] .qm-box { font-size: clamp(.875rem, 1.3cqw, 1.3rem); }
+.qm-power { position: absolute; left: 0; top: calc(-111 * 100cqw / 1200); width: calc(196 * 100cqw / 1200); margin: 0; translate: -50% 0; justify-content: center; white-space: nowrap; padding-inline: .4em; font-size: clamp(.72rem, 1cqw, 1.05rem); }
+.qm-cave { position: absolute; left: var(--cx); top: var(--cy); width: var(--cw); max-width: none; height: var(--ch); min-height: 0; margin: 0; padding: 3.1em 2.2em 0; font-size: clamp(.8125rem, 1.15cqw, 1.2rem); }
+.qm-chips.is-cave { grid-template-columns: minmax(0, 1fr); }
+.qm-agent .word-tip-icon { display: none; }
+/* the wide card has no room for the badge, the hover ring and pointer cursor show the row is live */
+.qm-agent .word-tip-btn { gap: .4em; padding-inline: .3em; }
+.qm-forksign { display: none; }}
 .hiw :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-
 /* Scenery that moves (class qm-a). Off for reduced motion, paused while the map is off screen. */
-@media (prefers-reduced-motion: no-preference) {
-  .qm-a { animation-duration: 30s; animation-timing-function: linear; animation-iteration-count: infinite; transform-box: fill-box; }
-  .qm-map[data-run="off"] .qm-a { animation-play-state: paused; }
-  .qm-a-cloud { animation-name: hx-drift; animation-direction: alternate; animation-timing-function: ease-in-out; }
-  .qm-a-bird { animation-name: hx-fly; }
-  .qm-a-fog { animation-name: hx-fog; animation-direction: alternate; animation-timing-function: ease-in-out; }
-  .qm-a-fall { animation-name: hx-fall; animation-duration: 1.5s; }
-  .qm-a-glint { animation-name: hx-glint; animation-duration: 3s; }
-  .qm-a-fire { animation-name: hx-flicker; animation-duration: .7s; animation-direction: alternate; transform-origin: 50% 100%; }
-  .qm-a-rays { animation-name: hx-spin; animation-duration: 140s; transform-origin: 50% 50%; }
-  .qm-a-flag { animation-name: hx-wave; animation-duration: 1.6s; animation-direction: alternate; animation-timing-function: ease-in-out; transform-origin: 0 50%; }
-  .qm-flame { animation: hx-flicker .6s ease-in-out infinite alternate; }
-  .qm-torch::before { animation: hx-glow 1.8s ease-in-out infinite alternate; }
-  .qm-map[data-run="off"] .qm-flame, .qm-map[data-run="off"] .qm-torch::before { animation-play-state: paused; }
-}
+@media (prefers-reduced-motion: no-preference) {.qm-a { animation-duration: 30s; animation-timing-function: linear; animation-iteration-count: infinite; transform-box: fill-box; }
+.qm-map[data-run="off"] .qm-a { animation-play-state: paused; }
+.qm-a-cloud { animation-name: hx-drift; animation-direction: alternate; animation-timing-function: ease-in-out; }
+.qm-a-bird { animation-name: hx-fly; }
+.qm-a-fog { animation-name: hx-fog; animation-direction: alternate; animation-timing-function: ease-in-out; }
+.qm-a-fall { animation-name: hx-fall; animation-duration: 1.5s; }
+.qm-a-glint { animation-name: hx-glint; animation-duration: 3s; }
+.qm-a-fire { animation-name: hx-flicker; animation-duration: .7s; animation-direction: alternate; transform-origin: 50% 100%; }
+.qm-a-rays { animation-name: hx-spin; animation-duration: 140s; transform-origin: 50% 50%; }
+.qm-a-flag { animation-name: hx-wave; animation-duration: 1.6s; animation-direction: alternate; animation-timing-function: ease-in-out; transform-origin: 0 50%; }
+.qm-flame { animation: hx-flicker .6s ease-in-out infinite alternate; }
+.qm-torch::before { animation: hx-glow 1.8s ease-in-out infinite alternate; }
+.qm-map[data-run="off"] .qm-flame, .qm-map[data-run="off"] .qm-torch::before { animation-play-state: paused; }}
 @keyframes hx-spin { to { transform: rotate(360deg); } }
 @keyframes hx-glow { from { opacity: .65; } to { opacity: 1; } }
 @keyframes hx-drift { from { transform: translateX(-30px); } to { transform: translateX(70px); } }
@@ -225,11 +202,19 @@
 @keyframes hx-glint { 0%, 100% { opacity: .1; } 50% { opacity: .9; } }
 @keyframes hx-flicker { from { transform: scaleY(.9); } to { transform: scaleY(1.15); } }
 @keyframes hx-wave { from { transform: scaleX(1) skewY(-4deg); } to { transform: scaleX(.8) skewY(4deg); } }
-
 /* Small phones: give the cards more room (the road stays left of them) so station names wrap by word, not by letter. */
-@media (max-width: 400px) {
-  .qm-stop { padding-left: 4.6rem; padding-right: .35rem; }
-  .qm-cave { margin-left: 4.6rem; margin-right: .35rem; padding-inline: 1.3em; }
-  .qm-head { flex-wrap: wrap; } /* a long name drops under its number instead of breaking inside a word */
-}
-
+@media (max-width: 400px) {.qm-stop { padding-left: 4.6rem; padding-right: .35rem; }
+.qm-cave { margin-left: 4.6rem; margin-right: .35rem; padding-inline: 1.3em; }
+.qm-head { flex-wrap: wrap; }
+/* a long name drops under its number instead of breaking inside a word */}
+/* The Cloudflare edge cloud: a small cloud with puffs in the sky, between the route switch and the upload box on the wide map and above the list in the rail. It is a helper beside the road, not a step on it. */
+.qm-cloud { position: relative; z-index: 2; box-sizing: border-box; display: grid; place-items: center; width: 12.5rem; max-width: calc(100% - 2rem); aspect-ratio: 200 / 86; margin: .8rem 0 .6rem 1rem; color: var(--ink); }
+.qm-cloud-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 0 rgb(18 52 63 / 22%)); }
+.qm-cloud-shape path { fill: #fff; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.qm-cloud-body { position: relative; display: grid; justify-items: center; gap: .3em; padding: .7em 16% 0; text-align: center; }
+.qm-cloud-body h3 { display: flex; align-items: center; gap: .35em; margin: 0; font-family: var(--font-display); font-size: .88em; font-weight: 600; line-height: 1.1; white-space: nowrap; }
+.qm-cloud-body img { flex: none; width: 1.25em; height: 1.25em; object-fit: contain; }
+.qm-cloud-body .qm-chips { margin: 0; justify-content: center; }
+@media (prefers-reduced-motion: no-preference) {.qm-cloud { animation: qm-drift 6s ease-in-out infinite alternate; }
+@keyframes qm-drift { to { translate: 0 -.3em; } }}
+@container qm (min-width: 72rem) {.qm-cloud { position: absolute; left: var(--kx); top: var(--ky); width: var(--kw); max-width: none; margin: 0; font-size: clamp(.75rem, 1.05cqw, 1.1rem); }}

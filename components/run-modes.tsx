@@ -46,7 +46,7 @@ export function RunModes({ safety = false }: { safety?: boolean }) {
         <ul className="cl-list">
           <Item icon="🧠" lead="Four agents read it" text="The recommended mix by default. You can pick the model. Every quote is checked against your text." />
           <Item icon="☁️" lead="Sent through your key" text="Masked résumé text goes to Anthropic, or to OpenRouter and then the model's maker if you use an OpenRouter key." />
-          <Item icon="🔑" lead="Your own key" text="Pick API boost in Agent power and enter it there. It is never stored. A Firecrawl key is optional and adds live web search." />
+          <Item icon="🔑" lead="Your own key" text="Pick API boost in Agent power and enter it there. It is never stored. A Firecrawl key is optional and widens web search." />
         </ul>
       </article>
     </div>

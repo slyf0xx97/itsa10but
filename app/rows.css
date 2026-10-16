@@ -1,12 +1,4 @@
-/* Row variants for stages 2 to 4 and how-it-works (loaded after stages.css).
-   Each is one full-width panel (.stage-row.is-single) that lays its content out in columns with @container stage queries,
-   so it follows its own panel width whatever the page does. Level up's card columns are in levelup.css. */
-
-/* Stage 2 status line: it only takes room while a hand-off message is showing. */
-.rs-progress { margin-bottom: .5rem; }
-.rs-progress:empty { min-height: 0; margin: 0; }
 .stage-body .mode-note { margin-bottom: .6rem; }
-
 /* Dashboard "Rank the skills": a key line above an ordered list. Each row has one real button, the skill name; its hit area is stretched
    over the whole row. The Term tooltips live in the key, never inside a row. Line one is rank, skill and verdict; line two is what the role wants and what you show. */
 .dash .rk-key { margin: 0; padding: .25rem .5rem; border: 1.5px dashed rgb(18 52 63 / 35%); border-radius: 10px; background: var(--dash-item-bg); font-size: 1rem; line-height: 1.5; }
@@ -32,16 +24,11 @@
 .rk-row .sk-dots, .rk-row .sk-steps { display: none; gap: .15rem; }
 .rk-row .sk-dots i { width: .55rem; height: .55rem; }
 .rk-row .sk-steps i { width: .7rem; height: .5rem; }
-@container dcard (min-width: 24rem) {
-  .rk-row .sk-dots, .rk-row .sk-steps { display: inline-flex; }
-}
-@container dcard (min-width: 34rem) {
-  .rk-main { flex-wrap: nowrap; gap: 0 .75rem; }
-  .rk-open { flex: 1 1 auto; }
-  .rk-row .sk-verdict { order: 3; }
-  .rk-facts { flex: none; order: 2; }
-}
-
+@container dcard (min-width: 24rem) {.rk-row .sk-dots, .rk-row .sk-steps { display: inline-flex; }}
+@container dcard (min-width: 34rem) {.rk-main { flex-wrap: nowrap; gap: 0 .75rem; }
+.rk-open { flex: 1 1 auto; }
+.rk-row .sk-verdict { order: 3; }
+.rk-facts { flex: none; order: 2; }}
 /* The skill popup: the rule points behind each score, one per line. */
 .sk-pop .sk-how { font-size: 1rem; color: var(--ink); }
 .sk-parts { display: grid; gap: .5rem; margin-top: .4rem; }

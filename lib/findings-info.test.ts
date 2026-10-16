@@ -83,6 +83,6 @@ test("an API boost result names the recommended mix or the model the visitor pic
   const other = modeInfo("live", true, { model: "GPT-5.6 Terra", claude: false, web: false });
   assert.equal(other.name, "API boost, GPT-5.6 Terra");
   assert.doesNotMatch(other.note + other.steps, /claude|native scan/i);
-  assert.match(other.note, /Web search was off because no Firecrawl key was added/);
+  assert.match(other.note, /Web search was off for this run/);
   assert.equal(modeInfo("live", true).name, "API boost");
 });

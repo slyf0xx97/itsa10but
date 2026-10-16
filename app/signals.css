@@ -1,12 +1,10 @@
 /* The Sources and sites card (components/sg-signals.tsx) with its figures popup (sg-figures.tsx) and news (sg-news.tsx), then the role picker's glass finish. Tokens from theme.css. */
-
 .sgs { container-type: inline-size; color: var(--ink); }
 .sgs-box { display: flex; flex-direction: column; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); box-shadow: 0 1px 4px rgb(18 52 63 / 18%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
 .sgs-bar { display: flex; flex: 1 1 auto; flex-direction: column; gap: .4rem; padding: .6rem .7rem .65rem; }
 .sgs-head { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; }
 .sgs-head img { flex: 0 0 auto; width: 1.75rem; height: 1.75rem; image-rendering: pixelated; }
 .sgs-tab { padding: .15rem .5rem; border: 1.5px solid var(--teal-dark); border-radius: 10px; background: var(--teal-dark); color: #fff; font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; line-height: 1.2; letter-spacing: .02em; }
-
 /* Title block: the title with its "Checked" line under it, then two labelled buttons side by side. Each opens a popup, and hovering one gives a peek (a panel over the page). */
 .sgs-top { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
 .sgs-titles { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; min-width: 0; }
@@ -20,8 +18,7 @@
 .sgs-actions svg { flex: none; }
 .sgs-open-text { min-width: 0; }
 .sgs-actions .sgs-open:focus-visible, .sgs-actions .sgs-book:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-@container (max-width: 21rem) { .sgs-actions { grid-template-columns: minmax(0, 1fr); } }
-
+@container (max-width: 21rem) {.sgs-actions { grid-template-columns: minmax(0, 1fr); }}
 /* The five groups of sites, each with its title, a count and up to seven round logos (the name and what it covers are the hover text, the rest are in the popup). */
 .sgs-groups { display: grid; gap: .55rem; min-width: 0; }
 .sgs-group { display: grid; gap: .3rem; min-width: 0; padding: .45rem .55rem .55rem; border: 1.5px solid rgb(31 36 48 / 16%); border-radius: 12px; background: rgb(255 255 255 / 70%); }
@@ -38,7 +35,6 @@
 .sgs-more { border-style: dashed; color: var(--water-deep); }
 .sgs-group a:hover, .sgs-group .sgs-logo:hover, .sgs-more:hover { background: var(--sky-soft); }
 .sgs-group a:focus-visible, .sgs-group .sgs-logo:focus-visible, .sgs-more:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-
 /* The peek panels (hover or focus on a button): a photo and three figures, or the five groups with their logos. */
 .sgk { display: grid; gap: .6rem; }
 .sgk-figs, .sgk-groups { display: grid; gap: .5rem; }
@@ -50,11 +46,8 @@
 .sgk-logos { display: flex; flex-wrap: wrap; gap: .3rem; }
 .sgk-logos img { display: block; width: 1.65rem; height: 1.65rem; border-radius: 50%; border: 1.5px solid rgb(31 36 48 / 30%); background: #fff; object-fit: contain; }
 .sgk-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-top: .4rem; border-top: 2px dashed rgb(31 36 48 / 20%); color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.3; }
-.sgk-cta { padding-top: .5rem; border-top: 2px dashed rgb(31 36 48 / 20%); color: var(--ink); font-size: 1rem; font-weight: 700; line-height: 1.35; }
-
 .sgs-mark { display: inline-grid; flex: 0 0 auto; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 8px; background: rgb(255 255 255 / 85%); color: var(--water-deep); }
 .sgs-mark img { display: block; width: 1.2rem; height: 1.2rem; object-fit: contain; }
-
 /* Latest in AI: four recent developments, one compact row each: a kind tag and the headline, then the source with its date. The one plain line about each item is its hover text and its spoken label. */
 .sgs-ai { display: grid; gap: .45rem; margin-top: .65rem; }
 .sgs-ai-h { display: flex; align-items: center; gap: .4rem; margin: 0; color: var(--ink); font-size: 1.1rem; font-weight: 800; line-height: 1.2; }
@@ -70,16 +63,11 @@
 .sgs-ai-kind[data-kind="Finding"] { background: #fdecc8; }
 .sgs-ai-list b { font-size: 1.02rem; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
 .sgs-ai-src { grid-column: 2; display: inline-flex; align-items: center; gap: .3rem; color: var(--text-soft); font-size: .9rem; font-weight: 600; line-height: 1.3; }
-@media (prefers-reduced-motion: no-preference) {
-  .sgs-ai-list a { transition: transform .14s ease-out, box-shadow .14s ease-out, background-color .14s; }
-  .sgs-ai-list a:hover { transform: translateY(-2px); }
-}
-.sgs-src { color: var(--text-soft); font-size: .92rem; font-weight: 500; line-height: 1.3; }
-.sgs-tiles .sgs-src a { white-space: nowrap; }
-.sgs-src a, .sgs-headlines a, .sgs-facts a { color: var(--water-deep); font-weight: 700; overflow-wrap: anywhere; }
-.sgs-src a:hover, .sgs-headlines a:hover, .sgs-facts a:hover { color: var(--coral); }
-.sgs-src a:focus-visible, .sgs-headlines a:focus-visible, .sgs-facts a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-
+@media (prefers-reduced-motion: no-preference) {.sgs-ai-list a { transition: transform .14s ease-out, box-shadow .14s ease-out, background-color .14s; }
+.sgs-ai-list a:hover { transform: translateY(-2px); }}
+.sgs-headlines a { color: var(--water-deep); font-weight: 700; overflow-wrap: anywhere; }
+.sgs-headlines a:hover { color: var(--coral); }
+.sgs-headlines a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 /* Popup: Refresh news first, then the site groups (the .rt-sites and .rt-grid cards from check.css), then the extra figures. */
 .sgs-pop { gap: 1rem; }
 .sgs-pop .rt-grid a > svg { flex: none; }
@@ -99,9 +87,6 @@
 .sgs-headlines p { margin: 0; color: var(--text-soft); }
 .sgs-meta { display: flex; flex-wrap: wrap; gap: 0 .9rem; color: var(--text-soft); font-size: 1rem; font-weight: 600; }
 .sgs-tag { justify-self: start; margin-top: .15rem; padding: 0 .45rem; border: 1.5px solid var(--leaf-deep); border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-style: normal; font-weight: 800; line-height: 1.35; }
-
-@media (prefers-reduced-motion: reduce) { .sgs-sites a { transition: none; } .sgs-sites a:hover { transform: none; } }
-
 /* Role picker: glass finish for the pieces that still carried the older parchment look. */
 /* Label row of the role box: the label and its tip on the left, a small LinkedIn note on the right. */
 .role-input .rl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .8rem; margin-bottom: .4rem; }
@@ -134,8 +119,7 @@
 .role-input details.fold { border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); }
 .role-input details.fold > summary { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--ink); }
 .role-input .guide strong { font-size: 1.05rem; }
-.role-input .guide p, .role-input .fold-body .hint { color: var(--text-soft); font-size: 1rem; }
-.role-input .fold-body h4 { font-size: 1.05rem; }
+.role-input .guide p { color: var(--text-soft); font-size: 1rem; }
 .role-input details.fold[open] > summary { border-bottom: 1.5px dashed var(--water-deep); }
 .role-input .guide strong span { background: var(--water-deep); color: #fff; }
 .role-input .art { background: rgb(255 255 255 / 80%); border: 1.5px solid var(--glass-edge); }
@@ -143,15 +127,9 @@
 .role-input .notice.error { border-color: var(--coral); background: #fbe1db; color: #6e1a0e; }
 .role-input a { color: var(--water-deep); }
 /* The how-to steps stack when their pane is narrow (side by side, a pane is about 20rem wide). */
-@container pane (max-width: 28rem) {
-  .role-input .guide li { grid-template-columns: 1fr; }
-  .role-input .guide .art { grid-row: auto; max-width: 14rem; }
-}
-
-/* Fold tip and step titles: bold key phrase first. */
-.role-input .fold-body .hint.fold-tip { color: var(--ink); font-size: 1.05rem; }
+@container pane (max-width: 28rem) {.role-input .guide li { grid-template-columns: 1fr; }
+.role-input .guide .art { grid-row: auto; max-width: 14rem; }}
 .role-input .guide strong { font-size: 1.15rem; font-weight: 800; }
-
 /* Verified figures and news popup (components/sg-figures.tsx): a photo banner, skill bars, figure cards with the publisher's logo, then the latest news.
    Numbers use the reading font because the pixel font made the digits hard to tell apart. Photos are local files in public/assets/photos. */
 .sgf { display: grid; gap: 1.4rem; min-width: 0; }
@@ -192,15 +170,13 @@
 .sgf-ai-text { grid-column: 2; color: var(--text-soft); font-size: .95rem; line-height: 1.4; }
 .sgf-ai .sgs-ai-src img { border-radius: 4px; }
 .sgf-credit { margin: 0; color: var(--text-soft); font-size: .92rem; line-height: 1.4; }
-@media (max-width: 640px) {
-  .sgf-bars li { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .6rem; }
-  .sgf-track { grid-column: 1 / -1; grid-row: 2; }
-  .sgf-feature { grid-template-columns: minmax(0, 1fr); }
-  .sgf-roles-card { grid-template-columns: minmax(0, 1fr); }
-  .sgf-roles-card .sgf-fig { grid-row: auto; }
-  .sgf-feature-body { padding: 0 1rem .95rem; }
-  .sgf-feature > img { min-height: 0; aspect-ratio: 16 / 8; }
-}
+@media (max-width: 640px) {.sgf-bars li { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .6rem; }
+.sgf-track { grid-column: 1 / -1; grid-row: 2; }
+.sgf-feature { grid-template-columns: minmax(0, 1fr); }
+.sgf-roles-card { grid-template-columns: minmax(0, 1fr); }
+.sgf-roles-card .sgf-fig { grid-row: auto; }
+.sgf-feature-body { padding: 0 1rem .95rem; }
+.sgf-feature > img { min-height: 0; aspect-ratio: 16 / 8; }}
 /* "Drop or choose a file" chip inside the role box, bottom right. It sits over the textarea's bottom padding, so the box keeps its height. */
 .role-input .rl-file { position: absolute; right: .55rem; bottom: .55rem; display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .15rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; line-height: 1.2; cursor: pointer; }
 .role-input .rl-file:hover:not(:disabled) { background: var(--lime); }

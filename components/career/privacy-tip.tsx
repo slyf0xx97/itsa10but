@@ -34,7 +34,7 @@ function Group({ title, rows }: { title: string; rows: Row[] }) {
  * everything about what stays in the browser and what can leave.
  */
 export function PrivacyTip() {
-  return <>
+  return <span className="pv-pair">
     <WordTip panel word={<span aria-hidden="true">🔒</span>} label="Privacy and safety" title="Privacy and safety">
       <Group title="Stays in this tab" rows={stays} />
       <Group title="Leaves only if you switch API boost on" rows={leaves} />
@@ -43,5 +43,5 @@ export function PrivacyTip() {
       word={<span className="pv-nodb-mark" aria-hidden="true"><Database size={22} strokeWidth={2.2} /><X className="pv-nodb-x" size={14} strokeWidth={4.5} /></span>}>
       <span className="word-tip-line">No database. Nothing you add is stored in this app.</span>
     </WordTip>
-  </>;
+  </span>;
 }

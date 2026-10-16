@@ -6,7 +6,7 @@ export const samplePaths = [
     id: "ml",
     icon: "ml",
     interest: "Working with data",
-    label: "AI / Machine Learning Engineer",
+    label: "AI / ML Engineer",
     searchTerm: "machine learning engineer",
     summary: "Train and check models, then explain what they can and cannot do.",
     job: sampleJob,

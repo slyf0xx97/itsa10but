@@ -8,10 +8,10 @@ export const MODE_NOTE: Record<RunMode, string> = {
   live: "API boost: four agents read your résumé. Every quote below was checked against your text.",
 };
 
-/** The note above the readers for an API boost result: "recommended mix" or the model the visitor picked, never a model we assumed, and, when no Firecrawl key was added, that web search was off. */
+/** The note above the readers for an API boost result: "recommended mix" or the model the visitor picked, never a model we assumed, and, when web search was off, that it was. */
 export function liveRunNote(run?: LiveRunInfo): string {
   if (!run) return MODE_NOTE.live;
-  const web = run.web ? "" : " Web search was off because no Firecrawl key was added. Role Scout and Action Planner skipped the web, so expect no live market note or course links.";
+  const web = run.web ? "" : " Web search was off for this run. Role Scout and Action Planner skipped the web, so expect no live market note, company details or course links.";
   return `API boost, ${run.model}: four agents read your résumé. Every quote below was checked against your text.${web}`;
 }
 
@@ -53,7 +53,7 @@ export const KEY_HANDLING =
 
 export const KEY_FIELDS = {
   anthropic: { label: "Anthropic or OpenRouter API key", hint: "Starts with sk-ant- (Anthropic) or sk-or- (OpenRouter). Charges go to your account." },
-  firecrawl: { label: "Optional: Firecrawl key", hint: "Lets Role Scout and Action Planner search the live web for role and course details. Without it, the agents still run on the role text and your résumé, web search is skipped, and the results say so." },
+  firecrawl: { label: "Optional: Firecrawl key", hint: "The site already looks up company pages for you. Your own key adds wider web search for role and course details, using your Firecrawl credits." },
 };
 
 export const MODEL_FIELD = {

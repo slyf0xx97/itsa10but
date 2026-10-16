@@ -9,25 +9,21 @@
 .word-tip-bubble[data-tone="orange"] { --tip-bg: var(--orange); --tip-fg: var(--ink); --tip-accent: var(--orange-dark); --tip-soft: #fdf0dd; }
 .word-tip-bubble[data-tone="lime"] { --tip-bg: var(--lime); --tip-fg: var(--ink); --tip-accent: var(--leaf-deep); --tip-soft: #f4f8d3; }
 .word-tip-bubble[hidden] { display: none; }
-
 /* The small bubble goes into the top layer and is placed with fixed coordinates by word-tip.tsx, so no card, scroll area or dialog clips it. */
 .word-tip-bubble[popover] { position: fixed; inset: auto; right: auto; bottom: auto; margin: 0; overflow: visible; }
 /* Bridges the gap to the word on both sides, so the pointer can travel into the bubble and reach a link. */
 .word-tip-bubble::before, .word-tip-bubble::after { content: ""; position: absolute; left: 0; right: 0; height: 14px; }
 .word-tip-bubble::before { bottom: 100%; }
 .word-tip-bubble::after { top: 100%; }
-
 .word-tip-head { display: flex; align-items: center; gap: .6rem; padding: .5rem .8rem; border-bottom: 2px solid var(--ink); border-radius: 12px 12px 0 0; background: var(--tip-bg); color: var(--tip-fg); }
 .word-tip-badge { flex: none; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 7px; background: #fff; color: var(--tip-accent); box-shadow: 0 0 0 1.5px var(--ink); }
 .word-tip-title { display: block; min-width: 0; margin: 0; color: inherit; font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
 .word-tip-head .tip-close { margin-left: auto; }
-
 .word-tip-body { display: block; max-height: min(30rem, 72vh, var(--tip-max, 100vh)); padding: .75rem .9rem .9rem; overflow-y: auto; overscroll-behavior: contain; }
 .word-tip-body > :first-child { margin-top: 0; }
 .word-tip-line { display: block; }
 .word-tip-line + .word-tip-line { margin-top: .45rem; }
 .word-tip-bubble a { color: var(--link); font-weight: 700; text-decoration: underline; }
-
 /* Labelled sections: a tinted block with a small pixel icon tile and an upper-case label, then points with pixel bullets. */
 .word-tip-sec { display: block; margin-top: .7rem; padding: .55rem .7rem .65rem; border-radius: 10px; background: var(--tip-soft); }
 .word-tip-line + .word-tip-sec { margin-top: .75rem; }
@@ -37,11 +33,9 @@
 .word-tip-item { position: relative; padding-left: 1.05rem; }
 .word-tip-item::before { content: ""; position: absolute; left: .05rem; top: .55em; width: .4rem; height: .4rem; background: var(--tip-accent); }
 .word-tip-source { margin-top: .7rem; padding-top: .55rem; border-top: 2px dashed rgb(31 36 48 / 20%); font-size: .9375rem; }
-
 /* The arrow: a rotated square that continues the header colour when the card is below its word, and the white body when it is above. */
 .word-tip-arrow { position: absolute; top: -9px; left: var(--tip-arrow-x, 1.6rem); width: 12px; height: 12px; margin-left: -6px; border: 2px solid var(--ink); border-right: 0; border-bottom: 0; background: var(--tip-bg); rotate: 45deg; pointer-events: none; }
 .word-tip-bubble[data-side="above"] .word-tip-arrow { top: auto; bottom: -9px; border: 2px solid var(--ink); border-left: 0; border-top: 0; background: #fff; }
-
 /* The short line beside the lock under the résumé drop zone. */
 /* The crossed-out database beside the lock: a database mark with a coral X on its corner. It is a button, so the tooltip opens on hover, focus and tap. */
 .pv-nodb { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); cursor: help; }
@@ -49,7 +43,6 @@
 .pv-nodb:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .pv-nodb-mark { position: relative; display: inline-grid; place-items: center; }
 .pv-nodb-x { position: absolute; right: -.45rem; bottom: -.4rem; padding: 1px; border-radius: 50%; background: #fff; color: #c93a25; }
-
 /* The panel variant (privacy and safety): wider, non-modal, scrolls as a whole, has its own Close button. */
 /* Wide: the small bubble and the panel open roomy, so a tip with sections reads across and does not need scrolling. */
 .word-tip-bubble[data-wide] { width: min(46rem, calc(100vw - 2rem)); }
@@ -61,8 +54,5 @@
 .word-tip-bubble.is-panel { width: min(28rem, calc(100vw - 2rem)); max-height: min(26rem, 70vh, var(--panel-max, 100vh)); overflow-y: auto; overscroll-behavior: contain; }
 .word-tip-bubble.is-panel .word-tip-body { max-height: none; overflow: visible; }
 .word-tip-bubble.is-panel .word-tip-head { position: sticky; top: 0; z-index: 1; }
-
-@media (prefers-reduced-motion: no-preference) {
-  .word-tip-bubble:not([hidden]) { animation: tip-in .15s ease-out; }
-  @keyframes tip-in { from { opacity: 0; transform: translateY(4px); } }
-}
+@media (prefers-reduced-motion: no-preference) {.word-tip-bubble:not([hidden]) { animation: tip-in .15s ease-out; }
+@keyframes tip-in { from { opacity: 0; transform: translateY(4px); } }}

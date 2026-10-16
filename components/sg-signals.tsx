@@ -24,7 +24,7 @@ function SiteLogo({ site, size }: { site: NewsSite; size: number }) {
  * "Figures and news" (the verified Singapore figures with their sources, the skill bars, the latest news and its Refresh button) and "Sources and sites" (every site, by group).
  * Under them the same sites sit in their five groups as logos (the name is the hover text), so a visitor can go straight to one. Data: lib/news-sites.ts and lib/sg-snapshot.ts.
  */
-export function SourcesCard({ firecrawlKey = "" }: { firecrawlKey?: string }) {
+export function SourcesCard() {
   const panelId = useId();
   const [figures, setFigures] = useState(false);
   const [sites, setSites] = useState(false);
@@ -75,7 +75,7 @@ export function SourcesCard({ firecrawlKey = "" }: { firecrawlKey?: string }) {
                   <WordTip title={site.name} tone="water" wide={false} bare buttonClass="sgs-logo" label={site.name + " (opens in a new tab)"} onActivate={() => window.open(site.href, "_blank", "noopener,noreferrer")}
                     word={<SiteLogo site={site} size={40} />}>
                     <span className="word-tip-line">{site.what}</span>
-                    {site.inRefresh && <span className="word-tip-line"><em className="sgs-tag">In Refresh</em></span>}
+                    {site.inRefresh && <span className="word-tip-line"><em className="sgs-tag">In news feed</em></span>}
                   </WordTip>
                 </li>)}
                 {group.id === "learn" && <li><a className="sgs-more" href="#level-up" onClick={(event) => glideTo(event, "level-up")}>See more<span className="sr-only"> in Level up your résumé</span></a></li>}
@@ -87,7 +87,7 @@ export function SourcesCard({ firecrawlKey = "" }: { firecrawlKey?: string }) {
       </div>
     </div>
     <Popup open={figures} onClose={closeFigures} title="Verified figures and news" icon={<Newspaper size={22} aria-hidden="true" />} wide>
-      {figures && <SgFigures firecrawlKey={firecrawlKey} />}
+      {figures && <SgFigures />}
     </Popup>
     <Popup open={sites} onClose={closeSites} title="Sources and sites" icon={<PixelIcon name="signals" size={22} />} wide>
       {sites && <div className="rt sgs-pop">
@@ -96,7 +96,7 @@ export function SourcesCard({ firecrawlKey = "" }: { firecrawlKey?: string }) {
           <ul className="rt-grid">{group.sites.map((site) => <li key={site.name}>
             <a href={site.href} target="_blank" rel="noopener noreferrer">
               <span className="rt-logo"><SiteLogo site={site} size={40} /></span>
-              <span className="rt-site-text"><strong>{site.name}</strong><span>{site.what}</span>{site.inRefresh && <em className="sgs-tag">In Refresh</em>}</span>
+              <span className="rt-site-text"><strong>{site.name}</strong><span>{site.what}</span>{site.inRefresh && <em className="sgs-tag">In news feed</em>}</span>
               <ExternalLink size={16} aria-hidden="true" focusable="false" />
               <span className="sr-only">(opens in a new tab)</span>
             </a>

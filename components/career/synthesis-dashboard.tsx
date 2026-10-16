@@ -3,8 +3,10 @@
 import { useCallback, useId, useState, type CSSProperties, type ReactNode } from "react";
 import type { Analysis, Quest, Skill } from "@/lib/analysis-types";
 import { dashboardData, fixParts, rankSkills, type PlannerRow } from "@/lib/dashboard-data";
+import { radarFacts } from "@/lib/radar-facts";
 import { wantOf, type Want } from "@/lib/skill-levels";
 import { PixelAgent, ResultFlow, type SpriteKind } from "@/components/career/reader-cards";
+import { AgentScene, READER_MOODS } from "@/components/career/agent-scene";
 import { SkillBrowser } from "@/components/career/skill-browser";
 import { Marked } from "@/components/career/trials";
 import { TipCard } from "@/components/career/tip-card";
@@ -328,6 +330,9 @@ const ROWS = 3;
  * is a summary only; the button opens the full findings in a popup. Every number comes from the analysis. While the readers are still working it shows an empty frame
  * with no figures. The headline ends with the overall figure out of 10, and a made-up candidate is named in the text for screen readers and in every popup.
  */
+/** The four result cards as placeholders, before any run: a little scene with each reader waiting its turn (one paces, one looks around, one sits, one dozes), then grey bars where its figure and rows will appear. */
+const GHOST_CARDS = READER_MOODS;
+
 export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, flow }: { analysis: Analysis; hasResult: boolean; busy: boolean; madeUp?: boolean; flow: { active: number; completed: number } }) {
   // The headline sits on a plate that the four pipes run behind, each landing on the result card of its own reader.
   const link = (head: ReactNode) => <div className="dash-link"><ResultFlow kind="bottom" active={flow.active} completed={flow.completed} />{head}</div>;
@@ -340,6 +345,23 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, 
         </div>
       </div>)}
       <div className="dash-ghosts" aria-hidden="true"><i /><i /><i /><i /></div>
+    </section>;
+  }
+  // Before any run (and after Start over) nothing is shown as a result: ghost cards and a question mark say where it will appear.
+  if (!hasResult) {
+    return <section className="dash dash-pending dash-idle" id="the-but" aria-label="Summary of all four readers, empty until a check runs">
+      {link(<div className="dash-head">
+        <div className="dash-lead">
+          <h3 className="dash-title">Your résumé is a 10! <em>But… it’s a <b className="dash-ten" aria-hidden="true">?</b></em></h3>
+          <p className="dash-wait">Play a sample, or add a role and your résumé at the top, to fill this in.</p>
+        </div>
+      </div>)}
+      <div className="dash-ghosts is-cards" aria-hidden="true">
+        {GHOST_CARDS.map((card) => <div className={"dg-card " + card.kind} key={card.kind}>
+          <AgentScene kind={card.kind} mood={card.mood} />
+          <i className="dg-fig" /><i className="dg-line" /><i className="dg-line is-short" />
+        </div>)}
+      </div>
     </section>;
   }
   const data = dashboardData(analysis);
@@ -359,7 +381,7 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, 
       <SumCard kind="scout" agent="Role Scout" popTitle="What the role asks for" reader="scout" analysis={analysis} hasResult={hasResult} sample={sample}
         stat={<Stat value={data.demand.length} unit={data.demand.length === 1 ? "skill" : "skills"} label="the role asks for" />}
         rows={data.demand.length ? <PriorityRows skills={analysis.skills} /> : <Empty>No skills to chart yet.</Empty>}
-        foot={<Foot kicker="Employer">{data.company ? data.company.name : "None matched"}</Foot>}>
+        foot={<Foot kicker="About company">{data.company ? data.company.name : companyMissing(analysis.mode).short}</Foot>}>
         <SkillBrowser kind="scout" skills={analysis.skills} />
         <PopSection title="About the company" desc="Values, what it expects and how to show you fit."><CompanyBody company={data.company} mode={analysis.mode} /></PopSection>
       </SumCard>
@@ -367,7 +389,7 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, 
       <SumCard kind="finder" agent="Experience Finder" popTitle="What your résumé proves" reader="finder" analysis={analysis} hasResult={hasResult} sample={sample}
         stat={<Stat value={<>{data.quotes}<span className="dash-of">/{proofTotal}</span></>} label="skills have a quote" />}
         rows={proofTotal ? <EvidenceRows rows={data.evidence.slice(0, ROWS)} label="Proof in your résumé, in percent, for the three skills the role asks for most." /> : <Empty>No skills to chart yet.</Empty>}
-        foot={<Foot kicker="Biggest gap">{data.weakNames[0] ?? "None, every skill has proof"}</Foot>}>
+        foot={<Foot kicker="Biggest gap">{radarFacts(analysis.skills).gaps[0]?.name ?? "None, every skill has proof"}</Foot>}>
         <SkillBrowser kind="finder" skills={analysis.skills}>
           {data.weak.length > 0 ? <div className="dp-weak">
             <h6 className="ats-h"><span><Term id="weak-proof">Weak proof</Term>, weakest first</span></h6>

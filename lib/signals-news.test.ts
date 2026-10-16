@@ -74,11 +74,11 @@ test("a visitor key fetches allowlisted items, sends the allowlist and never ech
   assert.ok(!JSON.stringify(out.body).includes("fc-visitor-key"));
 });
 
-test("the site key is used only when the live switch is on", async () => {
+test("the site key is never used for news, even with the live switch on", async () => {
   const calls: { body: Record<string, unknown>; auth: string }[] = [];
   const out = await refreshNews({ keys: {}, env: { FIRECRAWL_API_KEY: "site-key-12345", LIVE_AGENTS_ENABLED: "true" }, visitor: "v", fetchImpl: fakeFetch(calls), limits: limits(), cache: createNewsCache() });
-  assert.equal(out.status, 200);
-  assert.equal(calls[0].auth, "Bearer site-key-12345");
+  assert.equal(out.status, 403, "with no native reader and no visitor key there is nothing to run");
+  assert.equal(calls.length, 0);
 });
 
 test("the per-visitor limit applies, but a cached answer costs nothing", async () => {

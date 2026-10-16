@@ -25,12 +25,12 @@ export function modeInfo(mode: Analysis["mode"], hasResult?: boolean, run?: Live
 /** What to say when no company details exist. It depends on the mode: Native scan knows only a short built-in list and never searches the web, while API boost did look and came back empty. Never invents a detail. */
 export function companyMissing(mode: Analysis["mode"]): { short: string; title: string; text: string } {
   if (mode === "live") return {
-    short: "No company details found",
+    short: "Role Scout found no employer it could check against the posting",
     title: "No company details found",
     text: "Role Scout looked for the employer and found nothing it could check against the posting. The posting may not name the company, or the web search may have been off. Try the company's careers page.",
   };
   return {
-    short: `Turn on ${SWITCH_LABEL} to search company details`,
+    short: `Not on our short list of employers. Turn on ${SWITCH_LABEL} to look it up`,
     title: "Company details need " + SWITCH_LABEL,
     text: `Native scan only checks a short list of well-known employers, and this posting didn't match one. Turn on ${SWITCH_LABEL} in the header and Role Scout will search the web for company details.`,
   };

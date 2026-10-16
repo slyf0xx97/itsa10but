@@ -11,7 +11,6 @@
 .rf-bottom { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 /* Half a card gap wider on each side, so the eighths line up with the card centres (the gap is 1rem in both rows). */
 .rf-svg { display: block; width: calc(100% + 1rem); height: 100%; margin-inline: -.5rem; overflow: visible; }
-
 .rf-pipe path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .rf-halo { stroke: rgb(255 255 255 / 85%); stroke-width: 12px; }
 .rf-edge { stroke: #8fd0c4; stroke-width: 8px; }
@@ -23,7 +22,6 @@
 .rf-pipe.waiting .rf-edge { stroke: #d3e1e8; }
 .rf-pipe.waiting .rf-inner { stroke: #edf4f7; }
 .rf-pipe.waiting .rf-core { stroke: #98afba; stroke-width: 1.8px; stroke-dasharray: 3px 6px; }
-
 /* XP orbs: a teal rim, a lime body and a white core, three dotted overlays with the same spacing (--p, in px) and the same offset. */
 .rf-pipe { --p: 120; --sp: 40; }
 .rf-pipe.done { --p: 28; --sp: 60; }
@@ -33,7 +31,6 @@
 .rf-orb-core { stroke: #fff; stroke-width: 3px; }
 .rf-pipe.working .rf-orb-rim, .rf-pipe.working .rf-orb, .rf-pipe.working .rf-orb-core { opacity: .8; }
 .rf-pipe.waiting .rf-orb-rim, .rf-pipe.waiting .rf-orb, .rf-pipe.waiting .rf-orb-core { display: none; }
-
 /* Sockets on the reader cards and the arrow ports on the result cards. A waiting socket is hollow. */
 .rf-ring { fill: #fff; stroke: var(--teal-dark); stroke-width: 2.4px; }
 .rf-dot { fill: var(--teal-dark); }
@@ -45,17 +42,11 @@
 .rf-chev { fill: none; stroke: #fff; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
 .rf-port.working .rf-tri { fill: #55baa6; }
 .rf-port.waiting .rf-tri { fill: #b4c6ce; }
-
-@media (prefers-reduced-motion: no-preference) {
-  .rf-pipe:not(.waiting) .rf-orb-rim, .rf-pipe:not(.waiting) .rf-orb, .rf-pipe:not(.waiting) .rf-orb-core { animation: rf-flow calc(var(--p) / var(--sp) * 1s) linear infinite; animation-delay: var(--d, 0s); }
-  .rf-node.working .rf-dot { animation: rf-blink 1.2s ease-in-out infinite; }
-}
+@media (prefers-reduced-motion: no-preference) {.rf-pipe:not(.waiting) .rf-orb-rim, .rf-pipe:not(.waiting) .rf-orb, .rf-pipe:not(.waiting) .rf-orb-core { animation: rf-flow calc(var(--p) / var(--sp) * 1s) linear infinite; animation-delay: var(--d, 0s); }
+.rf-node.working .rf-dot { animation: rf-blink 1.2s ease-in-out infinite; }}
 @keyframes rf-flow { to { stroke-dashoffset: calc(var(--p) * -1px); } }
 @keyframes rf-blink { 50% { opacity: .35; } }
-
 /* Four across from 1100px of panel (same breakpoint as the card grids in readers.css and dashboard.css). The reader row is inset by the dashboard's own side padding,
    so the reader cards and the result cards have the same width and their centres line up. */
-@container stage (min-width: 1100px) {
-  .rd { padding-inline: calc(.8rem + 1.5px); }
-  .rf { display: block; }
-}
+@container stage (min-width: 1100px) {.rd { padding-inline: calc(.8rem + 1.5px); }
+.rf { display: block; }}

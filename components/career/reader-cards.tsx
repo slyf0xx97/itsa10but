@@ -1,9 +1,12 @@
 "use client";
 
+import { CardCoins, RunTotal } from "@/components/career/usage-strip";
+import type { UsageRow } from "@/lib/usage-coins";
 import { BASE_PATH } from "@/lib/base-path";
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { PromptPeek } from "@/components/career/prompt-peek";
 import { WordTip } from "@/components/career/word-tip";
+import { PixelIcon } from "@/components/career/pixel-icons";
 import type { AgentNote } from "@/lib/analysis-types";
 import { abilitiesFor, AGENT_PROFILES, lanesFor, type Ability, type Mode } from "@/lib/agent-abilities";
 import { AGENT_FACTS, hasWeb, type AgentFact } from "@/lib/agent-facts";
@@ -50,7 +53,8 @@ function laneViews(name: ReaderName, shown: Mode, entry: AgentActivity | undefin
 /** What a finished reader did, in a few short phrases taken from its own lanes. */
 function summaryOf(shown: Mode, entry: AgentActivity | undefined): string[] {
   if (!entry) return [];
-  const done = entry.order.map((id) => entry.lanes[id]).filter((lane) => lane.status === "done");
+  // The wait for the model is not something the agent did, so it is left out of the summary.
+  const done = entry.order.filter((id) => id !== "model").map((id) => entry.lanes[id]).filter((lane) => lane.status === "done");
   return shown === "live" ? done.map((lane) => (lane.calls > 1 ? `${lane.label} ×${lane.calls}` : lane.label)) : done.flatMap((lane) => (lane.detail ? [lane.detail] : []));
 }
 
@@ -70,10 +74,39 @@ const stateWord: Record<State, string> = { waiting: "Waiting", active: "Working"
  * one line down from each reader, joined by a bus line, then one arrow into the dashboard. activities is the latest state per
  * agent and lane (see applyActivity); mode picks which abilities to list until activity arrives. Both are optional.
  */
-export function ReaderCards({ agents, active, completed, activities, mode = "rules", model }: { agents: AgentNote[]; active: number; completed: number; activities?: ActivityState; mode?: Mode; model?: string }) {
+export function ReaderCards({ agents, active, completed, activities, mode = "rules", model, usage, handoff }: { agents: AgentNote[]; active: number; completed: number; activities?: ActivityState; mode?: Mode; model?: string; /** API boost spend per agent. Leave out for a Native scan: there is nothing to count. */ usage?: UsageRow[]; /** The latest handoff. When `n` changes, a sheet of paper flies from the `from` agent's avatar to the `to` agent's. */ handoff?: { from: string; to: string; n: number } }) {
   // A pick only holds while the same reader is running (or while nothing runs: during is -1), so the panel follows the run again at the next handoff. index -1 means closed.
   const [picked, setPicked] = useState<{ index: number; during: number } | null>(null);
   const panelId = useId();
+  const stepsRef = useRef<HTMLOListElement>(null);
+  const paperRef = useRef<HTMLSpanElement>(null);
+  const handoffN = handoff?.n ?? 0, handoffFrom = handoff?.from, handoffTo = handoff?.to;
+  // The handover: a sheet of paper flies from one agent's avatar to the next, and the receiving avatar catches it. Positions are measured, so it works in one column or four.
+  useEffect(() => {
+    const ol = stepsRef.current, paper = paperRef.current;
+    if (!handoffN || !ol || !paper || !handoffFrom || !handoffTo) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const avatar = (name: string) => { const kind = readers.find((item) => item.name === name)?.kind; return kind ? ol.querySelector<HTMLElement>(`.rd-step.${kind} .rd-ava`) : null; };
+    const base = ol.getBoundingClientRect();
+    const centre = (el: HTMLElement) => { const r = el.getBoundingClientRect(); return [r.left - base.left + r.width / 2 - 17, r.top - base.top + r.height / 2 - 17] as const; };
+    const fromEl = avatar(handoffFrom), toEl = avatar(handoffTo);
+    const target = toEl ?? fromEl;
+    if (!target) return;
+    const [tx, ty] = centre(target);
+    // From the table the sheet slides in from the left of the first card; to the table it leaves to the right.
+    const [sx, sy] = fromEl ? centre(fromEl) : [tx - 110, ty - 14];
+    const [ex, ey] = toEl ? [tx, ty] : [sx + 110, sy - 40];
+    const mx = (sx + ex) / 2, my = Math.min(sy, ey) - 34;
+    const flight = paper.animate([
+      { transform: `translate(${sx}px, ${sy}px) scale(.6) rotate(-8deg)`, opacity: 0, easing: "steps(3)" },
+      { transform: `translate(${sx}px, ${sy}px) scale(1) rotate(-8deg)`, opacity: 1, offset: .12, easing: "steps(8)" },
+      { transform: `translate(${mx}px, ${my}px) scale(1.1) rotate(6deg)`, opacity: 1, offset: .55, easing: "steps(8)" },
+      { transform: `translate(${ex}px, ${ey}px) scale(1) rotate(0deg)`, opacity: toEl ? 1 : 0, offset: .92 },
+      { transform: `translate(${ex}px, ${ey}px) scale(.8) rotate(0deg)`, opacity: 0 },
+    ], { duration: 1200, fill: "both" });
+    const catchIt = toEl?.animate([{ transform: "scale(1)" }, { transform: "scale(1.22) rotate(-4deg)" }, { transform: "scale(1)" }], { duration: 420, delay: 1050, easing: "steps(4)" });
+    return () => { flight.cancel(); catchIt?.cancel(); };
+  }, [handoffN, handoffFrom, handoffTo]);
   const shownIndex = picked && picked.during === active ? picked.index : active;
   const reader = shownIndex >= 0 ? readers[shownIndex] : null;
   const profile = reader ? AGENT_PROFILES[reader.name] : null;
@@ -86,7 +119,8 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
   // Rules mode lists its fixed steps. Live mode lists only the tools the reader really called.
   const chips: Ability[] = reader && profile ? (shown === "live" ? (entry?.order ?? []).flatMap((id) => profile.abilities.filter((item) => item.id === id && item.kind !== "rules")) : abilitiesFor(reader.name, "rules")) : [];
   return <div className="rd">
-    <ol className="rd-steps" aria-label="The four readers, in run order">
+    <div className="rd-flight">
+    <ol className={"rd-steps" + (handoff ? " is-running" : "")} ref={stepsRef} aria-label="The four readers, in run order">
       {readers.map((item, index) => {
         const itemState = stateOf(index, active, completed);
         const open = index === shownIndex;
@@ -120,9 +154,13 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
           </WordTip>
           <PromptPeek name={item.name} model={model} />
           </div>
+          {usage && <CardCoins row={usage.find((row) => row.agent === item.name)} working={itemState === "active"} />}
         </li>;
       })}
     </ol>
+    <span className="rd-paper" ref={paperRef} aria-hidden="true"><PixelIcon name="report" size={22} /></span>
+    </div>
+    {usage && <RunTotal rows={usage} done={completed >= readers.length} />}
     {reader && profile && <div className={"rd-panel " + reader.kind} id={panelId} aria-live="polite" aria-atomic="false" aria-relevant="additions text">
       <h3>{reader.name}</h3>
       <p className="rd-job">{profile.job}</p>

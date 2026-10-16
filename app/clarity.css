@@ -8,12 +8,6 @@
 .cl-lead { display: block; margin-bottom: .1rem; color: var(--ink); font-size: 1.25rem; font-weight: 800; line-height: 1.25; }
 .cl-text b, .cl-text strong:not(.cl-lead) { font-weight: 800; }
 .hl { padding: 0 .2em; border-radius: .2em; background: linear-gradient(transparent 12%, var(--lime) 12%, var(--lime) 92%, transparent 92%); color: var(--ink); font-weight: 800; }
-.hl-coral { background: linear-gradient(transparent 12%, var(--coral-soft) 12%, var(--coral-soft) 92%, transparent 92%); }
-.hl-sky { background: linear-gradient(transparent 12%, var(--sky-soft) 12%, var(--sky-soft) 92%, transparent 92%); }
-/* A short bold line that opens a block, bigger than body text. */
-.cl-kicker { margin: 0 0 .35rem; color: var(--ink); font-size: 1.35rem; font-weight: 800; line-height: 1.25; }
-@media (max-width: 480px) {
-  .cl-item { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .65rem; }
-  .cl-icon { width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }
-  .cl-lead { font-size: 1.15rem; }
-}
+@media (max-width: 480px) {.cl-item { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .65rem; }
+.cl-icon { width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }
+.cl-lead { font-size: 1.15rem; }}

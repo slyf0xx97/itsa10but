@@ -1,65 +1,45 @@
 /* Page motion: run-through choreography and smoother transitions.
    Layout rules sit at the top level; every animation and transition is gated by no-preference. */
-
-
 /* Résumé file chip with its short "Reading file…" bar. */
 .file-in { position: relative; overflow: hidden; }
 .file-status { color: var(--ink-soft); font-size: .85rem; }
 .file-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--coral); transform-origin: left; }
 .dz-files button:disabled { opacity: .45; }
-
 /* Role box while the sample types itself in. */
 .ta-wrap { position: relative; }
 .ta-wrap textarea { display: block; }
 .ta-wrap.typing textarea { border-color: var(--coral); box-shadow: 0 0 0 3px rgb(201 58 37 / 22%); }
 .typing-caret { position: absolute; right: .9rem; bottom: .55rem; color: var(--coral); line-height: 1; pointer-events: none; }
-
 .btn.primary[aria-busy="true"]:disabled { opacity: 1; background-image: repeating-linear-gradient(45deg, rgb(255 255 255 / 16%) 0 8px, transparent 8px 16px); background-size: 22px 22px; }
-
-@media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
-
-  /* Entrances */
-  .file-in { animation: slide-in .35s cubic-bezier(.2, .8, .2, 1) both; }
-  .file-in.reading .file-bar { animation: file-fill .8s linear both; }
-  .fade-in { animation: fade-in .5s ease-out both; }
-  .run-live { animation: fade-up .45s ease-out both; }
-  .reveal { animation: fade-up .55s cubic-bezier(.2, .8, .2, 1) both; }
-  .reveal.d2 { animation-delay: .12s; }
-  .reveal.d3 { animation-delay: .24s; }
-
-  /* Typing */
-  .ta-wrap textarea { transition: border-color .2s, box-shadow .2s; }
-  .typing-caret { animation: blink 1s steps(2) infinite; }
-
-  /* Busy Start button */
-  .btn.primary[aria-busy="true"]:disabled { animation: stripes .8s linear infinite; }
-
-  /* Reader panel: a new reader replays a short fade, and the colour change eases. */
-  .rd-panel { transition: background-color .3s ease, border-color .3s ease; }
-  .rd-panel.scout { animation: panel-scout .3s ease-out; }
-  .rd-panel.finder { animation: panel-finder .3s ease-out; }
-  .rd-panel.recruiter { animation: panel-recruiter .3s ease-out; }
-  .rd-panel.coach { animation: panel-coach .3s ease-out; }
-
-  /* Quest map: the selected pin's foot ring pulses and the clouds drift slowly. */
-  .qm-pin { transition: transform .2s var(--spring); }
-  .qm-pin:hover { transform: translate(-50%, -100%) translateY(-3px); }
-  .qm-pin[data-selected="true"] .qm-ring { animation: qm-pulse 1.8s ease-out infinite; }
-  .qm-cloud.one { animation: qm-drift 40s ease-in-out infinite alternate; }
-  .qm-cloud.two { animation: qm-drift 55s ease-in-out infinite alternate-reverse; }
-  .qm-card { animation: fade-in .35s ease-out both; }
-
-  @keyframes qm-pulse { 0% { transform: translateX(-50%) scale(.8); opacity: 1; } 100% { transform: translateX(-50%) scale(1.7); opacity: 0; } }
-  @keyframes qm-drift { from { transform: translateX(-12%); } to { transform: translateX(14%); } }
-
-  @keyframes slide-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
-  @keyframes file-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  @keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  @keyframes fade-up { from { opacity: .35; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  @keyframes stripes { to { background-position: 22px 0; } }
-  @keyframes panel-scout { from { opacity: .4; transform: translateY(4px); } }
-  @keyframes panel-finder { from { opacity: .4; transform: translateY(4px); } }
-  @keyframes panel-recruiter { from { opacity: .4; transform: translateY(4px); } }
-  @keyframes panel-coach { from { opacity: .4; transform: translateY(4px); } }
-}
+@media (prefers-reduced-motion: no-preference) {html { scroll-behavior: smooth; }
+/* Entrances */
+.file-in { animation: slide-in .35s cubic-bezier(.2, .8, .2, 1) both; }
+.file-in.reading .file-bar { animation: file-fill .8s linear both; }
+.fade-in { animation: fade-in .5s ease-out both; }
+.run-live { animation: fade-up .45s ease-out both; }
+.reveal { animation: fade-up .55s cubic-bezier(.2, .8, .2, 1) both; }
+.reveal.d2 { animation-delay: .12s; }
+/* Typing */
+.ta-wrap textarea { transition: border-color .2s, box-shadow .2s; }
+.typing-caret { animation: blink 1s steps(2) infinite; }
+/* Busy Start button */
+.btn.primary[aria-busy="true"]:disabled { animation: stripes .8s linear infinite; }
+/* Reader panel: a new reader replays a short fade, and the colour change eases. */
+.rd-panel { transition: background-color .3s ease, border-color .3s ease; }
+.rd-panel.scout { animation: panel-scout .3s ease-out; }
+.rd-panel.finder { animation: panel-finder .3s ease-out; }
+.rd-panel.recruiter { animation: panel-recruiter .3s ease-out; }
+.rd-panel.coach { animation: panel-coach .3s ease-out; }
+.qm-cloud.one { animation: qm-drift 40s ease-in-out infinite alternate; }
+.qm-cloud.two { animation: qm-drift 55s ease-in-out infinite alternate-reverse; }
+@keyframes qm-pulse { 0% { transform: translateX(-50%) scale(.8); opacity: 1; } 100% { transform: translateX(-50%) scale(1.7); opacity: 0; } }
+@keyframes qm-drift { from { transform: translateX(-12%); } to { transform: translateX(14%); } }
+@keyframes slide-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+@keyframes file-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes fade-up { from { opacity: .35; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes stripes { to { background-position: 22px 0; } }
+@keyframes panel-scout { from { opacity: .4; transform: translateY(4px); } }
+@keyframes panel-finder { from { opacity: .4; transform: translateY(4px); } }
+@keyframes panel-recruiter { from { opacity: .4; transform: translateY(4px); } }
+@keyframes panel-coach { from { opacity: .4; transform: translateY(4px); } }}

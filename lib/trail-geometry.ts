@@ -62,6 +62,9 @@ export const GAP = 12;
 /** The "Built with" cave carved into the rock at the bottom right, outside the road. A box in board units; it runs to the bottom edge of the board. */
 export const CAVE = { l: 1026, t: 286, w: 170, h: 250 };
 
+/** The Cloudflare edge cloud in the sky above the upload box: a box in board units (the cloud grows with its text). */
+export const CLOUD = { l: 80, t: 172, w: 178 };
+
 /** The wooden "Pick one" sign under the fork, the section title sign in the top left corner and the small "API boost powers your agents" label above the agents (dy is from the agents road). */
 export const FORK_SIGN = { w: 74, h: 26, dy: 28 };
 export const TITLE_SIGN = { x: 12, y: 12, w: 178, h: 46 };

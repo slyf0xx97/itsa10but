@@ -7,107 +7,56 @@
 .radar-section a { color: var(--link); }
 .radar-section :focus-visible { outline-color: var(--ink); }
 #radar .stage-body { padding-top: 0; padding-bottom: 1rem; }
-@media (max-width: 640px) {
-  #radar .stage-body { padding-inline: .4rem; }
-  .radar-section { padding-inline: .5rem; }
-}
+@media (max-width: 640px) {#radar .stage-body { padding-inline: .4rem; }
+.radar-section { padding-inline: .5rem; }}
 #radar .stage-header { padding-block: .8rem .6rem; }
 #radar .stage-plate { max-width: min(46rem, 100%); }
-
 /* Stacked on a narrow block: radar with its key under it, then the quick facts. The radar keeps a sensible size however wide the block is. */
 .so { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; align-items: start; }
 .so > * { min-width: 0; }
-.so-main, .so-side { display: grid; gap: .6rem; }
+.so-main { display: grid; gap: .6rem; }
 .so-main { width: 100%; max-width: 30rem; justify-self: center; }
-/* Quick facts: three glass tiles, each with a faint picture of what it means (Best proof a sunlit peak, Biggest gap a bridge with a plank missing, Match two puzzle halves),
-   a head (label, one plain line, one figure) and a short list with small bars. The pictures are fades behind the text, so the ink stays far above 4.5:1.
-   A tile is its own container: 28rem of tile width or more puts the head left and the list right, less stacks them. */
-.so-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; margin: 0; padding: 0; list-style: none; }
-/* The three cards are always vertical (label, big figure, line, list) and sit in columns: one under 460px of block, two (the last one full width)
-   up to 695px, three from there (each at least 14rem). From 1060px of block the radar sits left and the cards fill the rest in three columns at the
-   radar's height; the key sits right under the radar, inside its column. */
-@container radar (min-width: 460px) {
-  .so-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .so-tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
-}
-@container radar (min-width: 696px) {
-  .so-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .so-tile:last-child:nth-child(odd) { grid-column: auto; }
-}
-@container radar (min-width: 1060px) {
-  .so { grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: .6rem 2rem; align-items: stretch; }
-  .so-main { max-width: none; justify-self: stretch; align-content: center; }
-  .so-side, .so-tiles { height: 100%; }
-}
-@container radar (min-width: 1140px) {
-  .so { grid-template-columns: minmax(0, 24rem) minmax(0, 1fr); }
-}
-.so-tile { container: tile / inline-size; position: relative; isolation: isolate; overflow: hidden; display: grid; align-content: stretch; min-width: 0; padding: .8rem .95rem .85rem; }
-.so-tile.best { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--mint-soft) 85%, #fff)); }
-.so-tile.gap { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--coral-soft) 85%, #fff)); }
-.so-tile.match { background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--teal-soft) 85%, #fff)); }
-/* Head, list and closing line: the list takes the spare height and spreads its three rows evenly, so the three tiles end on the same line and no tile has a gap at the bottom. */
-.so-tile-body { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: .7rem; min-width: 0; height: 100%; }
-.so-tile-head { display: grid; align-content: start; gap: .25rem; min-width: 0; }
-.so-art { position: absolute; z-index: -1; right: -.4rem; bottom: -.5rem; width: 7rem; height: auto; opacity: .26; pointer-events: none; }
-.so-tile.match .so-art { opacity: .24; }
-.so-art .a-sun { fill: #f5c84a; }
-.so-art .a-hill { fill: var(--leaf); }
-.so-art .a-snow { fill: #fff; }
-.so-art .a-flag { fill: var(--orange); }
-.so-art .a-badge { fill: var(--leaf-deep); }
-.so-art .a-tick { fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: square; }
-.so-art .a-line { fill: none; stroke: var(--ink); stroke-width: 2.5; }
-.so-art .a-cliff { fill: var(--orange-dark); }
-.so-art .a-plank { fill: none; stroke: var(--orange); stroke-width: 5; }
-.so-art .a-hole { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 4 3; }
-.so-art .a-half.one { fill: var(--water-deep); }
-.so-art .a-half.two { fill: var(--leaf); }
-.so-tile-label { display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .4rem; font-size: 1.2rem; font-weight: 800; line-height: 1.2; color: var(--ink); }
-.so-tile-label svg { flex: none; color: var(--ink); }
-.so-tile-label .word-tip-btn { color: var(--ink); }
-.so-tile-row { display: flex; align-items: flex-end; gap: .5rem; }
-.so-tile-unit { padding-bottom: .3rem; font-size: 1.1rem; font-weight: 700; line-height: 1.2; color: var(--ink-soft); }
-/* Numerals in the reading font (Atkinson Hyperlegible), bold, tabular and lining, so 1, 7 and 8 stay apart. The pixel font stays for headings only. */
-.so-tile-num { font-family: var(--font-body); font-size: 3rem; font-weight: 700; font-variant-numeric: tabular-nums lining-nums; letter-spacing: -.01em; line-height: 1; color: var(--ink); }
-.so-tile-num small { font-family: var(--font-body); font-size: 1.4rem; font-weight: 700; letter-spacing: 0; color: var(--ink-soft); }
-.so-tile-cap { font-size: 1rem; line-height: 1.35; color: var(--ink-soft); }
+@container radar (min-width: 1060px) {.so { grid-template-columns: minmax(0, 26rem) minmax(0, 1fr); gap: .6rem; align-items: stretch; }
+.so-main { max-width: none; justify-self: stretch; align-content: center; }}
+@container radar (min-width: 1140px) {.so { grid-template-columns: minmax(0, 29rem) minmax(0, 1fr); }}
 /* Bar from 0 to 100: ink-outlined, proof filled in green, the gap hatched in coral. */
 /* The lists: a marker (rank number, or a colour square for the proof levels), the name, a figure, and the bar under them. */
-/* Five notches, one per proof step: filled where the résumé passes the step (green). In the gap tile the open notches are hatched coral, the steps still to add. */
-@container tile (max-width: 20rem) { .so-row-fig { white-space: normal; text-align: right; } }
 .so-legend { display: flex; flex-wrap: wrap; gap: .5rem .75rem; margin: 0; font-size: 1rem; }
 .so-key { display: inline-flex; align-items: center; gap: .45rem; padding: .25rem .8rem .3rem .45rem; border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); line-height: 1.25; }
 .so-key.have { background: var(--mint-soft); }
 .so-key.gap { background: var(--coral-soft); }
 .so-key b { font-size: 1.1rem; font-weight: 800; }
 .so-key .sg-state { width: 1.4rem; height: 1.4rem; font-size: .85rem; }
-
 /* The key sits right under the radar chart, at the chart's width: Have and Gap side by side in two equal cards, and the number key full width under them. Each card has a glyph that matches what the chart draws,
    a bold name and one plain line. One column when very narrow. */
-
 /* Radar: big, ink on glass. Two drawings of the same data; the figure's own width picks one (container query),
    so labels stay about 15px on a wide column and at least 13px on a phone. Wide drawing from 490px of figure width (labels 14.5px, scores 13px there). */
 .radar-section .radar { margin: 0; text-align: center; }
 .radar-section .radar-box { container-type: inline-size; width: 100%; }
 .radar-section .radar svg { display: block; width: 100%; height: auto; margin-inline: auto; overflow: visible; }
 .radar-section .radar svg.radar-compact { display: none; max-width: 28rem; }
-@container (max-width: 489px) {
-  .radar-section .radar svg.radar-wide { display: none; }
-  .radar-section .radar svg.radar-compact { display: block; }
-}
+.radar-section .radar .radar-key { display: none; }
+@container (max-width: 489px) {.radar-section .radar svg.radar-wide { display: none; }
+.radar-section .radar svg.radar-compact { display: block; }
+.radar-section .radar .radar-key { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: .35rem .9rem; margin: .5rem 0 0; padding: 0; list-style: none; text-align: left; }}
+/* Phone key under the chart: number, icon, name and proof steps on one line. */
+.radar-key li { display: flex; align-items: center; gap: .4rem; min-width: 0; font-size: 1rem; line-height: 1.3; }
+.rk-n { flex: none; display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 2px solid var(--ink); border-radius: 50%; background: #fff; font-size: .95rem; line-height: 1; }
+.rk-mark { flex: none; display: grid; place-items: center; color: var(--ink); }
+.radar-key .rk-name { min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
+.rk-steps { margin-left: auto; font-variant-numeric: tabular-nums lining-nums; font-weight: 700; color: var(--ink-soft); }
+.radar-section .radar .rd-badge { fill: #fff; stroke: var(--ink); stroke-width: 2.5; }
+.radar-section .radar .rd-badge.low { stroke: #8f2515; }
 .radar-section .radar .ring { fill: none; stroke: #6f8c99; stroke-width: 1.5; }
 .radar-section .radar .ring.outer { stroke: var(--ink); stroke-width: 3; }
 .radar-section .radar .spoke { stroke: #a9c3cd; stroke-width: 1.5; }
 .radar-section .radar .shape { fill: rgb(59 180 214 / 32%); stroke: #136a86; stroke-width: 3; stroke-linejoin: round; }
 .radar-section .radar .dot { fill: var(--meadow, #5bb86b); stroke: var(--ink); stroke-width: 2.5; }
 .radar-section .radar .dot.low { fill: var(--coral); }
-.radar-section .radar .rd-chip { fill: #fff; stroke: var(--ink); stroke-width: 2; }
+.radar-section .radar .rd-tag-bg { fill: #fff; stroke: var(--ink); stroke-width: 2; }
 .radar-section .radar .rd-label { fill: #1f2430; font-family: var(--font-body); font-weight: 700; }
 .radar-section .radar .rd-label.low { fill: #8f2515; }
-.radar-section .radar .rd-score { fill: #1f2430; font-family: var(--font-body); font-weight: 700; font-variant-numeric: tabular-nums lining-nums; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
 .radar-section .radar .mark-svg { color: var(--ink); }
-
 .sg { display: grid; gap: .75rem; }
 .sg .logo-caption { margin: 0; }
 .sg-group { padding: .7rem .8rem .85rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; box-shadow: var(--soft-pop), var(--glass-ring); }
@@ -122,7 +71,6 @@
 .sg-more { min-height: 44px; padding: .3rem .9rem; border: 2px dashed var(--ink); border-radius: 10px; background: rgb(255 255 255 / 70%); color: var(--ink); font: inherit; font-size: .95rem; font-weight: 800; cursor: pointer; }
 .sg-more:hover { background: var(--lime); }
 .sg-more:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-
 /* Chips read like inventory tiles: white face, ink outline, a small shelf shadow. */
 .sg-chip { position: relative; display: flex; align-items: center; gap: .45rem; min-width: 0; max-width: 100%; min-height: 44px; padding: .3rem 1.5rem .3rem .55rem; background: #fff; color: var(--ink); border: 2px solid var(--ink); border-radius: 10px; box-shadow: 0 2px 0 rgb(31 36 48 / 40%); font-size: .95rem; font-weight: 700; line-height: 1.15; text-decoration: none; }
 .sg-chip.gap { border-color: var(--coral); box-shadow: 0 2px 0 rgb(201 58 37 / 45%); }
@@ -135,32 +83,18 @@
 .sg-state.have { background: var(--meadow); color: var(--ink); }
 .sg-state.gap { background: var(--coral); color: #fff; border-color: var(--ink); }
 a.sg-chip:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-@media (prefers-reduced-motion: no-preference) {
-  .sg-chip { transition: transform .12s ease-out, box-shadow .12s ease-out; }
-  a.sg-chip:hover, a.sg-chip:focus-visible { transform: translateY(-3px); box-shadow: 0 5px 0 rgb(31 36 48 / 40%); }
-  a.sg-chip.gap:hover, a.sg-chip.gap:focus-visible { box-shadow: 0 5px 0 rgb(201 58 37 / 45%); }
-}
-
-/* Skill by skill (a tab in the Experience Finder card): one button per skill (summary only), the detail opens in a popup (components/popup.tsx). */
-.skill-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; margin: 0; padding: 0; list-style: none; }
-.skill-list > li { display: flex; min-width: 0; }
-
+@media (prefers-reduced-motion: no-preference) {.sg-chip { transition: transform .12s ease-out, box-shadow .12s ease-out; }
+a.sg-chip:hover, a.sg-chip:focus-visible { transform: translateY(-3px); box-shadow: 0 5px 0 rgb(31 36 48 / 40%); }
+a.sg-chip.gap:hover, a.sg-chip.gap:focus-visible { box-shadow: 0 5px 0 rgb(201 58 37 / 45%); }}
 .skill-row { --edge: var(--leaf-deep); display: grid; align-content: center; gap: .45rem; width: 100%; min-width: 0; padding: .65rem .8rem; border: 1.5px solid var(--glass-edge); border-left: 6px solid var(--edge); border-radius: 14px; background: var(--glass-card); box-shadow: var(--soft-pop), var(--glass-ring); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
 .skill-row.add { --edge: var(--orange); }
 .skill-row.missing { --edge: var(--coral); }
 .skill-row:hover { background: #fff; }
 .skill-row:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-.sk-top { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; min-width: 0; }
-.skill-name { display: flex; align-items: center; gap: .55rem; flex: 1 1 8.5rem; min-width: 0; overflow-wrap: anywhere; font-size: 1.15rem; font-weight: 800; line-height: 1.2; }
 .sk-verdict { flex: none; display: inline-flex; align-items: center; gap: .3rem; padding: .1rem .7rem .15rem; border: 2px solid var(--ink); border-radius: 999px; font-size: 1rem; font-weight: 800; line-height: 1.3; white-space: nowrap; }
 .sk-verdict.covered { background: var(--mint-soft); color: var(--ink); }
 .sk-verdict.add { background: #fdd9a0; color: var(--ink); }
 .sk-verdict.missing { background: var(--coral-soft); color: #8f2515; border-color: #8f2515; }
-.sk-go { flex: none; margin-left: auto; color: var(--ink-soft); }
-.sk-facts { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; font-size: 1rem; line-height: 1.3; }
-.sk-fact { display: inline-flex; align-items: center; gap: .4rem; min-width: 0; }
-.sk-label { color: var(--ink-soft); font-weight: 700; }
-.sk-fact b { font-weight: 800; }
 .sk-dots, .sk-steps { display: inline-flex; gap: .2rem; }
 .sk-dots i, .sk-steps i { display: block; border: 1.5px solid var(--ink); background: #fff; }
 .sk-dots i { width: .7rem; height: .7rem; border-radius: 50%; }
@@ -168,7 +102,6 @@ a.sg-chip:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .sk-steps i { width: .9rem; height: .65rem; border-radius: 2px; }
 .sk-steps i.on { background: var(--leaf-deep); }
 .sk-steps.weak i.on { background: var(--orange); }
-
 /* Popup body: the detail line, each quote once in a highlighted block (the quote text itself is untouched), why, the numbers, the learning link. */
 .sk-pop { display: grid; gap: .75rem; overflow-wrap: anywhere; }
 .sk-pop a { color: var(--link); font-weight: 800; }
@@ -185,65 +118,9 @@ a.sg-chip:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .sk-how summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .sk-how p { margin: .35rem 0 0; }
 .sk-link { justify-self: start; }
-
-/* Quick facts, each drawn its own way (components/career/skill-grid.tsx). Best proof is a podium whose block height is the proof steps passed. Biggest gap is a dumbbell chart: a dot where your
-   proof is, a ring where the role asks for it, and the line between them is the gap. Match is a ring split by verdict. Colour never carries the meaning alone: ranks, words and counts are printed. */
-.so-tile-body { align-content: start; }
-.so-tick { color: var(--leaf-deep); font-weight: 800; }
 .pd, .gp, .mt { display: grid; gap: .55rem; align-content: start; min-width: 0; font-variant-numeric: tabular-nums lining-nums; }
-.pd-stand { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: .35rem; height: 5.6rem; margin: 0; padding: 0; list-style: none; }
-.pd-step { display: grid; justify-items: center; align-content: end; gap: .15rem; min-width: 0; }
-.pd-step.r1 { order: 2; } .pd-step.r2 { order: 1; } .pd-step.r3 { order: 3; }
-.pd-fig { font-size: 1.05rem; font-weight: 800; line-height: 1; color: var(--ink); }
-.pd-fig small { font-size: .9rem; font-weight: 700; color: var(--ink-soft); }
-.pd-block { display: grid; place-items: start center; box-sizing: border-box; width: 100%; height: calc(.9rem + var(--s) * .7rem); padding-top: .15rem; border: 2px solid var(--ink); border-radius: 6px 6px 0 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2; color: var(--ink); }
-.r1 .pd-block, .pd-chip.r1 { background: #f5c84a; }
-.r2 .pd-block, .pd-chip.r2 { background: #cfd8de; }
-.r3 .pd-block, .pd-chip.r3 { background: #e0a56d; }
-.pd-names { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
-.pd-names li { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); align-items: start; gap: .5rem; }
-.pd-chip { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 1.5px solid var(--ink); border-radius: 50%; font-size: 1rem; font-style: normal; font-weight: 800; line-height: 1; color: var(--ink); }
-.pd-names li > span { display: grid; min-width: 0; font-size: 1.05rem; line-height: 1.25; color: var(--ink); overflow-wrap: anywhere; }
-.pd-names small { color: var(--ink-soft); font-size: 1rem; line-height: 1.3; }
-.gp-key { display: inline-flex; flex-wrap: wrap; gap: .1rem .8rem; color: var(--ink); font-weight: 700; }
-.gp-key span { display: inline-flex; align-items: center; gap: .35rem; }
-.gp-key i { display: inline-block; box-sizing: border-box; width: .85rem; height: .85rem; border: 2px solid var(--ink); border-radius: 50%; }
-.gp-key i.you, .gp-you { background: var(--ink); }
-.gp-key i.ask { background: #fff; }
-.gp-list { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
-.gp-row { display: grid; gap: .05rem; min-width: 0; }
-.gp-name { font-size: 1.05rem; font-weight: 800; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
-.gp-name .so-dots { margin-left: .45rem; vertical-align: .08em; }
-.gp-svg { display: block; width: 100%; height: auto; }
-.gp-zone { stroke: none; }
-.gp-zone.weak { fill: rgb(201 58 37 / 14%); }
-.gp-zone.some { fill: rgb(185 101 26 / 18%); }
-.gp-zone.strong { fill: rgb(45 125 70 / 20%); }
-.gp-line { stroke: var(--coral); stroke-width: 4; stroke-linecap: round; }
-.gp-ask { fill: #fff; stroke: var(--ink); stroke-width: 2.5; }
-.gp-you { stroke: #fff; stroke-width: 1.5; }
-.gp-note { color: var(--ink-soft); font-size: 1rem; line-height: 1.3; }
-.gp-note b { color: var(--ink); font-weight: 800; }
-.gp-axis { display: grid; grid-template-columns: 3.95% 36.6% 28.2% 28%; margin: -.1rem 0 0; color: var(--ink-soft); font-size: 1rem; font-weight: 700; line-height: 1.2; }
 .mt { grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr); align-items: center; gap: .8rem; }
-@container tile (max-width: 17rem) { .mt { grid-template-columns: minmax(0, 1fr); justify-items: center; } .mt-list { justify-self: stretch; } }
-.mt-ring { display: block; width: 100%; max-width: 8.5rem; height: auto; }
-.mt-ring circle { fill: none; stroke-width: 16; transform: rotate(-90deg); transform-origin: 60px 60px; }
-.mt-track { stroke: rgb(31 36 48 / 14%); }
-.mt-seg.covered { stroke: var(--leaf-deep); }
-.mt-seg.add { stroke: var(--orange-dark); }
-.mt-seg.missing { stroke: var(--coral); }
-.mt-pct { fill: var(--ink); font-family: var(--font-body); font-size: 28px; font-weight: 800; }
-.mt-sub { fill: var(--ink-soft); font-family: var(--font-body); font-size: 14px; font-weight: 700; }
-.mt-list { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
-.mt-list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .45rem; color: var(--ink); font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
-.mt-list b { font-weight: 800; }
-.mt-list small { color: var(--ink-soft); font-size: 1rem; font-weight: 700; }
-.mt-swatch { width: .9rem; height: .9rem; border: 1.5px solid var(--ink); border-radius: 3px; }
-.mt-swatch.covered { background: var(--leaf-deep); }
-.mt-swatch.add { background: var(--orange-dark); }
-.mt-swatch.missing { background: var(--coral); }
-
+@container tile (max-width: 17rem) {.mt { grid-template-columns: minmax(0, 1fr); justify-items: center; }}
 /* The key under the radar: one quiet line of three small keys, smaller than the radar itself. The long explanations are in each word's tooltip. */
 .rd-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: .3rem .9rem; margin: 0; padding: 0; list-style: none; color: var(--ink); font-size: 1rem; line-height: 1.3; }
 .rd-key { display: inline-flex; align-items: center; gap: .4rem; font-weight: 700; }
@@ -251,4 +128,34 @@ a.sg-chip:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .rd-glyph { flex: none; display: inline-grid; place-items: center; width: .85rem; height: .85rem; font-style: normal; }
 .rd-glyph.dot { border: 1.5px solid var(--ink); border-radius: 50%; background: var(--meadow, #5bb86b); }
 .rd-key.gap .rd-glyph.dot { background: var(--coral); }
-.rd-glyph.num { width: auto; min-width: 1.45rem; padding: 0 .2rem; border: 1.5px solid var(--ink); border-radius: 5px; background: #fff; font-size: .8rem; font-variant-numeric: tabular-nums lining-nums; font-weight: 800; line-height: 1.3; }
+/* Three rings: each ring on the chart is one proof step, five in all. */
+.rd-glyph.rings { width: 1rem; height: 1rem; border: 1.5px solid var(--ink); border-radius: 50%; background: radial-gradient(circle, var(--ink) 0 1.5px, transparent 1.5px 3.5px, var(--ink) 3.5px 4.5px, transparent 4.5px); }
+.radar-more { margin: .4rem 0 0; font-size: 1rem; text-align: center; }
+/* The radar card: Stage 3 is a narrow column now, beside Level up, so the card is just the radar and its key. */
+.so-main { box-sizing: border-box; padding: .9rem .8rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: linear-gradient(135deg, var(--glass-inner) 35%, color-mix(in srgb, var(--sky-soft) 85%, #fff)); }
+.learn-g { cursor: pointer; }
+.learn-g:hover .rd-tag-bg, .learn-g:hover .rd-badge { fill: #fff3d6; }
+.learn-g:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.rkl-row { display: flex; align-items: center; gap: .4rem; width: 100%; min-width: 0; padding: .2rem .35rem; border: 0; border-radius: 8px; background: transparent; color: var(--ink); font: inherit; font-size: 1rem; text-align: left; text-decoration: none; cursor: pointer; }
+.rkl-row:hover { background: rgb(232 145 45 / 18%); }
+.rkl-row:focus-visible { outline: 3px solid var(--ink); outline-offset: 1px; }
+.learn-go { flex: none; display: inline-flex; align-items: center; gap: .2rem; margin-left: .25rem; padding: .05rem .5rem; border: 1.5px solid var(--water-deep, #1b86a8); border-radius: 999px; background: var(--sky-soft, #d9f0fb); color: var(--water-deep, #1b86a8); font-size: .9rem; font-weight: 800; line-height: 1.4; }
+.rkl-row:hover .learn-go { background: var(--water-deep, #1b86a8); color: #fff; }
+/* The empty radar before a run: a faint dashed hexagon with six empty badges and one line of text. */
+.radar-ghost { display: grid; justify-items: center; gap: .6rem; }
+.radar-ghost svg { width: 100%; max-width: 17rem; height: auto; overflow: visible; }
+.radar-ghost polygon, .radar-ghost line { fill: none; stroke: rgb(18 52 63 / 32%); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.radar-ghost circle { fill: rgb(255 255 255 / 70%); stroke: rgb(18 52 63 / 32%); stroke-width: 2; stroke-dasharray: 3 3; }
+.radar-ghost p { margin: 0; max-width: 18rem; font-size: 1.05rem; font-weight: 700; line-height: 1.35; text-align: center; color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) {.radar-ghost svg { animation: ghost-breathe 2.6s ease-in-out infinite; }
+@keyframes ghost-breathe { 50% { opacity: .55; } }}
+/* The radar card fills its stage (the row stretches it to the height of Level up) and keeps its content in the middle, so there is no empty band at the foot. */
+#radar .stage-body { align-content: stretch; }
+#radar .radar-section, #radar .radar-section .so { display: grid; }
+#radar .radar-section { grid-template-rows: minmax(0, 1fr) auto; gap: .8rem; }
+#radar .so-main { align-content: center; }
+
+/* The four readers under the radar, each doing its own thing, so the column never ends in an empty band. */
+.camp { display: grid; gap: .3rem; padding: .5rem .7rem .6rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 50%); }
+.camp-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; }
+.camp .dg-scene { --dg-size: 3rem; height: 4.4rem; }

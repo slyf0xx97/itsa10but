@@ -8,17 +8,17 @@ import { WordTip } from "@/components/career/word-tip";
 import { Skyline, TrailArt, TrailLive, type Which } from "@/components/trail-art";
 import { AGENT_FACTS, hasWeb } from "@/lib/agent-facts";
 import { STACK_GROUPS } from "@/lib/tech-stack";
-import { CARD, CAVE, RAIL, READER_IDS, ROUTES, SIDE, WIDE, cardAnchor, railFrom, type End, type Layout, type ReaderId, type Route, type StopId } from "@/lib/trail-geometry";
+import { CARD, CAVE, CLOUD, RAIL, READER_IDS, ROUTES, SIDE, WIDE, cardAnchor, railFrom, type End, type Layout, type ReaderId, type Route, type StopId } from "@/lib/trail-geometry";
 
 // Technology logos, saved locally in public/assets/logos (origins in SOURCES.md). They are decorative: the name is always in the text beside them.
-const LOGO = { openrouter: "openrouter.png", firecrawl: "firecrawl.png", pdfjs: "pdfjs.svg", nextjs: "nextjs.ico", vercel: "vercel.png", mcp: "mcp.svg", react: "react.png" } as const;
+const LOGO = { openrouter: "openrouter.png", firecrawl: "firecrawl.png", cloudflare: "cloudflare.png", pdfjs: "pdfjs.svg", nextjs: "nextjs.ico", vercel: "vercel.png", mcp: "mcp.svg", react: "react.png" } as const;
 type LogoId = keyof typeof LOGO;
 type Point = { t: string; logo?: LogoId[] };
 /** A chip names tech a stop really uses. With `tip` it is a button that opens its own short tooltip. */
 type Chip = { t: string; logo?: LogoId; tip?: { title: string; lines: string[] } };
 type Station = { id: Exclude<StopId, "readers">; n: string; title: string; line: string; chips: Chip[]; tipTitle: string; tip: Point[] };
 
-const logoImg = (id: LogoId, size: number) => <Image key={id} src={`${BASE_PATH}/assets/logos/${LOGO[id]}`} alt="" width={size} height={size} loading="eager" unoptimized />;
+const logoImg = (id: LogoId, size: number) => <Image key={id} src={`${BASE_PATH}/assets/logos/${LOGO[id]}`} alt="" width={size} height={size} loading="lazy" unoptimized />;
 
 function Marker({ logo }: { logo?: LogoId[] }) {
   if (!logo) return <span className="qm-dot" aria-hidden="true" />;
@@ -88,8 +88,8 @@ const stations: Station[] = [
         "An OpenRouter key also lets you pick other models.",
       ] } },
       { t: "Firecrawl", logo: "firecrawl", tip: { title: "Firecrawl, optional", lines: [
-        "Optional web search for Role Scout and Action Planner.",
-        "It needs your own Firecrawl key. Without one the agents skip the web.",
+        "Optional. Adds wider web search for Role Scout and Action Planner.",
+        "It runs on your own Firecrawl key. Without one, the edge Worker still looks up company pages.",
       ] } },
     ],
     tipTitle: "API boost (lib/live-agents.ts)",
@@ -148,6 +148,7 @@ const POS = (id: StopId): CSSProperties => {
   const dy = SIDE[id] === "above" ? -reach : reach;
   return { "--x": `${(x / WIDE.w) * 100}%`, "--y": `${((y + dy) / WIDE.h) * 100}%`, "--w": w } as CSSProperties;
 };
+const CLOUD_POS = { "--kx": `${(CLOUD.l / WIDE.w) * 100}%`, "--ky": `${(CLOUD.t / WIDE.h) * 100}%`, "--kw": `${(CLOUD.w / WIDE.w) * 100}%` } as CSSProperties;
 const CAVE_POS = { "--cx": `${(CAVE.l / WIDE.w) * 100}%`, "--cy": `${(CAVE.t / WIDE.h) * 100}%`, "--cw": `${(CAVE.w / WIDE.w) * 100}%`, "--ch": `${(CAVE.h / WIDE.h) * 100}%` } as CSSProperties;
 
 /** The sprite of an agent, cut from the character sheet (a 2 by 2 grid). */
@@ -180,6 +181,20 @@ function StopBox({ s, as: Tag = "li" }: { s: Station; as?: "li" | "div" }) {
       {s.id === "camp" && <p className="qm-safe"><ShieldCheck aria-hidden="true" focusable="false" /> Personal details masked</p>}
     </Card>
   </Tag>;
+}
+
+/** The Cloudflare edge Worker, drawn as a cloud above the upload box. It is the site's own lookup helper, not a step in the route, so it floats in the sky beside the road. */
+const EDGE: Chip = { t: "What it does", tip: { title: "Cloudflare edge Worker", lines: [
+  "A small Worker on edge.ghernie.com does the site's web lookups for its server. It reads Wikipedia and Wikidata first and opens company pages directly.",
+  "It keeps a one day cache and the shared run limits, which reset at midnight Singapore time. It logs token counts only and never sees your résumé.",
+] } };
+function Cloud() {
+  return <aside className="qm-cloud" aria-labelledby="qm-cloud-title" style={CLOUD_POS}>
+    <svg className="qm-cloud-shape" viewBox="0 0 200 96" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M44 86C22 88 8 74 12 58C14 46 24 40 34 40C34 22 50 10 68 14C78 4 98 2 110 12C122 4 144 8 150 24C168 20 188 34 184 52C196 56 196 80 176 84C170 90 160 90 154 86Z" /></svg>
+    <div className="qm-cloud-body">
+      <h3 id="qm-cloud-title"><Tip title={EDGE.tip!.title} word={<>{logoImg("cloudflare", 18)} Cloudflare edge</>} tip={EDGE.tip!.lines.map((t) => ({ t }))} /></h3>
+    </div>
+  </aside>;
 }
 
 /** The "Built with" cave: carved into the rock at the bottom right of the map (at the end of the rail on a phone), outside the road. */
@@ -329,6 +344,7 @@ export function HowItWorks() {
           </li>
           <StopBox s={station("result")} />
         </ol>
+        <Cloud />
         <Cave />
       </div>
     </div>

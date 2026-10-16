@@ -1,8 +1,9 @@
 "use client";
 
 import { BASE_PATH } from "@/lib/base-path";
-import { useCallback, useId, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from "react";
 import { elevateGroups } from "@/lib/level-up-resources";
+import { LEARN_EVENT, type LearnDetail } from "@/lib/skill-learn";
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
 import { ScrollHint } from "@/components/scroll-hint";
 import { LEVEL_UP_TITLE, STAGES } from "@/lib/journey";
@@ -96,11 +97,46 @@ const splitLead = (text: string): [string, string] => {
   return m ? [m[1], m[2]] : [text, ""];
 };
 
+/** Holds a group's cards at about two rows tall. More than that scrolls inside, with no scrollbar drawn: a fade and a "More below" pill at the foot say there is more, and go once you reach the end. */
+function MoreScroll({ children, label }: { children: ReactNode; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  const check = useCallback(() => { const el = ref.current; if (el) setMore(el.scrollTop + el.clientHeight < el.scrollHeight - 6); }, []);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    check();
+    const watch = new ResizeObserver(check);
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, [check]);
+  return <div className="lu-more-wrap">
+    <div ref={ref} className="lu-scroll" role="region" tabIndex={0} aria-label={label} onScroll={check}>{children}</div>
+    <div className="lu-fade" data-show={more} aria-hidden="true"><span>More below ↓</span></div>
+  </div>;
+}
+
 export function LevelUpChecklist() {
   const raw = useSyncExternalStore(subscribe, readRaw, () => "{}");
   const done = useMemo(() => parse(raw), [raw]);
   const [active, setActive] = useState(0);
+  const [flash, setFlash] = useState("");
   const base = useId();
+  // A "learn this" button elsewhere on the page (the radar, the gap list) asks for one resource: open its tab, scroll to its card and flash it.
+  useEffect(() => {
+    let timer = 0;
+    const onLearn = (event: Event) => {
+      const detail = (event as CustomEvent<LearnDetail>).detail;
+      if (!detail || !elevateGroups[detail.groupIndex]) return;
+      setActive(detail.groupIndex);
+      setFlash(detail.resourceId);
+      window.setTimeout(() => document.getElementById("lu-res-" + detail.resourceId)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "center" }), 60);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setFlash(""), 3200);
+    };
+    window.addEventListener(LEARN_EVENT, onLearn);
+    return () => { window.removeEventListener(LEARN_EVENT, onLearn); window.clearTimeout(timer); };
+  }, []);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const count = elevateGroups.reduce((sum, g) => sum + g.resources.filter((r) => done.has(r.id)).length, 0);
   const toggle = (id: string, on: boolean) => {
@@ -144,6 +180,7 @@ export function LevelUpChecklist() {
     </ScrollHint>
 
     {elevateGroups.map((group, index) => <div className="lu-group" role="tabpanel" id={`${base}-panel-${index}`} aria-labelledby={`${base}-tab-${index}`} hidden={index !== active} tabIndex={0} key={group.title}>
+      <MoreScroll label={`${group.title}: resources. Scroll for more.`}>
       {(() => {
         const [lead, rest] = splitLead(group.description);
         return <div className="lu-desc">
@@ -154,7 +191,7 @@ export function LevelUpChecklist() {
       <ul className="lu-grid">
         {group.resources.map((resource) => {
           const checked = done.has(resource.id);
-          return <li className="lu-card" data-done={checked} key={resource.id}>
+          return <li className="lu-card" id={"lu-res-" + resource.id} data-done={checked} data-flash={flash === resource.id} key={resource.id}>
             <div className="lu-head">
               <Logo id={resource.id} icon={group.icon} />
               <div className="lu-id">
@@ -176,6 +213,7 @@ export function LevelUpChecklist() {
           </li>;
         })}
       </ul>
+      </MoreScroll>
     </div>)}
     <p className="lu-note">Logos belong to their owners and link to their sites.</p>
   </section>;

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { Skill } from "./analysis-types.ts";
 import { sampleAnalysis } from "./analysis-types.ts";
-import { radarFacts } from "./radar-facts.ts";
+import { radarFacts, shortQuote } from "./radar-facts.ts";
 
 const skill = (name: string, demand: number, evidence: number, quote = false): Skill =>
   ({ name, demand, evidence, detail: "", source: "", ...(quote ? { resumeQuote: { label: "résumé", quote: "q", matched: [name] } } : {}) });
@@ -48,4 +48,24 @@ test("the sample result gives rows from its own skills", () => {
   const names = new Set(sampleAnalysis.skills.map((item) => item.name));
   for (const row of [...facts.best, ...facts.gaps]) assert.ok(names.has(row.name));
   assert.equal(facts.verdicts.covered + facts.verdicts.add + facts.verdicts.missing, sampleAnalysis.skills.length);
+});
+
+test("the lead is the strongest proof among skills the role clearly asks for, and carries its quote", () => {
+  const withQuote = (name: string, demand: number, evidence: number, quote: string): Skill => ({ ...skill(name, demand, evidence), resumeQuote: { label: "résumé", quote, matched: [name] } });
+  const facts = radarFacts([withQuote("Extra", 20, 95, "an extra"), withQuote("SQL", 90, 70, "Cut report time by 40% with SQL views"), withQuote("Python", 80, 60, "Built a parser")]);
+  assert.equal(facts.lead?.name, "SQL");
+  assert.equal(facts.lead?.resumeQuote, "Cut report time by 40% with SQL views");
+  assert.equal(radarFacts([skill("A", 80, 0)]).lead, undefined);
+});
+
+test("missing names come most-asked first, and the biggest gap is the same skill the dashboard card names", () => {
+  const facts = radarFacts([skill("A", 60, 0), skill("B", 90, 0), skill("C", 70, 50), skill("D", 40, 40)]);
+  assert.deepEqual(facts.missing, ["B", "A"]);
+  assert.equal(facts.gaps[0].name, "B");
+});
+
+test("a quote is cut at a word, with an ellipsis, only when it is too long", () => {
+  assert.equal(shortQuote("Built a parser"), "Built a parser");
+  const cut = shortQuote("one two three four five six seven eight nine ten", 20);
+  assert.equal(cut, "one two three four…");
 });

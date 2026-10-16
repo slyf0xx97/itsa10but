@@ -43,3 +43,20 @@ export function PixelIcon({ name, size = 16 }: { name: PixelIconName; size?: num
     </svg>
   );
 }
+
+// A pixel coin in three layers so it can be two-tone: a dark rim, the gold face and a small shine. Colours come from CSS (--coin-rim, --coin-face, --coin-shine).
+const disc = (rows: [y: number, x: number, w: number][]): Rect[] => rows.map(([y, x, w]) => [x, y, w, 1]);
+const coinRim = path(disc([[1, 5, 6], [2, 3, 10], [3, 2, 12], [4, 1, 14], [5, 1, 14], [6, 1, 14], [7, 1, 14], [8, 1, 14], [9, 1, 14], [10, 1, 14], [11, 1, 14], [12, 2, 12], [13, 3, 10], [14, 5, 6]]));
+const coinFace = path(disc([[2, 5, 6], [3, 3, 10], [4, 2, 12], [5, 2, 12], [6, 2, 12], [7, 2, 12], [8, 2, 12], [9, 2, 12], [10, 2, 12], [11, 2, 12], [12, 3, 10], [13, 5, 6]]));
+const coinMark = path([[7, 5, 2, 6]]);
+const coinShine = path([[4, 4, 3, 1], [4, 5, 1, 2]]);
+
+/** One coin: full (gold) or empty (an outline only). A half coin is a full coin clipped to its left half by CSS, over an empty one. */
+export function PixelCoin({ empty = false, size = 18 }: { empty?: boolean; size?: number }) {
+  return (
+    <svg className={"px-coin" + (empty ? " empty" : "")} width={size} height={size} viewBox="0 0 16 16" shapeRendering="crispEdges" aria-hidden="true" focusable="false">
+      <path className="px-coin-rim" d={coinRim} />
+      {!empty && <><path className="px-coin-face" d={coinFace} /><path className="px-coin-mark" d={coinMark} /><path className="px-coin-shine" d={coinShine} /></>}
+    </svg>
+  );
+}

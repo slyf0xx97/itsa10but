@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { anthropicClient } from "@/lib/anthropic-client";
 import { runLiveAgents, validateLiveBody, type LiveClient } from "@/lib/live-agents";
 import { edgeFromEnv } from "@/lib/edge-client";
@@ -49,9 +50,8 @@ export async function POST(request: Request) {
   }
 
   const apiKey = ownKey ? ownModelKey! : process.env.ANTHROPIC_API_KEY!.trim();
-  // The site's Firecrawl key is only spent on runs the site has switched on for itself.
-  const siteFirecrawl = process.env.LIVE_AGENTS_ENABLED?.trim() === "true" ? process.env.FIRECRAWL_API_KEY?.trim() || undefined : undefined;
-  const firecrawlKey = visitorKeys.firecrawl ?? siteFirecrawl;
+  // Only a visitor's own Firecrawl key is forwarded. The site's key lives in the edge Worker, which counts its daily use.
+  const firecrawlKey = visitorKeys.firecrawl;
 
   let rejected = false;
   const base = anthropicClient(apiKey, provider);
@@ -65,10 +65,15 @@ export async function POST(request: Request) {
   const encoder = new TextEncoder();
   const runId = crypto.randomUUID().slice(0, 8);
   const line = (event: unknown) => encoder.encode(scrubKeys(JSON.stringify(event), visitorKeys) + "\n");
+  // The usage log is sent after the stream ends; `after` keeps the function alive until it has landed.
+  const background: Promise<unknown>[] = [];
+  let finished = () => {};
+  const done = new Promise<void>((resolve) => { finished = resolve; });
+  after(() => done);
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const events = runLiveAgents(checked.resumes, checked.job, { client, firecrawlKey, edge, provider, model: chosen.model, linkedinUrl: checked.linkedinUrl, signal: request.signal, runId });
+        const events = runLiveAgents(checked.resumes, checked.job, { client, firecrawlKey, edge, provider, paceMs: 220, track: (task) => background.push(task), model: chosen.model, linkedinUrl: checked.linkedinUrl, signal: request.signal, runId });
         for await (const event of events) {
           // The runner reports a refused key as a generic outage; say what happened.
           controller.enqueue(line(ownKey && rejected && event.type === "notice" ? { ...event, message: REJECTED[provider] } : event));
@@ -77,6 +82,7 @@ export async function POST(request: Request) {
         controller.enqueue(line({ type: "error", error: "The live run couldn't finish." }));
       } finally {
         controller.close();
+        void Promise.allSettled(background).then(() => finished());
       }
     },
   });

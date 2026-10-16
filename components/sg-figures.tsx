@@ -40,14 +40,14 @@ function Ring({ value }: { value: number }) {
  * The verified figures popup: the latest news with Refresh, the skill bars (2019 base plus the gain in green), the dated figures with their publisher logos. The latest news and its Refresh button come first.
  * Every number comes from lib/sg-snapshot.ts and names its source. Photos are Unsplash (credited at the bottom), stored in public/assets/photos and never hotlinked.
  */
-export function SgFigures({ firecrawlKey = "" }: { firecrawlKey?: string }) {
+export function SgFigures() {
   const workers = signals.find((signal) => signal.figure === "222,200");
   const others = signals.filter((signal) => signal !== workers);
   return <div className="sgf">
     <p className="sgf-lead">Every figure is dated and links to its source. Checked {SNAPSHOT_CHECKED}.</p>
 
     <section className="sgf-sec" aria-label="Latest news">
-      <SgNews firecrawlKey={firecrawlKey} />
+      <SgNews />
       <div className="sgs-ai">
         <h4 className="sgs-ai-h"><Sparkles size={18} aria-hidden="true" focusable="false" /><span>Latest in AI</span><small>Read {SNAPSHOT_CHECKED}</small></h4>
         <ul className="sgs-ai-list sgf-ai" aria-label="Recent AI models, research and findings">
