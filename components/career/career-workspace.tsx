@@ -32,6 +32,7 @@ import { Term } from "@/components/career/term";
 import { LicensePopup } from "@/components/license-popup";
 import { PrivacyTip } from "@/components/career/privacy-tip";
 import { ResumeTips } from "@/components/career/resume-tips";
+import { UsagePanel, type UsageRow } from "@/components/career/usage-panel";
 import { useDropZone } from "@/components/career/use-drop-zone";
 import { pickResumeFile, type DropPayload } from "@/lib/drop-payload";
 
@@ -124,6 +125,7 @@ export default function Home() {
   const [mode, setMode] = useState<RunMode>("rules");
   const [ranMode, setRanMode] = useState<RunMode>("rules");
   const [notice, setNotice] = useState("");
+  const [usageRows, setUsageRows] = useState<UsageRow[]>([]);
   // Visitor API keys: React state only, never storage, cookies, URLs or the request body.
   const [keys, setKeys] = useState<VisitorKeyState>({ anthropic: "", firecrawl: "" });
   const modeStatus = useModeStatus();
@@ -278,7 +280,7 @@ export default function Home() {
 
   /** Live mode only runs from the visitor's own button press, never from samples or tool calls. */
   async function analyse(items: Resume[], role: string, wantLive = false): Promise<Analysis> {
-    setError(""); setNotice("");
+    setError(""); setNotice(""); setUsageRows([]);
     if (!items.length || !role.trim()) throw new Error("Add at least one résumé and a target job description.");
     const run = ++runRef.current;
     setResumes(items); setJob(role);
@@ -291,13 +293,15 @@ export default function Home() {
     setBusy(true);
     scrollToResults();
     try {
-      const outcome: { result?: Analysis } = {};
+      const outcome: { result?: Analysis; fellBack?: boolean } = {};
       const consume = async (source: AsyncIterable<EngineEvent>) => {
       for await (const event of source) {
         await runGate.wait(); // Pause holds the run here, between events
         if (run !== runRef.current) throw new Error("Analysis cancelled.");
         if (event.type === "error") throw new Error(event.error);
-        if (event.type === "notice") { setNotice(event.message); setRanMode("rules"); }
+        // After a server fallback the rest is the rules run, sent all at once; it is replayed at normal pace below instead.
+        if (outcome.fellBack) continue;
+        if (event.type === "notice") { setNotice(event.message); setRanMode("rules"); outcome.fellBack = true; setStageAgents(emptyAgents); setActivities(emptyActivity); setProcessStep(0); setActiveAgent(0); setUsageRows([]); }
         if (event.type === "handoff") {
           setHandoff(event.message);
           setActiveAgent(READER_NAMES.indexOf(event.to as typeof READER_NAMES[number]));
@@ -310,6 +314,7 @@ export default function Home() {
         if (event.type === "stage") {
           setStageAgents((current) => current.map((item, index) => index === event.index ? event.agent : item));
           setProcessStep(event.index + 1);
+          if (event.usage) { const spent = event.usage; setUsageRows((rows) => [...rows, { agent: event.agent.role, ...spent }]); }
         }
         if (event.type === "complete") {
           outcome.result = event.result.analysis;
@@ -434,6 +439,7 @@ export default function Home() {
             <div className="stage-body">
               <p className="progress rs-progress" role="status" aria-live="polite">{busy ? handoff : ""}</p>
               {notice && <p className="notice mode-notice" role="status">{notice}</p>}
+              {ranMode === "live" && usageRows.length > 0 && <UsagePanel rows={usageRows} done={hasResult} />}
               {shownMode === "live" && <p className="mode-note">{liveRunNote(hasResult ? analysis.run : undefined)}</p>}
               <ReaderCardsPanel agents={visibleAgents} active={busy ? activeAgent : -1} completed={visibleStep} activities={busy || hasResult ? activities : emptyActivity} mode={shownMode} model={chosenModel(keys)} />
               <SynthesisPanel analysis={analysis} hasResult={hasResult} busy={busy} madeUp={madeUp} flow={flow} />

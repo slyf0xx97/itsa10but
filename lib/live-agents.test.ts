@@ -81,6 +81,21 @@ test("event order matches the rules engine and the result is labelled live", asy
   assert.equal(last.result.analysis.skills.find((s) => s.name === "Reporting")!.scoreReason, "Reporting is named but no report is shown.");
 });
 
+test("each agent's handoff comes before its model call, and each stage carries only that agent's usage", async () => {
+  const seen: string[] = [];
+  const { client } = fake();
+  const spy: LiveClient = { create: (req, signal) => { seen.push("call:" + agentOf(req)); return client.create(req, signal); } };
+  const events: EngineEvent[] = [];
+  for await (const event of runLiveAgents(resumes, job, { client: spy, env: {} })) {
+    events.push(event);
+    if (event.type === "handoff") seen.push("handoff:" + event.to);
+  }
+  const order = seen.filter((item, i) => seen.indexOf(item) === i || item.startsWith("handoff"));
+  assert.deepEqual(order.filter((item) => item.startsWith("handoff") || item.startsWith("call")).slice(0, 4), ["handoff:Role Scout", "call:scout", "handoff:Experience Finder", "call:finder"]);
+  const stages = events.filter((e) => e.type === "stage") as Extract<EngineEvent, { type: "stage" }>[];
+  for (const stage of stages) { assert.equal(stage.usage?.inputTokens, 10); assert.equal(stage.usage?.outputTokens, 5); }
+});
+
 test("the Recruiter reads the whole masked résumé cold, with no tools and no Finder output, and the runner checks its report", async () => {
   const { client, requests } = fake();
   const events = await run(client);

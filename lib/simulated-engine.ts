@@ -15,7 +15,7 @@ export type EngineResult = {
   /** Absent on live results: the retrieval trace belongs to the rules engine. */
   retrievalSteps?: RetrievalStep[];
   /** Live runs only: model token totals, for checking cost. */
-  usage?: { inputTokens: number; outputTokens: number };
+  usage?: { inputTokens: number; outputTokens: number; ms?: number };
   safety: { piiFound: PiiFinding[]; injectionFlags: InjectionMatch[] };
 };
 
@@ -28,7 +28,7 @@ export type EngineEvent =
   | { type: "reasoning"; agent: ReaderName; text: string; done: boolean; simulated: boolean; mode?: "rules" | "live" }
   /** One progress lane of one reader. Rules runs derive these from real text work; live runs from real tool calls. Never carries résumé text. */
   | { type: "activity"; agent: ReaderName; lane: string; label: string; status: "start" | "progress" | "done"; progress?: number; detail?: string; simulated: boolean; mode?: "rules" | "live" }
-  | { type: "stage"; index: number; agent: { role: ReaderName; note: string }; simulated: boolean; mode?: "rules" | "live" }
+  | { type: "stage"; index: number; agent: { role: ReaderName; note: string }; /** Live runs: what this agent spent. */ usage?: { inputTokens: number; outputTokens: number; ms: number; model?: string }; simulated: boolean; mode?: "rules" | "live" }
   | { type: "complete"; result: EngineResult; simulated: boolean; mode?: "rules" | "live" }
   /** Live runs: the run started. Rules runs never send this. */
   | { type: "start"; mode: "live"; runId: string; simulated: false; /** Model name(s) used, such as "Haiku 5.5 and Sonnet 5.5". */ model?: string; /** False when a model other than Claude was chosen. */ claude?: boolean; /** False when no Firecrawl key was given, so the agents skipped the web. */ web?: boolean }

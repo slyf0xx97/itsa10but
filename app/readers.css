@@ -233,3 +233,14 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 .md-open { justify-self: start; min-height: 2.5rem; padding: .3rem .95rem; border: 2px solid var(--ink); border-radius: 10px; background: var(--orange); color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--ink); }
 .md-open:hover { background: var(--lime); }
 .md-open:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* API boost usage: a small glass table under the mode notice; scrolls sideways inside its own box at 375px. */
+.usage-panel { margin: 12px 0; padding: 12px 14px; background: var(--glass-card); border: 1px solid var(--glass-line); border-radius: 12px; color: var(--ink); }
+.usage-panel h3 { margin: 0 0 8px; font-size: 1rem; }
+.usage-scroll { overflow-x: auto; }
+.usage-panel table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+.usage-panel th, .usage-panel td { padding: 4px 8px; text-align: right; white-space: nowrap; }
+.usage-panel th[scope="row"], .usage-panel thead th:first-child { text-align: left; }
+.usage-panel tfoot th, .usage-panel tfoot td { border-top: 1px solid var(--glass-line); font-weight: 700; }
+.usage-note { margin: 8px 0 0; font-size: 1rem; }
+.rd-elapsed { font-variant-numeric: tabular-nums; }

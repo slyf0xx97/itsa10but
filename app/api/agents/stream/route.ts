@@ -1,13 +1,14 @@
 import { anthropicClient } from "@/lib/anthropic-client";
 import { runLiveAgents, validateLiveBody, type LiveClient } from "@/lib/live-agents";
-import { liveStatus, sharedLimiter, sharedOwnKeyLimiter, visitorKey } from "@/lib/rate-limit";
+import { edgeFromEnv } from "@/lib/edge-client";
+import { liveStatus, sharedLimiter, sharedOwnKeyLimiter, takeRun, visitorKey } from "@/lib/rate-limit";
 import { checkModelChoice } from "@/lib/model-choice";
 import { isAuthRejection, readVisitorKeys, scrubKeys } from "@/lib/visitor-keys";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
-const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
+const headers = { "Cache-Control": "no-store, no-transform", "X-Accel-Buffering": "no", "X-Content-Type-Options": "nosniff" };
 const REJECTED = {
   anthropic: "Anthropic rejected that key. Showing the native scan result instead.",
   openrouter: "OpenRouter rejected that key. Showing the native scan result instead.",
@@ -40,8 +41,8 @@ export async function POST(request: Request) {
     const error = `${status.reason} You can paste your own Anthropic or OpenRouter key in Agent power, in the header.`;
     return Response.json({ error, fallback: "rules" }, { status: 503, headers });
   }
-  const limiter = ownKey ? sharedOwnKeyLimiter() : sharedLimiter();
-  const taken = limiter.take(visitorKey(request.headers));
+  const edge = edgeFromEnv();
+  const taken = await takeRun({ edge, ownKey, visitor: visitorKey(request.headers), env: process.env, fallback: ownKey ? sharedOwnKeyLimiter() : sharedLimiter() });
   if (!taken.ok) {
     const error = taken.reason === "daily" ? "Today's Claude runs are used up. Try again tomorrow." : "You have used your Claude runs for now. Try again later.";
     return Response.json({ error, fallback: "rules" }, { status: 429, headers });
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const events = runLiveAgents(checked.resumes, checked.job, { client, firecrawlKey, model: chosen.model, linkedinUrl: checked.linkedinUrl, signal: request.signal, runId });
+        const events = runLiveAgents(checked.resumes, checked.job, { client, firecrawlKey, edge, provider, model: chosen.model, linkedinUrl: checked.linkedinUrl, signal: request.signal, runId });
         for await (const event of events) {
           // The runner reports a refused key as a generic outage; say what happened.
           controller.enqueue(line(ownKey && rejected && event.type === "notice" ? { ...event, message: REJECTED[provider] } : event));

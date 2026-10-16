@@ -54,6 +54,13 @@ function summaryOf(shown: Mode, entry: AgentActivity | undefined): string[] {
   return shown === "live" ? done.map((lane) => (lane.calls > 1 ? `${lane.label} ×${lane.calls}` : lane.label)) : done.flatMap((lane) => (lane.detail ? [lane.detail] : []));
 }
 
+/** Seconds since this card became active; the parent keys it by reader so it restarts at each handoff. */
+function Elapsed() {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => { const id = window.setInterval(() => setSeconds((value) => value + 1), 1000); return () => window.clearInterval(id); }, []);
+  return <span className="rd-elapsed">{seconds}s</span>;
+}
+
 // Spoken status for screen readers. Sighted users get the status from motion and card styling only.
 const stateWord: Record<State, string> = { waiting: "Waiting", active: "Working", done: "Done" };
 
@@ -142,7 +149,7 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
         {entry.log.map((line) => <li key={line.id}>{line.text}</li>)}
       </ol>}
       {summary.length > 0 && <p className="rd-summary"><span>Summary:</span> {summary.join(", ")}</p>}
-      <p className="rd-finding">{note ? note : state === "active" ? "Working…" : "Waiting"}{state === "active" && note ? <span className="caret" aria-hidden="true">▌</span> : null}</p>
+      <p className="rd-finding">{note ? note : state === "active" ? <>Working… <Elapsed key={shownIndex} /></> : "Waiting"}{state === "active" && note ? <span className="caret" aria-hidden="true">▌</span> : null}</p>
     </div>}
     <ResultFlow active={active} completed={completed} />
   </div>;
