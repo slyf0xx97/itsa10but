@@ -1,4 +1,4 @@
-import { BASE_PATH } from "@/lib/base-path";
+import { PUBLIC_PATH, SITE_ORIGIN, SITE_URL } from "@/lib/site-url";
 import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible, Pixelify_Sans } from "next/font/google";
 import Script from "next/script";
@@ -11,7 +11,7 @@ const TITLE = "itsa10but | Free résumé checker for tech jobs";
 const DESCRIPTION = "Free résumé checker for tech and tech-adjacent roles. Paste a job, add your résumé and four readers show the proof behind each skill score, with a PDF report and a skills radar.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ghernie.com"),
+  metadataBase: new URL(SITE_ORIGIN),
   title: TITLE,
   description: DESCRIPTION,
   applicationName: "itsa10but",
@@ -20,9 +20,9 @@ export const metadata: Metadata = {
   creator: "Ghernie Encinas",
   category: "education",
   formatDetection: { email: false, address: false, telephone: false },
-  alternates: { canonical: BASE_PATH },
+  alternates: { canonical: PUBLIC_PATH },
   robots: { index: true, follow: true },
-  openGraph: { type: "website", url: BASE_PATH, siteName: "itsa10but", title: TITLE, description: DESCRIPTION, locale: "en_SG", alternateLocale: ["en_US"] },
+  openGraph: { type: "website", url: PUBLIC_PATH, siteName: "itsa10but", title: TITLE, description: DESCRIPTION, locale: "en_SG", alternateLocale: ["en_US"] },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
@@ -38,7 +38,7 @@ export default function RootLayout({
       <body>
         {/* Search engines read this to show the page as a free web app. Every value is a fixed fact about the site; nothing comes from a visitor. */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context": "https://schema.org", "@type": "WebApplication", name: "itsa10but", url: `https://ghernie.com${BASE_PATH}`, description: DESCRIPTION,
+          "@context": "https://schema.org", "@type": "WebApplication", name: "itsa10but", url: SITE_URL, description: DESCRIPTION,
           applicationCategory: "EducationalApplication", operatingSystem: "Any, in a web browser", browserRequirements: "Needs JavaScript", inLanguage: "en",
           audience: { "@type": "Audience", audienceType: "Students and people moving into tech" }, isAccessibleForFree: true,
           author: { "@type": "Person", name: "Ghernie Encinas", url: "https://sg.linkedin.com/in/ghernie", description: "Conceived the idea and the design system for itsa10but, with a strong interest in UI design and creativity." },
