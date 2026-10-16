@@ -8,7 +8,7 @@ const pixel = Pixelify_Sans({ subsets: ["latin"], variable: "--font-pixel", disp
 const read = Atkinson_Hyperlegible({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-read", display: "swap" });
 
 const TITLE = "itsa10but | Free résumé checker for tech jobs";
-const DESCRIPTION = "Free résumé checker for tech and tech-adjacent roles. Paste a job, add your résumé and four readers show the proof behind each skill score, with a PDF report and a skills radar.";
+const DESCRIPTION = "itsa10but is an open-source résumé reviewer that uses multi-agentic AI to analyse your résumé against a real job and show you how to improve it. Made for tech and tech-adjacent roles.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_ORIGIN),

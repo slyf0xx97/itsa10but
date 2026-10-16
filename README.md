@@ -11,7 +11,9 @@
 ![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-e8912d?style=flat-square)
 ![No key needed](https://img.shields.io/badge/key-optional-167a66?style=flat-square)
 
-itsa10but is a one-page career workspace for students and people moving into tech. You pick a role and add your résumé, or a sample. Four small pixel readers compare the two and show you the gaps. Every score comes with the exact quote behind it, and you can download the result as a PDF report or as a Markdown prompt for your own AI.
+itsa10but is an open-source résumé reviewer that uses multi-agentic AI to analyse your résumé against a real job and show you how to improve it. Made for tech and tech-adjacent roles.
+
+It is a one-page career workspace for students and people moving into tech. You pick a role and add your résumé, or a sample. Four small pixel readers compare the two and show you the gaps. Every score comes with the exact quote behind it, and you can download the result as a PDF report or as a Markdown prompt for your own AI.
 
 🌐 Live site: https://ghernie.com/itsa10but
 

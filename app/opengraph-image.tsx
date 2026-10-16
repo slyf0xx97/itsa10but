@@ -8,7 +8,7 @@ import { brandIcon } from "@/lib/brand-icon";
  * (Pixelify Sans, the site's heading font) and the four pixel readers standing on the grass. The two font files and the sprite sheet are read from public/assets.
  * Pixelify Sans and Atkinson Hyperlegible are both under the SIL Open Font License.
  */
-export const alt = "itsa10but: four pixel readers compare your résumé with a tech job and show the quote behind every skill score";
+export const alt = "itsa10but: an open-source résumé reviewer that uses multi-agentic AI to analyse your résumé against a real job and show you how to improve it";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -47,7 +47,7 @@ export default async function Image() {
             <span style={{ color: ORANGE }}>But…</span>
             <span style={{ marginLeft: 20 }}>it’s a…?</span>
           </div>
-          <div style={{ display: "flex", marginTop: 10, fontSize: 27, lineHeight: 1.25, color: "#2b5f73" }}>Four pixel readers show the quote behind every skill score.</div>
+          <div style={{ display: "flex", marginTop: 10, fontSize: 27, lineHeight: 1.25, color: "#2b5f73" }}>An open-source résumé reviewer using multi-agentic AI. Made for tech and tech-adjacent roles.</div>
         </div>
 
         {/* Three small facts, top right, as stickers. */}
