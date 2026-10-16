@@ -46,5 +46,7 @@ export function cleanSnapshot(value: unknown): SnapshotDoc | null {
   const v = value as { checked?: unknown; ai?: unknown } | null;
   const checked = typeof v?.checked === "string" && sgDate(v.checked) ? v.checked : "";
   if (!checked) return null;
-  return { checked, ai: aiPicks({ data: { news: Array.isArray(v?.ai) ? v!.ai : [] } }, 4) };
+  // A stored pick uses the page's field names (text, published), and aiPicks reads a search result's (snippet, date), so the names are mapped back before the same checks run.
+  const stored = (Array.isArray(v?.ai) ? v!.ai : []).map((row: { title?: unknown; text?: unknown; url?: unknown; published?: unknown }) => ({ title: row?.title, snippet: row?.text, url: row?.url, date: row?.published }));
+  return { checked, ai: aiPicks({ data: { news: stored } }, 4) };
 }

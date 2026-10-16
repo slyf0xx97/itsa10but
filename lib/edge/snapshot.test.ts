@@ -31,3 +31,9 @@ test("a Markdown snippet becomes plain text without the repeated headline", () =
   assert.ok(pick.text.startsWith("The model launches today at an introductory price and runs on chips."));
   assert.ok(!/[#*`\[\]()]/.test(pick.text) && pick.text.length <= 201 && pick.text.endsWith("…"));
 });
+
+test("a stored snapshot keeps each pick's text and date when it is read back", () => {
+  const doc = cleanSnapshot({ checked: "2026-10-15T18:30:00Z", ai: [{ kind: "Model", title: "A new model", text: "What it does.", publisher: "example.com", published: "2 days ago", url: "https://example.com/a" }] });
+  assert.equal(doc?.ai[0].text, "What it does.");
+  assert.equal(doc?.ai[0].published, "2 days ago");
+});
