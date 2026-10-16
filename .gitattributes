@@ -1,0 +1,2 @@
+# The paste-parser tests compare these fixtures byte for byte, so they stay LF on every platform.
+examples/**/*.txt text eol=lf
