@@ -359,7 +359,6 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, 
       <div className="dash-ghosts is-cards" aria-hidden="true">
         {GHOST_CARDS.map((card) => <div className={"dg-card " + card.kind} key={card.kind}>
           <AgentScene kind={card.kind} mood={card.mood} />
-          <i className="dg-fig" /><i className="dg-line" /><i className="dg-line is-short" />
         </div>)}
       </div>
     </section>;

@@ -215,6 +215,5 @@ export function LevelUpChecklist() {
       </ul>
       </MoreScroll>
     </div>)}
-    <p className="lu-note">Logos belong to their owners and link to their sites.</p>
   </section>;
 }

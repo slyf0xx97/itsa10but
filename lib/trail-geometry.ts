@@ -52,7 +52,7 @@ export const CARD: Record<StopId, { w: number; h: number; reach: number; at?: Pt
   native: { w: 252, h: 124, reach: 38 },
   boost: { w: 252, h: 124, reach: 38 },
   readers: { w: 226, h: 252, reach: 44 },
-  result: { w: 170, h: 108, reach: 38, at: [880, 16] },
+  result: { w: 214, h: 108, reach: 38, at: [880, 16] },
 };
 export const SIDE: Record<StopId, "above" | "below"> = { camp: "above", native: "below", boost: "above", readers: "below", result: "below" };
 export const ROAD_R = 13;

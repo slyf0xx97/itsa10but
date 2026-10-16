@@ -5,25 +5,10 @@
  * Descriptions say only what the site is. No pricing or results are claimed.
  */
 export type NewsSite = { name: string; what: string; href: string; logo: string; inRefresh?: boolean };
+const FIGURE_IDS = ["gov", "news"];
 export type NewsSiteGroup = { id: string; title: string; icon: "dashboard" | "scroll" | "search" | "ml" | "book"; sites: NewsSite[] };
 
 export const newsSiteGroups: NewsSiteGroup[] = [
-  { id: "gov", title: "Singapore government and labour data", icon: "dashboard", sites: [
-    { name: "IMDA", what: "Digital economy reports and tech workforce figures", href: "https://www.imda.gov.sg/", logo: "imda" },
-    { name: "MOM", what: "Job vacancy and labour market reports", href: "https://www.mom.gov.sg/", logo: "mom", inRefresh: true },
-    { name: "SkillsFuture Singapore", what: "Skills frameworks, programmes and funding", href: "https://www.skillsfuture.gov.sg/", logo: "skillsfuture" },
-    { name: "Jobs-Skills Portal", what: "Skills insights and in-demand roles", href: "https://jobsandskills.swda.gov.sg/", logo: "jobs-skills-portal" },
-    { name: "MyCareersFuture", what: "The government job portal", href: "https://www.mycareersfuture.gov.sg/", logo: "mycareersfuture" },
-    { name: "Singapore Department of Statistics", what: "National statistics and data tables", href: "https://www.singstat.gov.sg/", logo: "singstat" },
-  ] },
-  { id: "news", title: "Singapore news", icon: "scroll", sites: [
-    { name: "The Straits Times", what: "Singapore's English daily, with business and tech sections", href: "https://www.straitstimes.com/", logo: "straits-times", inRefresh: true },
-    { name: "CNA", what: "Singapore and Asia news, including business", href: "https://www.channelnewsasia.com/", logo: "cna", inRefresh: true },
-    { name: "The Business Times", what: "Business and finance news", href: "https://www.businesstimes.com.sg/", logo: "business-times", inRefresh: true },
-    { name: "Tech in Asia", what: "Startup and tech news from Southeast Asia", href: "https://www.techinasia.com/", logo: "tech-in-asia" },
-    { name: "Vulcan Post", what: "Singapore startup, jobs and workplace stories", href: "https://vulcanpost.com/", logo: "vulcan-post", inRefresh: true },
-    { name: "e27", what: "Southeast Asia startup and tech news", href: "https://e27.co/", logo: "e27", inRefresh: true },
-  ] },
   { id: "jobs", title: "Job boards and salary data", icon: "search", sites: [
     { name: "Jobstreet", what: "Singapore job board with salary pages", href: "https://sg.jobstreet.com/", logo: "jobstreet" },
     { name: "LinkedIn Jobs", what: "Job postings and company pages", href: "https://www.linkedin.com/jobs/", logo: "linkedin" },
@@ -57,4 +42,24 @@ export const newsSiteGroups: NewsSiteGroup[] = [
     { name: "edX", what: "Online courses from universities", href: "https://www.edx.org/", logo: "edx" },
     { name: "freeCodeCamp", what: "Free coding lessons and projects", href: "https://www.freecodecamp.org/", logo: "freecodecamp" },
   ] },
+  { id: "gov", title: "Singapore government and labour data", icon: "dashboard", sites: [
+    { name: "IMDA", what: "Digital economy reports and tech workforce figures", href: "https://www.imda.gov.sg/", logo: "imda" },
+    { name: "MOM", what: "Job vacancy and labour market reports", href: "https://www.mom.gov.sg/", logo: "mom", inRefresh: true },
+    { name: "SkillsFuture Singapore", what: "Skills frameworks, programmes and funding", href: "https://www.skillsfuture.gov.sg/", logo: "skillsfuture" },
+    { name: "Jobs-Skills Portal", what: "Skills insights and in-demand roles", href: "https://jobsandskills.swda.gov.sg/", logo: "jobs-skills-portal" },
+    { name: "MyCareersFuture", what: "The government job portal", href: "https://www.mycareersfuture.gov.sg/", logo: "mycareersfuture" },
+    { name: "Singapore Department of Statistics", what: "National statistics and data tables", href: "https://www.singstat.gov.sg/", logo: "singstat" },
+  ] },
+  { id: "news", title: "Singapore news", icon: "scroll", sites: [
+    { name: "The Straits Times", what: "Singapore's English daily, with business and tech sections", href: "https://www.straitstimes.com/", logo: "straits-times", inRefresh: true },
+    { name: "CNA", what: "Singapore and Asia news, including business", href: "https://www.channelnewsasia.com/", logo: "cna", inRefresh: true },
+    { name: "The Business Times", what: "Business and finance news", href: "https://www.businesstimes.com.sg/", logo: "business-times", inRefresh: true },
+    { name: "Tech in Asia", what: "Startup and tech news from Southeast Asia", href: "https://www.techinasia.com/", logo: "tech-in-asia" },
+    { name: "Vulcan Post", what: "Singapore startup, jobs and workplace stories", href: "https://vulcanpost.com/", logo: "vulcan-post", inRefresh: true },
+    { name: "e27", what: "Southeast Asia startup and tech news", href: "https://e27.co/", logo: "e27", inRefresh: true },
+  ] },
 ];
+
+/** Tech and job groups: the Sources and sites card and popup. The Singapore government and news groups sit in the Figures and news popup instead. */
+export const sourceGroups = newsSiteGroups.filter((group) => !FIGURE_IDS.includes(group.id));
+export const figureGroups = newsSiteGroups.filter((group) => FIGURE_IDS.includes(group.id));

@@ -91,7 +91,7 @@
 /* Label row of the role box: the label and its tip on the left, a small LinkedIn note on the right. */
 .role-input .rl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .8rem; margin-bottom: .4rem; }
 .role-input .rl-head label { margin: 0; }
-.role-input .rl-li { display: inline-flex; align-items: center; gap: .45rem; padding: .2rem .7rem .2rem .45rem; border: 1.5px solid var(--glass-edge); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: 1rem; font-weight: 700; }
+.role-input .rl-li { display: inline-flex; align-items: center; gap: .45rem; padding: .1rem .6rem .1rem .4rem; border: 1.5px solid var(--glass-edge); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: .85rem; font-weight: 700; white-space: nowrap; }
 .role-input .rl-li .li-mark { flex: none; }
 .role-input label.with-tip { color: var(--ink); font-size: 1.1rem; font-weight: 800; }
 .role-input .role-field { display: flex; flex: 1 1 auto; flex-direction: column; }

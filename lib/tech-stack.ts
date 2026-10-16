@@ -58,7 +58,7 @@ export const STACK_GROUPS: StackGroup[] = [
       { name: "Job feeds", lines: ["Himalayas, Jobicy, Arbeitnow and Remotive, plus a public LinkedIn job page when you paste its link. Each source can fail on its own without stopping the search."] },
       { name: "Native feed reader", lines: ["A guarded fetcher reads RSS and Atom feeds from an allowlist of sites. It checks hosts, redirects, size and content type, and no model runs."] },
       { name: "Singapore figures", lines: ["Dated figures from IMDA, MOM, PwC, Indeed and The Straits Times, each one with its source link."] },
-      { name: "Local assets", lines: ["Logos, tool marks and the two photos are saved in the app and never hotlinked, and their sources are listed in the repository."] },
+      { name: "Local assets", lines: ["Logos and tool marks are saved in the app and never hotlinked, and their sources are listed in the repository."] },
     ],
   },
   {

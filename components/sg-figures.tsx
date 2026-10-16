@@ -3,8 +3,10 @@ import { BASE_PATH } from "@/lib/base-path";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import { ArrowUp, ExternalLink, Sparkles } from "lucide-react";
+import { PixelIcon } from "@/components/career/pixel-icons";
 import { Mark } from "@/components/sg-mark";
 import { SgNews } from "@/components/sg-news";
+import { figureGroups } from "@/lib/news-sites";
 import { SNAPSHOT_CHECKED, latestAi, roleNames, roleSource, roleSourceNote, signals, skillShares, snapshotSources, type SnapshotSourceId } from "@/lib/sg-snapshot";
 
 /** The logo file (public/assets/logos, without ".png") of each source's publisher. PwC has no file here, so its card shows a lettered tile. */
@@ -38,7 +40,7 @@ function Ring({ value }: { value: number }) {
 
 /**
  * The verified figures popup: the latest news with Refresh, the skill bars (2019 base plus the gain in green), the dated figures with their publisher logos. The latest news and its Refresh button come first.
- * Every number comes from lib/sg-snapshot.ts and names its source. Photos are Unsplash (credited at the bottom), stored in public/assets/photos and never hotlinked.
+ * Every number comes from lib/sg-snapshot.ts and names its source. The Singapore government and news sites are listed at the bottom.
  */
 export function SgFigures() {
   const workers = signals.find((signal) => signal.figure === "222,200");
@@ -83,7 +85,6 @@ export function SgFigures() {
       <h3 id="sgf-nums">The numbers</h3>
       <ul className="sgf-cards">
         {workers && <li className="sgf-feature">
-          <Image src={BASE_PATH + "/assets/photos/developers.jpg"} width={700} height={467} alt="Two developers working side by side at laptops" unoptimized />
           <div className="sgf-feature-body">
             <b>{workers.figure}</b>
             <span>{workers.text}</span>
@@ -107,6 +108,19 @@ export function SgFigures() {
       </ul>
     </section>
 
-    <p className="sgf-credit">Photo from Unsplash: <a href="https://unsplash.com/photos/CPs2X8JYmS8" target="_blank" rel="noopener noreferrer">developers by Tim van der Kuip</a>. It shows people in general, not the companies behind the figures.</p>
+    <section className="sgf-sec" aria-labelledby="sgf-sites">
+      <h3 id="sgf-sites">Official sites and news</h3>
+      {figureGroups.map((group) => <div key={group.id} className="rt-sites">
+        <h4 className="rt-title"><PixelIcon name={group.icon} size={18} />{group.title}</h4>
+        <ul className="rt-grid">{group.sites.map((site) => <li key={site.name}>
+          <a href={site.href} target="_blank" rel="noopener noreferrer">
+            <span className="rt-logo"><Image src={BASE_PATH + "/assets/logos/" + site.logo + ".png"} width={40} height={40} alt="" unoptimized /></span>
+            <span className="rt-site-text"><strong>{site.name}</strong><span>{site.what}</span>{site.inRefresh && <em className="sgs-tag">In news feed</em>}</span>
+            <ExternalLink size={16} aria-hidden="true" focusable="false" />
+            <span className="sr-only">(opens in a new tab)</span>
+          </a>
+        </li>)}</ul>
+      </div>)}
+    </section>
   </div>;
 }

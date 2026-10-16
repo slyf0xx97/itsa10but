@@ -377,20 +377,10 @@
 .dp-sec { padding: .6rem .7rem; }}
 /* Before a run: four placeholder cards shaped like the real result cards (avatar, name, a figure, two rows), in grey, with a slow shimmer for people who allow motion. */
 .dg-card { position: relative; overflow: hidden; display: grid; gap: .6rem; align-content: start; min-width: 0; padding: .9rem 1rem 1rem; border: 1.5px solid rgb(18 52 63 / 22%); border-radius: 16px; background: rgb(255 255 255 / 55%); color: var(--ink); }
-.dg-card i { display: block; border: 0; border-radius: 8px; background: rgb(18 52 63 / 14%); }
-.dg-card .dg-fig { width: 45%; height: 2.4rem; }
-.dg-card .dg-line { width: 100%; height: .8rem; }
-.dg-card .dg-line.is-short { width: 62%; }
-.dg-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 55%) 50%, transparent 70%); transform: translateX(-100%); }
-@media (prefers-reduced-motion: no-preference) {.dg-card::after { animation: dg-shimmer 2.8s ease-in-out infinite; }
-.dg-card:nth-child(2)::after { animation-delay: .25s; }
-.dg-card:nth-child(3)::after { animation-delay: .5s; }
-.dg-card:nth-child(4)::after { animation-delay: .75s; }
-@keyframes dg-shimmer { to { transform: translateX(100%); } }}
 
 /* Each placeholder card has a scene on a dashed ground line: the reader waiting for its turn. Scout paces the whole width, Finder wanders about with a question mark, Recruiter sits on a bench, Planner dozes with a few z's.
    --dg-size is the agent's size, so the walking distance always fits the card (the camp under the radar uses a smaller one). */
-.dg-scene { --dg-size: 5.2rem; position: relative; container-type: inline-size; height: 6.4rem; border-bottom: 2px dashed rgb(18 52 63 / 28%); }
+.dg-scene { --dg-size: 5.2rem; position: relative; container-type: inline-size; height: 6.4rem; }
 .dg-who { position: absolute; left: 0; bottom: 2px; display: block; width: var(--dg-size); height: var(--dg-size); transform-origin: 50% 90%; }
 .dg-who .agent { width: 100%; height: 100%; }
 .dg-prop { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; pointer-events: none; }

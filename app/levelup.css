@@ -3,8 +3,8 @@
 .lu { --lu-accent: var(--teal-dark); --lu-done: #2f7d4f; --lu-line: rgb(31 36 48 / 22%); scroll-margin-top: 5rem; min-width: 0; }
 /* Heading row: the teal stage pill and the full title (display font) on the left, the progress on the right. They stack when the panel is narrow. */
 .lu-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.25rem; margin: 0 0 .75rem; }
-.lu-heading { display: flex; flex: 1 1 24rem; flex-wrap: wrap; align-items: center; gap: .3rem .65rem; min-width: 0; }
-.lu-title { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.15; }
+.lu-heading { display: flex; flex: 1 1 100%; flex-wrap: wrap; align-items: center; gap: .3rem .65rem; min-width: 0; }
+.lu-title { margin: 0; color: var(--ink); font-size: clamp(1.05rem, 2vw, 1.4rem); font-weight: 800; line-height: 1.2; }
 .lu-group { position: relative; }
 /* One slim progress bar. */
 .lu-progress { display: flex; flex: 0 1 18rem; align-items: center; gap: .8rem; min-width: 12rem; }

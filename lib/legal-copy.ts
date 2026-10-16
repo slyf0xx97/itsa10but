@@ -32,7 +32,6 @@ export const LEGAL_SECTIONS: LegalSection[] = [
       "Singapore figures come from the sources named beside each one, checked 15 Oct 2026. They are dated snapshots and not forecasts.",
       "News headlines and snippets belong to their publishers. They are read from public feeds and link back to the original.",
       "Job listings come from public feeds (Himalayas, Jobicy, Arbeitnow and Remotive) and belong to the employers who posted them. Check the original posting before you apply.",
-      "Photos come from Unsplash under the Unsplash License. The photographers are credited in the Verified figures popup.",
       "Tool marks come from Devicon under the MIT license. PDFs are read with pdf.js under the Apache License 2.0. The fonts are Pixelify Sans and Atkinson Hyperlegible under the SIL Open Font License.",
     ],
   },

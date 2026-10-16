@@ -9,7 +9,7 @@ import { WordTip } from "@/components/career/word-tip";
 import { glideTo } from "@/components/glide-to";
 import { SgFigures } from "@/components/sg-figures";
 import { SNAPSHOT_CHECKED, signals } from "@/lib/sg-snapshot";
-import { newsSiteGroups, type NewsSite } from "@/lib/news-sites";
+import { sourceGroups, type NewsSite } from "@/lib/news-sites";
 
 /** Sites shown per group in the card. The rest are in the Sources and sites popup. */
 const SHOWN = 7;
@@ -22,7 +22,7 @@ function SiteLogo({ site, size }: { site: NewsSite; size: number }) {
 /**
  * Stage 1's third card: where the figures, news, jobs and lessons come from. Two labelled buttons open a popup each, and hovering or focusing a button gives a peek at what is inside first:
  * "Figures and news" (the verified Singapore figures with their sources, the skill bars, the latest news and its Refresh button) and "Sources and sites" (every site, by group).
- * Under them the same sites sit in their five groups as logos (the name is the hover text), so a visitor can go straight to one. Data: lib/news-sites.ts and lib/sg-snapshot.ts.
+ * Under them the same sites sit in their three groups as logos (the name is the hover text), so a visitor can go straight to one. Data: lib/news-sites.ts and lib/sg-snapshot.ts.
  */
 export function SourcesCard() {
   const panelId = useId();
@@ -30,8 +30,8 @@ export function SourcesCard() {
   const [sites, setSites] = useState(false);
   const closeFigures = useCallback(() => setFigures(false), []);
   const closeSites = useCallback(() => setSites(false), []);
-  const total = newsSiteGroups.reduce((sum, group) => sum + group.sites.length, 0);
-  const peekShown = newsSiteGroups.reduce((sum, group) => sum + Math.min(group.sites.length, 7), 0);
+  const total = sourceGroups.reduce((sum, group) => sum + group.sites.length, 0);
+  const peekShown = sourceGroups.reduce((sum, group) => sum + Math.min(group.sites.length, 7), 0);
   return <section className="sgs" aria-labelledby={panelId + "-t"}>
     <div className="sgs-box">
       <div className="sgs-bar">
@@ -56,7 +56,7 @@ export function SourcesCard() {
               label="Sources and sites. Hover for a peek, press to open."
               word={<><BookOpen size={20} aria-hidden="true" /><span className="sgs-open-text">Sources and sites</span></>}>
               <span className="sgk">
-                <span className="sgk-groups">{newsSiteGroups.map((group) => <span key={group.id} className="sgk-group">
+                <span className="sgk-groups">{sourceGroups.map((group) => <span key={group.id} className="sgk-group">
                   <span className="sgk-group-h"><PixelIcon name={group.icon} size={16} /><b>{group.title}</b><small>{group.sites.length}</small></span>
                   <span className="sgk-logos">{group.sites.slice(0, 7).map((site) => <SiteLogo key={site.name} site={site} size={26} />)}</span>
                 </span>)}</span>
@@ -66,7 +66,7 @@ export function SourcesCard() {
           </div>
         </div>
         <div className="sgs-groups">
-          {newsSiteGroups.map((group) => {
+          {sourceGroups.map((group) => {
             const rest = group.sites.length - SHOWN;
             return <section key={group.id} className="sgs-group" aria-labelledby={panelId + "-" + group.id}>
               <h3 id={panelId + "-" + group.id}><PixelIcon name={group.icon} size={18} /><span>{group.title}</span><small>{group.sites.length}</small></h3>
@@ -91,7 +91,7 @@ export function SourcesCard() {
     </Popup>
     <Popup open={sites} onClose={closeSites} title="Sources and sites" icon={<PixelIcon name="signals" size={22} />} wide>
       {sites && <div className="rt sgs-pop">
-        {newsSiteGroups.map((group) => <section className="rt-sites" key={group.id} aria-labelledby={"sgs-g-" + group.id}>
+        {sourceGroups.map((group) => <section className="rt-sites" key={group.id} aria-labelledby={"sgs-g-" + group.id}>
           <h3 className="rt-title" id={"sgs-g-" + group.id}><PixelIcon name={group.icon} size={20} />{group.title}</h3>
           <ul className="rt-grid">{group.sites.map((site) => <li key={site.name}>
             <a href={site.href} target="_blank" rel="noopener noreferrer">
