@@ -1,0 +1,8 @@
+# Local-only folders that must never be uploaded to Vercel (they are also git-ignored).
+submission/
+references/
+.planning/
+.claude/
+.playwright-mcp/
+.next/
+node_modules/
