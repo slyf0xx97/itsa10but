@@ -4,10 +4,26 @@ import { BASE_PATH } from "@/lib/base-path";
 import { useRef, useState } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
 import type { Quest, QuestKind, QuestLink } from "@/lib/analysis-types";
+import type { Proof, Want } from "@/lib/skill-levels";
 import { hostOf, siteLogo } from "@/lib/site-logos";
 
 /** The small label on a tip: what kind of help it is. */
 const KIND_WORD: Record<QuestKind, string> = { build: "Build it", show: "Show it", measure: "Add a number" };
+
+const WANT_PIPS: Record<Want, number> = { High: 3, Medium: 2, Low: 1 };
+const WANT_SAYS: Record<Want, string> = { High: "A lot", Medium: "Somewhat", Low: "A little" };
+const PROOF_PIPS: Record<Proof, number> = { Strong: 3, Some: 2, Weak: 1, None: 0 };
+const PROOF_SAYS: Record<Proof, string> = { Strong: "Plenty", Some: "Some", Weak: "A little", None: "Nothing yet" };
+
+/** How much the role asks for a skill against how much the résumé shows, as two rows of three pips. The whole sentence is the spoken label, so the pips are only a picture. */
+function Gauge({ want, proof, hint, label }: { want: Want; proof: Proof; hint?: string; label: string }) {
+  const pips = (count: number) => <span className="tg-pips" aria-hidden="true">{[0, 1, 2].map((i) => <i key={i} className={i < count ? "on" : ""} />)}</span>;
+  return <div className="tip-gauge" role="group" aria-label={label}>
+    <div className="tg-row" data-kind="ask"><span className="tg-label" aria-hidden="true">Role asks</span>{pips(WANT_PIPS[want])}<b className="tg-word" aria-hidden="true">{WANT_SAYS[want]}</b></div>
+    <div className="tg-row" data-kind="proof" data-proof={proof}><span className="tg-label" aria-hidden="true">You show</span>{pips(PROOF_PIPS[proof])}<b className="tg-word" aria-hidden="true">{PROOF_SAYS[proof]}</b></div>
+    {hint && <p className="tg-hint">{hint}</p>}
+  </div>;
+}
 
 /** A resource's site as a small tile: its saved logo, or the first letter of its name when we have no logo file. */
 function SiteTile({ link }: { link: QuestLink }) {
@@ -55,7 +71,7 @@ function ResumeLine({ text }: { text: string }) {
  * a résumé line to adapt, and the resources as site cards. A tip from API boost for a skill with no playbook has no steps, so it shows its own task instead.
  * `compact` is the three-across layout in the full plan: one sentence instead of the steps, two resources and less padding, so six tips stay quick to read.
  */
-export function TipCard({ quest, number, why, compact = false }: { quest: Quest; number?: number; why?: string; compact?: boolean }) {
+export function TipCard({ quest, number, why, gauge, compact = false }: { quest: Quest; number?: number; why?: string; gauge?: { want: Want | "None"; proof: Proof; hint?: string }; compact?: boolean }) {
   const links = compact ? (quest.links ?? []).slice(0, 2) : (quest.links ?? []);
   return <article className={"tip-card" + (compact ? " is-compact" : "")} data-kind={quest.kind ?? "build"}>
     <header className="tip-head">
@@ -65,7 +81,7 @@ export function TipCard({ quest, number, why, compact = false }: { quest: Quest;
         <h4 className="tip-title">{quest.title}</h4>
       </div>
     </header>
-    {why && <p className="tip-why">{why}</p>}
+    {gauge && gauge.want !== "None" ? <Gauge want={gauge.want} proof={gauge.proof} hint={gauge.hint} label={why ?? ""} /> : why && <p className="tip-why">{why}</p>}
     {quest.steps?.length && !compact
       ? <ol className="tip-steps" aria-label="Three steps">{quest.steps.map((step) => <li key={step}><span>{step}</span></li>)}</ol>
       : <p className="tip-task">{quest.task}</p>}

@@ -43,7 +43,7 @@ Find what to learn next
 
 - 🧰 The Level up library holds 116 free and open-source resources in 12 groups, covering cloud and AI, cybersecurity, coding practice, certifications, interviews and more, with ticks to track your progress.
 - 🎯 Every gap on your radar has a Learn button that opens the matching resource. Each tip comes with a small project to build, a résumé line to adapt and links that were opened and checked.
-- 📰 The Sources card puts job boards, 18 tech and AI news feeds and learning sites side by side, each with its logo.
+- 📰 A Latest figures and news section sits under Level up with its own tab in the header. It shows dated Singapore hiring figures, the latest AI headlines, news cards, the top skills to have for each tracked role and 35 sources, each with its logo.
 - 🏢 About company shows the published values of 14 employers, such as Singtel, NCS, DBS and Google, and how to show you fit.
 
 See the market
@@ -170,7 +170,7 @@ Datasets and sources:
 The edge Worker reads Wikipedia and Wikidata first and falls back to Firecrawl for company pages. Its scheduled jobs run like this:
 
 - Every hour it refreshes the market-demand table for one role.
-- Every night it asks Firecrawl for the week's AI headlines and stamps the date shown in the Sources card. The hourly run catches up if a night is missed.
+- Every night it asks Firecrawl for the week's AI headlines and stamps the date shown in the Latest figures and news section. The hourly run catches up if a night is missed.
 
 ## 🛠️ Setup
 
@@ -222,7 +222,7 @@ vercel deploy --prod
 
 `vercel.json` rewrites `/itsa10but` to the app's base path `/projects/itsa10but`, so both addresses open the page. The canonical link, the sitemap and the share data name `/itsa10but`.
 
-For the Worker, create a KV namespace and a D1 database and put their IDs in `worker/wrangler.jsonc`. Then run `npx wrangler d1 execute itsa10but-edge --remote --file worker/schema.sql`, and set `EDGE_SECRET`, `ADMIN_SECRET` and optionally `FIRECRAWL_API_KEY` with `npx wrangler secret put`. Finish with `npx wrangler deploy` from `worker/`. Daily totals are at `GET /usage/summary` with the `x-admin-secret` header.
+For the Worker, create a KV namespace and a D1 database and put their IDs in `worker/wrangler.jsonc`. Then run `npx wrangler d1 execute itsa10but-edge --remote --file worker/schema.sql`, and set `EDGE_SECRET`, `ADMIN_SECRET` and optionally `FIRECRAWL_API_KEY` with `npx wrangler secret put`. Finish with `npx wrangler deploy` from `worker/`. Daily totals are at `GET /usage/summary` with the `x-admin-secret` header. The owner usage page is served by the Worker at `admin.ghernie.com/itsa10but` behind Cloudflare Access: set `ACCESS_TEAM` and `ACCESS_AUD` in `wrangler.jsonc` and the `ADMIN_EMAIL` secret.
 
 The nightly headline refresh uses `FIRECRAWL_API_KEY` directly, one search a day, and is not counted against `FIRECRAWL_DAILY`. Do not run `wrangler dev` with the AI binding, because Workers AI bills local use too.
 

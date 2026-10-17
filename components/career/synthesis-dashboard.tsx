@@ -16,7 +16,7 @@ import { Popup } from "@/components/popup";
 import { MarketNote } from "@/components/career/market-note";
 import { POPUP_ADDS, companyMissing, modeInfo, quoteRows, type ReaderKey } from "@/lib/findings-info";
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { BASE_PATH } from "@/lib/base-path";
 import { companyLogoFile } from "@/lib/company-logos";
@@ -67,7 +67,7 @@ function SumCard({ kind, agent, id, popTitle, stat, rows, reader, analysis, hasR
       <span className="dash-open-text"><b>See full findings<span className="sr-only"> from {agent}</span></b><small>{POPUP_ADDS[reader]}</small></span>
       <ArrowRight className="dash-open-arrow" size={22} strokeWidth={3} aria-hidden="true" focusable="false" />
     </button>
-    <Popup open={open} onClose={close} title={popTitle} wide>
+    <Popup open={open} onClose={close} title={popTitle} wide tone={kind}>
       {open && <div className="dp" data-view={detailed ? "detailed" : "simple"}><FindingsIntro analysis={analysis} hasResult={hasResult && !sample} detailed={detailed} onView={setDetailed} /><div className="dp-main" data-reader={reader} data-scroll={reader === "recruiter" && analysis.review ? "" : undefined}>{children}</div></div>}
     </Popup>
   </section>;
@@ -260,7 +260,9 @@ function CompanyBody({ company, mode }: { company: Company | null; mode: Analysi
   return <>
     <div className="co-head">
       <p className="co-name">{company.name}</p>
-      <span className="co-origin">{company.originLabel}</span>
+      {sources.length > 0
+        ? <a className="co-origin co-btn" href={sources[0].url} target="_blank" rel="noopener noreferrer">{company.originLabel}<ExternalLink size={16} strokeWidth={2.6} aria-hidden="true" focusable="false" /><span className="sr-only"> ({sources[0].label}, opens in a new tab)</span></a>
+        : <span className="co-origin">{company.originLabel}</span>}
     </div>
     {company.about && <p className="co-about">{company.about}</p>}
     <div className="co-cols">
@@ -338,13 +340,13 @@ function PlannerCard({ quests, rows, verdict, skillNames, analysis, hasResult, s
   </ol> : <Empty>No tips yet.</Empty>;
   return <SumCard kind="coach" id="quests" agent="Action Planner" popTitle="Your tips and tricks" reader="planner" analysis={analysis} hasResult={hasResult} sample={sample}
     stat={<Stat value={rows.length} unit={rows.length === 1 ? "tip" : "tips"} label="to close your gaps" />}
-    rows={<>{list}<Popup open={!!quest} onClose={close} title={quest?.title ?? "Tip"} wide>
-      {quest && row && <div className="pl-one"><TipCard quest={quest} number={row.index + 1} why={row.why} /><Latest skill={quest.skill} /><LevelUpLink /></div>}
+    rows={<>{list}<Popup open={!!quest} onClose={close} title={quest?.title ?? "Tip"} wide tone="coach">
+      {quest && row && <div className="pl-one"><TipCard quest={quest} number={row.index + 1} why={row.why} gauge={{ want: row.want, proof: row.proof, hint: row.hint }} /><Latest skill={quest.skill} /><LevelUpLink /></div>}
     </Popup></>}>
     <section className="pl-sec" aria-label="Your tips, in order">
       <p className="pl-lead">{verdict ? <Marked text={verdict} terms={names} /> : "Do them top to bottom. Each one ends with something you can show."}</p>
       {rows.length ? <div className="pl-plan">
-        {rows.map((item) => <TipCard key={item.index} quest={quests[item.index]} number={item.index + 1} why={item.why} compact />)}
+        {rows.map((item) => <TipCard key={item.index} quest={quests[item.index]} number={item.index + 1} why={item.why} gauge={{ want: item.want, proof: item.proof, hint: item.hint }} compact />)}
       </div> : <Empty>No tips yet.</Empty>}
     </section>
     <details className="tip-quotes" open>

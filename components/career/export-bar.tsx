@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { FileDown, FileText } from "lucide-react";
+import { Check, Copy, FileDown, FileText } from "lucide-react";
 import type { Analysis, Resume } from "@/lib/analysis-types";
 
 type Props = { analysis: Analysis; resumes: Resume[]; job: string; sample?: boolean; ready: boolean };
@@ -18,7 +18,7 @@ const TIPS: Record<Kind, string> = {
  */
 export function ExportBar({ analysis, resumes, job, sample = false, ready }: Props) {
   const [preview, setPreview] = useState<Preview | null>(null);
-  const [status, setStatus] = useState("");
+  const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
   const isSample = sample || analysis.mode === "sample";
 
   useEffect(() => {
@@ -48,7 +48,13 @@ export function ExportBar({ analysis, resumes, job, sample = false, ready }: Pro
     link.click();
     link.remove();
     if (kind === "md") setTimeout(() => URL.revokeObjectURL(href), 0);
-    setStatus(kind === "pdf" ? "Report downloaded." : "Prompt downloaded.");
+  }
+
+  /** Puts the whole prompt on the clipboard. With no clipboard (an insecure page, a blocked permission) the button says so and the text stays on screen to select by hand. */
+  async function copyPrompt() {
+    if (!shown) return;
+    try { await navigator.clipboard.writeText(shown.md); setCopy("copied"); } catch { setCopy("failed"); }
+    setTimeout(() => setCopy("idle"), 2000);
   }
 
   const button = (kind: Kind, label: string, icon: React.ReactNode, primary: boolean) => (
@@ -73,7 +79,16 @@ export function ExportBar({ analysis, resumes, job, sample = false, ready }: Pro
               : <p className="ex-empty">{ready ? "Building the preview…" : "The report appears here when the readers finish."}</p>}</div>
           </div>
           <div className="ex-card">
-            <div className="ex-head"><h3>AI prompt (.md)</h3>{button("md", "Download AI prompt", <FileText aria-hidden="true" size={18} />, false)}</div>
+            <div className="ex-head"><h3>AI prompt (.md)</h3>
+              <div className="ex-actions">
+                {button("md", "Download AI prompt", <FileText aria-hidden="true" size={18} />, false)}
+                <button type="button" className="btn small quiet ex-copy" disabled={!shown} onClick={() => void copyPrompt()}>
+                  {copy === "copied" ? <Check aria-hidden="true" size={18} /> : <Copy aria-hidden="true" size={18} />}
+                  {copy === "copied" ? "Copied" : copy === "failed" ? "Copy failed, select the text" : "Copy AI prompt"}
+                  <span className="sr-only" role="status">{copy === "copied" ? "Prompt copied to the clipboard." : ""}</span>
+                </button>
+              </div>
+            </div>
             <div className="ex-view">{shown
               ? <pre className="ex-md" tabIndex={0} aria-label="Preview of the Markdown prompt">{shown.md}</pre>
               : <p className="ex-empty">{ready ? "Building the preview…" : "The prompt appears here when the readers finish."}</p>}</div>
@@ -83,7 +98,6 @@ export function ExportBar({ analysis, resumes, job, sample = false, ready }: Pro
             </ol>
           </div>
         </div>
-        <p className="ex-status" role="status">{status}</p>
       </div>
     </section>
   );

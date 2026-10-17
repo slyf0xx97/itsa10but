@@ -155,7 +155,8 @@ export function RoleInput({ value, onChange, typing = false, clearWhen }: { valu
         <button type="button" className="rl-file" disabled={typing} onClick={() => fileRef.current?.click()}><Paperclip size={16} aria-hidden="true" /><span>Drop or choose a file</span></button>
         {zone.over && <span className="drop-hint" aria-hidden="true">Drop a link, text or file here</span>}
       </div>
-      <p role="status" aria-live="polite" className="hint">{status || (zone.over ? "Drop it to add it to the role box." : "")}</p>
+      <p role="status" aria-live="polite" className="hint">{zone.over ? "Drop it to add it to the role box." : ""}</p>
+      <span className="sr-only" role="status" aria-live="polite">{status}</span>
       {note && !status && <p className="notice">{note}</p>}
     </div>
     {error && <p className="notice error" role="alert">{error}</p>}

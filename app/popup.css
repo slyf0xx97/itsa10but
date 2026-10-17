@@ -22,3 +22,13 @@
 .pop-icon { width: 2.5rem; height: 2.5rem; font-size: 1.25rem; }
 .pop-title { font-size: 1.3rem; }
 .pop-body { padding: .8rem .75rem 1rem; }}
+
+/* A findings popup wears its agent's colour: Role Scout teal, Experience Finder green, Recruiter coral, Action Planner yellow (the same hues as the cards and result panels). */
+.pop[data-tone="scout"] { --pop-hue: var(--teal-soft); --pop-bar: var(--water-deep); }
+.pop[data-tone="finder"] { --pop-hue: var(--mint-soft); --pop-bar: var(--leaf-deep); }
+.pop[data-tone="recruiter"] { --pop-hue: var(--coral-soft); --pop-bar: var(--coral); }
+.pop[data-tone="coach"] { --pop-hue: var(--yellow-soft); --pop-bar: var(--orange); }
+.pop[data-tone] .pop-card { border-color: var(--pop-bar); }
+.pop[data-tone] .pop-head { background: var(--pop-hue); border-bottom: 3px solid var(--pop-bar); }
+.pop[data-tone] .fi-mode { background: var(--pop-hue); border-color: var(--pop-bar); }
+.pop[data-tone] .dp-sec { border-color: color-mix(in srgb, var(--pop-bar) 35%, transparent); }

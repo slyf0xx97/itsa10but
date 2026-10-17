@@ -29,7 +29,7 @@ export function coverage(skills: Skill[]) {
 /** Tips the planner card shows, and the ticks store keeps. */
 export const PLANNER_MAX = 6;
 
-export type PlannerRow = { index: number; title: string; skill: string; want: Want | "None"; proof: Proof; why: string };
+export type PlannerRow = { index: number; title: string; skill: string; want: Want | "None"; proof: Proof; why: string; hint: string };
 
 const WANT_WORDS: Record<Want, string> = { High: "a lot", Medium: "somewhat", Low: "a little" };
 const PROOF_WORDS: Record<Proof, string> = { None: "nothing yet", Weak: "only a little", Some: "some", Strong: "plenty" };
@@ -40,11 +40,11 @@ const PROOF_TAIL: Partial<Record<Proof, string>> = { Some: " A project line woul
 export function plannerRows(skills: Skill[], quests: Quest[]): PlannerRow[] {
   return quests.slice(0, PLANNER_MAX).map((quest, index) => {
     const skill = skills.find((s) => s.name.toLowerCase() === quest.skill.toLowerCase());
-    const base = { index, title: quest.title, skill: quest.skill };
+    const base = { index, title: quest.title, skill: quest.skill, hint: "" };
     if (!skill) return { ...base, want: "None" as const, proof: "None" as const, why: quest.skill ? `A tip that gives you something to show for ${quest.skill}.` : "A tip that gives you something to show." };
     const want = wantOf(skill.demand);
     const proof = proofOf(skill.evidence);
-    return { ...base, want, proof, why: `Asked for ${WANT_WORDS[want]}. Your résumé shows ${PROOF_WORDS[proof]}.${PROOF_TAIL[proof] ?? ""}` };
+    return { ...base, want, proof, hint: (PROOF_TAIL[proof] ?? "").trim(), why: `Asked for ${WANT_WORDS[want]}. Your résumé shows ${PROOF_WORDS[proof]}.${PROOF_TAIL[proof] ?? ""}` };
   });
 }
 

@@ -5,9 +5,9 @@ import { useEffect, useId, useRef, type ReactNode } from "react";
 /**
  * A modal popup on the native <dialog> element, so Escape, focus trapping and the backdrop come from the browser.
  * It never changes the height of the page: content scrolls inside the panel. Click the backdrop, press Escape or use the Close button to dismiss.
- * Focus returns to whatever opened it. Pass `title` for the visible heading (it also labels the dialog).
+ * Focus returns to whatever opened it. Pass `title` for the visible heading (it also labels the dialog). `tone` tints the header with an agent's colour (popup.css).
  */
-export function Popup({ open, onClose, title, icon, children, wide = false }: { open: boolean; onClose: () => void; title: string; icon?: ReactNode; children: ReactNode; wide?: boolean }) {
+export function Popup({ open, onClose, title, icon, children, wide = false, tone }: { open: boolean; onClose: () => void; title: string; icon?: ReactNode; children: ReactNode; wide?: boolean; tone?: "scout" | "finder" | "recruiter" | "coach" }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const opener = useRef<Element | null>(null);
@@ -37,6 +37,7 @@ export function Popup({ open, onClose, title, icon, children, wide = false }: { 
   return <dialog
     ref={ref}
     className={"pop" + (wide ? " pop-wide" : "")}
+    data-tone={tone}
     aria-labelledby={titleId}
     onClick={(event) => { if (event.target === ref.current) onClose(); }}
   >

@@ -151,13 +151,19 @@
 .dash-ats-note { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .4rem; align-items: start; font-size: 1rem; line-height: 1.35; color: var(--text-soft); }
 /* Role Scout, "About the company" tab. Values are chips; a click opens every meaning in a popup. */
 .co-head { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .55rem; }
-.co-name { flex: 1 1 6rem; min-width: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.co-name { flex: 1 1 6rem; min-width: 0; font-family: var(--font-body); font-size: 1.35rem; font-weight: 800; letter-spacing: 0; line-height: 1.2; overflow-wrap: anywhere; }
 .co-origin { padding: 0 .6rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); font-size: 1rem; font-weight: 800; line-height: 1.4; }
 .co-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
 .co-cols > section { min-width: 0; }
 .co-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
 .co-chip { max-width: 100%; display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .15rem .7rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--dash-item-bg); color: var(--ink); font: inherit; font-size: 1rem; font-weight: 700; line-height: 1.3; text-align: left; cursor: pointer; }
 .co-chip:hover { background: var(--lime); }
+/* "Official page" is a link to the company's own page, drawn as a button. */
+.co-origin.co-btn { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.5rem; padding: .2rem .9rem; border: 2px solid var(--ink); border-radius: 10px; background: var(--orange); color: var(--ink); box-shadow: 0 3px 0 var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.2; text-decoration: none; }
+.co-origin.co-btn:hover { background: var(--lime); color: var(--ink); }
+.co-origin.co-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.co-origin.co-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
 .co-chip:focus-visible, .co-see:focus-visible, .co-sources a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .co-chip.more { border-style: dashed; }
 .co-dot { flex: none; width: .6rem; height: .6rem; border-radius: 50%; background: var(--teal-dark); }
@@ -284,7 +290,8 @@
 .fi-q.none { border-left-color: var(--coral); background: var(--coral-soft); color: #8f2515; }
 /* Role Scout, company column: one column of blocks. */
 .dp .co-cols { grid-template-columns: minmax(0, 1fr); gap: .7rem; }
-.dp .co-name, .dp .co-values b { font-size: 1.15rem; }
+.dp .co-values b { font-size: 1.15rem; }
+.dp .co-name { font-size: 1.35rem; }
 .dp .co-origin, .dp .co-chip, .dp .co-see, .dp .co-rep ul, .dp .co-sources a, .dp .co-note, .dp .co-none p:not(.co-none-title), .co-values p { font-size: 1rem; line-height: 1.4; }
 .dp .co-chips { gap: .4rem; }
 .dp .co-chip { min-height: 2.5rem; padding: .15rem .8rem; }
@@ -338,6 +345,19 @@
 .tip-title { margin: 0; color: var(--ink); font-family: var(--font-body); font-size: 1.2rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
 .tip-card.is-compact .tip-title { font-size: 1.1rem; }
 .tip-why { margin: 0; color: var(--text-soft); font-size: 1rem; line-height: 1.4; }
+/* The ask-versus-proof gauge: two rows of three pips, the role's ask in blue, the résumé's proof in green (orange when thin, an empty coral word when there is none). */
+.tip-gauge { display: grid; gap: .45rem; min-width: 0; padding: .55rem .7rem .6rem; border-radius: 12px; background: var(--sky-soft); }
+.tg-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: .15rem .5rem; min-width: 0; }
+.tg-label { grid-area: 1 / 1; color: var(--text-soft); font-size: .85rem; font-weight: 800; letter-spacing: .04em; line-height: 1.2; text-transform: uppercase; }
+.tg-word { grid-area: 1 / 2; font-size: 1rem; font-weight: 800; line-height: 1.2; text-align: right; }
+.tg-pips { grid-area: 2 / 1 / 3 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem; }
+.tg-pips i { display: block; height: .7rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; }
+.tg-row[data-kind="ask"] .tg-pips i.on { background: var(--water-deep); }
+.tg-row[data-kind="proof"] .tg-pips i.on { background: var(--leaf-deep); }
+.tg-row[data-proof="Weak"] .tg-pips i.on { background: var(--orange); }
+.tg-row[data-proof="None"] .tg-pips i { border-color: var(--coral); border-style: dashed; }
+.tg-row[data-proof="None"] .tg-word { color: #8f2515; }
+.tg-hint { margin: .1rem 0 0; color: var(--text-soft); font-size: .95rem; line-height: 1.35; }
 .tip-task { margin: 0; color: var(--ink); font-size: 1.05rem; line-height: 1.45; }
 .tip-label { display: block; margin: 0 0 .2rem; color: var(--teal-dark); font-size: .9rem; font-weight: 800; letter-spacing: .04em; line-height: 1.2; text-transform: uppercase; }
 .tip-steps { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; counter-reset: step; }
@@ -464,8 +484,27 @@
 .dp[data-view="simple"] .dp-main[data-reader="finder"] .sb-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: .5rem; }
 .dp[data-view="simple"] .dp-main[data-reader="finder"] .sb-list > li { container: dsec / inline-size; min-width: 0; }
 .dp[data-view="simple"] .rv-fixes { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .6rem; }
-@container dcard (min-width: 52rem) {.dp[data-view="simple"] .dp-main[data-reader="recruiter"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-.dp[data-view="simple"] :is(.dp-desc, .fi-mode-note, .sb-detail, .sb-market, .sb-key, .sb-how, .rv-quote, .rv-try, .rv-side, .rv-note, .ats-col.pass, .ats-kw, .ats-note, .dash-checks small, .co-about, .co-cols, .co-foot, .tip-task, .tip-steps, .tip-have, .tip-line, .tip-learn, .tip-quotes) { display: none; }
+@container dcard (min-width: 52rem) {.dp[data-view="simple"] .dp-main[data-reader="recruiter"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* Role Scout: the skills on the left, and on the right the pay with the company details under it (values, what they expect, how to show it). The company stays in Simple so the column is never empty. */
+.dp[data-view="simple"] .dp-main[data-reader="scout"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-rows: auto 1fr; overflow-y: auto; }
+.dp[data-view="simple"] .dp-main[data-reader="scout"] > :first-child { grid-row: 1 / span 2; }
+.dp[data-view="simple"] .dp-main[data-reader="scout"] > .dp-sec { overflow: visible; }
+/* When the company is known it takes the whole right column and the pay sits under the skills. Simple shows only its values and principles, each with its meaning, plus the button to its official page. */
+.dp[data-view="simple"] .dp-main[data-reader="scout"]:has(.co-cols) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+.dp[data-view="simple"] .dp-main[data-reader="scout"]:has(.co-cols) > :first-child { grid-column: 1; grid-row: 1; }
+.dp[data-view="simple"] .dp-main[data-reader="scout"]:has(.co-cols) > :last-child { grid-column: 2; grid-row: 1 / span 2; }
+.dp[data-view="simple"] .dp-main[data-reader="scout"] .co-cols { grid-template-columns: minmax(0, 1fr); }
+/* No pay figure for this role: the skills take the whole left column and their rows stretch to fill it, so nothing is left blank. */
+.dp[data-view="simple"] .dp-main[data-reader="scout"]:has(.co-cols):not(:has([aria-label="What the role pays"])) > :first-child { grid-row: 1 / span 2; }
+.dp[data-view="simple"] .dp-main[data-reader="scout"] > :first-child { grid-template-rows: auto minmax(0, 1fr); align-content: stretch; }
+.dp[data-view="simple"] .dp-main[data-reader="scout"] .sb-list { align-content: stretch; grid-auto-rows: minmax(2.75rem, 1fr); }
+.dp[data-view="simple"] .dp-main[data-reader="scout"] .sb-list > li { display: grid; }
+.dp[data-view="simple"] .dp-main[data-reader="scout"] .sb-row { height: 100%; }}
+.dp[data-view="simple"] :is(.dp-desc, .fi-mode-note, .sb-detail, .sb-market, .sb-key, .sb-how, .rv-quote, .rv-try, .rv-side, .rv-note, .ats-col.pass, .ats-kw, .ats-note, .dash-checks small, .tip-task, .tip-steps, .tip-have, .tip-line, .tip-learn, .tip-quotes) { display: none; }
 .dp[data-view="simple"] .dp-main[data-scroll] > .rv { grid-template-columns: minmax(0, 1fr); }
 .dp[data-view="simple"] .pl-plan { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .7rem; }
 .dp[data-view="simple"] .tip-card { gap: .3rem; padding: .6rem .8rem .7rem; box-shadow: none; }
+
+/* Simple view of the company: the values as chips, the top two expectations and the top two tips for showing them, the button to the official page. The web reputation lines and the source list stay in Detailed. */
+.dp[data-view="simple"] :is(.co-foot, .co-rep) { display: none; }
+.dp[data-view="simple"] .co-cols .cl-list > li:nth-child(n+3) { display: none; }
