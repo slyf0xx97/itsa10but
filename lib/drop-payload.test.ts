@@ -27,7 +27,8 @@ test("the role box takes job files and sends résumés to the résumé box", () 
 
 test("the résumé box takes résumés and sends job postings to the role box", () => {
   assert.equal(pickResumeFile([file("Ghernie CV.pdf")]).file?.name, "Ghernie CV.pdf");
-  assert.equal(pickResumeFile([file("resume.docx")]).message, UNSUPPORTED_FILE);
+  assert.equal(pickResumeFile([file("resume.docx")]).file?.name, "resume.docx");
+  assert.equal(pickResumeFile([file("resume.pages")]).message, UNSUPPORTED_FILE);
   assert.match(pickResumeFile([file("Job Description.txt")]).message, /role box/);
   assert.equal(pickResumeFile([file("job-application-resume.pdf")]).file?.name, "job-application-resume.pdf");
   assert.equal(pickResumeFile([file("notes.md")]).message, "");

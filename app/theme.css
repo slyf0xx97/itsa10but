@@ -22,7 +22,7 @@
   --glass-ring: 0 0 0 1px rgb(31 36 48 / 14%);
   /* Stage glass, over the full-section scenes (stages.css). Panel = the one or two main overlays per screen (blurred); card = nested in a panel (flat, no blur);
      line = their border; pop = floating surfaces that sit over text (menus, tooltips). */
-  --glass-panel: rgb(255 255 255 / 66%);
+  --glass-panel: rgb(255 255 255 / 82%);
   --glass-card: rgb(255 255 255 / 78%);
   --glass-line: rgb(255 255 255 / 70%);
   --glass-pop: rgb(255 255 255 / 96%);
@@ -80,8 +80,8 @@ a:hover { color: var(--coral); }
    flat white: a blur per card is the biggest scroll cost, and a second blur over an already frosted panel shows nothing. */
 .tip-bubble, .rs-panel { -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
 .card, .panel, .lu-group, .radar-section, .skill { background: var(--glass-card); border-color: var(--glass-line); }
-/* The main overlay of each stage: more see-through, and the only blurred surface on screen besides the header. Lives on the stage body's child. */
-.stage-body > :is(.check-card, .radar-section, .lu, .hiw-panel, .dash) { background: var(--glass-panel); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); border: 1.5px solid var(--glass-line); border-radius: var(--radius); box-shadow: var(--glass-shadow), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 80%); }
+/* The main overlay of each stage: a see-through white with no live blur (a blur over the moving scene was re-drawn on every scroll frame), so the header is the only blurred surface that stays on screen. Lives on the stage body's child. */
+.stage-body > :is(.check-card, .radar-section, .lu, .hiw-panel, .dash) { background: var(--glass-panel); border: 1.5px solid var(--glass-line); border-radius: var(--radius); box-shadow: var(--glass-shadow), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 80%); }
 /* Pop-overs sit over text, so they get more white. */
 .tip-bubble, .rs-panel { background: var(--glass-pop); }
 /* Panels nested in a panel are lighter glass with no second blur. */

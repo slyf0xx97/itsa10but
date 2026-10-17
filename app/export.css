@@ -14,7 +14,12 @@
 .ex-view { position: relative; flex: 1 1 0; min-height: 14rem; }
 .ex-card:first-child .ex-view { min-height: 24rem; }
 .ex-view > .ex-frame, .ex-view > .ex-md, .ex-view > .ex-empty { position: absolute; inset: 0; height: 100%; }
-.ex-steps { display: grid; gap: .35rem; margin: 0; padding: 0 0 0 1.4rem; font-size: 1rem; line-height: 1.4; }
+/* The three steps use the same numbered tile, bold lead and highlighted words as the other lists on the page (clarity.css), at card size: one tile, then the lead and the line together. */
+.ex-steps { gap: .5rem; padding-top: .15rem; }
+.ex-steps .cl-item { grid-template-columns: 1.9rem minmax(0, 1fr); gap: .6rem; align-items: center; }
+.ex-steps .cl-icon { width: 1.9rem; height: 1.9rem; border-radius: 10px; font-family: var(--font-body); font-size: .95rem; font-weight: 800; }
+.ex-steps .cl-text { font-size: .95rem; line-height: 1.35; overflow-wrap: anywhere; }
+.ex-steps .cl-lead { display: inline; margin: 0 .3em 0 0; font-size: .95rem; font-weight: 800; }
 @container stage (min-width: 34rem) { .ex-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: stretch; }
 .ex-head { grid-template-columns: minmax(0, 1fr); } .ex-head .btn { width: 100%; } }
 .ex-md { margin: 0; padding: .85rem; overflow: auto; color: #1f2430; font: 400 .9rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }

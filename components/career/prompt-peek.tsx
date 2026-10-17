@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useState } from "react";
-import { FileText } from "lucide-react";
+import { Check, Copy, FileText } from "lucide-react";
 import { Popup } from "@/components/popup";
 import { WordTip } from "@/components/career/word-tip";
 import { promptFor } from "@/lib/agent-prompts";
@@ -26,6 +26,20 @@ export function MdView({ text, maxLines, label }: { text: string; maxLines?: num
   </div>;
 }
 
+/** Copies the whole prompt file. With no clipboard (an insecure page, a blocked permission) it says so and the text stays on screen to select by hand. */
+function CopyPrompt({ text }: { text: string }) {
+  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(text); setState("copied"); } catch { setState("failed"); }
+    window.setTimeout(() => setState("idle"), 2000);
+  };
+  return <button type="button" className="md-copy" onClick={() => void copy()}>
+    {state === "copied" ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+    {state === "copied" ? "Copied" : state === "failed" ? "Copy failed, select the text" : "Copy prompt"}
+    <span className="sr-only" role="status">{state === "copied" ? "Prompt copied to the clipboard." : ""}</span>
+  </button>;
+}
+
 /**
  * The agent's prompt file as a peek: click the "role-scout.md" button for a short look at the top of the file, and open the whole file from there.
  * The text is built from the real spec (lib/agent-prompts.ts), so what you read is what the agent is given.
@@ -41,11 +55,14 @@ export function PromptPeek({ name, source }: { name: string; source?: ModelSourc
       word={<><FileText size={16} aria-hidden="true" /><span className="rd-prompt-name">{prompt.file}</span><span className="rd-prompt-hint">Peek</span></>}>
       <span className="md-peek">
         <MdView text={prompt.markdown} maxLines={10} label={`First lines of ${prompt.file}`} />
-        <button type="button" className="md-open" aria-haspopup="dialog" onClick={() => setFull(true)}>Open the whole file</button>
+        <span className="md-actions">
+          <button type="button" className="md-open" aria-haspopup="dialog" onClick={() => setFull(true)}>Open the whole file</button>
+          <CopyPrompt text={prompt.markdown} />
+        </span>
       </span>
     </WordTip>
     <Popup open={full} onClose={closeFull} title={prompt.file} icon={<FileText size={20} aria-hidden="true" />} wide>
-      {full && <MdView text={prompt.markdown} label={prompt.file} />}
+      {full && <><p className="md-actions"><CopyPrompt text={prompt.markdown} /></p><MdView text={prompt.markdown} label={prompt.file} /></>}
     </Popup>
   </>;
 }

@@ -6,14 +6,21 @@
    with a status beside or under it: a dot and a short title ("Native scan, no key used"), and the detail line in an "i" tooltip (shown as a second line on phones).
    The bar around it is in shell.css. */
 .reader-switch { flex: 1 1 0; display: flex; flex-direction: column; align-items: flex-end; gap: .1rem; min-width: 0; }
-@media (min-width: 1400px) {.reader-switch { flex-direction: row-reverse; align-items: center; justify-content: flex-start; gap: .25rem 1rem; }}
 /* status to the left of the toggle, so the sticky bar stays short */
+/* From 901px the Agent power block is one row, like the logo block on the left: the status, then the toggle, then the "?". The bar stays one row tall. The status text shows from 1760px;
+   below that only its dot and the "i" tooltip show, and the words stay for screen readers. */
+@media (min-width: 901px) {.reader-switch { flex-direction: row-reverse; align-items: center; justify-content: flex-start; gap: .25rem .75rem; }
+.reader-switch .rs-main { align-items: center; }
+.reader-switch .rs-line { flex-wrap: nowrap; justify-content: flex-end; text-align: left; }
+.reader-switch .rs-status { flex-wrap: nowrap; white-space: nowrap; }
+.reader-switch .rs-title { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }}
+@media (min-width: 1760px) {.reader-switch .rs-title { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; }}
 .rs-main { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; }
 .rs-caption { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 /* "Agent power" names the group for screen readers, and shows as a small caption on phones */
 .rs-row { display: flex; align-items: center; gap: .4rem; min-width: 0; }
 .rs-toggle { --knob: 22px; --travel: 26px; display: inline-grid; grid-template-columns: auto auto auto; align-items: center; column-gap: .5rem; min-height: 44px; padding: 0 .25rem; border-radius: 12px; }
-.rs-name { position: relative; display: flex; align-items: center; grid-row: 1; min-height: 44px; margin: 0; cursor: pointer; color: var(--ink-soft); font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
+.rs-name { position: relative; display: flex; align-items: center; text-decoration-skip-ink: none; grid-row: 1; min-height: 44px; margin: 0; cursor: pointer; color: var(--ink-soft); font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
 .rs-name-rules { grid-column: 1; justify-content: flex-end; }
 .rs-name-live { grid-column: 3; }
 .rs-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; }
@@ -36,8 +43,11 @@
 .rs-title { font-weight: 700; }
 .rs-dot { flex: none; box-sizing: border-box; width: 14px; height: 14px; border: 2px solid var(--ink); border-radius: 50%; background: var(--teal); }
 /* filled teal: native scan */
-.rs-status[data-state="on"] .rs-dot { background: var(--orange); }
-.rs-status[data-state="needs-key"] .rs-dot { border: 3px solid var(--orange-dark); background: #fff; }
+/* API boost is a lightning bolt: lit and glowing when a key powers the agents, an empty outline while it waits for a key. Native scan keeps the teal dot. */
+.rs-bolt { flex: none; color: var(--orange-dark); fill: #ffd84d; filter: drop-shadow(0 0 3px rgb(255 170 40 / 85%)) drop-shadow(0 0 7px rgb(255 190 60 / 55%)); }
+.rs-status[data-state="needs-key"] .rs-bolt { fill: none; filter: none; }
+@media (prefers-reduced-motion: no-preference) {.rs-status[data-state="on"] .rs-bolt { animation: rs-glow 2.2s ease-in-out infinite; }
+@keyframes rs-glow { 50% { filter: drop-shadow(0 0 5px rgb(255 170 40 / 100%)) drop-shadow(0 0 12px rgb(255 190 60 / 80%)); } }}
 /* an empty ring: waiting for a key */
 .rs-detail { display: none; }
 .rs-tip, .rs-tip .word-tip { display: inline-flex; align-items: center; white-space: normal; }
@@ -93,7 +103,7 @@
 /* Under 400px the labels shrink a little. Only under 340px does the first name read "Native", with "scan" kept for screen readers. */
 @media (max-width: 400px) {.rs-name { font-size: 14px; }
 .rs-toggle { column-gap: .4rem; }}
-@media (max-width: 340px) {.rs-more { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }}
+@media (max-width: 340px) {.rs-scan { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }}
 /* The popup body reuses the tiles from How it works. */
 .run-modes { display: grid; gap: 1.1rem; min-width: 0; }
 

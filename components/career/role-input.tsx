@@ -1,7 +1,7 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
 import { useId, useMemo, useRef, useState, type ClipboardEvent, type ReactNode } from "react";
-import { HelpCircle, Paperclip } from "lucide-react";
+import { HelpCircle, LoaderCircle, Paperclip } from "lucide-react";
 import { WordTip } from "@/components/career/word-tip";
 import { readResumeFile } from "@/lib/read-resume";
 import { runSafetyCheck } from "@/lib/safety";
@@ -91,6 +91,7 @@ export function RoleInput({ value, onChange, typing = false, clearWhen }: { valu
       const data = await response.json() as { imported?: boolean; text?: string; message?: string };
       if (request !== requestRef.current) return;
       setStatus("");
+      setNote("");
       if (data.imported && data.text) onChange(data.text);
       else setNote(data.message || "LinkedIn didn't share this posting. Open the link, copy the description and paste it here.");
     } catch {
@@ -149,18 +150,19 @@ export function RoleInput({ value, onChange, typing = false, clearWhen }: { valu
       <div className={"ta-wrap" + (typing ? " typing" : "")}>
         <textarea id="job-description" value={value} readOnly={typing} onChange={(event) => void change(event.target.value)} onPaste={paste} placeholder="Paste a LinkedIn job link or the posting text…" />
         {typing && <span className="typing-caret" aria-hidden="true">▌</span>}
+        {status && <span className="rl-reading" aria-hidden="true"><LoaderCircle className="spin" size={18} />{status}</span>}
         <input id="job-file" ref={fileRef} type="file" accept=".txt,.md,.pdf" className="sr-only" tabIndex={-1} onChange={(event) => choose(event.target.files)} />
         <button type="button" className="rl-file" disabled={typing} onClick={() => fileRef.current?.click()}><Paperclip size={16} aria-hidden="true" /><span>Drop or choose a file</span></button>
         {zone.over && <span className="drop-hint" aria-hidden="true">Drop a link, text or file here</span>}
       </div>
       <p role="status" aria-live="polite" className="hint">{status || (zone.over ? "Drop it to add it to the role box." : "")}</p>
-      {note && <p className="notice">{note}</p>}
+      {note && !status && <p className="notice">{note}</p>}
     </div>
     {error && <p className="notice error" role="alert">{error}</p>}
     {flags.length > 0 && <p className="notice error" role="alert">This text has wording that tries to instruct an AI: {[...new Set(flags.map((flag) => flag.label))].join(", ")}. The readers treat it as plain text, so check it before you continue.</p>}
 
     {/* The how-to opens as a panel over the page (top layer), so reading it never changes the height of the section. */}
-    <WordTip panel wide title="How to add a role" label="How to add a role" buttonClass="role-how" tone="water"
+    <WordTip panel wide clickOnly title="How to add a role" label="How to add a role" buttonClass="role-how" tone="water"
       word={<><HelpCircle size={18} aria-hidden="true" /><span>How to add a role</span></>}>
       <div className="role-how-body">
         <section>

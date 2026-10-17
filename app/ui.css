@@ -62,7 +62,7 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .card { padding: 1.5rem; }
 .panel { padding: 1.1rem; margin-top: 1rem; }
 .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-.step-title { display: flex; align-items: center; gap: .6rem; margin-bottom: .75rem; font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; }
+.step-title { display: flex; align-items: center; gap: .6rem; margin-bottom: .75rem; font-weight: 800; font-size: 1.35rem; }
 .step-title span { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 6px; background: var(--ink); color: #fff; font-size: .95rem; box-shadow: 0 2px 0 rgb(201 58 37 / 55%); }
 label, .label { display: block; margin-bottom: .35rem; font-weight: 700; font-size: .95rem; }
 label.with-tip { display: flex; align-items: center; gap: .4rem; }

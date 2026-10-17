@@ -16,24 +16,31 @@ export async function POST(request: Request) {
   const id = linkedinInput ? extractLinkedinJobId(linkedinInput) : null;
   if (id && linkedinInput) {
     const link = linkedinInput.trim();
-    try {
-      // Public guest page only: no cookies, no login, and the URL is rebuilt from the numeric id.
-      const response = await fetch(guestPostingUrl(id), {
-        redirect: "manual",
-        signal: AbortSignal.timeout(6000),
-        credentials: "omit",
-        cache: "no-store",
-        headers: { "User-Agent": browserUserAgent, "Accept-Language": "en" },
-      });
-      if (response.status === 200) {
-        const html = (await response.text()).slice(0, 500_000);
-        const job = htmlToJobText(html);
-        if (!loginWall(html) && job.description.length >= 50) {
-          const imported = `${job.title}\n${job.company}\n${job.location}\n\n${job.description}`;
-          return NextResponse.json({ imported: true, text: imported.slice(0, 15000), title: job.title, company: job.company, location: job.location, url: link, message: "Imported the public posting." }, { headers });
+    // LinkedIn's guest page often fails once and works on the next try, so a failed first read is tried once more before the visitor sees the manual-paste message.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        // Public guest page only: no cookies, no login, and the URL is rebuilt from the numeric id.
+        const response = await fetch(guestPostingUrl(id), {
+          redirect: "manual",
+          signal: AbortSignal.timeout(4000),
+          credentials: "omit",
+          cache: "no-store",
+          headers: { "User-Agent": browserUserAgent, "Accept-Language": "en" },
+        });
+        if (response.status === 200) {
+          const html = (await response.text()).slice(0, 500_000);
+          const job = htmlToJobText(html);
+          if (!loginWall(html) && job.description.length >= 50) {
+            const imported = `${job.title}
+${job.company}
+${job.location}
+
+${job.description}`;
+            return NextResponse.json({ imported: true, text: imported.slice(0, 15000), title: job.title, company: job.company, location: job.location, url: link, message: "Imported the public posting." }, { headers });
+          }
         }
-      }
-    } catch { /* timeout or network failure: fall through to the manual-paste message */ }
+      } catch { /* timeout or network failure: try again, then fall through to the manual-paste message */ }
+    }
     return NextResponse.json({ imported: false, url: link, message: refused }, { headers });
   }
 

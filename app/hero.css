@@ -4,7 +4,7 @@
    the fixed mountain scene (body::before in theme.css) shows through it. */
 .hero { display: block; position: relative; z-index: 2; overflow: visible; overflow-x: clip; isolation: isolate; padding: 1.5rem 0 1.5rem; background: none; color: var(--text); --ink-soft: var(--text-soft); }
 .hero-grid { position: relative; z-index: 5; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.75rem; align-items: stretch; }
-.hero-text, .hero-card { min-width: 0; color: var(--ink); background: rgb(255 255 255 / 80%); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); border: 1.5px solid var(--glass-line); border-radius: 18px; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); }
+.hero-text, .hero-card { min-width: 0; color: var(--ink); background: rgb(255 255 255 / 86%); border: 1.5px solid var(--glass-line); border-radius: 18px; box-shadow: var(--glass-shadow), inset 0 1px 0 rgb(255 255 255 / 90%); }
 .hero-text { position: relative; z-index: 3; container: hero-plate / inline-size; display: flex; flex-direction: column; padding: 1.4rem 1.4rem 1.4rem; }
 .hero-card { display: grid; align-content: stretch; padding: .6rem 1.5rem; }
 .hero h1 { color: var(--ink); font-size: clamp(1.8rem, 3.2vw, 2.5rem); line-height: 1.1; overflow-wrap: anywhere; }

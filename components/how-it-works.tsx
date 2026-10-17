@@ -52,7 +52,7 @@ const stations: Station[] = [
     ],
     tipTitle: "Upload Résumé",
     tip: [
-      { t: "PDF, TXT and MD files are read in your browser", logo: ["pdfjs"] },
+      { t: "PDF, Word, TXT and MD files are read in your browser", logo: ["pdfjs"] },
       { t: "Role text: 30 to 15,000 characters. Résumés: 1 to 3, 25 to 30,000 characters each" },
       { t: "Emails, phone numbers, street or unit addresses and NRIC/FIN-style IDs are masked before any reader sees your text" },
       { t: "Names, employers and schools aren't masked" },

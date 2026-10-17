@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { StageScene } from "@/lib/journey";
 
 /** One emoji per scene, shown at the start of the description line. */
@@ -5,9 +6,9 @@ const SCENE_ICON: Record<StageScene, string> = { camp: "📝", woods: "🔍", lo
 
 /** Header of a stage: a teal pill and the title on a small glass plate that sits on the stage's full-section scene (stages.css; data-scene is kept as a hook only).
  *  The pill reads "Stage n" when `n` is given, or `tab` for a section that is not a journey stage; with neither it is left out. `line` is optional too; without it no paragraph is rendered.
- *  Pass heading="p" where the content below already has its own h2. */
-export function StageHeader({ n, tab, title, line, scene, titleId, heading = "h2" }: {
-  n?: number; tab?: string; title: string; line?: string; scene: StageScene; titleId?: string; heading?: "h2" | "p";
+ *  Pass heading="p" where the content below already has its own h2. `aside` fills the empty space to the right of the plate (it wraps under the plate on a narrow stage). */
+export function StageHeader({ n, tab, title, line, scene, titleId, heading = "h2", aside }: {
+  n?: number; tab?: string; title: string; line?: string; scene: StageScene; titleId?: string; heading?: "h2" | "p"; aside?: ReactNode;
 }) {
   const Title = heading;
   const pill = tab ?? (n !== undefined ? "Stage " + n : undefined);
@@ -19,5 +20,6 @@ export function StageHeader({ n, tab, title, line, scene, titleId, heading = "h2
       </div>
       {line && <p className="stage-line"><span className="stage-line-icon" aria-hidden="true">{SCENE_ICON[scene]}</span> <span>{line}</span></p>}
     </div>
+    {aside && <div className="stage-aside">{aside}</div>}
   </div>;
 }

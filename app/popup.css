@@ -3,11 +3,11 @@
    On a phone the popup is a near full-width sheet with a small margin. Body text is 17px; the findings parts set their own larger type under .pop (dashboard.css, readers.css). */
 .pop { padding: 0; border: 0; background: transparent; color: var(--ink); width: min(60rem, 94vw); max-width: none; max-height: 90vh; max-height: 90dvh; margin: auto; overflow: visible; }
 .pop.pop-wide { width: min(1480px, 96vw); }
-.pop::backdrop { background: rgb(14 43 36 / 55%); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.pop::backdrop { background: rgb(14 43 36 / 62%); }
 .pop-card { display: flex; flex-direction: column; max-height: 90vh; max-height: 90dvh; border: 1.5px solid var(--glass-edge); border-radius: 22px; background: rgb(255 255 255 / 97%); box-shadow: 0 24px 60px rgb(10 40 60 / 35%); overflow: hidden; }
 .pop-head { display: flex; align-items: center; gap: 1rem; padding: .55rem 1.25rem; border-bottom: 1.5px solid rgb(31 36 48 / 14%); background: var(--sky-soft); }
 .pop-icon { display: grid; place-items: center; flex: none; width: 2.75rem; height: 2.75rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: #fff; font-size: 1.5rem; }
-.pop-title { flex: 1; min-width: 0; margin: 0; font-family: var(--font-display); font-size: 1.6rem; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
+.pop-title { flex: 1; min-width: 0; margin: 0; font-weight: 800; font-size: 1.6rem; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
 .pop-close { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-width: 3rem; min-height: 2.75rem; padding: .3rem 1.1rem; border: 2px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 1.0625rem; font-weight: 800; cursor: pointer; }
 .pop-close:hover { background: var(--lime); }
 .pop-close:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }

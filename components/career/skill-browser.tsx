@@ -72,7 +72,7 @@ export function SkillBrowser({ skills, kind, roleTitle, children }: { skills: Sk
       {scout && <p className="sb-key">Longer bar: the role asks for more.</p>}
       {children}
     </section>
-    <section className="dp-sec" id={detailId} aria-label={"Quotes for " + current.name}>
+    <section className="dp-sec sb-detail" id={detailId} aria-label={"Quotes for " + current.name}>
       <h5 className="dp-h">{current.name}</h5>
       <p className="sb-sum">
         <span className={"sk-verdict " + verdict}>{VERDICT_LABEL[verdict]}</span>

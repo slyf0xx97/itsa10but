@@ -12,14 +12,14 @@ test("four stops with unique ids and numbers 1 to 4, ending at Level up", () => 
   assert.equal(STAGES[STAGES.length - 1].id, "level-up");
 });
 
-test("trail labels read as a first-time visitor's steps and match the two header tabs", () => {
+test("trail labels read as a first-time visitor's steps and match the header tabs", () => {
   assert.deepEqual(STAGES.map((stage) => stage.label), ["Add role & résumé", "Résumé analysis", "Your skills radar", "Level up"]);
   assert.equal(STAGES[0].title, "Add your role and résumé");
   assert.equal(STAGES[3].title, "Level Up Your Résumé with Free / Open-Source Websites & Tools");
   assert.equal(STAGES[3].title, LEVEL_UP_TITLE);
   assert.ok(STAGES.every((stage) => stage.label.length <= 17)); // they sit under small trail nodes
-  assert.deepEqual(TABS.map((tab) => tab.label), ["Analyse Résumé", "Level Up Your Résumé with Free / Open-Source Websites & Tools"]);
-  assert.deepEqual(TABS.map((tab) => tab.sections), [["check", "readers", "radar"], ["level-up"]]);
+  assert.deepEqual(TABS.map((tab) => tab.label), ["Analyse Résumé", "Level Up Your Résumé with Free / Open-Source Websites & Tools", "News & Figures"]);
+  assert.deepEqual(TABS.map((tab) => tab.sections), [["check", "readers", "radar"], ["level-up"], ["figures"]]);
 });
 
 const VH = 1000; // band is 150..850
@@ -114,26 +114,27 @@ test("scrolling down never moves the party back, from before stage 1 to the end 
   assert.equal(previous, 1);
 });
 
-test("section ids are the four stages then How it works", () => {
-  assert.deepEqual(SECTION_IDS, [...STAGES.map((stage) => stage.id), "how-it-works"]);
+test("section ids are the four stages, the figures board, then How it works", () => {
+  assert.deepEqual(SECTION_IDS, [...STAGES.map((stage) => stage.id), "figures", "how-it-works"]);
 });
 
 const five = (start: number, h = 900): StageRect[] => SECTION_IDS.map((_, i) => ({ top: start + i * h, bottom: start + (i + 1) * h }));
 
-test("activeTab: none over the hero, the first three stages are Analyse Résumé, past the end is How it works", () => {
+test("activeTab: none over the hero, the first three stages are Analyse Résumé, Level up and the figures board each get a tab, past the end is How it works", () => {
   const label = (rects: StageRect[]) => NAV_ITEMS[activeTab(rects, VH)].label;
   assert.equal(activeTab(five(900), VH), -1);
   assert.equal(label(five(0)), "Analyse Résumé"); // check
   assert.equal(label(five(-900)), "Analyse Résumé"); // readers
   assert.equal(label(five(-1800)), "Analyse Résumé"); // radar
   assert.equal(label(five(-2700)), LEVEL_UP_TITLE);
-  assert.equal(label(five(-3600)), "How it works");
-  assert.equal(label(five(-6000)), "How it works");
-  assert.equal(activeTab(five(-3600), VH), TABS.length); // How it works sits right after the tabs
+  assert.equal(label(five(-3600)), "News & Figures");
+  assert.equal(label(five(-4500)), "How it works");
+  assert.equal(label(five(-7000)), "How it works");
+  assert.equal(activeTab(five(-4500), VH), TABS.length); // How it works sits right after the tabs
 });
 
 test("Level up stays the trail stop while How it works is on screen", () => {
-  const rects = five(-3300); // How it works fills most of the band, Level up is mostly above it
+  const rects = five(-4200); // How it works fills most of the band, Level up is far above it
   assert.equal(activeStage(rects.slice(0, 4), VH), 3);
   assert.equal(NAV_ITEMS[activeTab(rects, VH)].label, "How it works");
   assert.equal(trailProgress(rects.slice(0, 4), VH, rects[3]), 1);

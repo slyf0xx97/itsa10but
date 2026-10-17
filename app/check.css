@@ -4,14 +4,10 @@
 /* fill, blur and edge: the main overlay rule in theme.css */
 .check-card a { color: var(--water-deep); }
 .check-card .hint { color: var(--text-soft); font-size: 1rem; line-height: 1.45; }
-/* The card sits in a stage panel (container "stage"). Phone order: role, résumé, hiring signals. From 700px the role and résumé sit side by side
-   and the guide spans both columns below; from 1040px the guide is the third column. Each pane is its own container, so the how-to steps inside it size to the pane. */
+/* The card sits in a stage panel (container "stage"). Phone order: role, résumé. From 700px they sit side by side. Each pane is its own container, so the how-to steps inside it size to the pane. */
 .check-grid { grid-template-columns: minmax(0, 1fr); align-items: stretch; gap: 1.25rem; }
 .check-pane { container: pane / inline-size; display: flex; flex-direction: column; gap: .9rem; min-width: 0; padding: 1rem; border: 1.5px solid var(--glass-edge); border-radius: 16px; background: rgb(255 255 255 / 55%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 1px 4px rgb(18 52 63 / 12%); }
 .check-pane > .role-input { display: flex; flex: 1; flex-direction: column; }
-.check-guide { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
-.check-guide > .sgs { display: flex; flex: 1 1 auto; flex-direction: column; width: 100%; }
-.check-guide > .sgs > .sgs-box { flex: 1 1 auto; }
 .check-card .step-title { margin: 0; color: var(--ink); font-size: 1.5rem; line-height: 1.15; }
 .check-card .step-title .step-num { width: 2.4rem; height: 2.4rem; background: var(--water-deep); color: #fff; box-shadow: none; font-size: 1.25rem; }
 /* Drop zone: fills the rest of its pane (at least 14rem, 16rem in two columns), content centred, so no blank strip is left under it. */
@@ -28,7 +24,7 @@
 .dropzone.has-file { min-height: 0; padding: 1rem; }
 .dz-art { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border: 1.5px solid var(--leaf-deep); border-radius: 18px; background: linear-gradient(160deg, var(--grass), var(--leaf)); box-shadow: 0 3px 0 var(--leaf-deep); }
 .dz-art img { display: block; width: 2.5rem; height: 2.5rem; image-rendering: pixelated; }
-.dz-title { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; line-height: 1.25; }
+.dz-title { margin: 0; color: var(--ink); font-size: 1.45rem; font-weight: 800; line-height: 1.25; }
 .dropzone .hint { max-width: 26rem; margin: 0; }
 .dropzone .dz-hint { color: var(--ink); font-size: 1.05rem; }
 .dropzone .btn { font-size: 1.05rem; }
@@ -64,12 +60,7 @@
 .check-card .notice { border: 1.5px solid var(--water-deep); background: rgb(255 255 255 / 80%); color: var(--ink); }
 .check-card .notice.error { border-color: var(--coral); background: #fbe1db; color: #6e1a0e; }
 @container stage (min-width: 700px) {.check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.check-guide { grid-column: 1 / -1; }
 .dropzone { min-height: 16rem; }}
-@container stage (min-width: 1040px) {.check-grid { grid-template-columns: minmax(0, 1fr) minmax(0, .85fr) minmax(0, 1.15fr); }
-.check-guide { grid-column: auto; align-items: stretch; }
-/* The sources card fills the row but adds nothing to it, so what the résumé pane shows (the safety check, a file name) can never make this card taller. It scrolls inside. */
-.check-guide > .sgs > .sgs-box { flex: 1 1 0; min-height: 0; overflow-y: auto; }}
 @container stage (max-width: 480px) {.check-card { padding: .75rem; }
 .check-pane { padding: .75rem; }}
 @media (prefers-reduced-motion: no-preference) {.dropzone { transition: border-color .15s ease, background-color .15s ease; }
@@ -82,12 +73,17 @@
 .check-card .act-hint { flex: 1 1 14rem; color: var(--ink); font-size: 1.15rem; font-weight: 800; line-height: 1.3; }
 .check-card .role-input [role="status"].hint:not(:empty) { color: var(--ink); font-size: 1.05rem; font-weight: 700; }
 /* "How to format your résumé for tech": a button above the drop zone that opens the shared Popup. Inside: three grouped tip cards (do and skip marks), then a grid of site cards with logos. */
-.check-card .rt-open { align-self: flex-start; gap: .6rem; font-size: 1.05rem; text-align: left; }
+/* "Drop one file" on the left and the format-tips button on the right of the same row. The row wraps if the pane is too narrow for both, and the button takes its short label under 34rem. */
+.ck-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
+.ck-row > .cl-item { flex: 1 1 11rem; min-width: 0; }
+.check-card .rt-open { flex: none; align-self: center; gap: .6rem; font-size: 1.05rem; text-align: left; }
+@container pane (max-width: 34rem) {.rt-long { display: none; }
+.rt-short { display: inline; }}
 .rt-short { display: none; }
 .rt { display: grid; gap: 1.25rem; color: var(--ink); }
 .rt-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
 .rt-group, .rt-sites { min-width: 0; padding: .9rem 1rem 1rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: #fff; }
-.rt-title { display: flex; align-items: center; gap: .55rem; margin: 0 0 .65rem; font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+.rt-title { display: flex; align-items: center; gap: .55rem; margin: 0 0 .65rem; font-size: 1.25rem; font-weight: 800; line-height: 1.2; }
 .rt-title svg { flex: none; color: var(--water-deep); }
 .rt-intro { margin: 0 0 .65rem; font-size: 1.05rem; line-height: 1.45; }
 .rt-intro .word-tip-btn { min-height: 1.5rem; }

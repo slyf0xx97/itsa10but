@@ -17,14 +17,14 @@ export function classifyDrop(input: { files: File[]; uriList: string; text: stri
   return text ? { kind: "text", text: input.text } : { kind: "none" };
 }
 
-const SUPPORTED = /\.(txt|md|pdf)$/i;
+const SUPPORTED = /\.(txt|md|pdf|docx?)$/i;
 const RESUME_WORDS = /(^|[^a-z])(resume|résumé|cv|curriculum[ _-]?vitae)([^a-z]|$)/i;
 const JOB_WORDS = /(^|[^a-z])(jd|job[ _-]?(description|posting|ad|listing|spec)|posting|vacancy|role[ _-]?description)([^a-z]|$)/i;
 
 export const looksLikeResume = (name: string) => RESUME_WORDS.test(name);
 export const looksLikeJob = (name: string) => JOB_WORDS.test(name) && !RESUME_WORDS.test(name);
 
-export const UNSUPPORTED_FILE = "That file type won't work. Use a PDF, TXT or MD file.";
+export const UNSUPPORTED_FILE = "That file type won't work. Use a PDF, Word, TXT or MD file.";
 
 type Named = { name: string };
 export type FilePick<T> = { file?: T; message: string };
@@ -37,10 +37,10 @@ function pick<T extends Named>(files: T[], wrong: (name: string) => boolean, wro
   return { file, message: files.length > 1 ? `Only one ${one} at a time, so ${file.name} was used.` : "" };
 }
 
-/** The résumé box takes the first PDF, TXT or MD that doesn't look like a job posting. */
+/** The résumé box takes the first PDF, Word, TXT or MD that doesn't look like a job posting. */
 export const pickResumeFile = <T extends Named>(files: T[]) =>
   pick(files, looksLikeJob, "That looks like a job posting. Drop it in the role box instead.", "résumé");
 
-/** The role box takes the first PDF, TXT or MD that doesn't look like a résumé. */
+/** The role box takes the first PDF, Word, TXT or MD that doesn't look like a résumé. */
 export const pickJobFile = <T extends Named>(files: T[]) =>
   pick(files, looksLikeResume, "That looks like a résumé. Drop it in the résumé box instead.", "job file");

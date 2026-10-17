@@ -19,7 +19,7 @@ main { position: relative; }
 .brand-icon { flex: none; width: 2.75rem; height: 2.75rem; border-radius: 12px; }
 .brand em { color: var(--link); font-style: normal; }
 /* "How it works" is a small pill beside the logo, not a tab: same pixel border, smaller, filled orange while its section is in view. Labels use the reading font (Atkinson Hyperlegible), not the pixel one. */
-.how-link { position: relative; display: inline-flex; align-items: center; flex: none; gap: 7px; min-height: 36px; padding: 0 12px 0 9px; border: 2px solid var(--ink); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
+.how-link { position: relative; display: inline-flex; align-items: center; flex: none; gap: 6px; min-height: 36px; padding: 0 12px 0 9px; border: 2px solid var(--ink); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
 .how-link svg, .site-nav svg { flex: none; }
 .how-link::after { content: ""; position: absolute; inset: -4px -2px; }
 /* keeps the touch target at 44px */
@@ -28,7 +28,7 @@ main { position: relative; }
 .how-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 /* The two tabs are small. Under 1280px they sit on a row of their own under the logo and Agent power. From 1280px they share the logo's row, which keeps the header one bar tall; there the second name drops its last part ("with Free / Open-Source Websites & Tools") until 1720px, where it fits. */
 .site-nav { order: 2; flex: 1 1 100%; display: flex; flex-wrap: nowrap; justify-content: center; gap: 6px; }
-.site-nav a { position: relative; display: inline-flex; align-items: center; gap: 7px; min-width: 44px; min-height: 36px; padding: 0 12px 0 9px; border: 2px solid var(--ink); border-radius: 8px; background: rgb(255 255 255 / 88%); box-shadow: 0 2px 0 rgb(31 36 48 / 25%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
+.site-nav a { position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 44px; min-height: 38px; padding: 0 12px 0 8px; border: 2px solid var(--ink); border-radius: 8px; background: rgb(255 255 255 / 88%); box-shadow: 0 2px 0 rgb(31 36 48 / 25%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
 .site-nav svg { width: 22px; height: 22px; }
 .site-nav a::after { content: ""; position: absolute; inset: -4px -2px; }
 /* keeps the touch target at 44px */
@@ -41,15 +41,18 @@ main { position: relative; }
    The link's aria-label is always the full name. */
 .tab-label { white-space: nowrap; }
 @media (max-width: 900px) {.tab-long { display: none; }}
+/* One row from 1280px. Between 1280 and 1499px the logo drops its wording so the logo block and the Agent power block stay about the same width either side of the tabs. */
+@media (min-width: 1280px) and (max-width: 1499px) {.brand span { display: none; }}
 @media (min-width: 1280px) {.site-nav { order: 0; flex: 0 1 auto; align-self: center; }
 .tab-long { display: none; }}
-@media (min-width: 1720px) {.tab-long { display: inline; }}
+/* The long second name needs about 290px more than the short one, which the Agent power status would otherwise lose, so it only shows on very wide screens. */
+@media (min-width: 2200px) {.tab-long { display: inline; }}
 @media (prefers-reduced-motion: no-preference) {.site-nav a, .how-link { transition: background-color .15s ease, transform .1s ease; }}
 @media (max-width: 1199px) {.site-header { position: relative; }
 /* relative, not static, so z-index 20 still lifts the Agent power panel above the stages */
 .brand span { font-size: 1.15rem; }}
 /* The footer is a full-width glass plate, so its text never sits on the mountains. */
-.site-footer { margin-top: 1rem; color: var(--ink); background: rgb(255 255 255 / 74%); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); border-top: 1.5px solid var(--glass-line); box-shadow: 0 -6px 20px rgb(16 70 100 / 12%); }
+.site-footer { margin-top: 1rem; color: var(--ink); background: rgb(255 255 255 / 88%); border-top: 1.5px solid var(--glass-line); box-shadow: 0 -6px 20px rgb(16 70 100 / 12%); }
 @supports not (backdrop-filter: blur(1px)) {.site-footer { background: rgb(255 255 255 / 96%); }}
 .site-footer a { color: var(--link); }
 .site-footer a:hover { color: var(--coral); }
@@ -103,7 +106,8 @@ main { position: relative; }
 
 .site-footer .ft-web { display: inline-flex; align-items: center; gap: .45rem; margin: 0; font-weight: 700; }
 .site-footer .ft-donate { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; padding: .2rem .9rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--coral-soft); color: var(--ink); font-weight: 800; text-decoration: none; }
-.site-footer .ft-donate:hover { background: var(--coral); }
+/* Hover stays a light tint with a lifted edge: the full coral made the dark text hard to read. */
+.site-footer .ft-donate:hover { background: color-mix(in srgb, var(--coral) 28%, #fff); box-shadow: 0 3px 0 var(--ink); transform: translateY(-1px); }
 .site-footer .ft-donate:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 @media (max-width: 860px) { .site-footer .ft-btns { justify-content: flex-start; } }
 .site-footer .ft-text a { color: var(--water-deep); font-weight: 700; text-underline-offset: 3px; }

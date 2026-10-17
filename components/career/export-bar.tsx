@@ -77,10 +77,9 @@ export function ExportBar({ analysis, resumes, job, sample = false, ready }: Pro
             <div className="ex-view">{shown
               ? <pre className="ex-md" tabIndex={0} aria-label="Preview of the Markdown prompt">{shown.md}</pre>
               : <p className="ex-empty">{ready ? "Building the preview…" : "The prompt appears here when the readers finish."}</p>}</div>
-            <ol className="ex-steps" aria-label="How to use the prompt">
-              <li><b>Download</b> the file.</li>
-              <li><b>Paste</b> it into ChatGPT, Claude or Gemini.</li>
-              <li><b>Verify</b> it, or run the new résumé through itsa10but again!</li>
+            <ol className="cl-list ex-steps" aria-label="How to use the prompt">
+              <li className="cl-item"><span className="cl-icon" aria-hidden="true">1</span><p className="cl-text"><strong className="cl-lead">Paste</strong>into your AI LLM.</p></li>
+              <li className="cl-item"><span className="cl-icon" aria-hidden="true">2</span><p className="cl-text"><strong className="cl-lead">Verify</strong>it, or run the new résumé through itsa10but again!</p></li>
             </ol>
           </div>
         </div>

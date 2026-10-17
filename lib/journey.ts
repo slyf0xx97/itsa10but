@@ -7,19 +7,20 @@ export const LEVEL_UP_TITLE = "Level Up Your Résumé with Free / Open-Source We
 
 export const STAGES: readonly JourneyStage[] = [
   { id: "check", number: 1, label: "Add role & résumé", title: "Add your role and résumé", line: "Paste the job you want, then add your résumé.", scene: "camp" },
-  { id: "readers", number: 2, label: "Résumé analysis", title: "The readers investigate", line: "Four readers check your résumé against the role. The Planner turns the gaps into tips and tricks.", scene: "woods" },
+  { id: "readers", number: 2, label: "Résumé analysis", title: "The readers investigate", line: "Four readers check your résumé against the role.", scene: "woods" },
   { id: "radar", number: 3, label: "Your skills radar", title: "Your Skills Radar", line: "", scene: "lookout" },
   { id: "level-up", number: 4, label: "Level up", title: LEVEL_UP_TITLE, line: "", scene: "training" },
 ];
 
-/** The two main header tabs and the section ids each one covers. Analyse Résumé covers three stages. */
+/** The main header tabs and the section ids each one covers. Analyse Résumé covers three stages. News & Figures is the board under Level up (not a trail stop). */
 export const TABS = [
   { label: "Analyse Résumé", sections: ["check", "readers", "radar"] },
   { label: LEVEL_UP_TITLE, sections: ["level-up"] },
+  { label: "News & Figures", sections: ["figures"] },
 ] as const;
 /** "How it works" is not a tab: it is a small link beside the logo, with its own section after the four stages. */
 export const HOW_IT_WORKS = { label: "How it works", sections: ["how-it-works"] } as const;
-/** Everything the header can mark as in view: the two tabs, then How it works. `activeTab` returns an index into this. */
+/** Everything the header can mark as in view: the tabs, then How it works. `activeTab` returns an index into this. */
 export const NAV_ITEMS = [...TABS, HOW_IT_WORKS] as const;
 /** Section ids in page order: the four stages, then How it works (not a trail stop). The header measures these. */
 export const SECTION_IDS: readonly string[] = NAV_ITEMS.flatMap((item) => item.sections);
@@ -46,7 +47,7 @@ export function activeStage(rects: StageRect[], viewportHeight: number): number 
   return reached;
 }
 
-/** Index into NAV_ITEMS for the section in view (0 and 1 are the tabs, 2 is How it works), or -1 above Check. `rects` are in SECTION_IDS order. */
+/** Index into NAV_ITEMS for the section in view (the tabs first, then How it works), or -1 above Check. `rects` are in SECTION_IDS order. */
 export function activeTab(rects: StageRect[], viewportHeight: number): number {
   const section = activeStage(rects, viewportHeight);
   return section < 0 ? -1 : NAV_ITEMS.findIndex((item) => (item.sections as readonly string[]).includes(SECTION_IDS[section]));

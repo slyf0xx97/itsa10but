@@ -42,7 +42,7 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
     let target = 0, face = 1, spread = 1, last = 0, lastY = window.scrollY, walkUntil = 0, placed = false, loop = 0, measureFrame = 0;
     let total = 0, lead = 0, gap = 0, lift = 0; // trail length, lead-in length, follower spacing and sprite lift, all in px
     const table = new Float32Array(SAMPLES * 3); // x, y and lean (degrees) at SAMPLES points evenly spaced along the trail
-    let tops: number[] = [], bottoms: number[] = [], howTop = Infinity; // section edges in document space, refreshed on resize
+    let tops: number[] = [], bottoms: number[] = [], howTop = Infinity, figuresTop = Infinity; // section edges in document space, refreshed on resize
     const lenOf = (p: number) => lead + p * (total - lead); // progress 0 is the first node, 1 the flag
 
     const place = () => {
@@ -121,8 +121,9 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
       const sy = window.scrollY;
       const r = els.map((el) => el!.getBoundingClientRect());
       tops = r.map((rect) => rect.top + sy); bottoms = r.map((rect) => rect.bottom + sy);
-      const how = document.getElementById("how-it-works");
-      howTop = how ? how.getBoundingClientRect().top + sy : Infinity;
+      const top = (id: string) => { const el = document.getElementById(id); return el ? el.getBoundingClientRect().top + sy : Infinity; };
+      howTop = top("how-it-works");
+      figuresTop = top("figures");
     };
     const measure = () => {
       measureFrame = 0;
@@ -130,7 +131,8 @@ export function JourneyBar({ busy, hasResult, hasInput }: { busy: boolean; hasRe
       const viewport = window.innerHeight, sy = window.scrollY;
       const rects = tops.map((top, i) => ({ top: top - sy, bottom: bottoms[i] - sy }));
       const index = activeStage(rects, viewport);
-      const nowAway = howTop - sy < viewport * 0.92; // the map's top edge has come up into the screen
+      // The bar hides when the map's top edge has come up into the screen, or when the figures and news board has reached the middle of it.
+      const nowAway = howTop - sy < viewport * 0.92 || figuresTop - sy < viewport * 0.5;
       if (nowAway !== awayRef.current) { awayRef.current = nowAway; setAway(nowAway); }
       const prev = activeRef.current;
       if (index !== prev) { activeRef.current = index; setActive(index); }

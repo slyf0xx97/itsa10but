@@ -2,8 +2,9 @@
 import { useId } from "react";
 import { Settings } from "lucide-react";
 import { Popup } from "@/components/popup";
+import { PromptPeek } from "@/components/career/prompt-peek";
 import { specModelOf } from "@/lib/agent-prompts";
-import type { ModelSettings } from "@/lib/agent-model";
+import { agentModelSource, type ModelSettings } from "@/lib/agent-model";
 import { DEFAULT_MODELS, modelLabel, modelOptions, type AgentName } from "@/lib/model-choice";
 import { PROVIDER_LABEL } from "@/lib/provider-copy";
 
@@ -19,6 +20,7 @@ export function AgentModelSettings({ name, settings, onClose }: { name: AgentNam
   const value = own && options.some((option) => option.id === own) ? own : "";
   const defaultId = provider ? settings.all ?? DEFAULT_MODELS[provider] ?? specModelOf(name) : undefined;
   const note = value ? options.find((option) => option.id === value)?.note : provider ? (settings.all ? "The model you picked for all four agents." : `The default for your ${PROVIDER_LABEL[provider]} key.`) : "";
+  const source = agentModelSource(name, { provider, picks: settings.picks, all: settings.all, specModel: specModelOf(name) ?? "" });
   return <Popup open onClose={onClose} title={`${name}: model`} icon={<Settings size={20} aria-hidden="true" />}>
     {provider ? <>
       <p className="dp-desc">Pick the model {name} uses in API boost. The other agents keep their own. Your {PROVIDER_LABEL[provider]} key pays for it.</p>
@@ -31,6 +33,10 @@ export function AgentModelSettings({ name, settings, onClose }: { name: AgentNam
         <span id={field + "-hint"} className="hint" role="status">{note}</span>
       </div>
     </> : <p className="dp-desc">API boost needs your own key before a model can be chosen. Open Agent power in the header, pick API boost and add a key. The native scan uses no model.</p>}
+    <section className="ams-prompt" aria-label={`${name} prompt`}>
+      <p className="dp-desc">The instructions {name} is given in API boost. Hover or click to read them, and copy them for your own AI.</p>
+      <PromptPeek name={name} source={source} />
+    </section>
     <div className="rs-actions">
       <button type="button" className="btn primary small" onClick={onClose}>Done</button>
     </div>

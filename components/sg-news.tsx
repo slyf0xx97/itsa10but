@@ -1,6 +1,7 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
 import { useEffect, useId, useRef, useState } from "react";
+import { Info } from "lucide-react";
 import { allowedUrl, type NewsItem, type NewsMethod } from "@/lib/signals-news";
 
 type State =
@@ -47,21 +48,31 @@ export function SgNews() {
     : "";
 
   return <section className="sgs-news" aria-labelledby={id + "-h"}>
-    <div className="sgs-news-bar"><h3 id={id + "-h"}>Latest news</h3></div>
+    <div className="sgs-news-bar">
+      <h3 id={id + "-h"}>
+        Latest news
+        <span className="news-info">
+          <button type="button" className="news-info-btn" aria-label="About the news feed" aria-describedby={id + "-tip"}><Info size={16} aria-hidden="true" focusable="false" /></button>
+          <span className="sgs-fc-tip" role="tooltip" id={id + "-tip"}>Read from the sites&apos; own feeds about three times a day. No key was used. Headlines and snippets are the sources&apos; own words. We don&apos;t summarise them or pull numbers out of them.</span>
+        </span>
+      </h3>
+      {state.kind === "ok" && <span className="news-updated">Updated {when(state.fetchedAt)} by our own RSS reader, not Firecrawl</span>}
+    </div>
     <p className={"sgs-status" + (state.kind === "error" ? " is-problem" : "")} role="status" aria-live="polite">{status}</p>
-    {state.kind === "ok" && <div>
-      <h4>Updated {when(state.fetchedAt)}</h4>
-      <p className="sgs-note">Read from the sites&apos; own feeds about three times a day. No key was used.{state.note ? " " + state.note : ""}</p>
+    {state.kind === "loading" && <ul className="news-list is-loading" aria-hidden="true">{[0, 1, 2].map((n) => <li key={n}><i /><i /><i /></li>)}</ul>}
+    {state.kind === "ok" && <>
       {state.items.length === 0
         ? <p className="sgs-note">None of these sites had a matching story in the past month.</p>
-        : <ul className="sgs-headlines">
+        : <ul className="news-list">
           {state.items.map((item) => <li key={item.url}>
-            <a href={allowedUrl(item.url)} target="_blank" rel="noopener noreferrer" aria-label={item.title + " (opens in a new tab)"}>{item.title}</a>
-            <span className="sgs-meta"><span>{item.source}</span><span>{item.date || "Date not given"}</span></span>
-            {item.snippet && <p>{item.snippet}</p>}
+            <a className="news-card" href={allowedUrl(item.url)} target="_blank" rel="noopener noreferrer" aria-label={item.title + " (opens in a new tab)"}>
+              <span className="news-meta"><b className="news-src">{item.source}</b><span>{item.date || "Date not given"}</span></span>
+              <span className="news-title">{item.title}</span>
+              {item.snippet && <span className="news-snip">{item.snippet}</span>}
+            </a>
           </li>)}
         </ul>}
-      <p className="sgs-note">These are the sources&apos; own headlines and snippets. We don&apos;t summarise them or pull numbers out of them.</p>
-    </div>}
+      {state.note && <p className="sgs-note">{state.note}</p>}
+    </>}
   </section>;
 }

@@ -1,6 +1,7 @@
 "use client";
 import { BASE_PATH } from "@/lib/base-path";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { Zap } from "lucide-react";
 import { Popup } from "@/components/popup";
 import { RunModes } from "@/components/run-modes";
 import { WordTip } from "@/components/career/word-tip";
@@ -112,7 +113,7 @@ export function ReaderSwitch({ mode, onMode, keys, onKeys, status, disabled }: {
         {choices.map((choice) => <label key={choice.mode} className={"rs-name rs-name-" + choice.mode} title={MODE_OPTIONS[choice.mode].hint}>
           <input type="radio" className="rs-input" name={ids.panel + "-mode"} checked={mode === choice.mode} disabled={locked}
             aria-controls={choice.mode === "live" && open ? ids.panel : undefined} onChange={() => pickMode(choice.mode)} onClick={() => { if (choice.mode === "live" && mode === "live" && !locked) setOpen((was) => !was); }} />
-          <span>{choice.short}<span className="rs-more">{choice.more}</span></span>
+          <span>{choice.short}<span className="rs-scan">{choice.more}</span></span>
         </label>)}
         {/* The track is a mouse and touch shortcut: it flips the switch. The radios above are what keyboards and screen readers use. */}
         <span className="rs-track" aria-hidden="true" onClick={() => { if (!locked) pickMode(on ? "rules" : "live"); }}><span className="rs-knob" /></span>
@@ -123,7 +124,7 @@ export function ReaderSwitch({ mode, onMode, keys, onKeys, status, disabled }: {
     <div className="rs-line">
       {/* Title always shows. The detail is a tooltip on wide screens (the "i" button) and a second line on narrow ones, so only one of the two is ever on screen. */}
       <span className="rs-status" role="status" data-state={state.state}>
-        <span className="rs-dot" aria-hidden="true" />
+        {state.state === "native" ? <span className="rs-dot" aria-hidden="true" /> : <Zap className="rs-bolt" size={18} strokeWidth={2.2} aria-hidden="true" focusable="false" />}
         <strong className="rs-title">{state.title}</strong>
         <span className="rs-tip"><WordTip title={SWITCH_LABEL} word={null} label="What this means" tone={state.state === "needs-key" ? "orange" : "teal"}>{state.detail}</WordTip></span>
         <span className="rs-detail">{state.detail}</span>

@@ -7,7 +7,6 @@ import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode 
 import Image from "next/image";
 import { ChevronDown, Settings } from "lucide-react";
 import { AgentModelSettings } from "@/components/career/agent-model-settings";
-import { PromptPeek } from "@/components/career/prompt-peek";
 import { specModelOf } from "@/lib/agent-prompts";
 import { agentModelSource, type ModelSettings } from "@/lib/agent-model";
 import { modelLabel, type AgentName } from "@/lib/model-choice";
@@ -166,7 +165,6 @@ export function ReaderCards({ agents, active, completed, activities, mode = "rul
               <span>Strengths, limits &amp; tools</span><span aria-hidden="true">→</span>
             </button>
           </div>
-          <PromptPeek name={item.name} source={source} />
           </div>
           {usage && <CardCoins row={usage.find((row) => row.agent === item.name)} working={itemState === "active"} />}
         </li>;
@@ -304,7 +302,7 @@ function FlowSvg({ states, kind }: { states: State[]; kind: "top" | "bottom" }) 
     const el = ref.current;
     if (!el) return;
     const observer = new ResizeObserver(([entry]) => {
-      const w = Math.round(entry.contentRect.width * 10) / 10, h = Math.round(entry.contentRect.height);
+      const w = Math.round(entry.contentRect.width * 10) / 10, h = Math.round(entry.contentRect.height * 10) / 10; // tenths, not whole pixels: a rounded height squashes the drawing and moves the outer pipes off the card centres
       if (w > 0 && h > 0) setSize((now) => now.w === w && now.h === h ? now : { w, h });
     });
     observer.observe(el);
@@ -312,7 +310,7 @@ function FlowSvg({ states, kind }: { states: State[]; kind: "top" | "bottom" }) 
   }, []);
   const { w, h } = size;
   const start = kind === "top" ? SOCKET_Y : 0, stop = kind === "bottom" ? h - ARROW_H : h;
-  return <svg ref={ref} className={"rf-svg rf-" + kind} viewBox={"0 0 " + w + " " + h} focusable="false">
+  return <svg ref={ref} className={"rf-svg rf-" + kind} viewBox={"0 0 " + w + " " + h} preserveAspectRatio="none" focusable="false">
     {states.map((state, i) => {
       const x = FRACS[i] * w;
       return <g key={i}>

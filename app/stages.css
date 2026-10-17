@@ -29,10 +29,17 @@
 .stage :is(.card, .lu-ribbon, .lu-group, .qm-card, .skill, .rd-panel, .stage-plate, .dash-head, .dg-card) { -webkit-backdrop-filter: none; backdrop-filter: none; }
 /* Header: a compact frosted plate sitting on the scene, with room above and below so the picture shows around it. */
 .stage-header { position: relative; display: flex; align-items: flex-start; box-sizing: border-box; padding: 1.1rem 1.25rem .9rem; }
+/* The aside (the readers stage's headline) sits in the empty space right of the plate, vertically centred on it. On a stage narrower than 900px it wraps under the plate. */
+.stage-header { flex-wrap: wrap; gap: .6rem 1.25rem; }
+.stage-aside { flex: 1 1 22rem; display: flex; align-items: center; justify-content: flex-end; align-self: stretch; min-width: 0; }
+@container stage (max-width: 899px) {.stage-aside { justify-content: flex-start; }}
+/* Flush to the right edge of the header (the dashboard styles centre this plate with auto margins). */
+.stage-aside .dash-head { margin-inline: auto 0; }
+@container stage (max-width: 899px) {.stage-aside .dash-head { margin-inline: 0 auto; }}
 .stage-plate { position: relative; max-width: min(36rem, 100%); padding: .65rem 1.1rem .75rem; border: 1.5px solid var(--glass-line); border-radius: 14px; background: rgb(255 255 255 / 76%); -webkit-backdrop-filter: var(--glass-blur-panel); backdrop-filter: var(--glass-blur-panel); color: var(--ink); box-shadow: var(--glass-shadow), var(--glass-ring), inset 0 1px 0 rgb(255 255 255 / 90%); }
 .stage-top { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .65rem; }
-.stage-tab { padding: .1rem .65rem .15rem; border-radius: 999px; background: var(--teal-dark); color: #fff; font-family: var(--font-display); font-size: .9rem; line-height: 1.3; white-space: nowrap; text-shadow: 0 1px 0 rgb(0 0 0 / 25%); }
-.stage-title { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.1; }
+.stage-tab { padding: .1rem .65rem .15rem; border-radius: 999px; background: var(--teal-dark); color: #fff; font-size: .95rem; font-weight: 800; line-height: 1.3; white-space: nowrap; text-shadow: 0 1px 0 rgb(0 0 0 / 25%); }
+.stage-title { margin: 0; color: var(--ink); font-family: var(--font-body); font-size: clamp(1.3rem, 2.3vw, 1.7rem); font-weight: 800; letter-spacing: 0; line-height: 1.15; }
 .stage-line { display: flex; align-items: baseline; gap: .4rem; margin: .25rem 0 0; color: var(--ink); font-size: 1.1rem; font-weight: 700; line-height: 1.35; }
 .stage-line-icon { flex: none; font-size: 1.25rem; line-height: 1; }
 /* Intro lines inside a panel are on glass, so they take panel ink. */

@@ -190,8 +190,10 @@
 .dash-ghosts i { height: 3.5rem; }}
 @container stage (min-width: 700px) {.dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
 @container stage (min-width: 1100px) {.dash-ghosts, .dash-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* No headline sits on the pipes any more, so the link is just a short run of pipe between the reader cards and the result cards. */
 /* The link reaches up over the dashboard's own border and padding to meet the pipes under the reader cards, and down over the row gap to the cards. */
-.dash-link { margin: calc(-.5rem - 1.5px) 0 -.5rem; padding: calc(.5rem + 1.5px) 0 1.25rem; }
+/* The link reaches up past the dashboard border and the gap above it (.5rem + 1px) so the pipe starts where the one under the reader cards ends, with no break between them. */
+.dash-link { margin: calc(-1rem - 2.5px) 0 -.5rem; padding: calc(1rem + 2.5px) 0 .75rem; min-height: 3.1rem; }
 .dash-head { justify-content: center; width: fit-content; max-width: 100%; margin-inline: auto; padding: .45rem 1.4rem; border: 1.5px solid var(--glass-edge); border-radius: 16px; background: rgb(255 255 255 / 90%); text-align: center; }
 .dash-lead { justify-items: center; }}
 /* The popup (and the card) is its own container ("dcard"): check groups sit two across once it is wide. */
@@ -217,26 +219,21 @@
 .fi-top { display: grid; gap: .4rem; min-width: 0; }
 .fi-mode { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; margin: 0; padding: .35rem .7rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 12px; background: var(--sky-soft); }
 .fi-badge { display: inline-block; padding: .1rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--lime); color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.3; }
+.fi-view { display: inline-flex; margin-left: auto; padding: 2px; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; }
+.fi-view button { min-height: 2.25rem; padding: .1rem .9rem; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
+.fi-view button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.fi-view button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .fi-mode-note { flex: 1 1 16rem; min-width: 0; font-size: 1rem; line-height: 1.35; color: var(--ink); }
-.fi-did { display: grid; grid-template-columns: minmax(0, 1fr); gap: .15rem .9rem; min-width: 0; }
-.fi-did-h { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; line-height: 1.2; color: var(--ink); }
-.fi-did-note { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
-.fi-steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: .3rem 1rem; margin: .25rem 0 0; padding: 0; list-style: none; counter-reset: fi; }
-.fi-steps li { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: .5rem; align-items: start; font-size: 1rem; line-height: 1.3; counter-increment: fi; }
-.fi-steps li::before { content: counter(fi); display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: var(--ink); color: #fff; font-size: 1rem; font-weight: 800; line-height: 1; }
 /* The columns. One column on a phone, two from 34rem of popup, then each reader's own count from 52rem. */
 .dp-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; align-items: stretch; min-width: 0; }
 .dp-sec { display: grid; align-content: start; gap: .4rem; min-width: 0; padding: .6rem .8rem; border: 1.5px solid rgb(18 52 63 / 16%); border-radius: 14px; background: var(--glass-inner); }
-.dp-h { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; line-height: 1.2; color: var(--ink); }
+.dp-h { margin: 0; font-size: 1.25rem; font-weight: 800; line-height: 1.2; color: var(--ink); }
 .dp-desc { margin: 0; font-size: 1rem; line-height: 1.3; color: var(--text-soft); }
 .dp-sec .dash-sub, .dp-sec .dash-empty, .dp .dash-chip-label { font-size: 1rem; line-height: 1.3; }
 .dp .dash-chip-label { margin: 0 0 .25rem; }
 @container dcard (min-width: 34rem) {.dp-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.fi-did { grid-template-columns: auto minmax(0, 1fr); align-items: baseline; }
-.fi-steps { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .dp-main[data-reader="planner"] > .dp-sec, .dp-main[data-reader="planner"] > .pl-sec, .dp-main[data-reader="planner"] > .tip-quotes, .dp-main > .ats-note { grid-column: 1 / -1; }}
-@container dcard (min-width: 52rem) {.fi-steps { grid-template-columns: repeat(var(--fi-cols, 4), minmax(0, 1fr)); }
-.dp-main[data-reader="scout"] { grid-template-columns: minmax(0, 1.5fr) minmax(0, .9fr) minmax(0, 1.1fr); }
+@container dcard (min-width: 52rem) {.dp-main[data-reader="scout"] { grid-template-columns: minmax(0, 1.5fr) minmax(0, .9fr) minmax(0, 1.1fr); }
 .dp-main[data-reader="finder"] { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
 .dp-main[data-reader="recruiter"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .dp-main[data-reader="planner"] { grid-template-columns: minmax(0, 1fr); }}
@@ -285,10 +282,6 @@
 .fi-q q { quotes: "“" "”"; overflow-wrap: anywhere; }
 .fi-q small { font-size: 1rem; color: var(--text-soft); overflow-wrap: anywhere; }
 .fi-q.none { border-left-color: var(--coral); background: var(--coral-soft); color: #8f2515; }
-.fi-quotes { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; margin: 0; padding: 0; list-style: none; }
-.fi-quotes > li { display: grid; gap: .3rem; min-width: 0; align-content: start; }
-.fi-quotes h6 { margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
-@container dcard (min-width: 40rem) {.fi-quotes { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }}
 /* Role Scout, company column: one column of blocks. */
 .dp .co-cols { grid-template-columns: minmax(0, 1fr); gap: .7rem; }
 .dp .co-name, .dp .co-values b { font-size: 1.15rem; }
@@ -437,3 +430,42 @@
 .dash-sample { padding: .15rem .8rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--lime); color: var(--ink); font-size: 1rem; line-height: 1.3; }
 /* The line at 50% on every bar, so a bar can be read without the number. */
 .dash-track::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: rgb(18 52 63 / 65%); pointer-events: none; }
+
+/* Quotes behind the tips: a bar to open or close, then one row per skill. The skill name sits on the left, the role quote and the resume quote side by side, each tinted by side. */
+.tip-quotes { display: grid; gap: .6rem; }
+.tip-quotes > summary { display: flex; align-items: center; gap: .6rem; min-height: 2.75rem; padding: .35rem .8rem; border: 1.5px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font-size: 1.1rem; font-weight: 800; cursor: pointer; list-style: none; }
+.tip-quotes > summary::-webkit-details-marker { display: none; }
+.tip-quotes > summary::after { content: "▾"; margin-left: auto; font-size: 1rem; transition: transform .15s; }
+.tip-quotes:not([open]) > summary::after { transform: rotate(-90deg); }
+.tip-quotes > summary:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.tq-count { padding: 0 .6rem; border-radius: 999px; background: var(--sky-soft); font-size: .9rem; font-weight: 800; }
+.fi-quotes { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.fi-qrow { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr) minmax(0, 1fr); gap: .6rem; align-items: stretch; min-width: 0; padding: .55rem; border: 1.5px solid rgb(18 52 63 / 18%); border-radius: 14px; background: #fff; }
+.fi-quotes[data-sides="1"] .fi-qrow { grid-template-columns: 8.5rem minmax(0, 1fr); }
+.fi-qname { align-self: center; margin: 0; font-size: 1.1rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.fi-qcell { display: grid; gap: .2rem; align-content: start; min-width: 0; padding: .5rem .7rem; border-left: 4px solid var(--water-deep); border-radius: 0 10px 10px 0; background: var(--sky-soft); font-size: 1rem; line-height: 1.4; }
+.fi-qcell[data-side="resume"] { border-left-color: var(--leaf-deep); background: color-mix(in srgb, var(--lime) 40%, #fff); }
+.fi-qcell .fi-q-tag { color: var(--ink-soft); font-size: .85rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.fi-qcell q { quotes: "“" "”"; font-weight: 600; overflow-wrap: anywhere; }
+.fi-qcell small { color: var(--text-soft); font-size: .95rem; overflow-wrap: anywhere; }
+.fi-qcell.none { border-left-color: var(--coral); background: var(--coral-soft); color: #8f2515; }
+@container dcard (max-width: 46rem) {.fi-qrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.fi-qname { grid-column: 1 / -1; }
+.fi-quotes[data-sides="1"] .fi-qrow { grid-template-columns: minmax(0, 1fr); }}
+@container dcard (max-width: 30rem) {.fi-qrow { grid-template-columns: minmax(0, 1fr); }}
+
+/* Simple and Detailed. Simple is the summary: one narrow column with each reader headline items (the skills and where they stand, the top fixes and what failed, the tips as titles).
+   Detailed is everything: the quotes behind each score, how it was scored, the market note, the company values, every check and keyword, and each tip steps, resume line and links. */
+.fi-hint { flex: 1 1 14rem; min-width: 0; color: var(--text-soft); font-size: 1rem; line-height: 1.35; }
+.dp[data-view="detailed"] .fi-hint { display: none; }
+/* Simple fills the popup width like Detailed does: the skills, pay and company sit side by side for the Role Scout, the proof list runs in columns for the Experience Finder,
+   the fixes and the failed checks share the row for the Recruiter, and the tips sit in a row of cards for the Action Planner. */
+.dp[data-view="simple"] .dp-main[data-reader="finder"] { grid-template-columns: minmax(0, 1fr); }
+.dp[data-view="simple"] .dp-main[data-reader="finder"] .sb-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: .5rem; }
+.dp[data-view="simple"] .dp-main[data-reader="finder"] .sb-list > li { container: dsec / inline-size; min-width: 0; }
+.dp[data-view="simple"] .rv-fixes { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .6rem; }
+@container dcard (min-width: 52rem) {.dp[data-view="simple"] .dp-main[data-reader="recruiter"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+.dp[data-view="simple"] :is(.dp-desc, .fi-mode-note, .sb-detail, .sb-market, .sb-key, .sb-how, .rv-quote, .rv-try, .rv-side, .rv-note, .ats-col.pass, .ats-kw, .ats-note, .dash-checks small, .co-about, .co-cols, .co-foot, .tip-task, .tip-steps, .tip-have, .tip-line, .tip-learn, .tip-quotes) { display: none; }
+.dp[data-view="simple"] .dp-main[data-scroll] > .rv { grid-template-columns: minmax(0, 1fr); }
+.dp[data-view="simple"] .pl-plan { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .7rem; }
+.dp[data-view="simple"] .tip-card { gap: .3rem; padding: .6rem .8rem .7rem; box-shadow: none; }

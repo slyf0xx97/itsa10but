@@ -4,12 +4,13 @@ import { HOW_IT_WORKS, LEVEL_UP_TITLE, SECTION_IDS, TABS, activeTab } from "@/li
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
 import { glideTo } from "@/components/glide-to";
 
-const ICONS: PixelIconName[] = ["search", "book"]; // one per tab in TABS (the trail uses the same magnifier and book)
+const ICONS: PixelIconName[] = ["search", "book", "signals"]; // one per tab in TABS (the trail uses the same magnifier and book)
 // Each tab label is cut into parts that CSS shows by width, always on one line: all of it on wide screens, up to the second part on tablets ("Level Up Your Résumé"), only the first on phones ("Level Up").
 // The link carries the whole label as its accessible name, whatever is visible.
 const SPLIT: Record<string, string[]> = {
   "Analyse Résumé": ["Analyse", " Résumé"],
   [LEVEL_UP_TITLE]: ["Level Up", " Your Résumé", " with Free / Open-Source Websites & Tools"],
+  "News & Figures": ["News", " & Figures"],
 };
 const PART_CLASS = ["", "tab-mid", "tab-long"];
 
@@ -52,7 +53,7 @@ export function HeaderTabs({ children }: { children: React.ReactNode }) {
     <nav className="site-nav" aria-label="Page sections">
       {TABS.map((tab, index) => <a key={tab.label} href={"#" + tab.sections[0]} aria-label={tab.label} aria-current={index === active ? "location" : undefined}
         onClick={(event) => go(event, tab.sections[0])}>
-        <PixelIcon name={ICONS[index]} size={28} />
+        <PixelIcon name={ICONS[index]} size={24} />
         <span className="tab-label">{SPLIT[tab.label].map((part, i) => i === 0 ? part : <span key={i} className={PART_CLASS[i]}>{part}</span>)}</span>
       </a>)}
     </nav>

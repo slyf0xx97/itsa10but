@@ -33,10 +33,9 @@ import { applyActivity, emptyActivity, type ActivityState } from "@/lib/activity
 import { RadarEmpty, RadarPanel, RadarTitle } from "@/components/career/skill-grid";
 import { STAGES } from "@/lib/journey";
 import { StageHeader } from "@/components/stage-banner";
-import { SourcesCard } from "@/components/sg-signals";
 import { JourneyBar } from "@/components/journey-bar";
 import { HeaderTabs } from "@/components/career/header-tabs";
-import { SynthesisDashboard } from "@/components/career/synthesis-dashboard";
+import { DashHeadline, SynthesisDashboard } from "@/components/career/synthesis-dashboard";
 import { Term } from "@/components/career/term";
 import { LicensePopup } from "@/components/license-popup";
 import { PrivacyTip } from "@/components/career/privacy-tip";
@@ -60,7 +59,7 @@ const emptyAgents: AgentNote[] = [
 // Hero points: an icon from /assets/icons/, a short lead and one or two plain sentences with the key phrases marked.
 const heroPoints = [
   { icon: "abilities/read-role.svg", lead: "Add a role and your résumé.", text: <>Paste a <b>job posting</b> or a <b>LinkedIn link</b>, then add <b>one résumé file</b>.</> },
-  { icon: "abilities/verify-quotes.svg", lead: "Multi-agent checker to analyse and improve your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps.</> },
+  { icon: "abilities/verify-quotes.svg", lead: "Multi-agent models review your résumé.", text: <>Four agents read the role, look for proof in your résumé, screen it like employer software and plan your next steps.</> },
   { icon: "abilities/rank-gaps.svg", lead: "You get a clear next step.", text: <>An <b>action plan</b>: a skills radar, then tips and free resources. Save it as a <b>PDF report</b> or as a <b>Markdown prompt</b> for your own AI.</> },
 ];
 
@@ -70,7 +69,8 @@ const LevelUpPanel = dynamic(() => import("@/components/level-up").then((m) => m
 const HowItWorksPanel = dynamic(() => import("@/components/how-it-works").then((m) => m.HowItWorks));
 const HeroAgentsMemo = memo(HeroAgents);
 const ReaderSwitchMemo = memo(ReaderSwitch);
-const SourcesPanel = memo(SourcesCard);
+// Far below the fold and fed by its own requests, so it is left out of the first render and the first hydration. The placeholder keeps the section from collapsing while it loads.
+const MarketBoardPanel = dynamic(() => import("@/components/market-board").then((m) => m.MarketBoard), { ssr: false, loading: () => <div className="mb-loading" aria-hidden="true" /> });
 const ReaderCardsPanel = memo(ReaderCards);
 const SynthesisPanel = memo(SynthesisDashboard);
 const RadarPanelMemo = memo(RadarPanel);
@@ -331,7 +331,7 @@ export default function Home() {
     if (payload.kind === "files") {
       const { file, message } = pickResumeFile(payload.files);
       if (file) void addFile(file, message); else setDropMsg(message);
-    } else setDropMsg(payload.kind === "none" ? "Nothing readable was dropped. Drop a PDF, TXT or MD file." : "Drop a PDF, TXT or MD file here. Links and job text go in the role box.");
+    } else setDropMsg(payload.kind === "none" ? "Nothing readable was dropped. Drop a PDF, Word, TXT or MD file." : "Drop a PDF, Word, TXT or MD file here. Links and job text go in the role box.");
   }
 
   /** Live mode only runs from the visitor's own button press, never from samples or tool calls. */
@@ -424,7 +424,7 @@ export default function Home() {
   return <>
     <a className="skip-link" href="#check">Skip to the check</a>
     <header className="site-header"><div className="wrap">
-      <HeaderTabs><a className="brand" href="#top" aria-label="itsa10but home"><Image className="brand-icon" src={`${BASE_PATH}/icon`} width={44} height={44} alt="" unoptimized priority /><span>itsa10but<em>?</em></span></a></HeaderTabs>
+      <HeaderTabs><a className="brand" href="#top" aria-label="itsa10but home"><Image className="brand-icon" src={`${BASE_PATH}/assets/brand-icon.png`} width={44} height={44} alt="" unoptimized priority /><span>itsa10but<em>?</em></span></a></HeaderTabs>
       <ReaderSwitchMemo mode={mode} onMode={setMode} keys={keys} onKeys={setKeys} status={modeStatus} disabled={busy} />
     </div></header>
 
@@ -467,15 +467,17 @@ export default function Home() {
                 </section>
                 <section className="check-pane" aria-labelledby="pane-resume">
                   <div className="step-head"><h3 className="step-title" id="pane-resume"><span className="step-num">2</span> Your résumé</h3><PrivacyTip provider={keyOwner} /></div>
-                  <div className="cl-item ck-lead"><p className="cl-text"><strong className="cl-lead">Drop one file</strong><span className="hl">PDF, TXT or MD</span>.</p></div>
-                  <ResumeTips />
-                  <input id="resume-files" ref={fileRef} type="file" accept=".txt,.md,.pdf" className="sr-only" onChange={(event) => void addFiles(event.target.files)} />
+                  <div className="ck-row">
+                    <div className="cl-item ck-lead"><p className="cl-text"><strong className="cl-lead">Drop one file</strong><span className="hl">PDF, Word, TXT or MD</span>.</p></div>
+                    <ResumeTips />
+                  </div>
+                  <input id="resume-files" ref={fileRef} type="file" accept=".txt,.md,.pdf,.docx,.doc" className="sr-only" onChange={(event) => void addFiles(event.target.files)} />
                   <div className={"dropzone" + (dz.over ? " is-over" : "") + (resumes.length ? " has-file" : "")} {...dz.props}>
                     {resumes.length === 0 ? <>
                       {/* eslint-disable-next-line @next/next/no-img-element -- tiny static pixel SVG, nothing to optimise */}
                       <span className="dz-art" aria-hidden="true"><img src={`${BASE_PATH}/assets/icons/quests/write.svg`} alt="" width={40} height={40} /></span>
                       <p className="dz-title">Drop your résumé here or choose a file</p>
-                      <p className="hint dz-hint"><b>PDFs need text you can select.</b> Scanned pages won&apos;t work.</p>
+                      <p className="hint dz-hint"><b>PDFs need text you can select.</b><br />Scanned pages won&apos;t work.</p>
                       <div className="dz-actions">
                         <button type="button" className="btn primary" disabled={stage !== "idle"} onClick={() => fileRef.current?.click()}><Upload size={16} aria-hidden="true" /> Choose a file</button>
                       </div>
@@ -491,9 +493,6 @@ export default function Home() {
                   </div>
                   {resumes.length > 0 && stage !== "reading" && <div className="fade-in"><SafetyPanel report={safetyReport} /></div>}
                 </section>
-                <aside className="check-guide" aria-label="Reader's guide">
-                  <SourcesPanel />
-                </aside>
               </div>
               <div className="actions">
                 <button type="button" className="btn primary" aria-busy={locked} disabled={locked || !resumes.length} onClick={() => void analyse(resumes, job.trim() || sampleJob, mode === "live" || isDemo()).catch(() => undefined)}>{locked ? <><LoaderCircle className="spin" size={16} aria-hidden="true" /> {busy ? "Reading…" : "Getting ready…"}</> : <><Play size={16} aria-hidden="true" /> {hasResult ? "Play again" : "Start the check"}</>}</button>
@@ -508,7 +507,7 @@ export default function Home() {
         {/* Rows 2 and 3 are one full-width panel each (is-single): each stage fills its columns inside, so neither runs two screens tall. */}
         <div className="stage-row is-single">
           <section className={"stage" + (busy || hasResult ? " run-live" : "")} id="readers" aria-labelledby="readers-title">
-            <StageHeader {...header(1)} titleId="readers-title" />
+            <StageHeader {...header(1)} titleId="readers-title" aside={<DashHeadline analysis={analysis} hasResult={hasResult} busy={busy} madeUp={madeUp} />} />
             <div className="stage-body">
               <p className="sr-only" role="status" aria-live="polite">{busy ? handoff : ""}</p>
               {notice && <p className="notice mode-notice" role="status">{notice}</p>}
@@ -539,6 +538,12 @@ export default function Home() {
         </div>
 
         <div className="stage-row is-single">
+          <section className="stage" id="figures" aria-labelledby="mb-title">
+            <div className="stage-body"><MarketBoardPanel /></div>
+          </section>
+        </div>
+
+        <div className="stage-row is-single">
           <section className="stage" id="how-it-works" aria-labelledby="how-it-works-title">
             <div className="stage-body"><HowItWorksPanel /></div>
           </section>
@@ -551,7 +556,7 @@ export default function Home() {
     <footer className="site-footer"><div className="wrap ft-grid">
       <div className="ft-text">
         <p>itsa10but is independent. LinkedIn and the listed employers don&apos;t endorse or sponsor it, and their names and logos belong to their owners. Job listings come from outside feeds, so check the original posting before you apply.</p>
-        <p>The four agent characters are original, fictional illustrations made for this project. They don&apos;t depict any real person, company, brand or character.</p>
+        <p>The four agent characters are original, fictional illustrations made for this project. They don&apos;t depict any real person, company, brand or character. Any resemblance is coincidental.</p>
         <p>The idea, a play on the <a href="https://knowyourmeme.com/memes/shes-a-10-but-hes-a-10-but" target="_blank" rel="noopener noreferrer">“She’s a 10 but” meme</a>, and the design system were conceived by <a href="https://sg.linkedin.com/in/ghernie" target="_blank" rel="noopener noreferrer">Ghernie Encinas</a>, who has a strong interest in UI design, creativity, AI, cybersecurity, machine learning and service.</p>
       </div>
       <div className="ft-meta">

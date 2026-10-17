@@ -1,51 +1,5 @@
-/* The Sources and sites card (components/sg-signals.tsx) with its figures popup (sg-figures.tsx) and news (sg-news.tsx), then the role picker's glass finish. Tokens from theme.css. */
-.sgs { container-type: inline-size; color: var(--ink); }
-.sgs-box { display: flex; flex-direction: column; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); box-shadow: 0 1px 4px rgb(18 52 63 / 18%), inset 0 1px 0 rgb(255 255 255 / 90%); overflow: hidden; }
-.sgs-bar { display: flex; flex: 1 1 auto; flex-direction: column; gap: .4rem; padding: .6rem .7rem .65rem; }
-.sgs-head { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; }
-.sgs-head img { flex: 0 0 auto; width: 1.75rem; height: 1.75rem; image-rendering: pixelated; }
-.sgs-tab { padding: .15rem .5rem; border: 1.5px solid var(--teal-dark); border-radius: 10px; background: var(--teal-dark); color: #fff; font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; line-height: 1.2; letter-spacing: .02em; }
-/* Title block: the title with its "Checked" line under it, then two labelled buttons side by side. Each opens a popup, and hovering one gives a peek (a panel over the page). */
-.sgs-top { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
-.sgs-titles { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; min-width: 0; }
-.sgs-head svg { flex: none; color: var(--teal-dark); }
+/* The figures and news board under Level up (components/market-board.tsx, sg-news.tsx), then the role picker's glass finish. Tokens from theme.css. */
 .sgs-checked { position: relative; margin: 0; padding: .2rem .65rem; display: inline-flex; align-items: center; gap: .4rem; width: fit-content; border-radius: 999px; background: var(--glass-strong); border: 1px solid var(--glass-edge); color: var(--ink); font-size: 1rem; font-weight: 600; line-height: 1.3; }
-.sgs-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; min-width: 0; }
-.sgs-actions .word-tip { display: block; min-width: 0; white-space: normal; }
-.sgs-actions .sgs-open, .sgs-actions .sgs-book { --btn-hover-shadow: 5px 5px 0 var(--ink); --btn-active-shadow: 1px 1px 0 var(--ink); display: flex; align-items: center; justify-content: center; gap: .45rem; box-sizing: border-box; width: 100%; min-height: 3rem; padding: .35rem .6rem; border: 2px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); font-family: var(--font-body); font-size: 1rem; font-weight: 800; line-height: 1.2; text-align: left; cursor: pointer; }
-.sgs-actions .sgs-book { background: #fff; color: var(--ink); }
-.sgs-actions .sgs-book:hover { background: var(--lime); }
-.sgs-actions svg { flex: none; }
-.sgs-open-text { min-width: 0; }
-.sgs-actions .sgs-open:focus-visible, .sgs-actions .sgs-book:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-@container (max-width: 21rem) {.sgs-actions { grid-template-columns: minmax(0, 1fr); }}
-/* The five groups of sites, each with its title, a count and up to seven round logos (the name and what it covers are the hover text, the rest are in the popup). */
-.sgs-groups { flex: 1 1 auto; grid-auto-rows: 1fr; display: grid; gap: .55rem; min-width: 0; }
-.sgs-group { align-content: center; display: grid; gap: .3rem; min-width: 0; padding: .45rem .55rem .55rem; border: 1.5px solid rgb(31 36 48 / 16%); border-radius: 12px; background: rgb(255 255 255 / 70%); }
-.sgs-group h3 { display: flex; align-items: center; gap: .4rem; margin: 0; color: var(--ink); font-size: 1.02rem; font-weight: 800; line-height: 1.2; }
-.sgs-group h3 small { margin-left: auto; padding: 0 .5rem; border-radius: 999px; background: var(--sky-soft); color: var(--ink); font-size: .9rem; font-weight: 800; }
-.sgs-group ul { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
-.sgs-group a, .sgs-group .sgs-logo { display: grid; place-items: center; width: 3.4rem; height: 3.4rem; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: #fff; transition: transform .12s, background-color .12s; }
-.sgs-group .sgs-logo { box-sizing: border-box; cursor: pointer; font: inherit; }
-.sgs-group a:hover, .sgs-group .sgs-logo:hover { transform: translateY(-2px); }
-.sgs-group a.sgs-more { display: inline-flex; align-items: center; justify-content: center; width: auto; height: auto; min-height: 3.4rem; padding: .35rem 1.1rem; box-sizing: border-box; border-radius: 999px; border-style: dashed; text-decoration: none; }
-.rt-sites .sgs-jump { margin-top: .6rem; text-decoration: none; }
-.sgs-more { display: inline-flex; align-items: center; min-height: 3.4rem; padding: 0 .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .98rem; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; cursor: pointer; }
-.sgs-group img { display: block; width: 2.55rem; height: 2.55rem; border-radius: 50%; object-fit: contain; background: #fff; }
-.sgs-more { border-style: dashed; color: var(--water-deep); }
-.sgs-group a:hover, .sgs-group .sgs-logo:hover, .sgs-more:hover { background: var(--sky-soft); }
-.sgs-group a:focus-visible, .sgs-group .sgs-logo:focus-visible, .sgs-more:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-/* The peek panels (hover or focus on a button): a photo and three figures, or the five groups with their logos. */
-.sgk { display: grid; gap: .6rem; }
-.sgk-figs, .sgk-groups { display: grid; gap: .5rem; }
-.sgk-fig { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); align-items: baseline; gap: .5rem; font-size: 1rem; line-height: 1.35; }
-.sgk-fig b { font-size: 1.3rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; line-height: 1.1; }
-.sgk-group { display: grid; gap: .25rem; }
-.sgk-group-h { display: flex; align-items: center; gap: .4rem; font-size: 1rem; line-height: 1.2; }
-.sgk-group-h small { margin-left: auto; font-size: .9rem; font-weight: 700; color: var(--ink-soft); }
-.sgk-logos { display: flex; flex-wrap: wrap; gap: .3rem; }
-.sgk-logos img { display: block; width: 1.65rem; height: 1.65rem; border-radius: 50%; border: 1.5px solid rgb(31 36 48 / 30%); background: #fff; object-fit: contain; }
-.sgk-more { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-top: .4rem; border-top: 2px dashed rgb(31 36 48 / 20%); color: var(--ink); font-size: 1rem; font-weight: 800; line-height: 1.3; }
 .sgs-mark { display: inline-grid; flex: 0 0 auto; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 8px; background: rgb(255 255 255 / 85%); color: var(--water-deep); }
 .sgs-mark img { display: block; width: 1.2rem; height: 1.2rem; object-fit: contain; }
 /* Latest in AI: four recent developments, one compact row each: a kind tag and the headline, then the source with its date. The one plain line about each item is its hover text and its spoken label. */
@@ -72,11 +26,8 @@
 .sgs-pop { gap: 1rem; }
 .sgs-pop .rt-grid a > svg { flex: none; }
 .sgs-news { display: grid; gap: .5rem; padding: .9rem 1rem 1rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: #fff; }
-.sgs-news-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .75rem; }
-.sgs-news h3 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+.sgs-news h3 { margin: 0; color: var(--ink); font-size: 1.25rem; font-weight: 800; line-height: 1.2; }
 .sgs-news h4 { margin: 0; color: var(--ink); font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
-.sgs-news .btn { gap: .4rem; }
-.sgs-news .btn[aria-disabled="true"] { opacity: .65; cursor: progress; }
 .sgs-note, .sgs-status { margin: 0; color: var(--text-soft); font-size: 1rem; line-height: 1.45; }
 .sgs-status { min-height: 1.45em; color: var(--ink); font-weight: 600; }
 .sgs-status.is-problem { padding: .4rem .6rem; border: 1.5px solid var(--coral); border-radius: 10px; background: #fbe1db; color: #6e1a0e; }
@@ -91,7 +42,7 @@
 /* Label row of the role box: the label and its tip on the left, a small LinkedIn note on the right. */
 .role-input .rl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .4rem; margin-bottom: .4rem; }
 .role-input .rl-head label { margin: 0; }
-.role-input .rl-li { display: inline-flex; align-items: center; gap: .25rem; padding: .1rem .4rem .1rem .25rem; border: 1.5px solid var(--glass-edge); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: .74rem; margin-left: auto; font-weight: 700; white-space: nowrap; }
+.role-input .rl-li { display: inline-flex; align-items: center; gap: .25rem; padding: .1rem .4rem .1rem .25rem; border: 1.5px solid var(--glass-edge); border-radius: 999px; background: rgb(255 255 255 / 70%); color: var(--ink); font-size: 1rem; margin-left: auto; font-weight: 700; white-space: nowrap; }
 .role-input .rl-li .li-mark { flex: none; }
 .role-input label.with-tip { color: var(--ink); font-size: 1.1rem; font-weight: 800; }
 .role-input .role-field { display: flex; flex: 1 1 auto; flex-direction: column; }
@@ -101,7 +52,7 @@
 .role-input .btn { font-size: 1.05rem; }
 .role-input textarea { background-color: rgb(255 255 255 / 80%); color: var(--ink); border: 1.5px dashed var(--water-deep); border-radius: 12px; }
 /* "How to add a role": a pill button that opens a wide panel over the page, so the section never grows. Three how-tos sit side by side in the panel. */
-.role-input .role-how { display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 2.75rem; margin: 0; padding: .4rem .9rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); color: var(--ink); font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; text-align: left; cursor: pointer; }
+.role-input .role-how { display: flex; align-items: center; gap: .5rem; width: 100%; min-height: 2.75rem; margin: 0; padding: .4rem .9rem; border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); color: var(--ink); font-size: 1.1rem; font-weight: 800; text-align: left; cursor: pointer; }
 .role-input .role-how:hover { background: var(--sky-soft); }
 .role-input .role-how:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .role-how-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1.1rem; align-items: start; }
@@ -117,7 +68,7 @@
 .role-input .tip-btn:hover { background: var(--ink); color: #fff; }
 .role-input .tip-bubble { background: var(--glass-strong); color: var(--ink); max-width: calc(100vw - 3rem); }
 .role-input details.fold { border: 1.5px solid var(--glass-edge); border-radius: 14px; background: rgb(255 255 255 / 55%); }
-.role-input details.fold > summary { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--ink); }
+.role-input details.fold > summary { font-size: 1.1rem; font-weight: 800; color: var(--ink); }
 .role-input .guide strong { font-size: 1.05rem; }
 .role-input .guide p { color: var(--text-soft); font-size: 1rem; }
 .role-input details.fold[open] > summary { border-bottom: 1.5px dashed var(--water-deep); }
@@ -134,7 +85,7 @@
    Numbers use the reading font because the pixel font made the digits hard to tell apart. Photos are local files in public/assets/photos. */
 .sgf { display: grid; gap: 1.4rem; min-width: 0; }
 .sgf-sec { display: grid; gap: .75rem; min-width: 0; }
-.sgf-sec > h3 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; line-height: 1.2; }
+.sgf-sec > h3 { margin: 0; color: var(--ink); font-size: 1.35rem; font-weight: 800; line-height: 1.2; }
 .sgf-lead, .sgf-src-line { margin: 0; color: var(--ink); font-size: 1.02rem; line-height: 1.45; }
 .sgf-src-line a, .sgf-src a, .sgf-credit a { color: var(--water-deep); font-weight: 700; overflow-wrap: anywhere; }
 .sgf-src-line a:hover, .sgf-src a:hover, .sgf-credit a:hover { color: var(--coral); }
@@ -147,10 +98,8 @@
 .sgf-bar-fig { display: inline-flex; align-items: center; justify-content: flex-end; gap: .45rem; }
 .sgf-bar-fig b { color: var(--ink); font-size: 1.25rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; }
 .sgf-chip { display: inline-flex; align-items: center; gap: .15rem; padding: 0 .4rem; border-radius: 999px; background: #dff3e3; color: #134a26; font-size: .9rem; font-weight: 800; line-height: 1.5; }
-.sgf-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16.5rem), 1fr)); gap: .8rem; margin: 0; padding: 0; list-style: none; }
-.sgf-cards > li { display: grid; align-content: start; gap: .5rem; min-width: 0; padding: .85rem .95rem .95rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: var(--sky-soft, #e8f4fb); color: var(--ink); font-size: 1.02rem; line-height: 1.45; }
 .sgf-fig { display: flex; align-items: center; gap: .65rem; }
-.sgf-fig b, .sgf-feature-body > b { color: var(--ink); font-size: 1.9rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; line-height: 1.1; }
+.sgf-fig b { color: var(--ink); font-size: 1.9rem; font-weight: 800; font-variant-numeric: lining-nums tabular-nums; line-height: 1.1; }
 .sgf-logo { flex: none; border-radius: 8px; background: #fff; object-fit: contain; }
 .sgf-letter { display: inline-grid; place-items: center; width: 1.25rem; height: 1.25rem; background: var(--water-deep); color: #fff; font-size: .8rem; font-weight: 800; }
 .sgf-fig .sgf-letter { width: 2.1rem; height: 2.1rem; font-size: 1.1rem; }
@@ -158,41 +107,21 @@
 .sgf-ring i { width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--sky-soft, #e8f4fb); }
 .sgf-src { display: flex; align-items: flex-start; gap: .45rem; align-self: end; margin-top: .1rem; color: var(--text-soft); font-size: .95rem; line-height: 1.35; }
 .sgf-src .sgf-logo { margin-top: .05rem; }
-.sgf-feature { grid-column: 1 / -1; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 1rem; padding: 0; overflow: hidden; }
-.sgf-feature > img { display: block; width: 100%; height: 100%; min-height: 11rem; object-fit: cover; }
-.sgf-feature-body { display: grid; align-content: center; gap: .5rem; padding: .9rem 1rem .95rem 0; }
-.sgf-roles-card { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 1rem; }
-.sgf-roles-card .sgf-fig { grid-row: 1 / span 3; }
-.sgf-roles { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
-.sgf-cards .sgf-roles li { display: inline-block; padding: .1rem .6rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; font-size: .95rem; font-weight: 700; }
 .sgf-ai { grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: .55rem; }
 .sgf-ai .sgs-ai-kind { grid-row: 1 / span 3; }
 .sgf-ai-text { grid-column: 2; color: var(--text-soft); font-size: .95rem; line-height: 1.4; }
 .sgf-ai .sgs-ai-src img { border-radius: 4px; }
 .sgf-credit { margin: 0; color: var(--text-soft); font-size: .92rem; line-height: 1.4; }
 @media (max-width: 640px) {.sgf-bars li { grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .6rem; }
-.sgf-track { grid-column: 1 / -1; grid-row: 2; }
-.sgf-feature { grid-template-columns: minmax(0, 1fr); }
-.sgf-roles-card { grid-template-columns: minmax(0, 1fr); }
-.sgf-roles-card .sgf-fig { grid-row: auto; }
-.sgf-feature-body { padding: 0 1rem .95rem; }
-.sgf-feature > img { min-height: 0; aspect-ratio: 16 / 8; }}
+.sgf-track { grid-column: 1 / -1; grid-row: 2; }}
 /* "Drop or choose a file" chip inside the role box, bottom right. It sits over the textarea's bottom padding, so the box keeps its height. */
+/* Shown over the role box while a LinkedIn link is being read, so the wait looks like a wait and not like a failure. */
+.role-input .rl-reading { position: absolute; left: 50%; top: 42%; display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .95rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; box-shadow: 0 3px 0 var(--ink); color: var(--ink); font-size: 1rem; font-weight: 800; white-space: nowrap; transform: translate(-50%, -50%); pointer-events: none; }
 .role-input .rl-file { position: absolute; right: .55rem; bottom: .55rem; display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .15rem .8rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; line-height: 1.2; cursor: pointer; }
 .role-input .rl-file:hover:not(:disabled) { background: var(--lime); }
 .role-input .rl-file:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .role-input .rl-file:disabled { opacity: .55; cursor: not-allowed; }
 
-/* Sources card, main view: every group is one row that never wraps. The logos share one size that shrinks with the card (--c, from the card width through cqw)
-   so seven of them and the small "+N" pill always fit. */
-.sgs-group { --c: var(--cx, clamp(2.2rem, calc((100cqw - 10.5rem) / 7), 4.6rem)); }
-/* --cx is set by the card (sg-signals.tsx) when it is stretched taller than its logos need: bigger tiles, fewer of them, still one row. */
-.sgs-group ul { flex-wrap: nowrap; align-items: center; gap: .4rem; }
-.sgs-group li { flex: none; }
-.sgs-group li.sgs-pill { flex: none; }
-.sgs-group a, .sgs-group .sgs-logo { width: var(--c); height: var(--c); }
-.sgs-group img { width: calc(var(--c) * .74); height: calc(var(--c) * .74); }
-.sgs-group .sgs-pill > .sgs-more { width: auto; min-width: calc(var(--c) * .8); height: calc(var(--c) * .7); min-height: 0; padding: 0 .6rem; justify-content: center; box-sizing: border-box; font-size: .88rem; }
 
 .sgs-checked { cursor: help; }
 .sgs-checked img { display: block; border-radius: 6px; }
@@ -200,3 +129,97 @@
 .sgs-checked time { font-weight: 800; }
 .sgs-fc-tip { position: absolute; left: 0; top: calc(100% + .4rem); width: min(19rem, calc(100vw - 4.5rem)); padding: .6rem .75rem; border-radius: 10px; background: var(--glass-strong); border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow); color: var(--ink); font-size: 1rem; font-weight: 400; line-height: 1.4; opacity: 0; visibility: hidden; pointer-events: none; z-index: 5; }
 .sgs-checked:hover .sgs-fc-tip, .sgs-checked:focus .sgs-fc-tip { opacity: 1; visibility: visible; }
+
+/* Figures and news board, under Level up: a glass panel with the AI headlines and news on the left, the figures and skill bars on the right (side by side from 60rem of panel), then the sources. */
+.mb { container: mb / inline-size; display: grid; gap: 1.1rem; margin-top: 1.25rem; padding: 1.1rem 1.25rem 1.25rem; border: 1.5px solid var(--glass-edge); border-radius: 18px; background: var(--glass-card); color: var(--ink); box-shadow: var(--glass-shadow); }
+.mb-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .6rem 1rem; }
+.mb-title { display: flex; align-items: center; gap: .5rem; margin: 0; font-family: var(--font-body); letter-spacing: 0; font-size: clamp(1.25rem, 2.4vw, 1.6rem); font-weight: 800; line-height: 1.2; }
+.mb-lead { margin: .25rem 0 0; font-size: 1.02rem; line-height: 1.45; }
+.mb .sgs-ai { margin-top: 0; }
+
+/* Latest news: one card per headline (source and date on top, the headline, two lines of the snippet), two columns when the column is wide enough. While it loads, grey placeholder cards hold the space. */
+.sgs-news-bar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem .75rem; }
+.sgs-news h3 { display: flex; align-items: center; gap: .4rem; }
+.news-info { position: relative; display: inline-flex; }
+.news-info-btn { display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; padding: 0; border: 1.5px solid var(--ink); border-radius: 50%; background: #fff; color: var(--ink); cursor: help; }
+.news-info-btn:hover { background: var(--sky-soft); }
+.news-info-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.news-info:hover .sgs-fc-tip, .news-info:focus-within .sgs-fc-tip { opacity: 1; visibility: visible; }
+.news-updated { color: var(--text-soft); font-size: .95rem; font-weight: 600; }
+.news-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; margin: .2rem 0; padding: 0; list-style: none; container-type: inline-size; }
+.news-list > li { min-width: 0; }
+.news-card { display: grid; align-content: start; gap: .3rem; height: 100%; box-sizing: border-box; padding: .7rem .85rem .8rem; border: 1.5px solid rgb(31 36 48 / 18%); border-left: 5px solid var(--water-deep); border-radius: 12px; background: var(--sky-soft, #e8f4fb); color: var(--ink); text-decoration: none; }
+.news-card:hover { border-color: var(--ink); background: #fff; }
+.news-card:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.news-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .1rem .6rem; color: var(--text-soft); font-size: .92rem; font-weight: 600; line-height: 1.3; }
+.news-src { padding: 0 .55rem; border: 1.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); font-size: .88rem; font-weight: 800; line-height: 1.5; }
+.news-title { color: var(--ink); font-size: 1.1rem; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+.news-card:hover .news-title { text-decoration: underline; text-underline-offset: 3px; }
+.news-snip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-soft); font-size: 1rem; line-height: 1.4; }
+@container (min-width: 36rem) {.news-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+.news-list.is-loading > li { display: grid; gap: .4rem; padding: .8rem .85rem; border: 1.5px solid rgb(31 36 48 / 12%); border-radius: 12px; background: rgb(31 36 48 / 5%); }
+.news-list.is-loading i { display: block; height: .9rem; border-radius: 6px; background: rgb(31 36 48 / 12%); }
+.news-list.is-loading i:nth-child(1) { width: 35%; }
+.news-list.is-loading i:nth-child(3) { width: 70%; }
+@media (prefers-reduced-motion: no-preference) {.news-list.is-loading i { animation: news-pulse 1.2s ease-in-out infinite; }
+@keyframes news-pulse { 50% { opacity: .45; } }}
+
+/* Sources and sites, compact: each group is one line (its label, then name pills that wrap), with the description in the hover text and the spoken label. */
+.mb-sources { display: grid; gap: .5rem; padding-top: .9rem; border-top: 1.5px dashed var(--water-deep); }
+.mb-sources > h3 { margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.2; }
+/* Every group is on screen at once: the biggest group is one full-width card on top (six tiles a row), and the other groups sit under it as equal cards (two tiles a row), so the section stays short. */
+.mb-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin: 0; padding: 0; list-style: none; }
+.mb-groups > li { display: grid; grid-template-rows: auto 1fr; align-content: start; gap: .6rem; min-width: 0; padding: .7rem .8rem .8rem; border: 1.5px solid rgb(31 36 48 / 16%); border-radius: 14px; background: rgb(255 255 255 / 70%); }
+.mb-groups > li[data-wide] { grid-column: 1 / -1; order: -1; }
+.mb-groups h4 { display: flex; align-items: center; gap: .45rem; margin: 0; font-size: 1.05rem; font-weight: 800; line-height: 1.2; }
+.mb-groups h4 > span { min-width: 0; }
+.mb-groups h4 small { margin-left: auto; padding: 0 .55rem; border-radius: 999px; background: var(--sky-soft); font-size: .9rem; font-weight: 800; }
+.mb-pills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 3rem; align-content: start; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.mb-groups > li[data-wide] .mb-pills { grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
+.mb-pills > li { min-width: 0; }
+.mb-pills .word-tip { display: block; height: 100%; }
+@media (max-width: 900px) {.mb-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mb-groups > li[data-wide] .mb-pills { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+@media (max-width: 560px) {.mb-groups { grid-template-columns: minmax(0, 1fr); }}
+.mb-pill { display: flex; align-items: center; gap: .55rem; box-sizing: border-box; width: 100%; height: 100%; padding: 0 .6rem 0 .45rem; border: 1.5px solid rgb(31 36 48 / 25%); border-radius: 12px; background: #fff; color: var(--ink); font: inherit; font-size: .95rem; font-weight: 700; line-height: 1.2; text-align: left; cursor: pointer; }
+.mb-pill img { flex: none; display: block; width: 2rem; height: 2rem; border-radius: 8px; object-fit: contain; background: #fff; }
+.mb-pill, .mb-pill > span { white-space: normal; }
+.mb-pill > span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-width: 0; overflow-wrap: anywhere; }
+.mb-pill:hover { border-color: var(--ink); background: var(--sky-soft); }
+.mb-pill:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Figures and news board: every row runs the full width of the panel, so no column can end shorter than its neighbour. Figures in a strip (4 across, 2 rows), the AI list beside the skill bars
+   (the shorter one stretches to match), then the news in 4 across. */
+.mb-block { display: grid; align-content: start; gap: .6rem; min-width: 0; }
+.mb-block > h3 { margin: 0; font-size: 1.25rem; font-weight: 800; line-height: 1.2; }
+.mb-figs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; margin: 0; padding: 0; list-style: none; }
+.mb-fig { display: grid; grid-template-rows: auto 1fr auto; gap: .4rem; min-width: 0; padding: .7rem .85rem .8rem; border: 1.5px solid rgb(31 36 48 / 18%); border-radius: 14px; background: var(--sky-soft, #e8f4fb); }
+.mb-fig .sgf-fig { gap: .55rem; }
+.mb-fig .sgf-fig b { font-size: 1.6rem; }
+.mb-fig .sgf-ring { width: 2.2rem; height: 2.2rem; }
+.mb-fig .sgf-ring i { width: 1.4rem; height: 1.4rem; }
+.mb-fig-text { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; font-size: 1rem; line-height: 1.4; }
+.mb-fig .sgf-src { align-self: end; font-size: .9rem; }
+.mb-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem; align-items: stretch; }
+.mb-pair > section { display: flex; flex-direction: column; gap: .6rem; min-width: 0; margin: 0; }
+.mb-ai .sgs-ai-list { flex: 1 1 auto; grid-auto-rows: 1fr; }
+.mb-skills { gap: .4rem; }
+.mb-skills-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .75rem; }
+.mb-pick select { min-height: 2.5rem; max-width: 100%; padding: .2rem 2rem .2rem .7rem; border: 1.5px solid var(--ink); border-radius: 10px; background-color: #fff; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 700; }
+.mb-pick select:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+/* The list scrolls inside a box of at most 20rem, about the height of the AI list beside it, and grows to fill the row when that list is taller. */
+.mb-bars { flex: 1 1 auto; min-height: 12rem; max-height: 20rem; align-content: start; gap: .35rem; padding: .6rem .8rem; overflow-y: auto; overscroll-behavior: contain; }
+.mb-bars:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.mb-bars li { grid-template-columns: minmax(8rem, 11rem) minmax(0, 1fr) 7.5rem; gap: .6rem; }
+.mb-bars .sgf-bar-name > span:last-child { min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }
+.mb-bars .sgf-bar-fig b { font-size: 1.1rem; }
+.mb-skills .sgf-lead { font-size: 1rem; }
+.mb-skills .sgf-src-line { font-size: .95rem; }
+@container mb (max-width: 62rem) {.mb-figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mb-pair { grid-template-columns: minmax(0, 1fr); }}
+@container mb (max-width: 32rem) {.mb-figs { grid-template-columns: minmax(0, 1fr); }}
+@container (min-width: 62rem) {.news-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }}
+.news-title { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.mb-bars .sgs-mark img:not(:first-child) { display: none; }
+/* Holds the figures board's place while its code loads, so the section does not start at zero height. */
+.mb-loading { min-height: 32rem; margin-top: 1.25rem; border: 1.5px dashed var(--glass-edge); border-radius: 18px; background: var(--glass-card); }

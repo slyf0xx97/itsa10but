@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useId, useState, type ReactNode } from "react";
 import type { Analysis, Quest, Skill } from "@/lib/analysis-types";
 import { dashboardData, fixParts, rankSkills, type PlannerRow } from "@/lib/dashboard-data";
 import { wantOf, type Want } from "@/lib/skill-levels";
@@ -14,7 +14,7 @@ import { glideTo } from "@/components/glide-to";
 import { Term } from "@/components/career/term";
 import { Popup } from "@/components/popup";
 import { MarketNote } from "@/components/career/market-note";
-import { POPUP_ADDS, companyMissing, modeInfo, quoteRows, readerSteps, type ReaderKey } from "@/lib/findings-info";
+import { POPUP_ADDS, companyMissing, modeInfo, quoteRows, type ReaderKey } from "@/lib/findings-info";
 import { PixelIcon, type PixelIconName } from "@/components/career/pixel-icons";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -54,6 +54,7 @@ function Stat({ value, unit, label }: { value: ReactNode; unit?: string; label: 
  */
 function SumCard({ kind, agent, id, popTitle, stat, rows, reader, analysis, hasResult, sample, children }: { kind: SpriteKind; agent: string; id?: string; popTitle: string; stat: ReactNode; rows: ReactNode; reader: ReaderKey; analysis: Analysis; hasResult: boolean; sample: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [detailed, setDetailed] = useState(false);
   const close = useCallback(() => setOpen(false), []);
   return <section className={"dash-card " + kind} id={id} aria-label={agent + ", summary"}>
     <div className="dash-stat">
@@ -67,40 +68,36 @@ function SumCard({ kind, agent, id, popTitle, stat, rows, reader, analysis, hasR
       <ArrowRight className="dash-open-arrow" size={22} strokeWidth={3} aria-hidden="true" focusable="false" />
     </button>
     <Popup open={open} onClose={close} title={popTitle} wide>
-      {open && <div className="dp"><FindingsIntro reader={reader} analysis={analysis} hasResult={hasResult && !sample} /><div className="dp-main" data-reader={reader} data-scroll={reader === "recruiter" && analysis.review ? "" : undefined}>{children}</div></div>}
+      {open && <div className="dp" data-view={detailed ? "detailed" : "simple"}><FindingsIntro analysis={analysis} hasResult={hasResult && !sample} detailed={detailed} onView={setDetailed} /><div className="dp-main" data-reader={reader} data-scroll={reader === "recruiter" && analysis.review ? "" : undefined}>{children}</div></div>}
     </Popup>
   </section>;
 }
 
-/** Top of every findings popup: the mode that ran, then the steps the reader took in order, side by side so they take about three lines. */
-function FindingsIntro({ reader, analysis, hasResult }: { reader: ReaderKey; analysis: Analysis; hasResult: boolean }) {
+/** Top of every findings popup: the mode that ran, and the switch between the simple and the detailed view of this reader's findings. */
+function FindingsIntro({ analysis, hasResult, detailed, onView }: { analysis: Analysis; hasResult: boolean; detailed: boolean; onView: (detailed: boolean) => void }) {
   const mode = modeInfo(analysis.mode, hasResult, analysis.run);
-  const steps = readerSteps(reader, analysis);
-  const headId = useId();
-  const did = <section className="fi-did" aria-labelledby={headId}>
-    <h5 className="fi-did-h" id={headId}>What this reader did, in order</h5>
-    <p className="fi-did-note">{mode.steps}</p>
-    <ol className="fi-steps" style={{ "--fi-cols": Math.min(steps.length, 5) } as CSSProperties}>{steps.map((step) => <li key={step}><span>{step}</span></li>)}</ol>
-  </section>;
-  // The planner's popup is about the tips, so it skips the list of steps the reader took and the tips start high up the screen.
   return <div className="fi-top">
-    <p className="fi-mode"><span className="fi-badge"><span className="sr-only">Mode that ran: </span>{mode.name}</span><span className="fi-mode-note">{mode.note}</span></p>
-    {reader !== "planner" && did}
+    <p className="fi-mode"><span className="fi-badge"><span className="sr-only">Mode that ran: </span>{mode.name}</span><span className="fi-mode-note">{mode.note}</span>{!detailed && <span className="fi-hint">Summary. Detailed adds the quotes, steps and every check.</span>}
+      <span className="fi-view" role="group" aria-label="How much detail to show">
+        <button type="button" aria-pressed={!detailed} onClick={() => onView(false)}>Simple</button>
+        <button type="button" aria-pressed={detailed} onClick={() => onView(true)}>Detailed</button>
+      </span>
+    </p>
   </div>;
 }
 
-/** The quote behind each finding with where it came from. A side with no match says so and scores 0 for that source. */
+/** The quote behind each finding, one row per skill: the skill, then what the role says and what the résumé says. A side with no match says so and scores 0 for that source. */
 function QuoteList({ analysis, names, sides }: { analysis: Analysis; names?: string[]; sides: ("role" | "resume")[] }) {
   const rows = quoteRows(analysis.skills, names);
   if (!rows.length) return <Empty>No skills to show quotes for.</Empty>;
-  const side = (tag: string, hit: { source: string; quote: string } | null) => hit
-    ? <p className="fi-q"><span className="fi-q-tag">{tag}</span><q>{hit.quote}</q><small>Source: {hit.source}</small></p>
-    : <p className="fi-q none"><span className="fi-q-tag">{tag}</span><span><span aria-hidden="true">✗ </span>No match found. Scores 0 for this source.</span></p>;
-  return <ul className="fi-quotes">
-    {rows.map((row) => <li key={row.name}>
-      <h6>{row.name}</h6>
-      {sides.includes("role") && side("Role quote", row.role)}
-      {sides.includes("resume") && side("Résumé quote", row.resume)}
+  const side = (kind: "role" | "resume", tag: string, hit: { source: string; quote: string } | null) => hit
+    ? <div className="fi-qcell" data-side={kind}><span className="fi-q-tag">{tag}</span><q>{hit.quote}</q><small>Source: {hit.source}</small></div>
+    : <div className="fi-qcell none" data-side={kind}><span className="fi-q-tag">{tag}</span><span><span aria-hidden="true">✗ </span>No match found. Scores 0 for this source.</span></div>;
+  return <ul className="fi-quotes" data-sides={sides.length}>
+    {rows.map((row) => <li className="fi-qrow" key={row.name}>
+      <h6 className="fi-qname">{row.name}</h6>
+      {sides.includes("role") && side("role", "Role says", row.role)}
+      {sides.includes("resume") && side("resume", "Résumé says", row.resume)}
     </li>)}
   </ul>;
 }
@@ -350,19 +347,14 @@ function PlannerCard({ quests, rows, verdict, skillNames, analysis, hasResult, s
         {rows.map((item) => <TipCard key={item.index} quest={quests[item.index]} number={item.index + 1} why={item.why} compact />)}
       </div> : <Empty>No tips yet.</Empty>}
     </section>
-    <details className="tip-quotes">
-      <summary>Quotes behind the tips</summary>
+    <details className="tip-quotes" open>
+      <summary><span className="tq-title">Quotes behind the tips</span><span className="tq-count">{rows.length} {rows.length === 1 ? "skill" : "skills"}</span></summary>
       <p className="dp-desc">For each tip&apos;s skill, the role line and the résumé line the plan started from. Each was checked word for word against its source.</p>
       <QuoteList analysis={analysis} names={rows.map((item) => item.skill)} sides={["role", "resume"]} />
     </details>
   </SumCard>;
 }
 
-
-/** A made-up candidate is labelled in view under the headline, not only for screen readers. */
-function SampleTag({ sample }: { sample: boolean }) {
-  return sample ? <div className="dash-sum"><p className="dash-sample"><b>Sample result</b> for a made-up candidate, not your résumé.</p></div> : null;
-}
 
 /** Every summary card draws exactly this many rows. */
 const ROWS = 3;
@@ -375,29 +367,51 @@ const ROWS = 3;
 /** The four result cards as placeholders, before any run: a little scene with each reader waiting its turn (one paces, one looks around, one sits, one dozes), then grey bars where its figure and rows will appear. */
 const GHOST_CARDS = READER_MOODS;
 
+/**
+ * The headline of the readers stage ("Your résumé is a 10! But… it's a 6"), shown in the stage header beside the title plate so it never sits on the pipes below.
+ * The figure is the overall match out of 10, from the proof in the text, and not a hiring chance. Before a run and while the readers work it shows a question mark and a short line.
+ */
+export function DashHeadline({ analysis, hasResult, busy, madeUp = false }: { analysis: Analysis; hasResult: boolean; busy: boolean; madeUp?: boolean }) {
+  if (busy) {
+    return <div className="dash-head" aria-busy="true">
+      <div className="dash-lead">
+        <h3 className="dash-title">Your résumé is a 10! <em>But…</em></h3>
+        <p className="dash-wait">The readers are still working.</p>
+      </div>
+    </div>;
+  }
+  // Before any run (and after Start over) nothing is shown as a result: a question mark says where it will appear.
+  if (!hasResult) {
+    return <div className="dash-head">
+      <div className="dash-lead">
+        <h3 className="dash-title">Your résumé is a 10! <em>But… it’s a <b className="dash-ten" aria-hidden="true">?</b></em></h3>
+        <p className="dash-wait">Play a sample, or add a role and your résumé, to see your result.</p>
+      </div>
+    </div>;
+  }
+  const overall = Math.max(0, Math.min(10, Math.round(dashboardData(analysis).match / 10)));
+  return <div className="dash-head">
+    <div className="dash-lead">
+      <p className="sr-only">{madeUp ? "Sample result for a made-up candidate. " : "Your result, all four readers. "}The overall figure is {overall} out of 10, from the proof in your text. It is not a hiring chance.</p>
+      <h3 className="dash-title" id="dash-title">Your résumé is a 10! <em>But… it’s a <b className="dash-ten" aria-hidden="true">{overall}</b></em></h3>
+      {madeUp && <p className="dash-sample"><b>Sample result</b> for a made-up candidate, not your résumé.</p>}
+    </div>
+  </div>;
+}
+
 export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, flow }: { analysis: Analysis; hasResult: boolean; busy: boolean; madeUp?: boolean; flow: { active: number; completed: number } }) {
   // The headline sits on a plate that the four pipes run behind, each landing on the result card of its own reader.
-  const link = (head: ReactNode) => <div className="dash-link"><ResultFlow kind="bottom" active={flow.active} completed={flow.completed} />{head}</div>;
+  const link = () => <div className="dash-link"><ResultFlow kind="bottom" active={flow.active} completed={flow.completed} /></div>;
   if (busy) {
     return <section className="dash dash-pending" id="the-but" aria-busy="true" aria-label="Summary of all four readers">
-      {link(<div className="dash-head">
-        <div className="dash-lead">
-          <h3 className="dash-title">Your résumé is a 10! <em>But…</em></h3>
-          <p className="dash-wait">The readers are still working.</p>
-        </div>
-      </div>)}
+      {link()}
       <div className="dash-ghosts" aria-hidden="true"><i /><i /><i /><i /></div>
     </section>;
   }
   // Before any run (and after Start over) nothing is shown as a result: ghost cards and a question mark say where it will appear.
   if (!hasResult) {
     return <section className="dash dash-pending dash-idle" id="the-but" aria-label="Summary of all four readers, empty until a check runs">
-      {link(<div className="dash-head">
-        <div className="dash-lead">
-          <h3 className="dash-title">Your résumé is a 10! <em>But… it’s a <b className="dash-ten" aria-hidden="true">?</b></em></h3>
-          <p className="dash-wait">Play a sample, or add a role and your résumé at the top, to fill this in.</p>
-        </div>
-      </div>)}
+      {link()}
       <div className="dash-ghosts is-cards" aria-hidden="true">
         {GHOST_CARDS.map((card) => <div className={"dg-card " + card.kind} key={card.kind}>
           <AgentScene kind={card.kind} mood={card.mood} />
@@ -408,16 +422,8 @@ export function SynthesisDashboard({ analysis, hasResult, busy, madeUp = false, 
   const data = dashboardData(analysis);
   const proofTotal = data.evidence.length;
   const sample = !hasResult || madeUp;
-  const overall = Math.max(0, Math.min(10, Math.round(data.match / 10)));
   return <section className="dash" id="the-but" aria-busy="false" aria-labelledby="dash-title">
-    {link(<div className="dash-head">
-      <div className="dash-lead">
-        <p className="sr-only">{sample ? "Sample result for a made-up candidate. " : "Your result, all four readers. "}The overall figure is {overall} out of 10, from the proof in your text. It is not a hiring chance.</p>
-        <h3 className="dash-title" id="dash-title">Your résumé is a 10! <em>But… it’s a <b className="dash-ten" aria-hidden="true">{overall}</b></em></h3>
-      </div>
-    </div>)}
-
-    <SampleTag sample={sample} />
+    {link()}
 
     <div className="dash-grid">
       <SumCard kind="scout" agent="Role Scout" popTitle="What the role asks for" reader="scout" analysis={analysis} hasResult={hasResult} sample={sample}

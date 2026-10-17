@@ -59,6 +59,10 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 .rd-foot { width: calc(100% + 2.4rem); margin: auto -1.2rem 0; }
 .rd-foot .word-tip { display: block; white-space: normal; }
 .rd-prompt { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .5rem; box-sizing: border-box; width: 100%; min-height: 2.75rem; margin: 0; padding: .3rem 1.2rem; border: 0; border-top: 1.5px dashed rgb(18 52 63 / 22%); border-radius: 0 0 17px 17px; background: rgb(18 52 63 / 5%); color: var(--ink); cursor: pointer; font-family: var(--font-body); font-size: 1rem; font-weight: 700; line-height: 1.3; text-align: left; }
+/* The prompt peek inside the model-settings popup: a bordered row, not the card footer strip. */
+.ams-prompt { display: grid; gap: .5rem; margin-top: 1rem; }
+.ams-prompt .word-tip { display: block; white-space: normal; }
+.ams-prompt .rd-prompt { border: 1.5px solid rgb(18 52 63 / 25%); border-radius: 12px; padding: .3rem .9rem; }
 .rd-prompt:hover { background: rgb(18 52 63 / 10%); }
 .rd-prompt:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; }
 .rd-prompt svg { flex: none; }
@@ -187,6 +191,11 @@ button.rd-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px
 .md-more .md-t, .md-more .md-n { color: #8fa9b4; font-style: italic; }
 .md-open { justify-self: start; min-height: 2.5rem; padding: .3rem .95rem; border: 2px solid var(--ink); border-radius: 10px; background: var(--orange); color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--ink); }
 .md-open:hover { background: var(--lime); }
+.md-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0 0 .6rem; }
+.md-peek .md-actions { margin: 0; }
+.md-copy { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.5rem; padding: .3rem .95rem; border: 2px solid var(--ink); border-radius: 10px; background: #fff; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--ink); }
+.md-copy:hover { background: var(--lime); }
+.md-copy:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .md-open:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 /* Pixel coins show what an API boost run spent: one coin is about 5k tokens, a row holds six. Under each card (row 7 of the card grid) and once more as a run total.
    The coin art is three SVG layers (rim, face, shine) coloured here. Motion is a small pop, only for people who allow it. */
