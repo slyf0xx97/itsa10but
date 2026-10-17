@@ -5,6 +5,7 @@
  *   POST /limit   shared run counters in D1 (the day rolls over at midnight in Singapore)
  *   POST /usage   one row per agent per run: counts and timings only
  *   GET  /usage/summary  totals by day and model (admin secret)
+ *   GET  /itsa10but  (on admin.ghernie.com, the shared admin host) the owner's usage page: counters, token totals and Firecrawl credits. Cloudflare Access signs the owner in; the Worker checks the Access token again (lib/edge/access.ts)
  *   POST /role-skills  Workers AI reads the role text only (never a résumé) and names skills it asks for; cached, and capped per day in D1
  *   GET  /demand  the market-demand table: for each tracked role, the share of recent public postings that name each skill
  * An hourly cron refreshes one role of that table from the free Himalayas and Jobicy feeds; it uses no key and no Firecrawl credit.
@@ -16,13 +17,16 @@ import { cacheKey, htmlToText, publicHttpsUrl, sgtDay, sgtHour } from "../../lib
 import { ROLE_AI_MODEL, ROLE_MIN, pickSkills, roleAiDailyCap, rolePrompt } from "../../lib/edge/role-skills.ts";
 import { MCF_URL, jobsFromMcf, mcfBody } from "../../lib/edge/mcf.ts";
 import { catalog } from "../../lib/catalog.ts";
+import { cleanCredits, countersByDay, type LimitRow } from "../../lib/edge/stats.ts";
+import { verifyAccess, type AccessKey } from "../../lib/edge/access.ts";
+import { renderAdmin, type AdminStats } from "../../lib/edge/admin-html.ts";
 import { aiPicks, cleanSnapshot } from "../../lib/edge/snapshot.ts";
 import { MIN_SAMPLE, cleanTable, countDemand, feedUrls, postingsFromFeeds, roleToRefresh, type DemandJob } from "../../lib/edge/demand.ts";
 
 type Kv = { get(key: string, type: "json"): Promise<unknown>; put(key: string, value: string, options?: { expirationTtl: number }): Promise<void> };
 type Stmt = { bind(...values: unknown[]): Stmt; run(): Promise<unknown>; first<T>(): Promise<T | null>; all<T>(): Promise<{ results: T[] }> };
 type Db = { prepare(sql: string): Stmt };
-type Env = { CACHE: Kv; DB: Db; EDGE_SECRET: string; ADMIN_SECRET?: string; FIRECRAWL_API_KEY?: string; FIRECRAWL_DAILY?: string; AI?: { run(model: string, input: unknown): Promise<unknown> }; ROLE_AI_DAILY?: string };
+type Env = { CACHE: Kv; DB: Db; EDGE_SECRET: string; ADMIN_SECRET?: string; FIRECRAWL_API_KEY?: string; FIRECRAWL_DAILY?: string; AI?: { run(model: string, input: unknown): Promise<unknown> }; ROLE_AI_DAILY?: string; ACCESS_TEAM?: string; ACCESS_AUD?: string; ADMIN_EMAIL?: string };
 
 const DAY = 86_400;
 const FIRECRAWL = "https://api.firecrawl.dev/v2";
@@ -205,6 +209,45 @@ async function summary(env: Env): Promise<Response> {
   return json({ ok: true, allTime: all, byDay: days.results });
 }
 
+/** What the admin page shows: counters per day, token totals by model, and the site Firecrawl key's credits. Counts and totals only. */
+async function gatherStats(env: Env): Promise<AdminStats> {
+  const since = sgtDay(Date.now() - 30 * 86_400_000);
+  const limits = await env.DB.prepare("SELECT id, span, count FROM limits").bind().all<LimitRow>();
+  const byModel = await env.DB.prepare("SELECT day, model, provider, COUNT(DISTINCT run_id) AS runs, SUM(in_tokens) AS in_tokens, SUM(out_tokens) AS out_tokens, SUM(ms) AS ms, SUM(fallback) AS fallbacks FROM usage WHERE day >= ? GROUP BY day, model, provider ORDER BY day DESC LIMIT 400").bind(since).all<AdminStats["usage"]["byModel"][number]>();
+  const all = await env.DB.prepare("SELECT COUNT(DISTINCT run_id) AS runs, SUM(in_tokens) AS in_tokens, SUM(out_tokens) AS out_tokens FROM usage").bind().first<{ runs: number; in_tokens: number; out_tokens: number }>();
+  let credits = null;
+  if (env.FIRECRAWL_API_KEY) {
+    try {
+      const response = await fetch(FIRECRAWL + "/team/credit-usage", { headers: { Authorization: `Bearer ${env.FIRECRAWL_API_KEY}` }, signal: AbortSignal.timeout(6000) });
+      credits = response.ok ? cleanCredits(await response.json()) : null;
+    } catch { credits = null; }
+  }
+  return { today: sgtDay(Date.now()), counters: countersByDay(limits.results), usage: { allTime: all, byModel: byModel.results }, firecrawl: { keySet: Boolean(env.FIRECRAWL_API_KEY), dailyCap: firecrawlDailyCap(env.FIRECRAWL_DAILY), credits }, workersAi: { dailyCap: roleAiDailyCap(env.ROLE_AI_DAILY) } };
+}
+
+let accessKeys: { at: number; keys: AccessKey[] } | null = null;
+
+/** Cloudflare Access's public signing keys for this team, kept for an hour. */
+async function keysFor(team: string): Promise<AccessKey[]> {
+  if (accessKeys && Date.now() - accessKeys.at < 3_600_000) return accessKeys.keys;
+  const response = await fetch(`https://${team}/cdn-cgi/access/certs`, { signal: AbortSignal.timeout(5000) });
+  const body = (await response.json()) as { keys?: AccessKey[] };
+  accessKeys = { at: Date.now(), keys: Array.isArray(body.keys) ? body.keys : [] };
+  return accessKeys.keys;
+}
+
+const page = (html: string, status = 200) => new Response(html, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'" } });
+
+/** The owner's usage page. Access has already asked for a sign-in on edge.ghernie.com; this checks the token it issued, so the workers.dev address (which Access does not guard) shows nothing. */
+async function admin(request: Request, env: Env): Promise<Response> {
+  if (!env.ACCESS_TEAM || !env.ACCESS_AUD || !env.ADMIN_EMAIL) return page("<p>The admin page is not set up.</p>", 503);
+  const token = request.headers.get("cf-access-jwt-assertion") ?? "";
+  let who: { email: string } | null = null;
+  try { who = token ? await verifyAccess(token, { team: env.ACCESS_TEAM, aud: env.ACCESS_AUD, email: env.ADMIN_EMAIL }, await keysFor(env.ACCESS_TEAM), Date.now()) : null; } catch { who = null; }
+  if (!who) return page("<p>Sign in through Cloudflare Access to see this page.</p>", 401);
+  return page(renderAdmin(await gatherStats(env), who.email));
+}
+
 /** Public postings for a role from the two free feeds. */
 async function postings(role: string): Promise<DemandJob[]> {
   const urls = feedUrls(role);
@@ -252,6 +295,7 @@ const worker = {
     if (path === "/demand" && request.method === "GET") return same(request.headers.get("x-edge-secret") ?? "", env.EDGE_SECRET ?? "") ? json({ ok: true, ...cleanTable(await env.CACHE.get("demand:all", "json")) }) : json({ ok: false }, 401);
     if (path === "/snapshot" && request.method === "GET") return same(request.headers.get("x-edge-secret") ?? "", env.EDGE_SECRET ?? "") ? json({ ok: true, snapshot: cleanSnapshot(await env.CACHE.get("snapshot:latest", "json")) }) : json({ ok: false }, 401);
     if (path === "/usage/summary" && request.method === "GET") return same(request.headers.get("x-admin-secret") ?? "", env.ADMIN_SECRET ?? "") ? summary(env) : json({ ok: false }, 401);
+    if ((path === "/itsa10but" || path === "/itsa10but/") && request.method === "GET") return await admin(request, env).catch(() => page("<p>The admin page could not load.</p>", 500));
     if (request.method !== "POST") return json({ ok: false }, 405);
     if (!same(request.headers.get("x-edge-secret") ?? "", env.EDGE_SECRET ?? "")) return json({ ok: false }, 401);
     try {
