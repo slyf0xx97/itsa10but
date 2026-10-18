@@ -22,7 +22,7 @@ test("sk-or- keys are OpenRouter, everything else is Anthropic", () => {
 
 test("a pasted key is matched to its provider by how it starts", () => {
   assert.equal(keyProvider("sk-or-v1-abc"), "openrouter");
-  assert.equal(keyProvider("AIzaSyA-1234567890abcdefghijklmnopqrstu"), "gemini");
+  assert.equal(keyProvider("AIzaFAKEKEYFORTESTSONLY"), "gemini");
   assert.equal(keyProvider("AQ.FakeTestKey-0000_aaaaBBBB"), "gemini");
   assert.equal(keyProvider("AQx-not-a-gemini-key"), "anthropic", "the dot after AQ is required");
   assert.equal(keyProvider("sk-ant-api03-abc"), "anthropic");
