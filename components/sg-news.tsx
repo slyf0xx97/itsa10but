@@ -56,7 +56,7 @@ export function SgNews() {
           <span className="sgs-fc-tip" role="tooltip" id={id + "-tip"}>Read from the sites&apos; own feeds about three times a day. No key was used. Headlines and snippets are the sources&apos; own words. We don&apos;t summarise them or pull numbers out of them.</span>
         </span>
       </h3>
-      {state.kind === "ok" && <span className="news-updated">Updated {when(state.fetchedAt)} by our own RSS reader, not Firecrawl</span>}
+      {state.kind === "ok" && <span className="news-updated">Updated {when(state.fetchedAt)}</span>}
     </div>
     <p className={"sgs-status" + (state.kind === "error" ? " is-problem" : "")} role="status" aria-live="polite">{status}</p>
     {state.kind === "loading" && <ul className="news-list is-loading" aria-hidden="true">{[0, 1, 2].map((n) => <li key={n}><i /><i /><i /></li>)}</ul>}

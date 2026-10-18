@@ -207,8 +207,10 @@
 .mb-skills-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .75rem; }
 .mb-pick select { min-height: 2.5rem; max-width: 100%; padding: .2rem 2rem .2rem .7rem; border: 1.5px solid var(--ink); border-radius: 10px; background-color: #fff; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 700; }
 .mb-pick select:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-/* The list scrolls inside a box of at most 20rem, about the height of the AI list beside it, and grows to fill the row when that list is taller. */
-.mb-bars { flex: 1 1 auto; min-height: 12rem; max-height: 20rem; align-content: start; gap: .35rem; padding: .6rem .8rem; overflow-y: auto; overscroll-behavior: contain; }
+/* The list is placed inside a wrapper that has no content height of its own. Side by side with the AI list, the row is as tall as that list and the wrapper fills whatever height the row has, so the skills box ends level with the AI cards at any width. Stacked, it is 26rem tall. */
+.mb-bars-wrap { position: relative; flex: 1 1 auto; min-height: 16rem; }
+.mb-bars { position: absolute; inset: 0; box-sizing: border-box; align-content: start; gap: .35rem; padding: .6rem .8rem; overflow-y: auto; overscroll-behavior: contain; }
+@container mb (max-width: 62rem) {.mb-bars-wrap { min-height: 26rem; }}
 .mb-bars:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .mb-bars li { grid-template-columns: minmax(8rem, 11rem) minmax(0, 1fr) 7.5rem; gap: .6rem; }
 .mb-bars .sgf-bar-name > span:last-child { min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }

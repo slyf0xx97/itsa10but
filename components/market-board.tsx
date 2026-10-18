@@ -163,7 +163,7 @@ export function MarketBoard() {
           </label>
         </div>
         <p className="sgf-lead">{view.lead}</p>
-        <ul className="sgf-bars mb-bars" tabIndex={0} aria-label={"Skills for " + view.title + ", scroll for more"}>
+        <div className="mb-bars-wrap"><ul className="sgf-bars mb-bars" tabIndex={0} aria-label={"Skills for " + view.title + ", scroll for more"}>
           {view.rows.map((skill) => <li key={skill.name}>
             <span className="sgf-bar-name"><Mark name={skill.name} /><span>{skill.name}</span></span>
             <span className="sgf-track" aria-hidden="true">
@@ -172,7 +172,7 @@ export function MarketBoard() {
             </span>
             <span className="sgf-bar-fig"><b>{skill.share}%</b>{skill.gain ? <span className="sgf-chip"><ArrowUp size={12} strokeWidth={3} aria-hidden="true" />{skill.gain} pp</span> : null}{skill.gain ? <span className="sr-only"> of tech postings, up {skill.gain} percentage points since 2019</span> : null}</span>
           </li>)}
-        </ul>
+        </ul></div>
         <p className="sgf-src-line">{view.source}</p>
       </section>
     </div>

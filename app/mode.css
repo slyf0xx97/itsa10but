@@ -9,7 +9,7 @@
 /* status to the left of the toggle, so the sticky bar stays short */
 /* From 901px the Agent power block is one row, like the logo block on the left: the status, then the toggle, then the "?". The bar stays one row tall. The status text shows from 1760px;
    below that only its dot and the "i" tooltip show, and the words stay for screen readers. */
-@media (min-width: 901px) {.reader-switch { flex-direction: row-reverse; align-items: center; justify-content: flex-start; gap: .25rem .75rem; }
+@media (min-width: 901px) {.reader-switch { flex-direction: row-reverse; align-items: center; justify-content: flex-start; gap: .25rem .4rem; }
 .reader-switch .rs-main { align-items: center; }
 .reader-switch .rs-line { flex-wrap: nowrap; justify-content: flex-end; text-align: left; }
 .reader-switch .rs-status { flex-wrap: nowrap; white-space: nowrap; }
@@ -51,11 +51,13 @@
 /* an empty ring: waiting for a key */
 .rs-detail { display: none; }
 .rs-tip, .rs-tip .word-tip { display: inline-flex; align-items: center; white-space: normal; }
-.rs-tip .word-tip-btn { position: relative; display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--link); font: inherit; cursor: help; }
+.rs-tip .word-tip-btn { position: relative; display: inline-grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 2px solid var(--ink); border-radius: 50%; background: transparent; color: var(--ink); font-family: var(--font-body); font-size: 1rem; font-weight: 800; line-height: 1; cursor: help; }
 .rs-tip .word-tip-btn::after { content: ""; position: absolute; inset: -10px; }
 /* 44px touch target */
-.rs-tip .word-tip-btn:hover { background: rgb(31 36 48 / 8%); }
-.rs-tip .word-tip-icon { width: 20px; height: 20px; margin: 0; }
+.rs-tip .word-tip-btn:hover { background: var(--ink); color: #fff; }
+/* the same ring and bold glyph as the "?" on the other side of the toggle, so the two read as a pair */
+.rs-tip .word-tip-icon { display: none; }
+.rs-tip .word-tip-btn::before { content: "i"; }
 .rs-tip-btn { display: inline-grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 2px solid var(--ink); border-radius: 50%; background: transparent; color: var(--ink); font: inherit; font-size: 1rem; font-weight: 800; line-height: 1; cursor: pointer; position: relative; }
 .rs-tip-btn::after { content: ""; position: absolute; inset: -.35rem; }
 .rs-tip-btn:hover { background: var(--ink); color: #fff; }
