@@ -45,6 +45,7 @@ tsconfig.tsbuildinfo
 /.planning/
 /outputs/
 /work/
+/plans/
 /submission/
 /references/
 /CLAUDE.md
