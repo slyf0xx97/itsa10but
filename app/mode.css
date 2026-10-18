@@ -7,14 +7,14 @@
    The bar around it is in shell.css. */
 .reader-switch { flex: 1 1 0; display: flex; flex-direction: column; align-items: flex-end; gap: .1rem; min-width: 0; }
 /* status to the left of the toggle, so the sticky bar stays short */
-/* From 901px the Agent power block is one row, like the logo block on the left: the status, then the toggle, then the "?". The bar stays one row tall. The status text shows from 1760px;
+/* From 901px the Agent power block is one row, like the logo block on the left: the status, then the toggle, then the "?". The bar stays one row tall. The status text shows from 1760px to 2199px (from 2200px the tabs switch to their long labels in a bar that stops growing at 1840px, so there is no room left for it);
    below that only its dot and the "i" tooltip show, and the words stay for screen readers. */
 @media (min-width: 901px) {.reader-switch { flex-direction: row-reverse; align-items: center; justify-content: flex-start; gap: .25rem .4rem; }
 .reader-switch .rs-main { align-items: center; }
 .reader-switch .rs-line { flex-wrap: nowrap; justify-content: flex-end; text-align: left; }
 .reader-switch .rs-status { flex-wrap: nowrap; white-space: nowrap; }
 .reader-switch .rs-title { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }}
-@media (min-width: 1760px) {.reader-switch .rs-title { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; }}
+@media (min-width: 1760px) and (max-width: 2199px) {.reader-switch .rs-title { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; }}
 .rs-main { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; }
 .rs-caption { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 /* "Agent power" names the group for screen readers, and shows as a small caption on phones */

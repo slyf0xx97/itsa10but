@@ -26,7 +26,7 @@ main { position: relative; }
 .how-link:hover { background: var(--sky-soft); color: var(--ink); }
 .how-link[aria-current="location"], .how-link[aria-current="location"]:hover { background: var(--orange); }
 .how-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-/* The two tabs are small. Under 1280px they sit on a row of their own under the logo and Agent power. From 1280px they share the logo's row, which keeps the header one bar tall; there the second name drops its last part ("with Free / Open-Source Websites & Tools") until 1720px, where it fits. */
+/* The two tabs are small. Under 1360px they sit on a row of their own under the logo and Agent power. From 1360px they share the logo's row, which keeps the header one bar tall; there the second name drops its last part ("with Free / Open-Source Websites & Tools") until 1720px, where it fits. */
 .site-nav { order: 2; flex: 1 1 100%; display: flex; flex-wrap: nowrap; justify-content: center; gap: 6px; }
 .site-nav a { position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 44px; min-height: 38px; padding: 0 12px 0 8px; border: 2px solid var(--ink); border-radius: 8px; background: rgb(255 255 255 / 88%); box-shadow: 0 2px 0 rgb(31 36 48 / 25%); color: var(--ink); text-decoration: none; font-family: var(--font-body); font-size: 15px; font-weight: 700; letter-spacing: normal; line-height: 1.2; white-space: nowrap; }
 .site-nav svg { width: 22px; height: 22px; }
@@ -41,9 +41,9 @@ main { position: relative; }
    The link's aria-label is always the full name. */
 .tab-label { white-space: nowrap; }
 @media (max-width: 900px) {.tab-long { display: none; }}
-/* One row from 1280px. Between 1280 and 1499px the logo drops its wording so the logo block and the Agent power block stay about the same width either side of the tabs. */
-@media (min-width: 1280px) and (max-width: 1499px) {.brand span { display: none; }}
-@media (min-width: 1280px) {.site-nav { order: 0; flex: 0 1 auto; align-self: center; }
+/* One row from 1360px. Between 1360 and 1499px the logo drops its wording so the logo block and the Agent power block stay about the same width either side of the tabs. */
+@media (min-width: 1360px) and (max-width: 1499px) {.brand span { display: none; }}
+@media (min-width: 1360px) {.site-nav { order: 0; flex: 0 1 auto; align-self: center; }
 .tab-long { display: none; }}
 /* The long second name needs about 290px more than the short one, which the Agent power status would otherwise lose, so it only shows on very wide screens. */
 @media (min-width: 2200px) {.tab-long { display: inline; }}
