@@ -562,7 +562,7 @@ export default function Home() {
       <div className="ft-meta">
         {/* eslint-disable-next-line @next/next/no-img-element -- small static SVG, nothing to optimise */}
         <span className="ft-copy">© 2026 <a className="ft-author" href="https://sg.linkedin.com/in/ghernie" target="_blank" rel="noopener noreferrer"><img src={`${BASE_PATH}/assets/logos/linkedin-in.svg`} alt="" width="24" height="24" />Ghernie Encinas</a></span>
-        <LicensePopup provider={keyOwner}>{DONATE_URL && <a className="ft-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer"><Heart size={16} aria-hidden="true" focusable="false" />Donate<span className="sr-only"> (opens Stripe in a new tab)</span></a>}</LicensePopup>
+        <LicensePopup provider={keyOwner}>{DONATE_URL && <a className="ft-donate" href={DONATE_URL} target="_blank" rel="noopener noreferrer"><Heart size={16} aria-hidden="true" focusable="false" />Tip<span className="sr-only"> (opens Stripe in a new tab)</span></a>}</LicensePopup>
         <p className="ft-web"><Monitor size={18} aria-hidden="true" focusable="false" /><span>Built for the best experience in web and desktop layouts</span></p>
       </div>
     </div></footer>

@@ -148,7 +148,7 @@ Tools and services:
 | 🚦 Cloudflare Turnstile and Web Analytics | A bot check on the spend routes, and cookie-less visit counts |
 | 🔌 MCP | Model Context Protocol, so other AI tools can call the job search and the analysis |
 | ▲ Vercel | Hosting, with the short address `/itsa10but` rewritten to the app |
-| 💳 Stripe | A Payment Link behind the footer's Donate button |
+| 💳 Stripe | A Payment Link behind the footer's Tip button |
 | 📄 pdf.js | Reads PDF résumés in the browser |
 | ⚛️ Next.js, React and TypeScript | The site and its API routes |
 
@@ -226,9 +226,9 @@ For the Worker, create a KV namespace and a D1 database and put their IDs in `wo
 
 The nightly headline refresh uses `FIRECRAWL_API_KEY` directly, one search a day, and is not counted against `FIRECRAWL_DAILY`. Do not run `wrangler dev` with the AI binding, because Workers AI bills local use too.
 
-### 💖 Donations
+### 💖 Tips
 
-The footer's Donate button opens a Stripe Payment Link where the donor chooses the amount. The link is set in `lib/donate.ts`, and an empty string hides the button. No Stripe key or server code is involved.
+The footer's Tip button opens a Stripe Payment Link where the visitor chooses the amount. Tips are voluntary and don't unlock anything, and itsa10but stays free. If you tipped by mistake, email ghernienienie@gmail.com within 30 days for a refund. The link is set in `lib/donate.ts`, and an empty string hides the button. No Stripe key or server code is involved.
 
 ### 🔌 MCP tools
 
