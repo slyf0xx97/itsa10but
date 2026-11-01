@@ -3,7 +3,7 @@
   "name": "itsa10but-edge",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
-  "workers_dev": true,
+  "workers_dev": false,
   "triggers": { "crons": ["30 18 * * *", "0 * * * *"] },
   "preview_urls": false,
   "ai": { "binding": "AI" },
